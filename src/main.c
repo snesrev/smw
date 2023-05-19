@@ -164,8 +164,8 @@ static SDL_HitTestResult HitTestCallback(SDL_Window *win, const SDL_Point *pt, v
 
 void RtlDrawPpuFrame(uint8 *pixel_buffer, size_t pitch, uint32 render_flags) {
   uint8 *ppu_pixels = g_other_image ? g_my_pixels : g_pixels;
-  for (size_t y = 0; y < 240; y++)
-    memcpy((uint8_t *)pixel_buffer + y * pitch, ppu_pixels + y * 256 * 4, 256 * 4);
+  for (size_t y = 0, y_end = g_snes_height; y < y_end; y++)
+    memcpy((uint8 *)pixel_buffer + y * pitch, ppu_pixels + y * 256 * 4, 256 * 4);
 }
 
 static void DrawPpuFrameWithPerf(void) {
@@ -266,7 +266,7 @@ static bool SdlRenderer_Init(SDL_Window *window) {
   if (g_config.linear_filtering)
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "best");
 
-  int tex_mult = (g_ppu_render_flags & kPpuRenderFlags_4x4Mode7) ? 4 : 1;
+  int tex_mult = 1;
   g_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING,
                                 g_snes_width * tex_mult, g_snes_height * tex_mult);
   if (g_texture == NULL) {
@@ -341,7 +341,7 @@ int main(int argc, char** argv) {
   g_ppu_render_flags = g_config.new_renderer * kPpuRenderFlags_NewRenderer |
     //    g_config.enhanced_mode7 * kPpuRenderFlags_4x4Mode7 |
     g_config.extend_y * kPpuRenderFlags_Height240 |
-    g_config.no_sprite_limits * kPpuRenderFlags_NoSpriteLimits | kPpuRenderFlags_4x4Mode7;
+    g_config.no_sprite_limits * kPpuRenderFlags_NoSpriteLimits;
 
   if (g_config.fullscreen == 1)
     g_win_flags ^= SDL_WINDOW_FULLSCREEN_DESKTOP;
@@ -808,7 +808,7 @@ static void HandleGamepadAxisInput(int gamepad_id, int axis, int value) {
   }
 }
 
-// Go some steps up and find sm.ini
+// Go some steps up and find smw.ini
 static void SwitchDirectory(void) {
   char buf[4096];
   if (!getcwd(buf, sizeof(buf) - 32))
@@ -816,13 +816,13 @@ static void SwitchDirectory(void) {
   size_t pos = strlen(buf);
 
   for (int step = 0; pos != 0 && step < 3; step++) {
-    memcpy(buf + pos, "/sm.ini", 8);
+    memcpy(buf + pos, "/smw.ini", 9);
     FILE *f = fopen(buf, "rb");
     if (f) {
       fclose(f);
       buf[pos] = 0;
       if (step != 0) {
-        printf("Found sm.ini in %s\n", buf);
+        printf("Found smw.ini in %s\n", buf);
         int err = chdir(buf);
         (void)err;
       }
