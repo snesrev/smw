@@ -1,0 +1,12 @@
+.DS_Store
+*.dSYM
+/.vs/
+/packages/
+/saves/
+*.o
+/smw
+/build/
+/smw.sfc
+SDL2.dll
+/smw.exe
+/glsl-shaders/
