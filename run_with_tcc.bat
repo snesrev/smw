@@ -1,11 +1,11 @@
 @echo off
 
-set SDL2=third_party\SDL2-2.24.1
+set SDL2=third_party\SDL2-2.26.5
 
 IF NOT EXIST "third_party\tcc\tcc.exe" (
   ECHO:
   ECHO ERROR: src\third_party\tcc\tcc.exe doesn't exist. Please verify that you have put it in the right location.
-  ECHO   Download it from https://github.com/FitzRoyX/tinycc/releases/download/tcc_20221020/tcc_20221020.zip
+  ECHO   Download it from https://github.com/FitzRoyX/tinycc/releases/download/tcc_20230519/tcc_20230519.zip
   ECHO   It needs to be the 64-bit version.
   ECHO:
   PAUSE
@@ -17,7 +17,7 @@ IF NOT EXIST "third_party\tcc\tcc.exe" (
 IF NOT EXIST "%SDL2%\lib\x64\SDL2.dll" (
   ECHO:
   ECHO ERROR: SDL is not unzipped properly into %SDL2%
-  ECHO   Download it from https://github.com/libsdl-org/SDL/releases/download/release-2.24.1/SDL2-devel-2.24.1-VC.zip
+  ECHO   Download it from https://github.com/libsdl-org/SDL/releases/download/release-2.26.5/SDL2-devel-2.26.5-VC.zip
   ECHO:
   PAUSE
   EXIT /B 1
