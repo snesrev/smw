@@ -84,7 +84,7 @@
 #define camera_last_screen_horiz (*(uint8*)(g_ram+0x5E))
 #define camera_last_screen_vert (*(uint8*)(g_ram+0x5F))
 #define sprites_tile_priority (*(uint8*)(g_ram+0x64))
-#define temp65 (*(uint8*)(g_ram+0x65))
+#define temp65 (*(char*)(g_ram+0x65))
 #define temp66 (*(uint8*)(g_ram+0x66))
 #define temp67 (*(uint8*)(g_ram+0x67))
 #define ptr_layer2_data (*(uint16*)(g_ram+0x68))
