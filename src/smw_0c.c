@@ -108,7 +108,8 @@ void BufferCreditsBackgrounds() {  // 0c93dd
     BufferCreditsBackgrounds_0C94C0();
     ++*(uint16 *)&blocks_screen_to_place_current_object;
   } while (*(uint16 *)&blocks_screen_to_place_current_object != 7);
-  strcpy((int8 *)&temp65, "@X");
+  WORD(temp65) = 0x5840;
+  temp67 = 0;
   blocks_screen_to_place_current_object = 0;
   UpdateCreditsBackground();
   InitializeCreditsEggPositions();
