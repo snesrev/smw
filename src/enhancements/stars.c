@@ -9,10 +9,10 @@
 
 // Structure to represent a star
 typedef struct {
-    int x;
-    int y;
-    int size;
-    int contrast;
+    int32_t x;
+    int32_t y;
+    int32_t size;
+    int32_t contrast;
     float mod;
 } Star;
 
@@ -32,7 +32,7 @@ void Star_Create(Star *star){
 }
 
 // Function to initialize stars
-void Stars_Initialize(SDL_Window *window) {
+void Stars_Init(SDL_Window *window) {
     SDL_GetWindowSize(window, &g_stars.g_window_width, &g_stars.g_window_height);
 
     srand(time(NULL));

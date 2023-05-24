@@ -26,7 +26,7 @@
 #include "switch_impl.h"
 #endif
 
-#include "enhancements/stars.h"
+#include "enhancements/background.h"
 
 static void playAudio(Snes *snes, SDL_AudioDeviceID device, int16_t *audioBuffer);
 static void renderScreen(Snes *snes, SDL_Renderer *renderer, SDL_Texture *texture);
@@ -305,8 +305,8 @@ static void SdlRenderer_EndDraw(void) {
   SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
   SDL_RenderClear(g_renderer);
 
-  if(g_config.background)
-    Stars_Draw(g_renderer);
+  if(g_config.background != NULL)
+    Background_Draw(g_renderer);
 
   int new_width = !g_config.ignore_aspect_ratio ? g_window_height * g_snes_width / g_snes_height : g_window_width;
   SDL_Rect snes_rect = { g_window_width / 2 - new_width / 2, 0, new_width, g_window_height };
@@ -442,8 +442,8 @@ int main(int argc, char** argv) {
     g_audiobuffer = (uint8 *)calloc(g_frames_per_block * have.channels * sizeof(int16), 1);
   }
 
-  if(g_config.background)
-    Stars_Initialize(g_window);
+  if(g_config.background != NULL)
+    Background_Init(g_window, g_renderer);
 
   PpuBeginDrawing(snes->snes_ppu, g_pixels, 256 * 4, 0);
   PpuBeginDrawing(snes->my_ppu, g_my_pixels, 256 * 4, 0);

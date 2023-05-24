@@ -47,7 +47,6 @@ typedef struct Config {
   int window_height;
   bool enhanced_mode7;
   bool new_renderer;
-  bool background;
   bool ignore_aspect_ratio;
   uint8 fullscreen;
   uint8 window_scale;
@@ -69,6 +68,7 @@ typedef struct Config {
   uint8 msuvolume;
   uint32 features0;
 
+  const char *background;
   const char *link_graphics;
   char *memory_buffer;
   const char *shader;

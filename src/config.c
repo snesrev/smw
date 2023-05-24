@@ -351,7 +351,8 @@ static bool HandleIniConfig(int section, const char *key, char *value) {
     } else if (StringEqualsNoCase(key, "NewRenderer")) {
       return ParseBool(value, &g_config.new_renderer);
     } else if (StringEqualsNoCase(key, "Background")) {
-      return ParseBool(value, &g_config.background);
+      g_config.background = value;
+      return true;
     } else if (StringEqualsNoCase(key, "IgnoreAspectRatio")) {
       return ParseBool(value, &g_config.ignore_aspect_ratio);
     } else if (StringEqualsNoCase(key, "Fullscreen")) {
