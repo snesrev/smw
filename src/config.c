@@ -350,6 +350,8 @@ static bool HandleIniConfig(int section, const char *key, char *value) {
       return ParseBool(value, &g_config.enhanced_mode7);
     } else if (StringEqualsNoCase(key, "NewRenderer")) {
       return ParseBool(value, &g_config.new_renderer);
+    } else if (StringEqualsNoCase(key, "Background")) {
+      return ParseBool(value, &g_config.background);
     } else if (StringEqualsNoCase(key, "IgnoreAspectRatio")) {
       return ParseBool(value, &g_config.ignore_aspect_ratio);
     } else if (StringEqualsNoCase(key, "Fullscreen")) {
@@ -392,7 +394,7 @@ static bool HandleIniConfig(int section, const char *key, char *value) {
         g_config.enable_msu = kMsuEnabled_MsuDeluxe;
       else if (StringEqualsNoCase(value, "deluxe-opuz"))
         g_config.enable_msu = kMsuEnabled_MsuDeluxe | kMsuEnabled_Opuz;
-      else 
+      else
         return ParseBool(value, (bool*)&g_config.enable_msu);
       return true;
     } else if (StringEqualsNoCase(key, "MSUPath")) {
@@ -424,7 +426,7 @@ static bool ParseOneConfigFile(const char *filename, int depth) {
   char *filedata = (char*)ReadWholeFile(filename, NULL), *p;
   if (!filedata)
     return false;
-  
+
   int section = -2;
   g_config.memory_buffer = filedata;
 

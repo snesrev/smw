@@ -40,9 +40,9 @@ include $(DEVKITPRO)/libnx/switch_rules
 SRC_DIR     := ../../
 TARGET		:=	smw
 BUILD		:=	bin
-SOURCES		:=  $(SRC_DIR) $(SRC_DIR)/snes $(SRC_DIR)/platform/switch/src $(SRC_DIR)/../third_party/gl_core
+SOURCES		:=  $(SRC_DIR) $(SRC_DIR)/snes $(SRC_DIR)/enhancements $(SRC_DIR)/platform/switch/src $(SRC_DIR)/../third_party/gl_core
 
-CFILES := $(wildcard $(SRC_DIR)/*.c $(SRC_DIR)/snes/*.c $(SRC_DIR)/platform/switch/src/*.c) $(SRC_DIR)/../third_party/gl_core/gl_core_3_1.c
+CFILES := $(wildcard $(SRC_DIR)/*.c $(SRC_DIR)/snes/*.c $(SRC_DIR)/enhancements/*.c $(SRC_DIR)/platform/switch/src/*.c) $(SRC_DIR)/../third_party/gl_core/gl_core_3_1.c
 
 INCLUDES	:=	include $(SRC_DIR)/../ ./src/
 APP_TITLE   :=  Super Mario World
@@ -50,12 +50,24 @@ APP_AUTHOR  :=  snesrev & Lywx
 APP_VERSION :=  $(shell git rev-parse --short HEAD) $(shell git rev-parse --abbrev-ref HEAD)
 
 #---------------------------------------------------------------------------------
+# compilation options
+#---------------------------------------------------------------------------------
+
+DEBUG ?= 0
+
+#---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
 ARCH	:=	-march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIE
 
-CFLAGS	:=	-Wall -O3 -ffast-math -ffunction-sections -Wno-parentheses \
+CFLAGS	:=	-Wall -ffast-math -ffunction-sections -Wno-parentheses \
 			$(ARCH) $(DEFINES)
+
+ifeq ($(DEBUG),1)
+CFLAGS	+=	-g -DDEBUG
+else
+CFLAGS	+=	-O3
+endif
 
 CFLAGS	+=	-D__SWITCH__ $(INCLUDE) -DSTBI_NO_THREAD_LOCALS `sdl2-config --cflags`
 

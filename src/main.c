@@ -26,6 +26,8 @@
 #include "switch_impl.h"
 #endif
 
+#include "enhancements/stars.h"
+
 static void playAudio(Snes *snes, SDL_AudioDeviceID device, int16_t *audioBuffer);
 static void renderScreen(Snes *snes, SDL_Renderer *renderer, SDL_Texture *texture);
 static void SDLCALL AudioCallback(void *userdata, Uint8 *stream, int len);
@@ -261,8 +263,7 @@ static bool SdlRenderer_Init(SDL_Window *window) {
     printf("\n");
   }
   g_renderer = renderer;
-  if (!g_config.ignore_aspect_ratio)
-    SDL_RenderSetLogicalSize(renderer, g_snes_width, g_snes_height);
+
   if (g_config.linear_filtering)
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "best");
 
@@ -296,8 +297,20 @@ static void SdlRenderer_EndDraw(void) {
   //  uint64 after = SDL_GetPerformanceCounter();
   //  float v = (double)(after - before) / SDL_GetPerformanceFrequency();
   //  printf("%f ms\n", v * 1000);
+  int g_window_width, g_window_height;
+  SDL_GetWindowSize(g_window, &g_window_width, &g_window_height);
+  SDL_Rect rect = { 0, 0, g_window_width, g_window_height };
+  SDL_RenderSetViewport(g_renderer, &rect);
+
+  SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, 255);
   SDL_RenderClear(g_renderer);
-  SDL_RenderCopy(g_renderer, g_texture, &g_sdl_renderer_rect, NULL);
+
+  if(g_config.background)
+    Stars_Draw(g_renderer);
+
+  int new_width = !g_config.ignore_aspect_ratio ? g_window_height * g_snes_width / g_snes_height : g_window_width;
+  SDL_Rect snes_rect = { g_window_width / 2 - new_width / 2, 0, new_width, g_window_height };
+  SDL_RenderCopy(g_renderer, g_texture, NULL, &snes_rect);
   SDL_RenderPresent(g_renderer); // vsyncs to 60 FPS?
 }
 
@@ -307,7 +320,6 @@ static const struct RendererFuncs kSdlRendererFuncs = {
   &SdlRenderer_BeginDraw,
   &SdlRenderer_EndDraw,
 };
-
 
 void MkDir(const char *s) {
 #if defined(_WIN32)
@@ -430,13 +442,16 @@ int main(int argc, char** argv) {
     g_audiobuffer = (uint8 *)calloc(g_frames_per_block * have.channels * sizeof(int16), 1);
   }
 
+  if(g_config.background)
+    Stars_Initialize(g_window);
+
   PpuBeginDrawing(snes->snes_ppu, g_pixels, 256 * 4, 0);
   PpuBeginDrawing(snes->my_ppu, g_my_pixels, 256 * 4, 0);
 
   if (g_config.save_playthrough)
     MkDir("playthrough");
   MkDir("saves");
-    
+
   RtlReadSram();
 
   for (int i = 0; i < SDL_NumJoysticks(); i++)
@@ -683,7 +698,7 @@ static void HandleCommand(uint32 j, bool pressed) {
     case kKeys_WindowSmaller: ChangeWindowScale(-1); break;
     case kKeys_DisplayPerf: g_display_perf ^= 1; break;
     case kKeys_ToggleRenderer:
-      g_ppu_render_flags ^= kPpuRenderFlags_NewRenderer; 
+      g_ppu_render_flags ^= kPpuRenderFlags_NewRenderer;
       printf("New renderer = %x\n", g_ppu_render_flags & kPpuRenderFlags_NewRenderer);
       g_new_ppu = (g_ppu_render_flags & kPpuRenderFlags_NewRenderer) != 0;
       break;
