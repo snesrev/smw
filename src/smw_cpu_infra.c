@@ -203,6 +203,8 @@ uint32 PatchBugs(uint32 mode, uint32 addr) {
     // DrawOverworldPlayer doesn't init
     R0_W = 0;
     R4_W = 0;
+  } else if (FixBugHook(0x3A0A7)) {  // Spr0A8_Blargg OOB
+    R3_ = (spr_table1602[g_cpu->x] != 0) * 5;
   }
   return 0;
 }
@@ -355,7 +357,7 @@ static bool loadRom(const char *name, Snes *snes) {
   uint8_t *file = NULL;
   file = ReadWholeFile(name, &length);
   if (file == NULL) {
-    puts("Failed to read file");
+    fprintf(stderr, "Failed to read file: %s\n", name);
     return false;
   }
   bool result = snes_loadRom(snes, file, (int)length);

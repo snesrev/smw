@@ -2003,7 +2003,7 @@ void Spr0A8_Blargg_Draw(uint8 k) {  // 03a062
   uint8 v2 = spr_table00c2[k];
   if (v2) {
     if (v2 == 4) {
-      R3_ = spr_table1602[k] + 4 * spr_table1602[k];
+      R3_ = 5 * (spr_table1602[k] != 0); // out of bounds read
       R2_ = spr_table157c[k];
       uint8 v4n = 4;
       do {

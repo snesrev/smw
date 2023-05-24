@@ -54,7 +54,7 @@ Download VS installer. On installer prompt, make sure you're on "Workloads" and 
 ## Building with Tiny C Compiler
 
  Dependencies and requirements:
- * You'll need [TCC](https://github.com/FitzRoyX/tinycc/releases/download/tcc_20221020/tcc_20221020.zip) and [SDL2](https://github.com/libsdl-org/SDL/releases/download/release-2.24.1/SDL2-devel-2.24.1-VC.zip) in order to compile using TCC.
+ * You'll need [TCC](https://github.com/FitzRoyX/tinycc/releases/download/tcc_20230519/tcc_20230519.zip) and [SDL2](https://github.com/libsdl-org/SDL/releases/download/release-2.26.5/SDL2-devel-2.26.5-VC.zip) in order to compile using TCC.
 
 1. Unzip both TCC and SDL and place them in `third_party` folder.
 2. Double click `run_with_tcc.bat`

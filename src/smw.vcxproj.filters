@@ -125,9 +125,6 @@
     <ClInclude Include="variables.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="ida_types.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="variables_extra.h">
       <Filter>Source Files</Filter>
     </ClInclude>
