@@ -1,12 +1,7 @@
-#ifndef GIFDEC_H
-#define GIFDEC_H
+#pragma once
 
 #include <stdint.h>
 #include <sys/types.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 typedef struct gd_Palette {
     int size;
@@ -48,9 +43,3 @@ void gd_render_frame(gd_GIF *gif, uint8_t *buffer);
 int gd_is_bgcolor(gd_GIF *gif, uint8_t color[3]);
 void gd_rewind(gd_GIF *gif);
 void gd_close_gif(gd_GIF *gif);
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* GIFDEC_H */
