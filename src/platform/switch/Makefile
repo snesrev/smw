@@ -38,11 +38,12 @@ include $(DEVKITPRO)/libnx/switch_rules
 #   NACP building is skipped as well.
 #---------------------------------------------------------------------------------
 SRC_DIR     := ../../
+LIB_DIR   	:= ../../../third_party
 TARGET		:=	smw
 BUILD		:=	bin
-SOURCES		:=  $(SRC_DIR) $(SRC_DIR)/snes $(SRC_DIR)/enhancements $(SRC_DIR)/platform/switch/src $(SRC_DIR)/../third_party/gl_core
+SOURCES		:=  $(SRC_DIR) $(SRC_DIR)/snes $(SRC_DIR)/enhancements $(SRC_DIR)/platform/switch/src $(LIB_DIR)/gl_core $(LIB_DIR)/gifdec $(LIB_DIR)/json
 
-CFILES := $(wildcard $(SRC_DIR)/*.c $(SRC_DIR)/snes/*.c $(SRC_DIR)/enhancements/*.c $(SRC_DIR)/platform/switch/src/*.c) $(SRC_DIR)/../third_party/gl_core/gl_core_3_1.c
+CFILES 		:= $(wildcard $(SRC_DIR)/*.c $(SRC_DIR)/snes/*.c $(SRC_DIR)/enhancements/*.c $(SRC_DIR)/platform/switch/src/*.c $(LIB_DIR)/**/*.c)
 
 INCLUDES	:=	include $(SRC_DIR)/../ ./src/
 APP_TITLE   :=  Super Mario World
