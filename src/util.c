@@ -38,6 +38,13 @@ const char *StringStartsWithNoCase(const char *a, const char *b) {
   }
 }
 
+const char *StringEndsWithNoCase(const char *a, const char *b) {
+  size_t alen = strlen(a), blen = strlen(b);
+  if (alen < blen)
+    return NULL;
+  return StringStartsWithNoCase(a + alen - blen, b);
+}
+
 uint8 *ReadWholeFile(const char *name, size_t *length) {
   FILE *f = fopen(name, "rb");
   if (f == NULL)

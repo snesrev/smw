@@ -578,6 +578,9 @@ int main(int argc, char** argv) {
 
   g_renderer_funcs.Destroy();
 
+  // clean background
+  Background_Exit();
+
 #ifdef __SWITCH__
   SwitchImpl_Exit();
 #endif
