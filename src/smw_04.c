@@ -1524,7 +1524,7 @@ void LoadOverworldLayer1AndEvents() {  // 04dc09
     R0_W += 8;
   }
   uint8 *v3 = g_ram + 0xC800;
-  uint8 *v4 = RomPtr_0C(0xF7DF);
+  const uint8 *v4 = RomPtr_0C(0xF7DF);
   MemCpy(v3, v4, 0x800);
   LoadOverworldLayer1AndEvents_04D7F2();
 }

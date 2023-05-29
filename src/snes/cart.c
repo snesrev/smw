@@ -86,7 +86,7 @@ static uint8_t cart_readLorom(Cart* cart, uint8_t bank, uint16_t adr) {
   printf("While trying to read from 0x%x\n", bank << 16 | adr);
   DumpCpuHistory();
   Die("The game crashed in cart_readLorom");
-  return cart->snes->openBus;
+  return 0;
 }
 
 static void cart_writeLorom(Cart* cart, uint8_t bank, uint16_t adr, uint8_t val) {

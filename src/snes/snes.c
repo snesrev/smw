@@ -15,16 +15,13 @@
 #include "input.h"
 #include "../tracing.h"
 #include "../variables.h"
+#include "../common_rtl.h"
 
 extern bool g_is_uploading_apu;
 void RtlSetUploadingApu(bool uploading);
 
-extern bool g_is_turbo;
 int snes_frame_counter;
 static const double apuCyclesPerMaster = (32040 * 32) / (1364 * 262 * 60.0);
-extern uint8_t g_ram[0x20000];
-
-extern void RtlApuWrite(uint32_t adr, uint8_t val);
 
 static uint8_t snes_readReg(Snes* snes, uint16_t adr);
 static void snes_writeReg(Snes* snes, uint16_t adr, uint8_t val);
@@ -266,7 +263,7 @@ void snes_writeBBus(Snes* snes, uint8_t adr, uint8_t val) {
     return;
   }
   if(adr < 0x80) {
-    if (adr == 0x41 && snes->cpu->pc == 0x8122)
+    if (adr == 0x41 && (game_id == kGameID_SMW && snes->cpu->pc == 0x8122))
       RtlSetUploadingApu(true);
     RtlApuWrite(0x2100 + adr, val);
     return;

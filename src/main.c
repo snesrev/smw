@@ -17,7 +17,7 @@
 
 #include "types.h"
 #include "smw_rtl.h"
-#include "smw_cpu_infra.h"
+#include "common_cpu_infra.h"
 #include "config.h"
 #include "util.h"
 #include "spc_player.h"
@@ -26,8 +26,6 @@
 #include "switch_impl.h"
 #endif
 
-static void playAudio(Snes *snes, SDL_AudioDeviceID device, int16_t *audioBuffer);
-static void renderScreen(Snes *snes, SDL_Renderer *renderer, SDL_Texture *texture);
 static void SDLCALL AudioCallback(void *userdata, Uint8 *stream, int len);
 static void SwitchDirectory();
 static void RenderNumber(uint8 *dst, size_t pitch, int n, uint8 big);
@@ -41,10 +39,7 @@ static void HandleCommand(uint32 j, bool pressed);
 void OpenGLRenderer_Create(struct RendererFuncs *funcs);
 
 bool g_debug_flag;
-bool g_is_turbo;
-bool g_is_turbo;
 bool g_want_dump_memmap_flags;
-bool g_new_ppu;
 bool g_new_ppu = true;
 bool g_other_image;
 struct SpcPlayer *g_spc_player;
@@ -54,7 +49,6 @@ static uint8_t g_pixels[256 * 4 * 240];
 static uint8_t g_my_pixels[256 * 4 * 240];
 
 int g_got_mismatch_count;
-
 
 enum {
   kDefaultFullscreen = 0,

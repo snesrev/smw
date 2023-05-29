@@ -93,7 +93,7 @@ static FuncV *const kGameMode14_InLevel_PlayerStatePtrs[14] = {
     &GameMode14_InLevel_Return00C592,
 };
 
-void Vector_Reset() {
+void SmwVectorReset() {
   WriteReg(NMITIMEN, 0);
   WriteReg(HDMAEN, 0);
   WriteReg(MDMAEN, 0);
@@ -122,7 +122,7 @@ void Vector_Reset() {
   ++waiting_for_vblank;
 }
 
-void RunOneFrameOfGame_Internal() {
+void SmwRunOneFrameOfGame_Internal() {
   assert(waiting_for_vblank != 0);
   ++counter_global_frames;
   InitAndMainLoop_ProcessGameMode();
@@ -238,7 +238,7 @@ void HandleSPCUploads_UploadCreditsMusicBank() {  // 008159
   HandleSPCUploads_StrtSPCMscUpld();
 }
 
-void Vector_NMI() {
+void SmwVectorNMI() {
   uint8 v2;
   uint8 v3;
   ReadReg(RDNMI);
@@ -398,7 +398,7 @@ LABEL_36:
   WriteReg(BG1VOFS, HIBYTE(mirror_m7_ypos));
 }
 
-void Vector_IRQ() {
+void SmwVectorIRQ() {
   if ((ReadReg(TIMEUP) & 0x80) == 0)
     return;
   uint8 v0 = 0x81;
@@ -4178,7 +4178,7 @@ uint8 UpdateHDMAWindowBuffer_00CC14(uint16 j) {  // 00cc14
   uint16 v1 = SnesDivide(R1_ << 8, timer_hdmawindow_scaling_factor) >> 1;
   uint8 t = R6_W ? RomPtr_00(R6_W)[v1] : 0;
   R3_ = (t * timer_hdmawindow_scaling_factor) >> 8;
-  uint8 *v3 = RomPtr_00(R4_W);
+  const uint8 *v3 = RomPtr_00(R4_W);
   uint8 result = (v3[v1] * timer_hdmawindow_scaling_factor) >> 8;
   R2_ = result;
   return result;

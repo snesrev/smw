@@ -8,8 +8,9 @@
 #include "cpu.h"
 #include "snes.h"
 #include "../types.h"
-#include "../variables.h"
+//#include "../variables.h"
 #include "../smw_rtl.h"
+#include "../../smb1/smb1_variables.h"
 
 static const int cyclesPerOpcode[256] = {
   7, 6, 7, 4, 5, 3, 5, 6, 3, 2, 2, 4, 6, 4, 6, 5,
@@ -744,12 +745,22 @@ static void cpu_doOpcode(Cpu* cpu, uint8_t opcode) {
   pc_hist[pc_hist_ctr] = cur_pc;
   pc_hist_ctr = (pc_hist_ctr + 1) & 15;
   
-  if (cur_pc == pc_bp && cpu->x == 2) {
-    printf("Reached BP 0x%x. A=0x%x, X=0x%x, Y=0x%x. C=%d\n", cur_pc, (uint8)cpu->a, cpu->x, cpu->y, cpu->c);
+  if (cur_pc == pc_bp) {
+    printf("Rseached BP 0x%x. A=0x%.2x, X=0x%.2x, Y=0x%.2x. C=%d. 0x%x\n", 
+      cur_pc, (uint8)cpu->a, cpu->x, cpu->y, cpu->c,
+      WORD(tempE4));
     bp_cnt += 1;
     g_snes->debug_cycles = 0;
   }
+  if (cur_pc == 0x29186&&0)
+    printf("curpc=0x%x 0x%x\n", g_cpu->a, g_cpu->x);
+  if (cur_pc == 0x29197 && g_cpu->x == 0x800&&0) {
+    printf("x=0x%x, y=0x%x, t4=0x%x\n", g_cpu->x, g_cpu->y, WORD(tempE4));
+    //g_snes->debug_cycles = 1;
+    uint16 t = g_ram[0xf3] | g_ram[0xf4] << 8;
+//    printf("wr 0x%x = 0x%x\n", t + g_cpu->y, g_cpu->a & 0xff);
 
+  }
 
 restart:
   switch(opcode) {
@@ -1334,7 +1345,7 @@ restart:
       break;
     }
     case 0x58: { // cli imp
-      if (cur_pc == 0x80fb)
+      if (game_id == kGameID_SMW && cur_pc == 0x80fb)
         RtlSetUploadingApu(false);
       cpu->i = false;
       break;
@@ -1362,7 +1373,7 @@ restart:
     case 0x5c: { // jml abl
       uint16_t value = cpu_readOpcodeWord(cpu);
       uint8_t new_k = cpu_readOpcode(cpu);
-      if (new_k == 0x80 && value == 0x8573) {
+      if (game_id == kGameID_SMW && new_k == 0x80 && value == 0x8573) {
         printf("Current PC = 0x%x\n", cpu->k << 16 | cpu->pc);
         DumpCpuHistory();
         Die("The game has crashed!\n");
@@ -1469,7 +1480,7 @@ restart:
       break;
     }
     case 0x6b: { // rtl imp
-//      g_snes->debug_cycles = false;
+      g_snes->debug_cycles = false;
       if (cpu->sp >= cpu->spBreakpoint && cpu->spBreakpoint) {
         assert(cpu->sp == cpu->spBreakpoint);
         cpu->spBreakpoint = 0;
@@ -1551,7 +1562,7 @@ restart:
       break;
     }
     case 0x78: { // sei imp
-      if (cur_pc == 0x80f7)
+      if (game_id == kGameID_SMW && cur_pc == 0x80f7)
         RtlSetUploadingApu(true);
       cpu->i = true;
       break;
