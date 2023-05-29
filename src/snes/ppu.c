@@ -849,6 +849,12 @@ static uint16_t ppu_getVramRemap(Ppu* ppu) {
 
 uint8_t ppu_read(Ppu* ppu, uint8_t adr) {
   switch(adr) {
+  case 0x34:
+  case 0x35:
+  case 0x36: {
+    int result = ppu->m7matrix[0] * (ppu->m7matrix[1] >> 8);
+    return (result >> (8 * (adr - 0x34))) & 0xff;
+  }
     case 0x37: {
       // TODO: only when ppulatch is set
       ppu->hCount = ppu->snes->hPos / 4;

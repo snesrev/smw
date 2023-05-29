@@ -146,7 +146,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\smb1\smb1_00.c" />
+    <ClCompile Include="..\smb1\smb1_01.c" />
+    <ClCompile Include="..\smb1\smb1_02.c" />
+    <ClCompile Include="..\smb1\smb1_08.c" />
+    <ClCompile Include="..\smb1\smb1_cpu_infra.c" />
     <ClCompile Include="..\third_party\gl_core\gl_core_3_1.c" />
+    <ClCompile Include="common_cpu_infra.c" />
+    <ClCompile Include="common_rtl.c" />
     <ClCompile Include="config.c" />
     <ClCompile Include="glsl_shader.c" />
     <ClCompile Include="main.c" />
@@ -203,15 +210,17 @@
     <ClCompile Include="util.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\smb1\smb1_consts.h" />
+    <ClInclude Include="..\smb1\smb1_funcs.h" />
+    <ClInclude Include="..\smb1\smb1_rtl.h" />
+    <ClInclude Include="..\smb1\smb1_variables.h" />
     <ClInclude Include="..\third_party\gl_core\gl_core_3_1.h" />
+    <ClInclude Include="common_cpu_infra.h" />
+    <ClInclude Include="common_rtl.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="consts.h" />
-    <ClInclude Include="enemy_defs.h" />
-    <ClInclude Include="enemy_types.h" />
-    <ClInclude Include="features.h" />
     <ClInclude Include="funcs.h" />
     <ClInclude Include="glsl_shader.h" />
-    <ClInclude Include="smw_cpu_infra.h" />
     <ClInclude Include="smw_rtl.h" />
     <ClInclude Include="snes\apu.h" />
     <ClInclude Include="snes\cart.h" />
@@ -230,7 +239,6 @@
     <ClInclude Include="types.h" />
     <ClInclude Include="util.h" />
     <ClInclude Include="variables.h" />
-    <ClInclude Include="variables_extra.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
