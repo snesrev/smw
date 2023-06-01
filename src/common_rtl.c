@@ -460,10 +460,13 @@ void RtlSaveLoad(int cmd, int slot) {
       return;
     sprintf(name, "saves/%s.sav", kBugSaves[i]);
   } else {
-    sprintf(name, "saves/save%d.sav", slot);
+    if (game_id == kGameID_SMW)
+      sprintf(name, "saves/save%d.sav", slot);
+    else
+      sprintf(name, "saves/%s_save%d.sav", g_rtl_game_info->title, slot);
   }
-  printf("*** %s slot %d\n",
-    cmd == kSaveLoad_Save ? "Saving" : cmd == kSaveLoad_Load ? "Loading" : "Replaying", slot);
+  printf("*** %s slot %d: %s\n",
+    cmd == kSaveLoad_Save ? "Saving" : cmd == kSaveLoad_Load ? "Loading" : "Replaying", slot, name);
   if (cmd != kSaveLoad_Save) {
 
     FILE *f = fopen(name, "rb");
@@ -744,10 +747,12 @@ void RtlCheat(char c) {
 }
 
 void RtlReadSram(void) {
-  FILE *f = fopen("saves/smw.srm", "rb");
+  char filename[64];
+  snprintf(filename, sizeof(filename), "saves/%s.srm", g_rtl_game_info->title);
+  FILE *f = fopen(filename, "rb");
   if (f) {
     if (fread(g_sram, 1, RTL_SRAM_SIZE, f) != RTL_SRAM_SIZE)
-      fprintf(stderr, "Error reading saves/smw.srm\n");
+      fprintf(stderr, "Error reading %s\n", filename);
     fclose(f);
     RtlSynchronizeWholeState();
     ByteArray_Resize(&state_recorder.base_snapshot, RTL_SRAM_SIZE);
@@ -756,13 +761,16 @@ void RtlReadSram(void) {
 }
 
 void RtlWriteSram(void) {
-  rename("saves/smw.srm", "saves/smw.srm.bak");
-  FILE *f = fopen("saves/smw.srm", "wb");
+  char filename[64], filename_bak[64];
+  snprintf(filename, sizeof(filename), "saves/%s.srm", g_rtl_game_info->title);
+  snprintf(filename_bak, sizeof(filename_bak), "saves/%s.srm.bak", g_rtl_game_info->title);
+  rename(filename, filename_bak);
+  FILE *f = fopen(filename, "wb");
   if (f) {
     fwrite(g_sram, 1, RTL_SRAM_SIZE, f);
     fclose(f);
   } else {
-    fprintf(stderr, "Unable to write saves/smw.srm\n");
+    fprintf(stderr, "Unable to write %s\n", filename);
   }
 }
 
