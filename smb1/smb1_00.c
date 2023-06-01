@@ -1,7 +1,8 @@
-#include "smb1_rtl.h"
 #include "smb1_consts.h"
 #include "smb1_funcs.h"
+#include "smb1_rtl.h"
 #include "smb1_variables.h"
+
 void (*funcs_11F7[4])(void) = {
     &TitleScreen_0_InitializeGame,
     &ScreenRoutines,
@@ -58,104 +59,34 @@ void (*funcs_4FCB[47])(uint8 k) = {
     &ExtObj2E_AlterAreaAttributes,
 };  // weak
 void (*funcs_A6DE[55])(uint8) = {
-    &NormalEnemy_Init,
-    &NormalEnemy_Init,
-    &NormalEnemy_Init,
-    &RedKoopa_Init,
-    &NoEnemyInit,
-    &HammerBro_Init,
-    &Goomba_Init,
-    &Blooper_Init,
-    &BulletBill_Init,
-    &NoEnemyInit,
-    &CheepCheep_Init,
-    &CheepCheep_Init,
-    &Podoboo_Init,
-    &PiranhaPlant_Init,
-    &JumpGPTroopa_Init,
-    &RedPTroopa_Init,
-    &InitHorizFlySwimEnemy,
-    &Lakitu_Init,
-    &InitEnemyFrenzy,
-    &NoEnemyInit,
-    &InitEnemyFrenzy,
-    &InitEnemyFrenzy,
-    &InitEnemyFrenzy,
-    &InitEnemyFrenzy,
-    &EndFrenzy,
-    &NoEnemyInit,
-    &NoEnemyInit,
-    &ShortFirebar_Init,
-    &ShortFirebar_Init,
-    &ShortFirebar_Init,
-    &ShortFirebar_Init,
-    &LongFirebar_Init,
-    &NoEnemyInit,
-    &NoEnemyInit,
-    &NoEnemyInit,
-    &NoEnemyInit,
-    &BalPlatform_Init,
-    &VertPlatform_Init,
-    &LargeLiftUp_Init,
-    &LargeLiftDown_Init,
-    &InitHoriPlatform_Init,
-    &InitDropPlatform_Init,
-    &InitHoriPlatform_Init,
-    &PlatLiftUp_Init,
-    &PlatLiftDown_Init,
-    &Bowser_Init,
-    &Spr02E_Powerup_Init,
-    &Spr02F_Vine_Init2,
-    &NoEnemyInit,
-    &NoEnemyInit,
-    &NoEnemyInit,
-    &NoEnemyInit,
-    &NoEnemyInit,
-    &RetainerObj_Init,
-    &EndOfEnemyInitCode,
+    &NormalEnemy_Init,      &NormalEnemy_Init,      &NormalEnemy_Init,      &RedKoopa_Init,     &NoEnemyInit,
+    &HammerBro_Init,        &Goomba_Init,           &Blooper_Init,          &BulletBill_Init,   &NoEnemyInit,
+    &CheepCheep_Init,       &CheepCheep_Init,       &Podoboo_Init,          &PiranhaPlant_Init, &JumpGPTroopa_Init,
+    &RedPTroopa_Init,       &InitHorizFlySwimEnemy, &Lakitu_Init,           &InitEnemyFrenzy,   &NoEnemyInit,
+    &InitEnemyFrenzy,       &InitEnemyFrenzy,       &InitEnemyFrenzy,       &InitEnemyFrenzy,   &EndFrenzy,
+    &NoEnemyInit,           &NoEnemyInit,           &ShortFirebar_Init,     &ShortFirebar_Init, &ShortFirebar_Init,
+    &ShortFirebar_Init,     &LongFirebar_Init,      &NoEnemyInit,           &NoEnemyInit,       &NoEnemyInit,
+    &NoEnemyInit,           &BalPlatform_Init,      &VertPlatform_Init,     &LargeLiftUp_Init,  &LargeLiftDown_Init,
+    &InitHoriPlatform_Init, &InitDropPlatform_Init, &InitHoriPlatform_Init, &PlatLiftUp_Init,   &PlatLiftDown_Init,
+    &Bowser_Init,           &Spr02E_Powerup_Init,   &Spr02F_Vine_Init2,     &NoEnemyInit,       &NoEnemyInit,
+    &NoEnemyInit,           &NoEnemyInit,           &NoEnemyInit,           &RetainerObj_Init,  &EndOfEnemyInitCode,
 };  // weak
-void (*funcs_B851[6])(uint8) = {
-    &LakituAndSpinyHandler, &NoFrenzyCode,  &FlyingCheepCheep_Init,
-    &BowserFlame_Init,      &InitFireworks, &BulletBillCheepCheep};  // weak
+void (*funcs_B851[6])(uint8) = {&LakituAndSpinyHandler, &NoFrenzyCode,  &FlyingCheepCheep_Init,
+                                &BowserFlame_Init,      &InitFireworks, &BulletBillCheepCheep};  // weak
 void (*funcs_BC01[34])(uint8) = {
-    &RunNormalEnemies,  &RunBowserFlame,   &RunFireworks,
-    &NoRunCode,         &NoRunCode,        &NoRunCode,
-    &NoRunCode,         &RunFirebarObj,    &RunFirebarObj,
-    &RunFirebarObj,     &RunFirebarObj,    &RunFirebarObj,
-    &RunFirebarObj,     &RunFirebarObj,    &RunFirebarObj,
-    &NoRunCode,         &RunLargePlatform, &RunLargePlatform,
-    &RunLargePlatform,  &RunLargePlatform, &RunLargePlatform,
-    &RunLargePlatform,  &RunLargePlatform, &RunSmallPlatform,
-    &RunSmallPlatform,  &RunBowser,        &PowerUpObjHandler,
-    &VineObjectHandler, &NoRunCode,        &RunStarFlagObj,
-    &JumpspringHandler, &NoRunCode,        &WarpZoneObject,
-    &RunRetainerObj};  // weak
+    &RunNormalEnemies, &RunBowserFlame,   &RunFireworks,      &NoRunCode,        &NoRunCode,        &NoRunCode,         &NoRunCode,
+    &RunFirebarObj,    &RunFirebarObj,    &RunFirebarObj,     &RunFirebarObj,    &RunFirebarObj,    &RunFirebarObj,     &RunFirebarObj,
+    &RunFirebarObj,    &NoRunCode,        &RunLargePlatform,  &RunLargePlatform, &RunLargePlatform, &RunLargePlatform,  &RunLargePlatform,
+    &RunLargePlatform, &RunLargePlatform, &RunSmallPlatform,  &RunSmallPlatform, &RunBowser,        &PowerUpObjHandler, &VineObjectHandler,
+    &NoRunCode,        &RunStarFlagObj,   &JumpspringHandler, &NoRunCode,        &WarpZoneObject,   &RunRetainerObj};  // weak
 void (*funcs_BDE8[21])(uint8) = {
-    &MoveNormalEnemy,
-    &MoveNormalEnemy,
-    &MoveNormalEnemy,
-    &MoveNormalEnemy,
-    &MoveNormalEnemy,
-    &ProcHammerBro,
-    &MoveNormalEnemy,
-    &MoveBloober,
-    &MoveBulletBill,
-    &NoMoveCode,
-    &MoveSwimmingCheepCheep,
-    &MoveSwimmingCheepCheep,
-    &MovePodoboo,
-    &MovePiranhaPlant,
-    &MoveJumpingEnemy,
-    &ProcMoveRedPTroopa,
-    &MoveFlyGreenPTroopa,
-    &MoveLakitu,
-    &MoveNormalEnemy,
-    &NoMoveCode,
-    &MoveFlyingCheepCheep,
+    &MoveNormalEnemy, &MoveNormalEnemy,  &MoveNormalEnemy,      &MoveNormalEnemy,    &MoveNormalEnemy,        &ProcHammerBro,
+    &MoveNormalEnemy, &MoveBloober,      &MoveBulletBill,       &NoMoveCode,         &MoveSwimmingCheepCheep, &MoveSwimmingCheepCheep,
+    &MovePodoboo,     &MovePiranhaPlant, &MoveJumpingEnemy,     &ProcMoveRedPTroopa, &MoveFlyGreenPTroopa,    &MoveLakitu,
+    &MoveNormalEnemy, &NoMoveCode,       &MoveFlyingCheepCheep,
 };  // weak
-void (*funcs_BFB5[7])(uint8) = {
-    &BalancePlatform, &YMovingPlatform, &MoveLargeLiftPlat, &MoveLargeLiftPlat,
-    &XMovingPlatform, &DropPlatform,    &RightPlatform};  // weak
+void (*funcs_BFB5[7])(uint8) = {&BalancePlatform, &YMovingPlatform, &MoveLargeLiftPlat, &MoveLargeLiftPlat,
+                                &XMovingPlatform, &DropPlatform,    &RightPlatform};  // weak
 
 void Smb1VectorReset() {
   WriteReg(NMITIMEN, 0);
@@ -262,53 +193,61 @@ void Smb1RunOneFrameOfGame_Internal() {
   Smb1PollJoypadInputs();
   random_lfsr_tmp = random_byte1 & 2;
   v0 = 0;
-  if ((random_byte1 & 2) != (random_byte2 & 2)) v0 = 0x80;
+  if ((random_byte1 & 2) != (random_byte2 & 2))
+    v0 = 0x80;
   v1 = random_byte1 & 1;
   random_byte1 = (random_byte1 >> 1) + v0;
   v2 = 0;
-  if (v1) v2 = 0x80;
+  if (v1)
+    v2 = 0x80;
   v1 = random_byte2 & 1;
   random_byte2 = (random_byte2 >> 1) + v2;
   v3 = 0;
-  if (v1) v3 = 0x80;
+  if (v1)
+    v3 = 0x80;
   v1 = random_byte3 & 1;
   random_byte3 = (random_byte3 >> 1) + v3;
   v4 = 0;
-  if (v1) v4 = 0x80;
+  if (v1)
+    v4 = 0x80;
   v1 = random_byte4 & 1;
   random_byte4 = (random_byte4 >> 1) + v4;
   v5 = 0;
-  if (v1) v5 = 0x80;
+  if (v1)
+    v5 = 0x80;
   v1 = random_byte5 & 1;
   random_byte5 = (random_byte5 >> 1) + v5;
   v6 = 0;
-  if (v1) v6 = 0x80;
+  if (v1)
+    v6 = 0x80;
   v1 = random_byte6 & 1;
   random_byte6 = (random_byte6 >> 1) + v6;
   v7 = 0;
-  if (v1) v7 = 0x80;
+  if (v1)
+    v7 = 0x80;
   random_byte7 = (random_byte7 >> 1) + v7;
   HandleSfx();
-  if (!debug_flag) goto LABEL_27;
+  if (!debug_flag)
+    goto LABEL_27;
   if ((*(&controller_press2p1 + current_player_mirror) & 0x20) != 0)
     ++global_frame_advance_debug_active_flag;
-  if ((*(&controller_press2p1 + current_player_mirror) & 0x10) != 0 ||
-      (global_frame_advance_debug_active_flag & 1) == 0) {
-  LABEL_27:
+  if ((*(&controller_press2p1 + current_player_mirror) & 0x10) != 0 || (global_frame_advance_debug_active_flag & 1) == 0) {
+LABEL_27:
     Smb1HandleLevelTileAnimations();
     HandlePauseMenu();
     DoSomeDigitsStuff();
-    if (!area_type) HandleLayersScroll();
+    if (!area_type)
+      HandleLayersScroll();
     if ((int8)game_loop_toggler > 0 && screen_timer &&
-        ((*(&controller_press2p1 + current_player) & 0x80u) != 0 ||
-         (*(&controller_press1p1 + current_player) & 0x90) != 0)) {
+        ((*(&controller_press2p1 + current_player) & 0x80u) != 0 || (*(&controller_press1p1 + current_player) & 0x90) != 0)) {
       screen_timer = 0;
       game_loop_toggler = 0;
     }
     if (fade_direction) {
       HandleScreenTransition();
     } else {
-      if (display_pause_menu_flag & 1) goto LABEL_52;
+      if (display_pause_menu_flag & 1)
+        goto LABEL_52;
       if (!timer_control || (--timer_control, !timer_control)) {
         v8 = 24;
         if ((--interval_timer_control & 0x80u) != 0) {
@@ -316,21 +255,24 @@ void Smb1RunOneFrameOfGame_Internal() {
           v8 = 43;
         }
         do {
-          if (*(&all_timers + v8)) --*(&all_timers + v8);
+          if (*(&all_timers + v8))
+            --*(&all_timers + v8);
           --v8;
         } while ((v8 & 0x80u) == 0);
       }
-      if (!screen_timer) game_loop_toggler &= 0x80u;
+      if (!screen_timer)
+        game_loop_toggler &= 0x80u;
       ++frame_counter;
       if ((++podoboo_animation_frame_counter & 0x18) == 24)
         podoboo_animation_frame_counter = 0;
       CheckIfBowserTouchedLava();
       if (sprite0_hit_detect_flag) {
-        if (!(disable_sprite_oamreset_flag & 1)) ResetMiscSpriteOamId();
+        if (!(disable_sprite_oamreset_flag & 1))
+          ResetMiscSpriteOamId();
       }
       ProcessGameMode();
       if ((cutscene_var1680 & 0x80u) != 0) {
-      LABEL_52:
+LABEL_52:
         DrawLevelPreviewSprites_Sub_New();
         MaybePauseMenuHandler();
       }
@@ -354,7 +296,8 @@ void Smb1VectorNMI() {
   v8 = *(uint16 *)&R0_;
   ReadReg(RDNMI);
   v0 = inidisp_mirror;
-  if (!inidisp_mirror) v0 = 0x80;
+  if (!inidisp_mirror)
+    v0 = 0x80;
   WriteReg(INIDISP, v0);
   WriteReg(HDMAEN, 0);
   if (!wait_for_vblank) {
@@ -415,12 +358,14 @@ void Smb1VectorNMI() {
       }
     }
     v5 = 0;
-    if (vram_buffer_addr_ctrl == 6) v5 = 2;
+    if (vram_buffer_addr_ctrl == 6)
+      v5 = 2;
     v6 = kDATA_038304[v5 >> 1];
     *(uint16 *)(&vram_buffer1_offset + v6) = 0;
     *(uint16 *)&vram_buffer1[v6 + 1] = -1;
     upload_buffer_3[0] = 0;
-    if (area_type) layer3_tilemap_upload_buf[0] = 0;
+    if (area_type)
+      layer3_tilemap_upload_buf[0] = 0;
     vram_buffer_addr_ctrl = 0;
   }
   WriteReg(WH2, wh2_mirror);
@@ -494,19 +439,13 @@ void ProcessGameMode() {
   v0 = 2 * *(uint16 *)&game_mode;
   if (2 * *(uint16 *)&game_mode) {
     switch (v0) {
-      case 4:
-        GameMode02_Cutscene();
-        break;
-      case 6:
-        GameMode03_GameOverScreen();
-        break;
-      case 2:
-        GameMode01_Level();
-        break;
-      default:
-        Unreachable();
-        while (1)
-          ;
+    case 4: GameMode02_Cutscene(); break;
+    case 6: GameMode03_GameOverScreen(); break;
+    case 2: GameMode01_Level(); break;
+    default:
+      Unreachable();
+      while (1)
+        ;
     }
   } else {
     GameMode00_TitleScreen();
@@ -514,16 +453,13 @@ void ProcessGameMode() {
 }
 
 void HandlePauseMenu() {
-  if (game_mode != 2 && game_mode == 1 && game_mode_task == 3 && !var0E67 &&
-      inidisp_mirror == 15) {
+  if (game_mode != 2 && game_mode == 1 && game_mode_task == 3 && !var0E67 && inidisp_mirror == 15) {
     if (pausemenu_delay) {
       --pausemenu_delay;
-    } else if (game_engine_subroutine != 2 && game_engine_subroutine != 3 &&
-               !auto_control_player_var1 && pause_menu_idx < 2u) {
+    } else if (game_engine_subroutine != 2 && game_engine_subroutine != 3 && !auto_control_player_var1 && pause_menu_idx < 2u) {
       if (pausemenu_var2) {
         --pausemenu_var2;
-      } else if (!pause_menu_idx &&
-                 (*(&controller_press1p1 + current_player) & 0x10) != 0) {
+      } else if (!pause_menu_idx && (*(&controller_press1p1 + current_player) & 0x10) != 0) {
         pausemenu_delay = 17;
         music_ch1 = -15;
         sound_ch1 = 67;
@@ -533,7 +469,9 @@ void HandlePauseMenu() {
   }
 }
 
-void ResetAllSpriteOams_Far() { ResetAllSpriteOams(); }
+void ResetAllSpriteOams_Far() {
+  ResetAllSpriteOams();
+}
 
 void ResetMiscSpriteOamId() {
   misc_spr_oam_id[0] = -112;
@@ -630,30 +568,32 @@ void TitleScreen_3_GameMenuRoutine() {
   int8 v1;   // [rsp+47h] [rbp-1h]
   uint8 v2;  // [rsp+47h] [rbp-1h]
 
-  if (sram_controller1_plugged_in || !sram_controller2_plugged_in ||
-      (controller_press1p2 & 0x10) == 0) {
-    if (((controller_press1p2 | controller_press1p1) & 0x10) != 0) goto LABEL_8;
-    if ((controller_hold2p1 != 0xB0 || saved_joypad_bits != 0x80) &&
-        (controller_hold2p2 != 0xB0 || controller_hold1p2 != 0x80)) {
-      if ((save_buffer_2_player_flag & 0x80u) == 0) demo_timer = 64;
-      if (demo_timer) DrawMushroomIcon();
+  if (sram_controller1_plugged_in || !sram_controller2_plugged_in || (controller_press1p2 & 0x10) == 0) {
+    if (((controller_press1p2 | controller_press1p1) & 0x10) != 0)
+      goto LABEL_8;
+    if ((controller_hold2p1 != 0xB0 || saved_joypad_bits != 0x80) && (controller_hold2p2 != 0xB0 || controller_hold1p2 != 0x80)) {
+      if ((save_buffer_2_player_flag & 0x80u) == 0)
+        demo_timer = 64;
+      if (demo_timer)
+        DrawMushroomIcon();
       if (((controller_press1p2 | controller_press1p1) & 0x2C) != 0) {
-        if (!demo_timer) goto LABEL_33;
+        if (!demo_timer)
+          goto LABEL_33;
         demo_timer = 24;
-        MoveTitleScreenMenuCursor_Main(controller_press1p2 |
-                                       controller_press1p1);
+        MoveTitleScreenMenuCursor_Main(controller_press1p2 | controller_press1p1);
       } else if (!demo_timer) {
         if (!(TitleScreen_Func1() & 1)) {
-        LABEL_31:
+LABEL_31:
           v2 = sound_ch3;
           CODE_03AD74();
           sound_ch1 = 0;
           sound_ch2 = 0;
           sound_ch3 = v2;
-          if (game_engine_subroutine != 6) return;
+          if (game_engine_subroutine != 6)
+            return;
           UNUSED_byte_7E0EC8 = 0;
         }
-      LABEL_33:
+LABEL_33:
         game_mode = 0;
         game_mode_task = 0;
         sprite0_hit_detect_flag = 0;
@@ -661,11 +601,10 @@ void TitleScreen_3_GameMenuRoutine() {
         ++disable_screen_flag;
         return;
       }
-    LABEL_24:
+LABEL_24:
       saved_joypad_bits = 0;
       v1 = controller_press2p1 | controller_press1p1;
-      if (title_screen_erase_file_process |
-          splash_screen_display_mario_coin_shine_flag) {
+      if (title_screen_erase_file_process | splash_screen_display_mario_coin_shine_flag) {
         if ((v1 & 0x40) != 0) {
           demo_timer = 24;
           if (splash_screen_display_mario_coin_shine_flag) {
@@ -702,7 +641,8 @@ void TitleScreen_3_GameMenuRoutine() {
   }
 LABEL_8:
   CODE_03AD74();
-  if (!demo_timer) goto LABEL_33;
+  if (!demo_timer)
+    goto LABEL_33;
   sound_ch3 = 41;
   demo_timer = 24;
   if (splash_screen_display_mario_coin_shine_flag) {
@@ -722,7 +662,8 @@ LABEL_8:
       primary_hard_mode = player_hard_mode_flag;
       game_mode_task = 0;
       demo_timer = 0;
-      for (i = 11; i >= 0; --i) score_and_coin_display[(uint8)i] = 0;
+      for (i = 11; i >= 0; --i)
+        score_and_coin_display[(uint8)i] = 0;
       tempE4 = 0;
       score_and_coin_display[5] = ComputeDigitValue(player_coin_count);
       score_and_coin_display[4] = tempE4;
@@ -740,8 +681,7 @@ LABEL_8:
     sound_ch3 = 5;
   } else {
     ++splash_screen_display_mario_coin_shine_flag;
-    sram_world_number =
-        *(&title_screen_file_aselected_world + number_of_players);
+    sram_world_number = *(&title_screen_file_aselected_world + number_of_players);
     sram_initial_selected_level = 0;
     LoadSaveFileData_Main();
     if (splash_screen_display_mario_coin_shine_flag)
@@ -769,8 +709,7 @@ void DrawMushroomIcon() {
   uint8 i;  // di
 
   for (i = 20; (i & 0x80u) == 0; i -= 2)
-    *(uint16 *)(&vram_buffer1_offset + i) =
-        kTitleScreenMenuCursorStripeImage[i >> 1];
+    *(uint16 *)(&vram_buffer1_offset + i) = kTitleScreenMenuCursorStripeImage[i >> 1];
   *(uint16 *)&vram_buffer1[(uint8)(4 * number_of_players) + 5] = 4654;
   --*(uint16 *)&vram_buffer1_offset;
   --*(uint16 *)&vram_buffer1_offset;
@@ -785,10 +724,8 @@ uint8 TitleScreen_Func1() {
 
   v0 = title_screen_menu_var0717;
   if (title_screen_menu_var0718 ||
-      ((v0 = title_screen_menu_var0717 + 1, ++title_screen_menu_var0717,
-        rv = true, !title_screen_hard_mode_flag)
-           ? (v1 = kDATA_05EE45[v0])
-           : (v1 = kDATA_05EE72[v0]),
+      ((v0 = title_screen_menu_var0717 + 1, ++title_screen_menu_var0717, rv = true, !title_screen_hard_mode_flag) ? (v1 = kDATA_05EE45[v0])
+                                                                                                                  : (v1 = kDATA_05EE72[v0]),
        title_screen_menu_var0718 = v1, v2 = 0, v1)) {
     if (title_screen_hard_mode_flag)
       v3 = kDATA_05EE5B[v0];
@@ -831,51 +768,44 @@ void RunCutsceneTask() {
       return;
     }
     switch (v1) {
-      case 8:
-        saved_joypad_bits = 0;
-        controller_press1p1 = 0;
-        controller_hold1p2 = 0;
-        controller_press1p2 = 0;
-        controller_hold2p1 = 0;
-        controller_hold2p2 = 0;
-        controller_press2p1 = 0;
-        controller_press2p2 = 0;
-        game_paused_timer = 2;
-        GameMode01_Level_GameCoreRoutine();
-        if (!player_size) ++game_mode_task;
-        return;
-      case 12:
+    case 8:
+      saved_joypad_bits = 0;
+      controller_press1p1 = 0;
+      controller_hold1p2 = 0;
+      controller_press1p2 = 0;
+      controller_hold2p1 = 0;
+      controller_hold2p2 = 0;
+      controller_press2p1 = 0;
+      controller_press2p2 = 0;
+      game_paused_timer = 2;
+      GameMode01_Level_GameCoreRoutine();
+      if (!player_size)
         ++game_mode_task;
-        ++cutscene_peach_current_state;
-        return;
-      case 14:
-        ProcessPeachMovement();
-        if (cutscene_peach_current_state >= 6u) ++game_mode_task;
-        return;
-      case 16:
-        music_ch1 = 14;
-        Ending_SetPaletteWriteText();
-        PauseMenu_Func5();
+      return;
+    case 12:
+      ++game_mode_task;
+      ++cutscene_peach_current_state;
+      return;
+    case 14:
+      ProcessPeachMovement();
+      if (cutscene_peach_current_state >= 6u)
         ++game_mode_task;
-        return;
-      case 18:
-        PeachCutscene_04DE8B();
-        return;
-      case 20:
-        ++game_mode_task;
-        return;
-      case 22:
-        ++game_mode_task;
-        return;
-      case 30:
-        if (!--inidisp_mirror) game_mode_task = 12;
-        return;
-      case 26:
-        CODE_04862A();
-        return;
-      case 28:
-        WaitForMusicAndChangeTask();
-        return;
+      return;
+    case 16:
+      music_ch1 = 14;
+      Ending_SetPaletteWriteText();
+      PauseMenu_Func5();
+      ++game_mode_task;
+      return;
+    case 18: PeachCutscene_04DE8B(); return;
+    case 20: ++game_mode_task; return;
+    case 22: ++game_mode_task; return;
+    case 30:
+      if (!--inidisp_mirror)
+        game_mode_task = 12;
+      return;
+    case 26: CODE_04862A(); return;
+    case 28: WaitForMusicAndChangeTask(); return;
     }
     if (v1 != 10) {
       if (v1 != 2) {
@@ -890,9 +820,11 @@ void RunCutsceneTask() {
           }
           goto LABEL_99;
         }
-      LABEL_62:
-        if (bowser_var0096) return;
-        if (cutscene_peach_var0F82) Ending_SetGfxPtrToUpload();
+LABEL_62:
+        if (bowser_var0096)
+          return;
+        if (cutscene_peach_var0F82)
+          Ending_SetGfxPtrToUpload();
         v2 = 0;
         enemy_data_a[1] = 0;
         if (obj_xpos_hi.player == enemy_data_a[0]) {
@@ -902,14 +834,15 @@ void RunCutsceneTask() {
             goto LABEL_73;
           }
           if (world_number == 2) {
-            if (obj_xpos_lo.player >= 0x44u) goto LABEL_73;
+            if (obj_xpos_lo.player >= 0x44u)
+              goto LABEL_73;
           } else if (obj_xpos_lo.player >= 0x54u) {
             goto LABEL_73;
           }
         }
         ++enemy_data_a[1];
         v2 = 1;
-      LABEL_73:
+LABEL_73:
         AutoControlPlayer(v2);
         if (screen_left_xpos_hi != enemy_data_a[0]) {
           int t = cutscene_task_subpos + 0x180;
@@ -919,24 +852,24 @@ void RunCutsceneTask() {
           ++enemy_data_a[1];
         }
         if (!enemy_data_a[1]) {
-        LABEL_97:
+LABEL_97:
           ++game_mode_task;
           return;
         }
         return;
       }
       CODE_04DE54();
-    LABEL_60:
+LABEL_60:
       enemy_data_a[0] = screen_right_xpos_hi + 1;
       IncModeTask_B();
       return;
     }
-  LABEL_51:
+LABEL_51:
     if (event_music_buffer < 6u) {
-      if ((ReadReg(APUI03) & 0x7F) != 75) sound_ch3 = 75;
+      if ((ReadReg(APUI03) & 0x7F) != 75)
+        sound_ch3 = 75;
       CODE_03D809();
-      if (!(level_timer_ones |
-            (uint8)(level_timer_tens | level_timer_hundreds))) {
+      if (!(level_timer_ones | (uint8)(level_timer_tens | level_timer_hundreds))) {
         sound_ch3 = 76;
         unused_byte_7E0E1A = 76;
         all_timers = 48;
@@ -947,7 +880,8 @@ void RunCutsceneTask() {
     return;
   }
   v0 = 2 * game_mode_task;
-  if (2 * game_mode_task == 10) goto LABEL_51;
+  if (2 * game_mode_task == 10)
+    goto LABEL_51;
   if (v0 == 2) {
     if (!pausemenu_var3) {
       CutsceneBowserDefeat_04ECCA();
@@ -956,7 +890,8 @@ void RunCutsceneTask() {
     CutsceneToad_04ED07();
     goto LABEL_60;
   }
-  if (v0 == 4) goto LABEL_62;
+  if (v0 == 4)
+    goto LABEL_62;
   if (v0 != 6) {
     if (v0 != 8) {
       if (v0 != 12) {
@@ -965,11 +900,11 @@ void RunCutsceneTask() {
           while (1)
             ;
         }
-      LABEL_10:
+LABEL_10:
         BridgeCollapse();
         return;
       }
-    LABEL_99:
+LABEL_99:
       if (!event_music_buffer) {
         if (cutscene_var1680 || world_number >= 7u) {
           ContinueGame();
@@ -987,40 +922,46 @@ void RunCutsceneTask() {
       }
       return;
     }
-    if (cutscene_toad_text_timer) goto LABEL_94;
+    if (cutscene_toad_text_timer)
+      goto LABEL_94;
     v3 = cutscene_toad_line_to_display;
     if (cutscene_toad_line_to_display) {
-      if (cutscene_toad_line_to_display >= 9u) goto LABEL_94;
+      if (cutscene_toad_line_to_display >= 9u)
+        goto LABEL_94;
       if (world_number == 7) {
-        if (cutscene_toad_line_to_display < 3u) goto LABEL_94;
-        v3 = cutscene_toad_line_to_display -
-             ((cutscene_toad_line_to_display < 3u) + 1);
+        if (cutscene_toad_line_to_display < 3u)
+          goto LABEL_94;
+        v3 = cutscene_toad_line_to_display - ((cutscene_toad_line_to_display < 3u) + 1);
       } else if (cutscene_toad_line_to_display < 2u) {
         goto LABEL_94;
       }
     }
     v4 = v3;
     if (!v3) {
-      if (current_player) v4 = v3 + 1;
-    LABEL_93:
+      if (current_player)
+        v4 = v3 + 1;
+LABEL_93:
       vram_buffer_addr_ctrl = v4 + 12;
       goto LABEL_94;
     }
     v4 = v3 + 1;
-    if (world_number == 7) goto LABEL_93;
+    if (world_number == 7)
+      goto LABEL_93;
     v4 = v3;
     if (v3 >= 4u) {
-    LABEL_95:
+LABEL_95:
       event_music_buffer = 6;
       var0E67 = 6;
       goto LABEL_97;
     }
-    if (v3 < 3u) goto LABEL_93;
-  LABEL_94:
+    if (v3 < 3u)
+      goto LABEL_93;
+LABEL_94:
     v5 = __CFADD__(cutscene_toad_text_timer, 4);
     cutscene_toad_text_timer += 4;
     cutscene_toad_line_to_display += v5;
-    if (v5 < 7) return;
+    if (v5 < 7)
+      return;
     goto LABEL_95;
   }
   if (++cutscene_wait_before_toad_breaks_out_of_bag == 112) {
@@ -1049,7 +990,8 @@ void FloateyNumbersRoutine(uint8 k) {
     if (v1 >= 0xBu) {
       v1 = 11;
       floateynum_control[k] = 11;
-      if (k != 9) stomp_chain_counter = 11;
+      if (k != 9)
+        stomp_chain_counter = 11;
     }
     v2 = v1;
     v3 = floateynum_timer[k];
@@ -1073,21 +1015,22 @@ void FloateyNumbersRoutine(uint8 k) {
         }
       }
       if (score_spr_ypos_lo[object_index] >= 0x18u)
-        score_spr_ypos_lo[object_index] -=
-            (score_spr_ypos_lo[object_index] < 0x18u) + 1;
+        score_spr_ypos_lo[object_index] -= (score_spr_ypos_lo[object_index] < 0x18u) + 1;
       DumpTwoSpr_(v5, score_spr_ypos_lo[v4]);
       tempE0 = v4;
       *(uint16 *)&tempE2 = floateynum_xpos_word[(uint8)(2 * v4) >> 1];
       *(uint16 *)&tempDE = *(uint16 *)&tempE2 + 8;
       v6 = tempE0;
       tempDD = 0;
-      if (tempE3) tempDD |= 1u;
+      if (tempE3)
+        tempDD |= 1u;
       oam_tile_size_buffer[v5] = tempDD;
       if (floateynum_control[v6] < 6u || floateynum_control[v6] == 11)
         tempDD = 0;
       else
         tempDD = 2;
-      if (tempDF) tempDD |= 1u;
+      if (tempDF)
+        tempDD |= 1u;
       oam_tile_size_buffer[v5 + 4] = tempDD;
       oam = get_OamEnt(oam_buf, v5);
       oam->xpos = tempE2;
@@ -1099,7 +1042,8 @@ void FloateyNumbersRoutine(uint8 k) {
       v10 = v9;
       v11 = 50;
       oam->flags = 50;
-      if (v10 == 14) v11 = 51;
+      if (v10 == 14)
+        v11 = 51;
       oam[1].flags = v11;
     } else {
       floateynum_control[k] = 0;
@@ -1126,114 +1070,100 @@ void ScreenRoutines() {
     goto LABEL_53;
   }
   switch (v0) {
-    case 2:
-      v7 = background_color_ctrl;
-      v6 = player_status;
-      player_status = 0;
-      background_color_ctrl = 2;
-      GetPlayerColors();
-      player_status = v6;
-      background_color_ctrl = v7;
-      goto LABEL_53;
-    case 18:
-      SetLevelMusic();
-      CODE_04956B();
-      return;
-    case 20:
-      GetBackgroundColor_0();
-      return;
-    case 22:
-      ++screen_routine_task;
-      return;
-    case 4:
-      WriteGameText(0);
-      goto LABEL_53;
-    case 6:
-      GetSBNibbles();
-      v1 = *(uint16 *)&vram_buffer1_offset;
-      v2 = *(uint16 *)&vram_buffer1_offset;
-      *(uint16 *)&vram_buffer1[*(uint16 *)&vram_buffer1_offset + 1] = 29272;
-      *(uint16 *)&vram_buffer1[v2 + 3] = 1792;
-      *(uint16 *)&vram_buffer1[v1 + 5] = 8232;
-      vram_buffer1[v1 + 7] = world_number + 1;
-      vram_buffer1[v1 + 8] = 32;
-      vram_buffer1[v1 + 10] = 32;
-      vram_buffer1[v1 + 12] = 32;
-      vram_buffer1[v1 + 9] = 36;
-      vram_buffer1[v1 + 11] = level_number + 1;
-      vram_buffer1[v1 + 13] = -1;
-      if (!game_mode && (save_buffer_2_player_flag & 0x80u) == 0)
-        vram_buffer1[v1 + 7] = save_buffer + 1;
-      *(uint16 *)&vram_buffer1_offset = v1 + 12;
-      v3 = v1 + 12;
-      if (player_hard_mode_flag) vram_buffer1[v3 + 5 - 12] = 42;
-      goto LABEL_53;
-    case 8:
-      if (game_timer_expired_flag) {
-        game_timer_expired_flag = 0;
-        DrawLevelPreviewSprites_Sub_New();
-        v4 = CODE_0491DD();
-        game_loop_toggler = 1;
-        OutputInter(2u);
-        if (number_of_players) {
-          if ((other_player_num_lives & 0x80u) == 0) {
-            *(uint16 *)&vram_buffer1[v4 + 1] = 29272;
-            *(uint16 *)&vram_buffer1[v4 + 3] = 1792;
-            *(uint16 *)&vram_buffer1[v4 + 5] = 8232;
-            vram_buffer1[v4 + 7] = offscreen_players_world + 1;
-            vram_buffer1[v4 + 8] = 32;
-            vram_buffer1[v4 + 10] = 32;
-            vram_buffer1[v4 + 12] = 32;
-            vram_buffer1[v4 + 9] = 36;
-            vram_buffer1[v4 + 11] =
-                player_other_players_level_number_display + 1;
-            vram_buffer1[v4 + 13] = -1;
-            *(uint16 *)&vram_buffer1_offset = v4 + 12;
-            v5 = v4 + 12;
-            if (other_player_hard_mode) vram_buffer1[v5 + 5 - 12] = 42;
-          }
+  case 2:
+    v7 = background_color_ctrl;
+    v6 = player_status;
+    player_status = 0;
+    background_color_ctrl = 2;
+    GetPlayerColors();
+    player_status = v6;
+    background_color_ctrl = v7;
+    goto LABEL_53;
+  case 18:
+    SetLevelMusic();
+    CODE_04956B();
+    return;
+  case 20: GetBackgroundColor_0(); return;
+  case 22: ++screen_routine_task; return;
+  case 4: WriteGameText(0); goto LABEL_53;
+  case 6:
+    GetSBNibbles();
+    v1 = *(uint16 *)&vram_buffer1_offset;
+    v2 = *(uint16 *)&vram_buffer1_offset;
+    *(uint16 *)&vram_buffer1[*(uint16 *)&vram_buffer1_offset + 1] = 29272;
+    *(uint16 *)&vram_buffer1[v2 + 3] = 1792;
+    *(uint16 *)&vram_buffer1[v1 + 5] = 8232;
+    vram_buffer1[v1 + 7] = world_number + 1;
+    vram_buffer1[v1 + 8] = 32;
+    vram_buffer1[v1 + 10] = 32;
+    vram_buffer1[v1 + 12] = 32;
+    vram_buffer1[v1 + 9] = 36;
+    vram_buffer1[v1 + 11] = level_number + 1;
+    vram_buffer1[v1 + 13] = -1;
+    if (!game_mode && (save_buffer_2_player_flag & 0x80u) == 0)
+      vram_buffer1[v1 + 7] = save_buffer + 1;
+    *(uint16 *)&vram_buffer1_offset = v1 + 12;
+    v3 = v1 + 12;
+    if (player_hard_mode_flag)
+      vram_buffer1[v3 + 5 - 12] = 42;
+    goto LABEL_53;
+  case 8:
+    if (game_timer_expired_flag) {
+      game_timer_expired_flag = 0;
+      DrawLevelPreviewSprites_Sub_New();
+      v4 = CODE_0491DD();
+      game_loop_toggler = 1;
+      OutputInter(2u);
+      if (number_of_players) {
+        if ((other_player_num_lives & 0x80u) == 0) {
+          *(uint16 *)&vram_buffer1[v4 + 1] = 29272;
+          *(uint16 *)&vram_buffer1[v4 + 3] = 1792;
+          *(uint16 *)&vram_buffer1[v4 + 5] = 8232;
+          vram_buffer1[v4 + 7] = offscreen_players_world + 1;
+          vram_buffer1[v4 + 8] = 32;
+          vram_buffer1[v4 + 10] = 32;
+          vram_buffer1[v4 + 12] = 32;
+          vram_buffer1[v4 + 9] = 36;
+          vram_buffer1[v4 + 11] = player_other_players_level_number_display + 1;
+          vram_buffer1[v4 + 13] = -1;
+          *(uint16 *)&vram_buffer1_offset = v4 + 12;
+          v5 = v4 + 12;
+          if (other_player_hard_mode)
+            vram_buffer1[v5 + 5 - 12] = 42;
         }
-        return;
       }
-      ++screen_routine_task;
-    LABEL_53:
-      ++screen_routine_task;
       return;
-    case 12:
-      if (!game_mode) goto LABEL_51;
-      if (game_mode == 3) {
-        func_sub_8E50();
-        return;
-      }
-      if (!alt_entrance_ctrl && (area_type == 3 || !screen_routines_flag0769)) {
-        DrawLevelPreviewSprites();
-        CODE_0492E7();
-        OutputInter(1u);
-      } else {
-      LABEL_51:
-        NoInter();
-      }
-      break;
-    case 16:
-      AreaParserTaskControl();
-      break;
-    case 24:
-      DrawTitleScreen();
-      break;
-    case 26:
-      ClearBuffersDrawIcon();
-      break;
-    case 28:
-      WriteTopScore();
-      break;
-    case 10:
-    case 14:
-      ResetSpritesAndScreenTimer();
-      break;
-    default:
-      Unreachable();
-      while (1)
-        ;
+    }
+    ++screen_routine_task;
+LABEL_53:
+    ++screen_routine_task;
+    return;
+  case 12:
+    if (!game_mode)
+      goto LABEL_51;
+    if (game_mode == 3) {
+      func_sub_8E50();
+      return;
+    }
+    if (!alt_entrance_ctrl && (area_type == 3 || !screen_routines_flag0769)) {
+      DrawLevelPreviewSprites();
+      CODE_0492E7();
+      OutputInter(1u);
+    } else {
+LABEL_51:
+      NoInter();
+    }
+    break;
+  case 16: AreaParserTaskControl(); break;
+  case 24: DrawTitleScreen(); break;
+  case 26: ClearBuffersDrawIcon(); break;
+  case 28: WriteTopScore(); break;
+  case 10:
+  case 14: ResetSpritesAndScreenTimer(); break;
+  default:
+    Unreachable();
+    while (1)
+      ;
   }
 }
 // 7E16F6: using guessed type uint8 byte_7E16F6[10];
@@ -1254,7 +1184,9 @@ void OutputInter(uint8 a) {
   disable_screen_flag = 0;
 }
 
-void NoInter() { screen_routine_task = 8; }
+void NoInter() {
+  screen_routine_task = 8;
+}
 
 void func_sub_8E50() {
   uint8 v0;   // di
@@ -1298,10 +1230,13 @@ void func_sub_8E50() {
 
 void AreaParserTaskControl() {
   if (disable_screen_flag) {
-    if (disable_screen_flag != 1) ++disable_screen_flag;
-    do AreaParserTaskHandler();
+    if (disable_screen_flag != 1)
+      ++disable_screen_flag;
+    do
+      AreaParserTaskHandler();
     while (area_parser_task_num);
-    if ((--column_sets & 0x80u) != 0) ++screen_routine_task;
+    if ((--column_sets & 0x80u) != 0)
+      ++screen_routine_task;
     vram_buffer_addr_ctrl = 6;
   } else {
     fade_direction = 1;
@@ -1322,7 +1257,8 @@ void DrawTitleScreen() {
     for (i = 0;; i += 2) {
       v2 = kTitleScreenLogoAndMenuStripeImage[i >> 1];
       *(uint16 *)&vram_buffer1[v0 + 1] = v2;
-      if (v2 == 0xFFFF) break;
+      if (v2 == 0xFFFF)
+        break;
       v0 += 2;
     }
     *(uint16 *)&vram_buffer1_offset = v0;
@@ -1360,7 +1296,9 @@ void WriteTopScore() {
   IncModeTask_B();
 }
 
-void IncModeTask_B() { ++game_mode_task; }
+void IncModeTask_B() {
+  ++game_mode_task;
+}
 
 uint8 WriteGameText(uint8 a) {
   uint8 v1;   // di
@@ -1376,13 +1314,16 @@ uint8 WriteGameText(uint8 a) {
 
   v1 = 2 * a;
   if ((uint8)(2 * a) >= 4u) {
-    if (v1 >= 8u) v1 = 8;
-    if (!number_of_players) ++v1;
+    if (v1 >= 8u)
+      v1 = 8;
+    if (!number_of_players)
+      ++v1;
   }
   tempF3 = v1;
   v2 = kGameTextOffsets[(uint8)(2 * v1) >> 1];
   v3 = *(uint16 *)&vram_buffer1_offset;
-  while (kGameText[v2] != 0xFF) vram_buffer1[++v3] = kGameText[v2++];
+  while (kGameText[v2] != 0xFF)
+    vram_buffer1[++v3] = kGameText[v2++];
   vram_buffer1[v3 + 1] = -1;
   *(uint16 *)&tempE4 = v3;
   if (a >= 4u) {
@@ -1405,25 +1346,29 @@ uint8 WriteGameText(uint8 a) {
       while (1) {
         v6 = v5 < 0x64u;
         v5 -= 100;
-        if (v6) break;
+        if (v6)
+          break;
         ++tempE4;
       }
       v7 = v5 + 100;
       while (1) {
         v6 = v7 < 0xAu;
         v7 -= 10;
-        if (v6) break;
+        if (v6)
+          break;
         ++tempE5;
       }
       tempE6 = v7 + 10;
-      if (tempE4) vram_buffer1[vram_buffer1_offset + 13] = tempE4;
+      if (tempE4)
+        vram_buffer1[vram_buffer1_offset + 13] = tempE4;
       vram_buffer1[v4 + 15] = tempE5;
       v5 = tempE6;
     }
     vram_buffer1[v4 + 17] = v5;
     vram_buffer1[v4 + 45] = world_number + 1;
     vram_buffer1[v4 + 49] = level_number + 1;
-    if (player_hard_mode_flag) vram_buffer1[v4 + 43] = 42;
+    if (player_hard_mode_flag)
+      vram_buffer1[v4 + 43] = 42;
     v3 = (uint8)(level_number + 1);
   } else if (number_of_players && current_player_mirror) {
     v8 = vram_buffer1_offset + 9;
@@ -1445,7 +1390,8 @@ uint8 WriteGameText(uint8 a) {
 
 void ResetSpritesAndScreenTimer() {
   if (!screen_timer) {
-    if (game_mode != 3) fade_direction = 1;
+    if (game_mode != 3)
+      fade_direction = 1;
     ResetScreenTimer();
   }
 }
@@ -1456,21 +1402,21 @@ void ResetScreenTimer() {
 }
 
 void RenderAreaGraphics() {
-  uint16 v0;    // ax
-  int v1;   // rbp
-  int8 v2;      // t0
-  uint8 v3;     // si
-  int8 v4;      // al
-  bool v5;      // cf
-  bool v6;      // cl
-  int8 v7;      // al
-  uint16 v8;    // di
-  int v9;   // rbp
-  int v10;  // rbp
-  uint16 v11;   // ax
-  uint16 v12;   // di
-  int v13;  // rbx
-  int16 v14;    // ax
+  uint16 v0;   // ax
+  int v1;      // rbp
+  int8 v2;     // t0
+  uint8 v3;    // si
+  int8 v4;     // al
+  bool v5;     // cf
+  bool v6;     // cl
+  int8 v7;     // al
+  uint16 v8;   // di
+  int v9;      // rbp
+  int v10;     // rbp
+  uint16 v11;  // ax
+  uint16 v12;  // di
+  int v13;     // rbx
+  int16 v14;   // ax
 
   if (!render_graphics_var0EC9) {
     *(uint16 *)&R0_ = vram_buffer2_offset;
@@ -1503,12 +1449,10 @@ void RenderAreaGraphics() {
       R6_ = kMetatileGraphics_Low[(uint8)(2 * v7 + v5)];
       R7_ = kMetatileGraphics_High[(uint8)(2 * v7 + v5)];
       *(uint16 *)&R3_ = 8 * (metatile_buffer[v3] & 0x3F);
-      v8 = *(uint16 *)&R3_ + __CFSHL__(2 * !(area_parser_task_num & 1), 1) +
-           4 * !(area_parser_task_num & 1);
+      v8 = *(uint16 *)&R3_ + __CFSHL__(2 * !(area_parser_task_num & 1), 1) + 4 * !(area_parser_task_num & 1);
       v9 = *(uint16 *)&R0_ >> 1;
       vram_buffer2[v9 + 6] = *(uint16 *)&RomPtr_00(*(uint16 *)&R6_)[v8];
-      vram_buffer2[v9 + 7] =
-          *(uint16 *)&RomPtr_00(*(uint16 *)&R6_)[(uint16)(v8 + 2)];
+      vram_buffer2[v9 + 7] = *(uint16 *)&RomPtr_00(*(uint16 *)&R6_)[(uint16)(v8 + 2)];
       ++*(uint16 *)&R0_;
       ++*(uint16 *)&R0_;
       ++*(uint16 *)&R0_;
@@ -1542,9 +1486,13 @@ void RenderAreaGraphics() {
   }
 }
 
-void nullsub_9390() { ; }
+void nullsub_9390() {
+  ;
+}
 
-void ColorRotation() { ; }
+void ColorRotation() {
+  ;
+}
 
 void RemoveCoin_Axe() {
   PutBlockMetatile(3u, vram_buffer1_offset + 1);
@@ -1558,7 +1506,9 @@ void ReplaceBlockMetatile(uint8 k, uint8 a) {
   --block_repflag[k];
 }
 
-void DestroyBlockMetatile() { WriteBlockMetatile(0); }
+void DestroyBlockMetatile() {
+  WriteBlockMetatile(0);
+}
 
 void WriteBlockMetatile(uint8 a) {
   uint8 v1;  // di
@@ -1568,14 +1518,17 @@ void WriteBlockMetatile(uint8 a) {
     v1 = 0;
     if (a != 91 && a != 81) {
       v1 = 1;
-      if (a != 96 && a != 82) v1 = 2;
+      if (a != 96 && a != 82)
+        v1 = 2;
     }
   }
   PutBlockMetatile(v1, vram_buffer1_offset + 1);
   MoveVOffset();
 }
 
-void MoveVOffset() { *(uint16 *)&vram_buffer1_offset += 16; }
+void MoveVOffset() {
+  *(uint16 *)&vram_buffer1_offset += 16;
+}
 
 void PutBlockMetatile(uint8 a, uint8 j) {
   uint8 v2;  // si
@@ -1587,7 +1540,8 @@ void PutBlockMetatile(uint8 a, uint8 j) {
   R1_ = j;
   v2 = 8 * a;
   v3 = 0;
-  if (R6_ >= 0xD0u) v3 = 4;
+  if (R6_ >= 0xD0u)
+    v3 = 4;
   R3_ = v3;
   R4_ = 2 * (R6_ & 0xF);
   R5_ = __CFSHL__(R2_ + 32, 1);
@@ -1601,8 +1555,8 @@ void PutBlockMetatile(uint8 a, uint8 j) {
 }
 
 void RemBridge(uint8 k, uint8 j) {
-  int16 v2;    // ax
-  int v3;  // rbp
+  int16 v2;  // ax
+  int v3;    // rbp
 
   LOBYTE(v2) = R5_;
   HIBYTE(v2) = R4_;
@@ -1627,8 +1581,7 @@ void VramFunc_9B5C() {
   WriteReg(MDMAEN, 1u);
   WriteReg(OAMADDH, 0x80u);
   WriteReg(OAMADDL, 0);
-  if (pausemenu_var3 ||
-      (VramFunc_9BD4(1u), !vram_flag_028c) && vram_flag_028d) {
+  if (pausemenu_var3 || (VramFunc_9BD4(1u), !vram_flag_028c) && vram_flag_028d) {
     WriteRegWord(VMADDL, graphics_upload_vramaddress);
     WriteRegWord(DMAP0, 0x1801u);
     WriteRegWord(A1T0L, graphics_upload_ptr.addr);
@@ -1746,7 +1699,9 @@ void OutputNumbers(uint8 a) {
   }
 }
 
-void PrintStatusBarNumbers_Far(uint8 a) { PrintStatusBarNumbers(a); }
+void PrintStatusBarNumbers_Far(uint8 a) {
+  PrintStatusBarNumbers(a);
+}
 
 void DigitsMathRoutine(uint8 j) {
   uint8 i;  // si
@@ -1761,10 +1716,11 @@ void DigitsMathRoutine(uint8 j) {
         v4 = digit_modifier[i - 1]-- == 1;
         v2 = 9;
         if (v4) {
-        LABEL_12:
+LABEL_12:
           if (!i) {
             i = 5;
-            do marios_score[i--] = 9;
+            do
+              marios_score[i--] = 9;
             while (i);
             v2 = 19;
           }
@@ -1777,7 +1733,8 @@ void DigitsMathRoutine(uint8 j) {
       displayed_score[j--] = v2;
     }
   }
-  for (k = 6; k >= 0; --k) digit_modifier[k - 1] = 0;
+  for (k = 6; k >= 0; --k)
+    digit_modifier[k - 1] = 0;
 }
 
 void TitleScreen_0_InitializeGame() {
@@ -1799,7 +1756,8 @@ void TitleScreen_0_InitializeGame() {
   v1 = 5;
   while (displayed_score[v1] < 0xAu) {
     if ((--v1 & 0x80u) != 0) {
-      if (title_screen_var07FF == 0xA5) v0 = -57;
+      if (title_screen_var07FF == 0xA5)
+        v0 = -57;
       break;
     }
   }
@@ -1824,11 +1782,14 @@ void GameMode01_Level_InitializeArea() {
   uint8 v5;  // di
   int8 v6;   // al
 
-  if (world_number >= 8u) LoadAreaPointer();
+  if (world_number >= 8u)
+    LoadAreaPointer();
   CODE_039F3E(0x4Bu);
-  for (i = 41; i >= 0; --i) *(&all_timers + (uint8)i) = 0;
+  for (i = 41; i >= 0; --i)
+    *(&all_timers + (uint8)i) = 0;
   v2 = halfway_page;
-  if (alt_entrance_ctrl) v2 = entrance_page;
+  if (alt_entrance_ctrl)
+    v2 = entrance_page;
   screen_left_xpos_hi = v2;
   column_pos_hi = v2;
   backloading_flag = v2;
@@ -1840,7 +1801,8 @@ void GameMode01_Level_InitializeArea() {
   layer3_xpos = (uint16)(v3 & 0xFF00) >> 2;
   v5 = 0;
   v6 = GetScreenPosition() & 1;
-  if (v6) v5 = 4;
+  if (v6)
+    v5 = 4;
   render_graphics_var0720 = v5;
   block_buffer_column_pos = 16 * v6;
   area_object_length[0] = -1;
@@ -1850,11 +1812,12 @@ void GameMode01_Level_InitializeArea() {
   area_object_length[4] = -1;
   column_sets = 11;
   GetAreaDataAddrs();
-  if (primary_hard_mode ||
-      world_number >= 4u && (world_number != 4 || level_number >= 2u))
+  if (primary_hard_mode || world_number >= 4u && (world_number != 4 || level_number >= 2u))
     ++secondary_hard_mode;
-  if (halfway_page) player_entrance_ctrl = 2;
-  if (area_data_addr_index != 33 && area_data_addr_index != 2) music_ch1 = 0x80;
+  if (halfway_page)
+    player_entrance_ctrl = 2;
+  if (area_data_addr_index != 33 && area_data_addr_index != 2)
+    music_ch1 = 0x80;
   fade_direction = 1;
   ++game_mode_task;
 }
@@ -1880,7 +1843,8 @@ void GameMode01_Level_SecondaryGameSetup() {
   inidisp_mirror = 0;
   disable_screen_flag = 0;
   v0 = 0;
-  do bridge_sprite_slot_exists_flag[v0++] = 0;
+  do
+    bridge_sprite_slot_exists_flag[v0++] = 0;
   while (v0);
   game_timer_expired_flag = 0;
   screen_routines_flag0769 = 0;
@@ -1903,21 +1867,24 @@ void GameMode01_Level_SecondaryGameSetup() {
 void UNUSED_InitializeMemory(uint8 j, uint8 k) {
   R6_ = 0;
   R7_ = k;
-  do RomPtr_RAM(*(uint16 *)&R6_)[j--] = 0;
+  do
+    RomPtr_RAM(*(uint16 *)&R6_)[j--] = 0;
   while (j != 0xFF);
 }
 
 void CODE_039F3E(uint8 j) {
-  int8 v1;  // si
-  uint8 v2;          // si
+  int8 v1;   // si
+  uint8 v2;  // si
 
-  if (area_data_addr_index == 33) ++fade_direction;
+  if (area_data_addr_index == 33)
+    ++fade_direction;
   v1 = 7;
   R6_ = 0;
   do {
     R7_ = v1;
     do {
-      if (v1 != 1 || j < 0x50u) RomPtr_RAM(*(uint16 *)&R6_)[j] = 0;
+      if (v1 != 1 || j < 0x50u)
+        RomPtr_RAM(*(uint16 *)&R6_)[j] = 0;
       --j;
     } while (j != 0xFF);
     --v1;
@@ -1930,7 +1897,8 @@ void CODE_039F3E(uint8 j) {
   contact_sprite_arr1[4] = 0;
   primary_hard_mode = player_hard_mode_flag;
   v2 = 64;
-  do *(&g_byte_7E0F00 + v2++) = 0;
+  do
+    *(&g_byte_7E0F00 + v2++) = 0;
   while (v2);
   if (var0F0B) {
     if (!--var0F0B) {
@@ -1955,10 +1923,12 @@ void Entrance_GameTimerSetup() {
   --player_collision_bits;
   v0 = 0;
   halfway_page = 0;
-  if (!area_type) v0 = 1;
+  if (!area_type)
+    v0 = 1;
   swimming_flag = v0;
   v1 = player_entrance_ctrl;
-  if (alt_entrance_ctrl >= 2u) v1 = kAltYPosOffset[alt_entrance_ctrl - 2];
+  if (alt_entrance_ctrl >= 2u)
+    v1 = kAltYPosOffset[alt_entrance_ctrl - 2];
   obj_xpos_lo.player = kPlayerStarting_X_Pos[alt_entrance_ctrl];
   obj_ypos_lo.player = kPlayerStarting_Y_Pos[v1];
   player_sprattrib = kPlayerBgPriorityData[v1];
@@ -1979,7 +1949,8 @@ void Entrance_GameTimerSetup() {
     v2 = 9;
     Spr02F_Vine_Init(9u, 0);
   }
-  if (!area_type) SetupBubble(v2);
+  if (!area_type)
+    SetupBubble(v2);
   game_engine_subroutine = 7;
 }
 
@@ -1993,11 +1964,14 @@ void PlayerLoseLife() {
   sprite0_hit_detect_flag = 0;
   if ((--number_of_lives & 0x80u) == 0) {
     v0 = 2 * world_number;
-    if ((level_number & 2) != 0) ++v0;
+    if ((level_number & 2) != 0)
+      ++v0;
     v1 = kHalfwayPageNibbles[v0];
-    if (!(level_number & 1)) v1 >>= 4;
+    if (!(level_number & 1))
+      v1 >>= 4;
     v2 = v1 & 0xF;
-    if (v2 != screen_left_xpos_hi && v2 >= screen_left_xpos_hi) v2 = 0;
+    if (v2 != screen_left_xpos_hi && v2 >= screen_left_xpos_hi)
+      v2 = 0;
     halfway_page = v2;
     TransposePlayers();
     ContinueGame();
@@ -2041,7 +2015,7 @@ void RunGameOver_() {
   if (!number_of_players || (other_player_num_lives & 0x80u) != 0) {
     controller_press1p1 |= controller_press1p2;
     if ((controller_press1p1 & 0xC) == 0) {
-    LABEL_11:
+LABEL_11:
       if (!pausemenu_var2) {
         if (((controller_press1p2 | controller_press1p1) & 0x10) == 0) {
           if (((controller_press1p2 | controller_press1p1) & 0x20) != 0) {
@@ -2050,7 +2024,8 @@ void RunGameOver_() {
               game_over_screen_blinking_cursor_pos = 0;
           }
           if (world_number != 8) {
-            if (sound_ch3) blinking_cursor_frame_counter = 0;
+            if (sound_ch3)
+              blinking_cursor_frame_counter = 0;
             CODE_03A142();
           }
           return;
@@ -2058,10 +2033,12 @@ void RunGameOver_() {
         pausemenu_var2 = 32;
         sound_ch1 = 67;
         music_ch1 = -13;
-        if (game_over_screen_blinking_cursor_pos) sound_ch1 = 59;
+        if (game_over_screen_blinking_cursor_pos)
+          sound_ch1 = 59;
       }
       CODE_03A142();
-      if (--pausemenu_var2) return;
+      if (--pausemenu_var2)
+        return;
       blinking_cursor_frame_counter = 0;
       number_of_lives = 4;
       some_flag_for_transpose_players = 0;
@@ -2074,7 +2051,8 @@ void RunGameOver_() {
       player_other_players_level = 0;
       area_number = 0;
       sram_initial_selected_level = 0;
-      for (i = 23; i >= 0; --i) marios_score[(uint8)i] = 0;
+      for (i = 23; i >= 0; --i)
+        marios_score[(uint8)i] = 0;
       ++hidden_1up_flag;
       if (game_over_screen_blinking_cursor_pos) {
         SaveGame_Main();
@@ -2083,7 +2061,7 @@ void RunGameOver_() {
           return;
         }
       }
-    LABEL_33:
+LABEL_33:
       if (TransposePlayers() & 1) {
         continue_world = world_number;
         game_mode_task = 0;
@@ -2099,7 +2077,7 @@ void RunGameOver_() {
       v0 = game_over_screen_blinking_cursor_pos - 1;
       if ((int8)(game_over_screen_blinking_cursor_pos - 1) < 0) {
         v0 = game_over_screen_blinking_cursor_pos;
-      LABEL_9:
+LABEL_9:
         sound_ch3 = 0;
       }
     } else {
@@ -2113,7 +2091,8 @@ void RunGameOver_() {
     goto LABEL_11;
   }
   v2 = RunGameOver_Sub();
-  if (v2 == 2) goto LABEL_33;
+  if (v2 == 2)
+    goto LABEL_33;
   if (v2) {
     Unreachable();
     while (1)
@@ -2124,15 +2103,15 @@ void RunGameOver_() {
 void CODE_03A142() {
   uint8 i;  // di
 
-  oam_tile_size_buffer[0] =
-      ((uint8)(++blinking_cursor_frame_counter & 0x10) >> 4) | 2;
+  oam_tile_size_buffer[0] = ((uint8)(++blinking_cursor_frame_counter & 0x10) >> 4) | 2;
   for (i = 3; (i & 0x80u) == 0; --i)
     get_OamEnt(oam_buf, i)->xpos = kDATA_03A0C8[i];
-  get_OamEnt(oam_buf, 0)->ypos =
-      kDATA_03A0CC[game_over_screen_blinking_cursor_pos];
+  get_OamEnt(oam_buf, 0)->ypos = kDATA_03A0CC[game_over_screen_blinking_cursor_pos];
 }
 
-void RunGameOver() { RunGameOver_(); }
+void RunGameOver() {
+  RunGameOver_();
+}
 
 void ContinueGame() {
   LoadAreaPointer();
@@ -2173,15 +2152,22 @@ uint8 TransposePlayers() {
     }
     return 0;
   }
-  if (some_flag_for_transpose_players) return 1;
+  if (some_flag_for_transpose_players)
+    return 1;
   return 0;
 }
 
-uint8 TransposePlayers_Far() { return TransposePlayers() & 1; }
+uint8 TransposePlayers_Far() {
+  return TransposePlayers() & 1;
+}
 
-void CODE_03A28F() { unused_06C9 = -1; }
+void CODE_03A28F() {
+  unused_06C9 = -1;
+}
 
-void nullsub_A2C9() { ; }
+void nullsub_A2C9() {
+  ;
+}
 
 void AreaParserTaskHandler() {
   uint8 v0;  // di
@@ -2194,13 +2180,16 @@ void AreaParserTaskHandler() {
   AreaParserTasks(v0 - 1);
   if (!--area_parser_task_num) {
     R0_ = 32;
-    if (obj_yspeed.bubble[0] == 3) R0_ *= 2;
+    if (obj_yspeed.bubble[0] == 3)
+      R0_ *= 2;
     if (!vblank_which_layer2_scroll_flag) {
       if ((R0_ & (uint8)layer2_xpos) != 0) {
-        if (area_parser_flag0EFC) goto LABEL_14;
+        if (area_parser_flag0EFC)
+          goto LABEL_14;
         area_parser_flag0EFC = 1;
       } else {
-        if (!area_parser_flag0EFC) goto LABEL_14;
+        if (!area_parser_flag0EFC)
+          goto LABEL_14;
         area_parser_flag0EFC = 0;
       }
       CODE_049B35();
@@ -2209,41 +2198,42 @@ void AreaParserTaskHandler() {
   }
 LABEL_14:
   if ((layer3_xpos & 0x10) == 0) {
-    if (!area_parser_varEDD) return;
+    if (!area_parser_varEDD)
+      return;
     area_parser_varEDD = 0;
     goto LABEL_20;
   }
   if (!area_parser_varEDD) {
     area_parser_varEDD = 1;
-  LABEL_20:
+LABEL_20:
     SMB3_BufferLayer3Tilemap();
   }
 }
 
 void AreaParserTasks(uint8 a) {
-  int8 v1;           // si
-  int8 i;            // si
-  int8 v3;  // al
-  uint8 v4;          // al
-  uint8 v5;          // si
-  uint8 v6;          // di
-  uint8 v7;          // di
-  uint8 v8;          // si
-  uint8 v9;          // al
-  uint8 v10;         // al
-  uint8 v11;         // si
-  uint8 v12;         // di
-  uint8 v13;         // di
-  uint8 v14;         // al
-  uint8 v15;         // al
-  int16 v16 = 0;     // ax
-  uint8 v17;         // si
-  uint8 v18;         // di
-  bool v19;          // cf
-  int16 v20;         // cx
-  int16 v21;         // ax
-  uint8 v22;         // di
-  uint8 v23;         // di
+  int8 v1;        // si
+  int8 i;         // si
+  int8 v3;        // al
+  uint8 v4;       // al
+  uint8 v5;       // si
+  uint8 v6;       // di
+  uint8 v7;       // di
+  uint8 v8;       // si
+  uint8 v9;       // al
+  uint8 v10;      // al
+  uint8 v11;      // si
+  uint8 v12;      // di
+  uint8 v13;      // di
+  uint8 v14;      // al
+  uint8 v15;      // al
+  int16 v16 = 0;  // ax
+  uint8 v17;      // si
+  uint8 v18;      // di
+  bool v19;       // cf
+  int16 v20;      // cx
+  int16 v21;      // ax
+  uint8 v22;      // di
+  uint8 v23;      // di
 
   v1 = 2 * a;
   if (2 * a == 2 || v1 == 4 || v1 == 10 || v1 == 12) {
@@ -2263,17 +2253,18 @@ void AreaParserTasks(uint8 a) {
       while (1)
         ;
     }
-    if (backloading_flag) ProcessAreaData();
-    for (i = 12; i >= 0; --i) metatile_buffer[(uint8)i] = 0;
+    if (backloading_flag)
+      ProcessAreaData();
+    for (i = 12; i >= 0; --i)
+      metatile_buffer[(uint8)i] = 0;
     if (background_scenery) {
       v3 = column_pos_hi;
       do {
-        if (sign8(v3 - 3)) break;
+        if (sign8(v3 - 3))
+          break;
         v3 -= 3;
       } while (v3 >= 0);
-      v4 = kBackSceneryData[(uint8)(current_column_pos_lo +
-                                    kBSceneDataOffsets[background_scenery - 1] +
-                                    16 * v3)];
+      v4 = kBackSceneryData[(uint8)(current_column_pos_lo + kBSceneDataOffsets[background_scenery - 1] + 16 * v3)];
       if (v4) {
         R0_ = (v4 & 0xF) - 1;
         v5 = 3 * R0_;
@@ -2281,7 +2272,8 @@ void AreaParserTasks(uint8 a) {
         R0_ = 3;
         do {
           metatile_buffer[v6] = kBackSceneryMetatiles[v5++];
-          if (++v6 == 11) break;
+          if (++v6 == 11)
+            break;
           --R0_;
         } while (R0_);
       }
@@ -2291,17 +2283,20 @@ void AreaParserTasks(uint8 a) {
       v8 = 0;
       while (1) {
         v9 = kForeSceneryData[v7];
-        if (v9) break;
-      LABEL_39:
+        if (v9)
+          break;
+LABEL_39:
         ++v7;
-        if (++v8 == 13) goto LABEL_40;
+        if (++v8 == 13)
+          goto LABEL_40;
       }
       if (area_type) {
-        if (area_type != 3 || v9 != 0x86) goto LABEL_38;
+        if (area_type != 3 || v9 != 0x86)
+          goto LABEL_38;
       } else {
         if (area_parser_ctr1) {
           area_parser_ctr1 = 0;
-        LABEL_38:
+LABEL_38:
           metatile_buffer[v8] = v9;
           goto LABEL_39;
         }
@@ -2311,23 +2306,25 @@ void AreaParserTasks(uint8 a) {
       v9 += 2;
       goto LABEL_38;
     }
-  LABEL_40:
+LABEL_40:
     area_parser_var2 = 0;
     tempF9 = 0;
     area_parser_var4 = area_parser_var3++;
     if (area_type || world_number != 7) {
       v10 = kTerrainMetatiles[area_type];
-      if (cloud_type_override) v10 = -116;
+      if (cloud_type_override)
+        v10 = -116;
     } else {
       v10 = 101;
     }
     R7_ = v10;
     v11 = 0;
     v12 = 2 * terrain_control;
-  LABEL_46:
+LABEL_46:
     R0_ = kTerrainRenderBits[v12];
     R1_ = v12 + 1;
-    if (cloud_type_override && v11) R0_ &= 8u;
+    if (cloud_type_override && v11)
+      R0_ &= 8u;
     v13 = 0;
     while (1) {
       if ((R0_ & kBitmasks[v13]) != 0) {
@@ -2344,20 +2341,22 @@ void AreaParserTasks(uint8 a) {
             ++metatile_buffer[v11];
             ++R7_;
           }
-        } else if (obj_yspeed.bubble[0] == 3 && !area_parser_var2 &&
-                   (area_parser_var4 & 1) == 0) {
+        } else if (obj_yspeed.bubble[0] == 3 && !area_parser_var2 && (area_parser_var4 & 1) == 0) {
           ++metatile_buffer[v11];
         }
       } else {
         tempF9 = -2;
         ++area_parser_var2;
       }
-      if (++v11 == 13) break;
-      if (area_type == 2 && v11 == 11) R7_ = 86;
+      if (++v11 == 13)
+        break;
+      if (area_type == 2 && v11 == 11)
+        R7_ = 86;
       ++area_parser_var4;
       if (++v13 == 8) {
         v12 = R1_;
-        if (R1_) goto LABEL_46;
+        if (R1_)
+          goto LABEL_46;
         break;
       }
     }
@@ -2369,7 +2368,8 @@ void AreaParserTasks(uint8 a) {
     v18 = 0;
     do {
       R0_ = v18;
-      if (render_graphics_var0EC9) break;
+      if (render_graphics_var0EC9)
+        break;
       LOBYTE(v16) = metatile_buffer[v17] & 0xC0;
       v19 = __CFSHL__(v16, 1);
       LOBYTE(v16) = 2 * v16;
@@ -2381,7 +2381,8 @@ void AreaParserTasks(uint8 a) {
       v16 = v21 + v19;
       v22 = v16;
       LOBYTE(v16) = metatile_buffer[v17];
-      if ((uint8)v16 < kBlockBuffLowBounds[v22]) LOBYTE(v16) = 0;
+      if ((uint8)v16 < kBlockBuffLowBounds[v22])
+        LOBYTE(v16) = 0;
       v23 = R0_;
       RomPtr_RAM(*(uint16 *)&R6_)[R0_] = v16;
       v18 = v23 + 16;
@@ -2406,16 +2407,18 @@ void ProcessAreaData() {
       behind_area_parser_flag = 0;
       v1 = area_data_offset;
       v2 = *IndirPtr(&area_data_ptr, area_data_offset);
-      if (v2 == 0xFD) goto LABEL_20;
-      if ((v2 & 0xF) == 15) ++level_3_byte_object_flag;
+      if (v2 == 0xFD)
+        goto LABEL_20;
+      if ((v2 & 0xF) == 15)
+        ++level_3_byte_object_flag;
       if ((area_object_length[(uint16)i] & 0x80u) == 0) {
-      LABEL_20:
+LABEL_20:
         DecodeAreaData(i, v1);
         goto LABEL_23;
       }
-      if (level_3_byte_object_flag) ++v1;
-      if (__CFSHL__(*IndirPtr(&area_data_ptr, v1 + 1), 1) &&
-          !area_object_page_sel) {
+      if (level_3_byte_object_flag)
+        ++v1;
+      if (__CFSHL__(*IndirPtr(&area_data_ptr, v1 + 1), 1) && !area_object_page_sel) {
         ++area_object_page_sel;
         ++area_object_page_loc;
       }
@@ -2425,7 +2428,8 @@ void ProcessAreaData() {
         v4 = IndirPtr(&area_data_ptr, v1 + 1);
         v1 = area_data_offset;
         if ((*v4 & 0x40) == 0 && !area_object_page_sel) {
-          if (level_3_byte_object_flag) v1 = area_data_offset + 1;
+          if (level_3_byte_object_flag)
+            v1 = area_data_offset + 1;
           area_object_page_loc = *IndirPtr(&area_data_ptr, v1 + 1) & 0x1F;
           ++area_object_page_sel;
           goto LABEL_22;
@@ -2433,11 +2437,12 @@ void ProcessAreaData() {
       } else if (v3 == 14 && backloading_flag) {
         goto LABEL_20;
       }
-      if (area_object_page_loc >= column_pos_hi) goto LABEL_20;
+      if (area_object_page_loc >= column_pos_hi)
+        goto LABEL_20;
       ++behind_area_parser_flag;
-    LABEL_22:
+LABEL_22:
       IncAreaObjOffset();
-    LABEL_23:
+LABEL_23:
       v5 = *(uint16 *)&object_index;
       if ((area_object_length[*(uint16 *)&object_index] & 0x80u) == 0)
         --area_object_length[*(uint16 *)&object_index];
@@ -2448,7 +2453,8 @@ void ProcessAreaData() {
 void IncAreaObjOffset() {
   ++area_data_offset;
   ++area_data_offset;
-  if (level_3_byte_object_flag) ++area_data_offset;
+  if (level_3_byte_object_flag)
+    ++area_data_offset;
   area_object_page_sel = 0;
   level_3_byte_object_flag = 0;
 }
@@ -2482,32 +2488,39 @@ void DecodeAreaData(uint8 k, uint16 j) {
   level_3_byte_object_flag = 0;
   v3 = 16;
   v4 = IndirPtr(&area_data_ptr, j);
-  if (*v4 == 0xFD) return;
+  if (*v4 == 0xFD)
+    return;
   v5 = *v4 & 0xF;
   if (v5 == 15) {
     ++tempF6;
   } else {
     v3 = 8;
-    if (v5 != 12) v3 = 0;
+    if (v5 != 12)
+      v3 = 0;
   }
   *(uint16 *)&R7_ = v3;
   v6 = *(uint16 *)&object_index;
   if (v5 != 14) {
     if (v5 == 13) {
       R7_ = 34;
-      if (tempF6) *(uint16 *)&j = j + 1;
+      if (tempF6)
+        *(uint16 *)&j = j + 1;
       v8 = j + 1;
-      if ((*IndirPtr(&area_data_ptr, v8) & 0x40) == 0) return;
+      if ((*IndirPtr(&area_data_ptr, v8) & 0x40) == 0)
+        return;
       v9 = *IndirPtr(&area_data_ptr, v8) & 0x7F;
-      if (v9 == 75) ++loop_command;
+      if (v9 == 75)
+        ++loop_command;
       v7 = v9 & 0x3F;
       goto LABEL_32;
     }
     if (v5 >= 0xCu) {
-      if (tempF6) *(uint16 *)&j = j + 1;
+      if (tempF6)
+        *(uint16 *)&j = j + 1;
       v13 = *IndirPtr(&area_data_ptr, j + 1) & 0x70;
     } else {
-      if (tempF6) *(uint16 *)&j = j + 1;
+      if (tempF6)
+        *(uint16 *)&j = j + 1;
       v10 = j + 1;
       v11 = IndirPtr(&area_data_ptr, v10);
       v12 = *v11 & 0x70;
@@ -2517,7 +2530,8 @@ void DecodeAreaData(uint8 k, uint16 j) {
         goto LABEL_32;
       }
       R0_ = *v11 & 0x70;
-      if (v12 == 112 && (*IndirPtr(&area_data_ptr, v10) & 8) != 0) R0_ = 0;
+      if (v12 == 112 && (*IndirPtr(&area_data_ptr, v10) & 8) != 0)
+        R0_ = 0;
       v13 = R0_;
     }
     v7 = v13 >> 4;
@@ -2528,7 +2542,7 @@ void DecodeAreaData(uint8 k, uint16 j) {
 LABEL_32:
   R0_ = v7;
   if ((area_object_length[v6] & 0x80u) == 0) {
-  LABEL_43:
+LABEL_43:
     if (tempF6) {
       DecodeAreaData_Sub2_New(WORD(tempF7));
     } else {
@@ -2540,8 +2554,7 @@ LABEL_32:
     return;
   }
   if (area_object_page_loc != column_pos_hi) {
-    if ((*IndirPtr(&area_data_ptr, area_data_offset) & 0xF) != 14 ||
-        !backloading_flag)
+    if ((*IndirPtr(&area_data_ptr, area_data_offset) & 0xF) != 14 || !backloading_flag)
       return;
     goto LABEL_40;
   }
@@ -2552,11 +2565,11 @@ LABEL_32:
     object_index_upper_empty = 0;
     return;
   }
-  if ((uint8)(*IndirPtr(&area_data_ptr, area_data_offset) & 0xF0) >> 4 ==
-      current_column_pos_lo) {
-  LABEL_40:
+  if ((uint8)(*IndirPtr(&area_data_ptr, area_data_offset) & 0xF0) >> 4 == current_column_pos_lo) {
+LABEL_40:
     area_obj_offset_buffer[(uint8)(2 * v6) >> 1] = area_data_offset;
-    if (tempF6) ++level_3_byte_object_flag;
+    if (tempF6)
+      ++level_3_byte_object_flag;
     IncAreaObjOffset();
     goto LABEL_43;
   }
@@ -2564,16 +2577,19 @@ LABEL_32:
 // 4C12: variables would overlap: di.1 and di.2
 // 4FD3: using guessed type int (*funcs_4FCB[47])();
 
-void ExtObj2D_LoopCmdE(uint8 k) { ; }
+void ExtObj2D_LoopCmdE(uint8 k) {
+  ;
+}
 
-void nullsub_A85C(uint8 k) { ; }
+void nullsub_A85C(uint8 k) {
+  ;
+}
 
 void ExtObj2E_AlterAreaAttributes(uint8 k) {
   uint8 v1;  // al
   uint8 v2;  // [rsp+47h] [rbp-1h]
 
-  v2 = *IndirPtr(&area_data_ptr,
-                 area_obj_offset_buffer[(uint16)(2 * k) >> 1] + 1);
+  v2 = *IndirPtr(&area_data_ptr, area_obj_offset_buffer[(uint16)(2 * k) >> 1] + 1);
   if ((v2 & 0x40) != 0) {
     v1 = v2 & 7;
     if ((v2 & 7u) >= 4) {
@@ -2593,7 +2609,8 @@ void ExtObj27_ScrollLockObject_Warp(uint8 k) {
   v1 = 4;
   if (world_number) {
     v1 = 5;
-    if (area_type == 1) v1 = 6;
+    if (area_type == 1)
+      v1 = 6;
   }
   warp_zone_control = v1;
   WriteGameText(v1);
@@ -2601,14 +2618,17 @@ void ExtObj27_ScrollLockObject_Warp(uint8 k) {
   ExtObj28_ScrollLockObject(v1);
 }
 
-void ExtObj28_ScrollLockObject(uint8 k) { scroll_lock ^= 1u; }
+void ExtObj28_ScrollLockObject(uint8 k) {
+  scroll_lock ^= 1u;
+}
 
 void KillEnemies(uint8 a) {
   uint8 i;  // si
 
   R0_ = a;
   for (i = 8; (i & 0x80u) == 0; --i) {
-    if (enemy_id[i] == R0_) enemy_flag[i] = 0;
+    if (enemy_id[i] == R0_)
+      enemy_flag[i] = 0;
   }
 }
 
@@ -2629,7 +2649,7 @@ void ExtObj2C_AreaFrenzy(uint8 k) {
 
 void ExtObj01_GrassyOrMushroomPlatform(uint8 k) {
   uint8 LrgObjAttrib;  // di
-  int8 v2;    // al
+  int8 v2;             // al
   uint8 v3;            // al
   uint8 v4;            // si
   uint8 v5;            // di
@@ -2642,97 +2662,100 @@ void ExtObj01_GrassyOrMushroomPlatform(uint8 k) {
   uint8 v12;           // si
   int8 v13;            // di
   uint8 v14;           // si
-  int8 v15;   // di
+  int8 v15;            // di
   uint8 v16;           // si
   uint8 v17;           // si
 
   R4_ = *((uint8 *)kDATA_03A8C1 + (uint8)(2 * area_style));
   R5_ = *((uint8 *)kDATA_03A8C1 + (uint8)(2 * area_style) + 1);
   switch ((uint8)(2 * area_style) >> 1) {
-    case 0:
-      LrgObjAttrib = GetLrgObjAttrib(k);
-      tree_ledge_saved_x = k;
-      v2 = area_object_length[k];
-      if (!v2) {
-        v3 = 28;
+  case 0:
+    LrgObjAttrib = GetLrgObjAttrib(k);
+    tree_ledge_saved_x = k;
+    v2 = area_object_length[k];
+    if (!v2) {
+      v3 = 28;
+      goto LABEL_21;
+    }
+    if (v2 < 0) {
+      area_object_length[k] = LrgObjAttrib;
+      v2 = current_column_pos_lo | column_pos_hi;
+      if (__PAIR16__(current_column_pos_lo, column_pos_hi)) {
+        v3 = 26;
         goto LABEL_21;
       }
-      if (v2 < 0) {
-        area_object_length[k] = LrgObjAttrib;
-        v2 = current_column_pos_lo | column_pos_hi;
-        if (__PAIR16__(current_column_pos_lo, column_pos_hi)) {
-          v3 = 26;
-          goto LABEL_21;
-        }
-      }
-      tree_ledge_countdown = v2;
-      v4 = R7_;
-      metatile_buffer[R7_] = 27;
-      v5 = v4 + 1;
-      if (--tree_ledge_countdown) {
-        if (tree_ledge_arr130F[tree_ledge_saved_x]) {
-          metatile_buffer[v5] = 70;
-          v6 = 74;
-        } else {
-          ++tree_ledge_arr130F[tree_ledge_saved_x];
-          metatile_buffer[v5] = 69;
-          v6 = 73;
-        }
-      } else if (tree_ledge_arr130F[tree_ledge_saved_x]) {
-        tree_ledge_arr130F[tree_ledge_saved_x] = 0;
-        metatile_buffer[v5] = 71;
-        v6 = 75;
+    }
+    tree_ledge_countdown = v2;
+    v4 = R7_;
+    metatile_buffer[R7_] = 27;
+    v5 = v4 + 1;
+    if (--tree_ledge_countdown) {
+      if (tree_ledge_arr130F[tree_ledge_saved_x]) {
+        metatile_buffer[v5] = 70;
+        v6 = 74;
       } else {
-        tree_ledge_arr130F[tree_ledge_saved_x] = 0;
-        metatile_buffer[v5] = 72;
-        v6 = 76;
+        ++tree_ledge_arr130F[tree_ledge_saved_x];
+        metatile_buffer[v5] = 69;
+        v6 = 73;
       }
-      v7 = v4 + 1;
-      goto LABEL_20;
-    case 1:;
-      uint16 t = ChkLrgObjLength(k);
-      R6_ = t;
-      if (t & 0x100) {
-        mushroom_ledge_half_len[k] = area_object_length[k] >> 1;
-        v3 = 29;
-      LABEL_21:
-        RenderUnderPart(R7_, 0, v3);
-        return;
-      }
-      v3 = 31;
-      v8 = area_object_length[k];
-      if (!v8) goto LABEL_21;
-      R6_ = mushroom_ledge_half_len[k];
-      v9 = R7_;
-      metatile_buffer[R7_] = 30;
-      if (v8 == R6_) {
-        v7 = v9 + 1;
-        metatile_buffer[v7] = 79;
-        v6 = 80;
-      LABEL_20:
-        RenderUnderPart(v7 + 1, 0xFu, v6);
-      }
+    } else if (tree_ledge_arr130F[tree_ledge_saved_x]) {
+      tree_ledge_arr130F[tree_ledge_saved_x] = 0;
+      metatile_buffer[v5] = 71;
+      v6 = 75;
+    } else {
+      tree_ledge_arr130F[tree_ledge_saved_x] = 0;
+      metatile_buffer[v5] = 72;
+      v6 = 76;
+    }
+    v7 = v4 + 1;
+    goto LABEL_20;
+  case 1:;
+    uint16 t = ChkLrgObjLength(k);
+    R6_ = t;
+    if (t & 0x100) {
+      mushroom_ledge_half_len[k] = area_object_length[k] >> 1;
+      v3 = 29;
+LABEL_21:
+      RenderUnderPart(R7_, 0, v3);
       return;
-    case 2:
-      v10 = GetLrgObjAttrib(k);
-      v11 = R7_;
-      metatile_buffer[R7_] = 108;
-      v12 = v11 + 1;
-      v13 = v10 - 1;
-      if (v13 >= 0) {
-        metatile_buffer[v12] = 109;
-        v14 = v12 + 1;
-        v15 = v13 - 1;
-        if (v15 >= 0) RenderUnderPart(v14, v15, 0x6Eu);
-      }
-      v16 = cannon_offset;
-      cannon_ypos_lo[v16] = GetAreaObjYPosition();
-      cannon_xpos_hi[v16] = column_pos_hi;
-      cannon_xpos_lo[v16] = GetAreaObjXPosition();
-      v17 = v16 + 1;
-      if (v17 >= 6u) v17 = 0;
-      cannon_offset = v17;
-      return;
+    }
+    v3 = 31;
+    v8 = area_object_length[k];
+    if (!v8)
+      goto LABEL_21;
+    R6_ = mushroom_ledge_half_len[k];
+    v9 = R7_;
+    metatile_buffer[R7_] = 30;
+    if (v8 == R6_) {
+      v7 = v9 + 1;
+      metatile_buffer[v7] = 79;
+      v6 = 80;
+LABEL_20:
+      RenderUnderPart(v7 + 1, 0xFu, v6);
+    }
+    return;
+  case 2:
+    v10 = GetLrgObjAttrib(k);
+    v11 = R7_;
+    metatile_buffer[R7_] = 108;
+    v12 = v11 + 1;
+    v13 = v10 - 1;
+    if (v13 >= 0) {
+      metatile_buffer[v12] = 109;
+      v14 = v12 + 1;
+      v15 = v13 - 1;
+      if (v15 >= 0)
+        RenderUnderPart(v14, v15, 0x6Eu);
+    }
+    v16 = cannon_offset;
+    cannon_ypos_lo[v16] = GetAreaObjYPosition();
+    cannon_xpos_hi[v16] = column_pos_hi;
+    cannon_xpos_lo[v16] = GetAreaObjXPosition();
+    v17 = v16 + 1;
+    if (v17 >= 6u)
+      v17 = 0;
+    cannon_offset = v17;
+    return;
   }
 }
 
@@ -2743,7 +2766,8 @@ void ExtObj09_PulleyRope(uint8 k) {
   v1 = 0;
   if (!v2) {
     v1 = 1;
-    if (!area_object_length[k]) v1 = 2;
+    if (!area_object_length[k])
+      v1 = 2;
   }
   metatile_buffer[0] = kPulleyRopeMetatiles[v1];
 }
@@ -2775,7 +2799,8 @@ void ExtObj22_IntroPipe(uint8 k) {
   metatile_buffer[v1] = kDATA_03A9E7[R6_];
   metatile_buffer[v1 + 1] = kDATA_03A9EB[v2];
   if (flag) {
-    for (i = 6; i >= 0; --i) metatile_buffer[(uint8)i] = 0;
+    for (i = 6; i >= 0; --i)
+      metatile_buffer[(uint8)i] = 0;
     metatile_buffer[7] = kDATA_03A9EF[v2];
   }
 }
@@ -2787,15 +2812,15 @@ void ExtObj07_VerticalPipe(uint8 k) {
   uint8 v4;                // si
 
   v1 = CODE_03AA4D(k);
-  if (R0_) v1 += 4;
+  if (R0_)
+    v1 += 4;
   if (__PAIR16__(area_number, world_number)) {
     if (area_object_length[k]) {
       slot = FindEmptyEnemySlotRev();
       if (slot != 0xff) {
         AreaObjXPosition = GetAreaObjXPosition();
         obj_xpos_lo.enemy[slot] = AreaObjXPosition + 8;
-        obj_xpos_hi.enemy[slot] =
-            __CFADD__(AreaObjXPosition, 8) + column_pos_hi;
+        obj_xpos_hi.enemy[slot] = __CFADD__(AreaObjXPosition, 8) + column_pos_hi;
         obj_ypos_hi.enemy[slot] = 1;
         enemy_flag[slot] = 1;
         obj_ypos_lo.enemy[slot] = GetAreaObjYPosition();
@@ -2819,7 +2844,8 @@ uint8 FindEmptyEnemySlot() {
   uint8 result;  // si
 
   for (result = 0; result != 8; ++result) {
-    if (!enemy_flag[result]) break;
+    if (!enemy_flag[result])
+      break;
   }
   return result;
 }
@@ -2828,7 +2854,8 @@ uint8 FindEmptyEnemySlotRev() {
   uint8 result;  // si
 
   for (result = 8; result != 0xFF; --result) {
-    if (!enemy_flag[result]) break;
+    if (!enemy_flag[result])
+      break;
   }
   return result;
 }
@@ -2839,26 +2866,37 @@ void ExtObj0D_HoleWater(uint8 k) {
 
   ChkLrgObjLength(k);
   v1 = 10;
-  if (area_type == 3) v1 = 11;
+  if (area_type == 3)
+    v1 = 11;
   v2 = area_type;
   metatile_buffer[v1] = kDATA_03AA78[area_type];
   RenderUnderPart(v1 + 1, 1u, kDATA_03AA7C[v2 >> 1]);
 }
 
-void ExtObj0E_QuestionBlockHigh(uint8 k) { CODE_03AAA4(k, 3u); }
+void ExtObj0E_QuestionBlockHigh(uint8 k) {
+  CODE_03AAA4(k, 3u);
+}
 
-void ExtObj0E_QuestionBlockLow(uint8 k) { CODE_03AAA4(k, 7u); }
+void ExtObj0E_QuestionBlockLow(uint8 k) {
+  CODE_03AAA4(k, 7u);
+}
 
 void CODE_03AAA4(uint8 k, uint8 a) {
   ChkLrgObjLength(k);
   metatile_buffer[a] = -25;
 }
 
-void ExtObj0A_Bridge_High(uint8 k) { CODE_03AABA(k, 6u); }
+void ExtObj0A_Bridge_High(uint8 k) {
+  CODE_03AABA(k, 6u);
+}
 
-void ExtObj0B_Bridge_Middle(uint8 k) { CODE_03AABA(k, 7u); }
+void ExtObj0B_Bridge_Middle(uint8 k) {
+  CODE_03AABA(k, 7u);
+}
 
-void ExtObj0B_Bridge_Low(uint8 k) { CODE_03AABA(k, 9u); }
+void ExtObj0B_Bridge_Low(uint8 k) {
+  CODE_03AABA(k, 9u);
+}
 
 void CODE_03AABA(uint8 k, uint8 a) {
   uint8 v2;  // al
@@ -2899,7 +2937,9 @@ void ExtObj23_FlagpoleObject(uint8 j) {
 }
 // 7E023D: using guessed type int8;
 
-void ExtObj04_RowOfCoins(uint8 k) { GetRow(k, kCoinMetatileData[area_type]); }
+void ExtObj04_RowOfCoins(uint8 k) {
+  GetRow(k, kCoinMetatileData[area_type]);
+}
 
 void ExtObj26_CastleBridge(uint8 k) {
   ChkLrgObjFixedLength(k, 0xCu);
@@ -2920,13 +2960,16 @@ void ExtObj20_EmptyBlock(uint8 k) {
   CODE_03AB55(R7_, 0xFCu);
 }
 
-void CODE_03AB55(uint8 k, uint8 a) { RenderUnderPart(k, 0, a); }
+void CODE_03AB55(uint8 k, uint8 a) {
+  RenderUnderPart(k, 0, a);
+}
 
 void ExtObj02_RowOfBricks(uint8 k) {
   uint8 v1;  // di
 
   v1 = area_type;
-  if (cloud_type_override) v1 = 4;
+  if (cloud_type_override)
+    v1 = 4;
   GetRow(k, kBrickMetatiles[v1]);
 }
 
@@ -3003,13 +3046,16 @@ void BrickWithItem(uint8 k) {
 
   R7_ = GetAreaObjectID();
   v1 = 0;
-  if (area_type != 1) v1 = 5;
+  if (area_type != 1)
+    v1 = 5;
   v2 = kBrickQBlockMetatiles[(uint8)(R7_ + v1)];
   GetLrgObjAttrib(k);
   metatile_buffer[R7_] = v2;
 }
 
-uint8 GetAreaObjectID() { return R0_; }
+uint8 GetAreaObjectID() {
+  return R0_;
+}
 
 void ExtObj08_Hole(uint8 k) {
   uint16 v1;   // di
@@ -3026,7 +3072,8 @@ void ExtObj08_Hole(uint8 k) {
     cannon_xpos_hi[v2] = column_pos_hi - (xpos < 0x10u);
     cannon_ypos_lo[v2] = 16 * (v1 + 2);
     v4 = v2 + 1;
-    if (v4 >= 5u) v4 = 0;
+    if (v4 >= 5u)
+      v4 = 0;
     cannon_offset = v4;
   }
   RenderUnderPart(8u, 0xFu, 0);
@@ -3038,12 +3085,11 @@ uint8 RenderUnderPart(uint8 k, uint8 j, uint8 a) {
   do {
     area_object_height = j;
     v3 = metatile_buffer[k];
-    if (!v3 || v3 != 27 && v3 != 30 &&
-                   (v3 == 0xE7 || v3 != 70 && v3 != 74 && v3 < 0xE7u &&
-                                      (v3 != 87 && v3 != 86 || a != 80))) {
+    if (!v3 || v3 != 27 && v3 != 30 && (v3 == 0xE7 || v3 != 70 && v3 != 74 && v3 < 0xE7u && (v3 != 87 && v3 != 86 || a != 80))) {
       metatile_buffer[k] = a;
     }
-    if (++k >= 0xDu) break;
+    if (++k >= 0xDu)
+      break;
     j = area_object_height - 1;
   } while ((int8)(area_object_height - 1) >= 0);
   return k;
@@ -3073,9 +3119,13 @@ uint8 GetLrgObjAttrib(uint8 k) {
   return *IndirPtr(&area_data_ptr, v1 + 1) & 0xF;
 }
 
-uint8 GetAreaObjXPosition() { return 16 * current_column_pos_lo; }
+uint8 GetAreaObjXPosition() {
+  return 16 * current_column_pos_lo;
+}
 
-uint8 GetAreaObjYPosition() { return 16 * R7_ + 32; }
+uint8 GetAreaObjYPosition() {
+  return 16 * R7_ + 32;
+}
 
 void GetBlockBufferAddr(uint8 a) {
   R7_ = kBlockBufferAddr[(a >> 4) + 2];
@@ -3090,9 +3140,13 @@ uint16 ChkLrgObjFixedLength_Far(uint8 k, uint8 j) {
   return ChkLrgObjFixedLength(k, j);
 }
 
-uint8 GetAreaObjXPosition_Far() { return GetAreaObjXPosition(); }
+uint8 GetAreaObjXPosition_Far() {
+  return GetAreaObjXPosition();
+}
 
-uint8 FindEmptyEnemySlot_Far() { return FindEmptyEnemySlot(); }
+uint8 FindEmptyEnemySlot_Far() {
+  return FindEmptyEnemySlot();
+}
 
 void GameMode01_Level() {
   int8 v0;  // si
@@ -3125,7 +3179,8 @@ void CODE_03AD74() {
   uint8 v0;  // si
   uint8 v1;  // al
 
-  if (!player_state) var0E67 = 0;
+  if (!player_state)
+    var0E67 = 0;
   saved_joypad_bits = *(&saved_joypad_bits + current_player);
   GameRoutines();
   if (game_mode_task >= 3u) {
@@ -3133,12 +3188,15 @@ void CODE_03AD74() {
     v0 = 0;
     while (1) {
       object_index = v0;
-      if (var0E67 == 127) break;
+      if (var0E67 == 127)
+        break;
       EnemiesAndLoopsCore(v0);
-      if (!var0E67) FloateyNumbersRoutine(v0);
+      if (!var0E67)
+        FloateyNumbersRoutine(v0);
       if (++v0 == 10) {
         ProcessContactSprites();
-        if (var0E67) var0E67 = 127;
+        if (var0E67)
+          var0E67 = 127;
         break;
       }
     }
@@ -3167,9 +3225,10 @@ void CODE_03AD74() {
         SetLevelMusic();
     }
     v1 = frame_counter;
-    if (player_star_power_timer < 8u) v1 = frame_counter >> 2;
+    if (player_star_power_timer < 8u)
+      v1 = frame_counter >> 2;
     CyclePlayerPalette(v1);
-  LABEL_23:
+LABEL_23:
     buttons_a_b_previous = buttons_a_b;
     buttons_left_right = 0;
     CODE_03AE2C();
@@ -3179,7 +3238,8 @@ void CODE_03AD74() {
 void CODE_03AE2C() {
   if (vram_buffer_addr_ctrl != 6) {
     if (!area_parser_task_num) {
-      if (sign8(scroll_thirty_two - 32)) return;
+      if (sign8(scroll_thirty_two - 32))
+        return;
       scroll_thirty_two -= 32;
       LOBYTE(vram_buffer2_offset) = 0;
     }
@@ -3199,14 +3259,15 @@ void ScrollHandler(int scrollamt) {
   }
 
   player_x_scroll += platform_x_scroll;
-  if (scroll_lock || player_pos_for_scroll < 0x50u || side_collision_timer ||
-      (int8)(player_x_scroll - 1) < 0) {
+  if (scroll_lock || player_pos_for_scroll < 0x50u || side_collision_timer || (int8)(player_x_scroll - 1) < 0) {
     scroll_amount = 0;
   } else {
     v0 = player_x_scroll;
-    if (player_x_scroll >= 2u) v0 = player_x_scroll - 1;
-    if (player_pos_for_scroll >= 0x70u) v0 = player_x_scroll;
-  LBL_ScrollScreen:
+    if (player_x_scroll >= 2u)
+      v0 = player_x_scroll - 1;
+    if (player_pos_for_scroll >= 0x70u)
+      v0 = player_x_scroll;
+LBL_ScrollScreen:
     scroll_amount = v0;
     scroll_thirty_two += v0;
     R0_ = screen_left_xpos_lo;
@@ -3230,7 +3291,8 @@ void ScrollHandler(int scrollamt) {
     v3 = v2 < kSubtracterData_X[v1];
     obj_xpos_lo.player = v2 - kSubtracterData_X[v1];
     obj_xpos_hi.player = *(&screen_left_xpos_hi + v1) - v3;
-    if (buttons_left_right != kOffscrJoypadBitsData[v1]) obj_xspeed.player = 0;
+    if (buttons_left_right != kOffscrJoypadBitsData[v1])
+      obj_xspeed.player = 0;
   }
   platform_x_scroll = 0;
 }
@@ -3250,46 +3312,22 @@ void GameRoutines() {
   v0 = 2 * game_engine_subroutine;
   if (2 * game_engine_subroutine) {
     switch (v0) {
-      case 12:
-        PlayerLoseLife();
-        break;
-      case 14:
-        PlayerEntrance();
-        break;
-      case 16:
-        PlayerCtrlRoutine();
-        break;
-      case 2:
-        Vine_AutoClimb();
-        break;
-      case 6:
-        VerticalPipeEntry();
-        break;
-      case 4:
-        SideExitPipeEntry();
-        break;
-      case 18:
-        PlayerChangeSize();
-        break;
-      case 20:
-        PlayerInjuryBlink();
-        break;
-      case 22:
-        PlayerDeath();
-        break;
-      case 24:
-        PlayerFireFlower();
-        break;
-      case 8:
-        FlagpoleSlide();
-        break;
-      case 10:
-        PlayerEndLevel();
-        break;
-      default:
-        Unreachable();
-        while (1)
-          ;
+    case 12: PlayerLoseLife(); break;
+    case 14: PlayerEntrance(); break;
+    case 16: PlayerCtrlRoutine(); break;
+    case 2: Vine_AutoClimb(); break;
+    case 6: VerticalPipeEntry(); break;
+    case 4: SideExitPipeEntry(); break;
+    case 18: PlayerChangeSize(); break;
+    case 20: PlayerInjuryBlink(); break;
+    case 22: PlayerDeath(); break;
+    case 24: PlayerFireFlower(); break;
+    case 8: FlagpoleSlide(); break;
+    case 10: PlayerEndLevel(); break;
+    default:
+      Unreachable();
+      while (1)
+        ;
     }
   } else {
     Entrance_GameTimerSetup();
@@ -3323,7 +3361,7 @@ void PlayerEntrance() {
       }
       return;
     }
-  LABEL_19:
+LABEL_19:
     player_gfx_processing_flag = 0;
     game_engine_subroutine = 8;
     player_facing_dir = 1;
@@ -3344,7 +3382,8 @@ void PlayerEntrance() {
       }
       disable_collision_detection = v1;
       AutoControlPlayer(v2);
-      if (obj_xpos_lo.player >= 0x48u) goto LABEL_19;
+      if (obj_xpos_lo.player >= 0x48u)
+        goto LABEL_19;
     }
   } else {
     player = obj_ypos_lo.player;
@@ -3354,7 +3393,8 @@ void PlayerEntrance() {
     }
     player_gfx_processing_flag = player;
     MovePlayerYAxis(0xFFu);
-    if (obj_ypos_lo.player < 0x91u) goto LABEL_19;
+    if (obj_ypos_lo.player < 0x91u)
+      goto LABEL_19;
   }
 }
 
@@ -3390,7 +3430,8 @@ void func_sub_B02C() {
       buttons_up_down = 0;
     }
   }
-  if (!debug_flag) goto LABEL_36;
+  if (!debug_flag)
+    goto LABEL_36;
   if ((*(&controller_hold2p1 + current_player_mirror) & 0xC0) != 0) {
     if ((*(&controller_hold2p1 + current_player_mirror) & 0x80) != 0) {
       player_size = 0;
@@ -3406,8 +3447,7 @@ void func_sub_B02C() {
   }
   if (level_free_movement_debug_flag) {
     player_star_power_timer = 16;
-    if ((*(&controller_hold2p1 + current_player) & 0x10) == 0 ||
-        (frame_counter & 7) != 0) {
+    if ((*(&controller_hold2p1 + current_player) & 0x10) == 0 || (frame_counter & 7) != 0) {
       if ((frame_counter & 7) == 0 && (saved_joypad_bits & 0x80u) != 0) {
         player_size ^= 1u;
         player_status ^= 2u;
@@ -3439,18 +3479,20 @@ void func_sub_B02C() {
       GiveExtraLife();
     }
   } else {
-  LABEL_36:
+LABEL_36:
     PlayerMovementSubs();
   }
   v3 = 1;
   if (!player_size) {
     v3 = 0;
-    if (crouching_flag) v3 = 2;
+    if (crouching_flag)
+      v3 = 2;
   }
   player_hitbox_ctrl = v3;
   v4 = 1;
   if (obj_xspeed.player) {
-    if ((obj_xspeed.player & 0x80u) != 0) v4 = 2;
+    if ((obj_xspeed.player & 0x80u) != 0)
+      v4 = 2;
     player_moving_dir = v4;
   }
   ScrollHandler(-1);
@@ -3458,8 +3500,7 @@ void func_sub_B02C() {
   RelativePlayerPosition();
   BoundingBoxCore(0, 0);
   PlayerBGCollision();
-  if (obj_ypos_lo.player >= 0x40u && game_engine_subroutine != 5 &&
-      game_engine_subroutine != 7 && game_engine_subroutine >= 4u) {
+  if (obj_ypos_lo.player >= 0x40u && game_engine_subroutine != 5 && game_engine_subroutine != 7 && game_engine_subroutine >= 4u) {
     if (game_engine_subroutine == 11)
       v6 = player_sprattrib & 0xCE | 0x30;
     else
@@ -3518,12 +3559,14 @@ void VerticalPipeEntry() {
 
   enable_mosaic_fades_flag = 1;
   vertical_pipe_flag_var0218 = 1;
-  if (frame_counter & 1) MovePlayerYAxis(1u);
+  if (frame_counter & 1)
+    MovePlayerYAxis(1u);
   ScrollHandler(-1);
   v0 = 0;
   if (!warp_zone_control) {
     v0 = 1;
-    if (area_type == 3) v0 = 2;
+    if (area_type == 3)
+      v0 = 2;
   }
   if (!--change_area_timer) {
     alt_entrance_ctrl = v0;
@@ -3531,7 +3574,9 @@ void VerticalPipeEntry() {
   }
 }
 
-void MovePlayerYAxis(uint8 a) { obj_ypos_lo.player += a; }
+void MovePlayerYAxis(uint8 a) {
+  obj_ypos_lo.player += a;
+}
 
 void SideExitPipeEntry() {
   var0E67 = 1;
@@ -3572,7 +3617,8 @@ void PlayerChangeSize() {
 
 void PlayerInjuryBlink() {
   if (timer_control >= 0xF0u) {
-    if (timer_control == 0xF0) InitChangeSize();
+    if (timer_control == 0xF0)
+      InitChangeSize();
   } else if (timer_control == 0xC8) {
     DonePlayerTask();
   } else {
@@ -3588,7 +3634,8 @@ void InitChangeSize() {
 }
 
 void PlayerDeath() {
-  if (timer_control < 0xF0u) PlayerCtrlRoutine();
+  if (timer_control < 0xF0u)
+    PlayerCtrlRoutine();
 }
 
 void DonePlayerTask() {
@@ -3611,7 +3658,8 @@ void CyclePlayerPalette(uint8 a) {
   uint16 i;   // di
 
   v1 = (8 * a) & 0x60;
-  if (current_player) v1 += 32;
+  if (current_player)
+    v1 += 32;
   for (i = 480; i != 512; i += 2) {
     palette_mirror[i >> 1] = kDATA_05ED91[v1 >> 1];
     v1 += 2;
@@ -3619,7 +3667,9 @@ void CyclePlayerPalette(uint8 a) {
   update_entire_palette_flag = 1;
 }
 
-void ResetPalStar() { player_sprattrib = player_sprattrib & 0xF1 | 0xE; }
+void ResetPalStar() {
+  player_sprattrib = player_sprattrib & 0xF1 | 0xE;
+}
 
 void FlagpoleSlide() {
   uint8 v0;  // al
@@ -3627,7 +3677,8 @@ void FlagpoleSlide() {
   if (enemy_id[5] == 48) {
     v0 = 0;
     flagpole_sound_queue = 0;
-    if (obj_ypos_lo.player < 0x9Eu) v0 = 4;
+    if (obj_ypos_lo.player < 0x9Eu)
+      v0 = 4;
     AutoControlPlayer(v0);
   } else {
     ++game_engine_subroutine;
@@ -3637,11 +3688,11 @@ void FlagpoleSlide() {
 void PlayerEndLevel() {
   if (HandleMarioGoalWalk()) {
     AutoControlPlayer(1u);
-    if (obj_ypos_lo.player >= 0xAEu) scroll_lock = 0;
+    if (obj_ypos_lo.player >= 0xAEu)
+      scroll_lock = 0;
   }
   if (star_flag_task_control == 5) {
-    if (++level_number == 3 &&
-        coin_tally_for_1ups >= kHidden1UpCoinAmts[world_number])
+    if (++level_number == 3 && coin_tally_for_1ups >= kHidden1UpCoinAmts[world_number])
       ++hidden_1up_flag;
     ++area_number;
     halfway_page = 0;
@@ -3660,42 +3711,48 @@ void PlayerMovementSubs() {
 
   v0 = 0;
   if (!player_size) {
-    if (player_state) goto LABEL_5;
+    if (player_state)
+      goto LABEL_5;
     v0 = buttons_up_down & 4;
   }
   crouching_flag = v0;
 LABEL_5:
   PlayerPhysicsSub();
-  if (player_change_size_flag) return;
-  if (player_state != 3) climb_side_timer = 24;
+  if (player_change_size_flag)
+    return;
+  if (player_state != 3)
+    climb_side_timer = 24;
   v1 = 2 * player_state;
   if (!(2 * player_state)) {
     GetPlayerAnimSpeed();
-    if (buttons_left_right) player_facing_dir = buttons_left_right;
+    if (buttons_left_right)
+      player_facing_dir = buttons_left_right;
     ImposeFriction(buttons_left_right);
     player_x_scroll = MovePlayerHoriz();
     return;
   }
   if (v1 == 4) {
     vertical_force = vertical_force_down;
-  LABEL_28:
-    if (buttons_left_right) ImposeFriction(buttons_left_right);
+LABEL_28:
+    if (buttons_left_right)
+      ImposeFriction(buttons_left_right);
     player_x_scroll = MovePlayerHoriz();
-    if (game_engine_subroutine == 11) vertical_force = 40;
+    if (game_engine_subroutine == 11)
+      vertical_force = 40;
     MovePlayerVert();
     return;
   }
   if (v1 == 2) {
     if ((obj_yspeed.player & 0x80u) == 0 ||
-        (buttons_a_b_previous & buttons_a_b & 0x80) == 0 &&
-            (uint8)(jump_origin_y_pos_lo - obj_ypos_lo.player) >=
-                diff_to_halt_jump) {
+        (buttons_a_b_previous & buttons_a_b & 0x80) == 0 && (uint8)(jump_origin_y_pos_lo - obj_ypos_lo.player) >= diff_to_halt_jump) {
       vertical_force = vertical_force_down;
     }
     if (swimming_flag) {
       GetPlayerAnimSpeed();
-      if (obj_ypos_lo.player < 0x14u) vertical_force = 24;
-      if (buttons_left_right) player_facing_dir = buttons_left_right;
+      if (obj_ypos_lo.player < 0x14u)
+        vertical_force = 24;
+      if (buttons_left_right)
+        player_facing_dir = buttons_left_right;
     }
     goto LABEL_28;
   }
@@ -3706,8 +3763,7 @@ LABEL_5:
   }
   uint16 t = obj_sub_ypos.player + obj_sub_yspeed.player;
   obj_sub_ypos.player = t;
-  AddHiLo(&obj_ypos_hi.player, &obj_ypos_lo.player,
-          (t >> 8) + (int8)obj_yspeed.player);
+  AddHiLo(&obj_ypos_hi.player, &obj_ypos_lo.player, (t >> 8) + (int8)obj_yspeed.player);
   if ((player_collision_bits & buttons_left_right) == 0) {
     climb_side_timer = 0;
     return;
@@ -3716,10 +3772,12 @@ LABEL_5:
     climb_side_timer = 24;
     v4 = 0;
     if (!(player_collision_bits & buttons_left_right & 1)) {
-      if (rel_xpos_lo.player < 0x10u) return;
+      if (rel_xpos_lo.player < 0x10u)
+        return;
       v4 = 2;
     }
-    if (player_facing_dir != 1) ++v4;
+    if (player_facing_dir != 1)
+      ++v4;
     v3 = __CFADD__(kClimbAdderLow[v4], obj_xpos_lo.player);
     obj_xpos_lo.player += kClimbAdderLow[v4];
     obj_xpos_hi.player += kClimbAdderHigh[v4] + v3;
@@ -3739,7 +3797,8 @@ void PlayerPhysicsSub() {
     if ((player_collision_bits & buttons_up_down) != 0) {
       v0 = 1;
       if ((player_collision_bits & buttons_up_down & 8) != 0) {
-        if ((frame_counter & 7) == 0) sound_ch1 = 48;
+        if ((frame_counter & 7) == 0)
+          sound_ch1 = 48;
       } else {
         v0 = 2;
       }
@@ -3747,14 +3806,13 @@ void PlayerPhysicsSub() {
     obj_sub_yspeed.player = kClimb_Y_MForceData[v0];
     v1 = 8;
     obj_yspeed.player = kClimb_Y_SpeedData[v0];
-    if ((obj_yspeed.player & 0x80u) == 0) v1 = 4;
+    if ((obj_yspeed.player & 0x80u) == 0)
+      v1 = 4;
     player_anim_timer_set = v1;
     return;
   }
-  if (!jumpspring_anim_ctrl && (buttons_a_b & 0x80u) != 0 &&
-      (buttons_a_b_previous & buttons_a_b & 0x80) == 0 &&
-      (!player_state || swimming_flag && (jump_swim_timer ||
-                                          (obj_yspeed.player & 0x80u) == 0))) {
+  if (!jumpspring_anim_ctrl && (buttons_a_b & 0x80u) != 0 && (buttons_a_b_previous & buttons_a_b & 0x80) == 0 &&
+      (!player_state || swimming_flag && (jump_swim_timer || (obj_yspeed.player & 0x80u) == 0))) {
     jump_swim_timer = 32;
     v2 = 0;
     obj_sub_ypos.player = 0;
@@ -3768,14 +3826,16 @@ void PlayerPhysicsSub() {
         v2 = 2;
         if (player_x_speed_absolute >= 0x19u) {
           v2 = 3;
-          if (player_x_speed_absolute >= 0x1Cu) v2 = 4;
+          if (player_x_speed_absolute >= 0x1Cu)
+            v2 = 4;
         }
       }
     }
     diff_to_halt_jump = 1;
     if (swimming_flag) {
       v2 = 5;
-      if (cannon_timer[0]) v2 = 6;
+      if (cannon_timer[0])
+        v2 = 6;
     }
     vertical_force = kJumpMForceData[v2];
     vertical_force_down = kFallMForceData[v2];
@@ -3783,7 +3843,8 @@ void PlayerPhysicsSub() {
     obj_yspeed.player = kPlayerYSpdData[v2];
     if (swimming_flag) {
       sound_ch1 = 14;
-      if (obj_ypos_lo.player < 0x14u) obj_yspeed.player = 0;
+      if (obj_ypos_lo.player < 0x14u)
+        obj_yspeed.player = 0;
     } else {
       sound_ch2 = 1;
     }
@@ -3791,26 +3852,31 @@ void PlayerPhysicsSub() {
   v3 = 0;
   R0_ = 0;
   if (player_state) {
-    if (player_x_speed_absolute < 0x19u) goto LABEL_37;
+    if (player_x_speed_absolute < 0x19u)
+      goto LABEL_37;
   } else {
     v3 = 1;
-    if (!area_type) goto LABEL_37;
+    if (!area_type)
+      goto LABEL_37;
     v3 = 0;
-    if (buttons_left_right != player_moving_dir) goto LABEL_37;
+    if (buttons_left_right != player_moving_dir)
+      goto LABEL_37;
     if ((buttons_a_b & 0x40) != 0) {
       running_timer = 10;
       goto LABEL_41;
     }
     if (!running_timer) {
-    LABEL_37:
+LABEL_37:
       ++v3;
       ++R0_;
-      if (running_speed || player_x_speed_absolute >= 0x21u) ++R0_;
+      if (running_speed || player_x_speed_absolute >= 0x21u)
+        ++R0_;
     }
   }
 LABEL_41:
   max_left_speed = kMaxLeftXSpdData[v3];
-  if (game_engine_subroutine == 7) v3 = 3;
+  if (game_engine_subroutine == 7)
+    v3 = 3;
   max_right_speed = kMaxRightXSpdData[v3];
   friction_adder_low = kFrictionData[R0_];
   friction_adder_high = 0;
@@ -3827,13 +3893,15 @@ void GetPlayerAnimSpeed() {
 
   v0 = 0;
   v1 = player_x_speed_absolute;
-  if (player_x_speed_absolute >= 0x1Cu) goto LABEL_7;
+  if (player_x_speed_absolute >= 0x1Cu)
+    goto LABEL_7;
   v0 = 1;
-  if (player_x_speed_absolute < 0xEu) v0 = 2;
+  if (player_x_speed_absolute < 0xEu)
+    v0 = 2;
   if ((saved_joypad_bits & 0x7F) != 0) {
     if ((saved_joypad_bits & 3) == player_moving_dir) {
       v1 = 0;
-    LABEL_7:
+LABEL_7:
       running_speed = v1;
       goto LABEL_10;
     }
@@ -3855,7 +3923,7 @@ void ImposeFriction(uint8 a) {
   v1 = player_collision_bits & a;
   if (v1) {
     if (v1 & 1) {
-    LABEL_6:
+LABEL_6:
       v3 = __CFADD__(friction_adder_low, player_x_move_force);
       player_x_move_force += friction_adder_low;
       player = friction_adder_high + v3 + obj_xspeed.player;
@@ -3869,8 +3937,10 @@ void ImposeFriction(uint8 a) {
     }
   } else {
     player = obj_xspeed.player;
-    if (!obj_xspeed.player) goto LABEL_12;
-    if ((obj_xspeed.player & 0x80u) != 0) goto LABEL_6;
+    if (!obj_xspeed.player)
+      goto LABEL_12;
+    if ((obj_xspeed.player & 0x80u) != 0)
+      goto LABEL_6;
   }
   v3 = player_x_move_force >= friction_adder_low;
   player_x_move_force -= friction_adder_low;
@@ -3881,7 +3951,8 @@ void ImposeFriction(uint8 a) {
     obj_xspeed.player = max_left_speed;
   }
 LABEL_10:
-  if (sign8(player)) player = -player;
+  if (sign8(player))
+    player = -player;
 LABEL_12:
   player_x_speed_absolute = player;
 }
@@ -3890,10 +3961,8 @@ void ProcFireball_Bubble() {
   int8 i;  // si
 
   if (player_status >= 2u) {
-    if ((buttons_a_b & 0x40) != 0 &&
-        (buttons_a_b_previous & buttons_a_b & 0x40) == 0 &&
-        !fireball_state[fireball_counter & 1] && obj_ypos_hi.player == 1 &&
-        !crouching_flag && player_state != 3) {
+    if ((buttons_a_b & 0x40) != 0 && (buttons_a_b_previous & buttons_a_b & 0x40) == 0 && !fireball_state[fireball_counter & 1] &&
+        obj_ypos_hi.player == 1 && !crouching_flag && player_state != 3) {
       sound_ch3 = 6;
       fireball_state[fireball_counter & 1] = 2;
       fireball_throwing_timer = player_anim_timer_set;
@@ -3933,8 +4002,7 @@ void ProcessPlayerFireballs(uint8 k) {
         obj_xpos_hi.fireball[k] = v2 + obj_xpos_hi.player;
         obj_ypos_lo.fireball[k] = obj_ypos_lo.player;
         obj_ypos_hi.fireball[k] = 1;
-        obj_xspeed.fireball[k] =
-            kFireballXSpdData[(uint8)(player_facing_dir - 1)];
+        obj_xspeed.fireball[k] = kFireballXSpdData[(uint8)(player_facing_dir - 1)];
         obj_yspeed.fireball[k] = 4;
         fireball_hitbox_size_index[k] = 7;
         --fireball_state[k];
@@ -3951,13 +4019,14 @@ void ProcessPlayerFireballs(uint8 k) {
       FireballBGCollision(v4);
       if ((offscreen_bits.fireball & 0xFC) == 0) {
         FireballEnemyCollision(v4);
-      LABEL_13:
+LABEL_13:
         DrawFireball(v4);
         return;
       }
       if ((offscreen_bits.fireball & 0xF0) == 0) {
         if ((obj_xspeed.fireball[v4] & 0x80u) != 0) {
-          if ((offscreen_bits.fireball & 0xC) != 12) goto LABEL_13;
+          if ((offscreen_bits.fireball & 0xC) != 12)
+            goto LABEL_13;
         } else if ((offscreen_bits.fireball & 0xF) != 15) {
           goto LABEL_13;
         }
@@ -3970,7 +4039,8 @@ void ProcessPlayerFireballs(uint8 k) {
 void BubbleCheck(uint8 k) {
   R7_ = *(&random_byte2 + k) & 1;
   if (obj_ypos_lo.bubble[k] == 0xF8) {
-    if (!air_bubble_timer) SetupBubble(k);
+    if (!air_bubble_timer)
+      SetupBubble(k);
   } else {
     func_sub_B7F4(k);
   }
@@ -3981,7 +4051,8 @@ void SetupBubble(uint8 k) {
   bool v2;  // cf
 
   v1 = 0;
-  if (player_facing_dir & 1) v1 = 8;
+  if (player_facing_dir & 1)
+    v1 = 8;
   v2 = __CFADD__(obj_xpos_lo.player, v1);
   obj_xpos_lo.bubble[k] = obj_xpos_lo.player + v1;
   obj_xpos_hi.bubble[k] = v2 + obj_xpos_hi.player;
@@ -4000,21 +4071,20 @@ void func_sub_B7F4(uint8 k) {
   v2 = v1 < kBubble_MForceData[R7_];
   obj_sub_ypos.bubble[k] = v1 - kBubble_MForceData[R7_];
   v3 = obj_ypos_lo.bubble[k] - v2;
-  if (v3 < 0x20u) v3 = -8;
+  if (v3 < 0x20u)
+    v3 = -8;
   obj_ypos_lo.bubble[k] = v3;
 }
 
 void RunGameTimer() {
-  if (game_mode && game_engine_subroutine >= 8u &&
-      game_engine_subroutine != 11 && sign8(obj_ypos_hi.player - 2) &&
-      !game_paused_timer) {
+  if (game_mode && game_engine_subroutine >= 8u && game_engine_subroutine != 11 && sign8(obj_ypos_hi.player - 2) && !game_paused_timer) {
     if (level_timer_ones | (uint8)(level_timer_tens | level_timer_hundreds)) {
-      if (level_timer_hundreds == 1 &&
-          !__PAIR16__(level_timer_ones, level_timer_tens))
+      if (level_timer_hundreds == 1 && !__PAIR16__(level_timer_ones, level_timer_tens))
         sound_ch1 = -1;
       game_paused_timer = 24;
       digit_modifier[5] = -1;
-      if (!level_free_movement_debug_flag) DigitsMathRoutine(0x23u);
+      if (!level_free_movement_debug_flag)
+        DigitsMathRoutine(0x23u);
       PrintStatusBarNumbers(0xA4u);
     } else {
       player_status = 0;
@@ -4050,25 +4120,23 @@ void ProcessWhirlpools() {
         R2_ = t;
         if (cannon_xpos_hi[v0]) {
           R1_ = cannon_xpos_hi[v0] + (t >> 8);
-          if ((int8)(obj_xpos_hi.player -
-                     ((obj_xpos_lo.player < cannon_xpos_lo[v0]) +
-                      cannon_xpos_hi[v0])) >= 0 &&
-              (int8)(R1_ - ((R2_ < obj_xpos_lo.player) + obj_xpos_hi.player)) >=
-                  0) {
+          if ((int8)(obj_xpos_hi.player - ((obj_xpos_lo.player < cannon_xpos_lo[v0]) + cannon_xpos_hi[v0])) >= 0 &&
+              (int8)(R1_ - ((R2_ < obj_xpos_lo.player) + obj_xpos_hi.player)) >= 0) {
             break;
           }
         }
-        if ((--v0 & 0x80u) != 0) return;
+        if ((--v0 & 0x80u) != 0)
+          return;
       }
       R0_ = cannon_ypos_lo[v0] >> 1;
       v1 = cannon_xpos_lo[v0];
       R1_ = R0_ + v1;
       R0_ = __CFADD__(R0_, v1) + cannon_xpos_hi[v0];
-      if (!(frame_counter & 1)) goto LABEL_15;
-      if ((int8)(R0_ - ((R1_ < obj_xpos_lo.player) + obj_xpos_hi.player)) >=
-          0) {
+      if (!(frame_counter & 1))
+        goto LABEL_15;
+      if ((int8)(R0_ - ((R1_ < obj_xpos_lo.player) + obj_xpos_hi.player)) >= 0) {
         if (!(player_collision_bits & 1)) {
-        LABEL_15:
+LABEL_15:
           R0_ = 16;
           cannon_timer[0] = 1;
           R2_ = 1;
@@ -4143,8 +4211,7 @@ void JumpspringHandler(uint8 k) {
       ++obj_ypos_lo.player;
     }
     obj_ypos_lo.enemy[k] = kJumpspring_Y_PosData[v1] + obj_xspeed.enemy[k];
-    if (v1 && (buttons_a_b & 0x80u) != 0 &&
-        (buttons_a_b_previous & buttons_a_b & 0x80) == 0)
+    if (v1 && (buttons_a_b & 0x80u) != 0 && (buttons_a_b_previous & buttons_a_b & 0x80) == 0)
       jumpspring_force = -12;
     if (v1 == 3) {
       obj_yspeed.player = jumpspring_force;
@@ -4171,9 +4238,11 @@ void Spr02F_Vine_Init(uint8 k, uint8 j) {
   obj_xpos_hi.enemy[k] = obj_xpos_hi.block[j];
   obj_xpos_lo.enemy[k] = obj_xpos_lo.block[j];
   v2 = obj_ypos_lo.block[j];
-  if (!v2) v2 = -16;
+  if (!v2)
+    v2 = -16;
   obj_ypos_lo.enemy[k] = v2;
-  if (!vine_flag_offset) vinestart_y_pos = v2;
+  if (!vine_flag_offset)
+    vinestart_y_pos = v2;
   vine_obj_offset[vine_flag_offset++] = k;
   sound_ch3 = 3;
 }
@@ -4205,8 +4274,7 @@ void VineObjectHandler(uint8 k) {
       }
       if (vine_height >= 0x20u) {
         BlockBufferCollision(0xAu, 0x1Bu, 1u);
-        if (R2_ < 0xD0u && (vine_at_entrance_flag || (R2_ & 0x80u) == 0) &&
-            !RomPtr_RAM(*(uint16 *)&R6_)[R2_])
+        if (R2_ < 0xD0u && (vine_at_entrance_flag || (R2_ & 0x80u) == 0) && !RomPtr_RAM(*(uint16 *)&R6_)[R2_])
           RomPtr_RAM(*(uint16 *)&R6_)[R2_] = 42;
       }
     }
@@ -4222,15 +4290,18 @@ void ProcessCannons() {
     v0 = 2;
     while (1) {
       object_index = v0;
-      if (enemy_flag[v0]) goto LABEL_10;
-      if ((uint8)(kCannonBitmasks[secondary_hard_mode] &
-                  *(&random_byte2 + v0)) >= 6u)
+      if (enemy_flag[v0])
+        goto LABEL_10;
+      if ((uint8)(kCannonBitmasks[secondary_hard_mode] & *(&random_byte2 + v0)) >= 6u)
         goto LABEL_10;
       v1 = kCannonBitmasks[secondary_hard_mode] & *(&random_byte2 + v0);
-      if (!cannon_xpos_hi[v1]) goto LABEL_10;
+      if (!cannon_xpos_hi[v1])
+        goto LABEL_10;
       v2 = cannon_timer[v1];
-      if (v2) break;
-      if (timer_control) goto LABEL_10;
+      if (v2)
+        break;
+      if (timer_control)
+        goto LABEL_10;
       cannon_timer[v1] = 14;
       obj_xpos_hi.enemy[v0] = cannon_xpos_hi[v1];
       obj_xpos_lo.enemy[v0] = cannon_xpos_lo[v1];
@@ -4240,11 +4311,12 @@ void ProcessCannons() {
       enemy_state[v0] = 0;
       enemy_hitbox_ctrl[v0] = 9;
       enemy_id[v0] = 51;
-    LABEL_13:
-      if ((--v0 & 0x80u) != 0) return;
+LABEL_13:
+      if ((--v0 & 0x80u) != 0)
+        return;
     }
     cannon_timer[v1] = v2 - 1;
-  LABEL_10:
+LABEL_10:
     if (enemy_id[v0] == 51) {
       OffscreenBoundsCheck(v0);
       if (enemy_flag[v0]) {
@@ -4260,7 +4332,7 @@ void BulletBillHandler(uint8 k) {
   uint8 v1;  // di
 
   if (timer_control) {
-  LABEL_13:
+LABEL_13:
     GetEnemyOffscreenBits(k);
     RelativeEnemyPosition(k);
     GetEnemyBoundBox(k);
@@ -4269,19 +4341,23 @@ void BulletBillHandler(uint8 k) {
     return;
   }
   if (!enemy_state[k]) {
-    if ((offscreen_bits.enemy & 0xC) == 12) goto LABEL_14;
+    if ((offscreen_bits.enemy & 0xC) == 12)
+      goto LABEL_14;
     v1 = 1;
-    if ((PlayerEnemyDiff(k) & 0x80u) == 0) v1 = 2;
+    if ((PlayerEnemyDiff(k) & 0x80u) == 0)
+      v1 = 2;
     enemy_moving_dir[k] = v1;
     obj_xspeed.enemy[k] = kBulletBillXSpdData[(uint8)(v1 - 1)];
-    if ((uint8)(R0_ + 40) < 0x50u) goto LABEL_14;
+    if ((uint8)(R0_ + 40) < 0x50u)
+      goto LABEL_14;
     enemy_state[k] = 1;
     enemy_frame_timer[k] = 10;
     sound_ch3 = 74;
     BulletBillSfxHandler(k, 0x4Au);
   }
   if ((offscreen_bits.enemy & 0xF0) != 0xF0) {
-    if ((enemy_state[k] & 0x20) != 0) MoveD_EnemyVert(k);
+    if ((enemy_state[k] & 0x20) != 0)
+      MoveD_EnemyVert(k);
     if (!var0E67) {
       MoveEnemyHoriz(k);
       BulletBill_MoveNew(k);
@@ -4296,8 +4372,10 @@ uint8 SpawnThrownHammer(uint8 k) {
   uint8 v1;  // al
 
   v1 = random_byte2 & 7;
-  if ((random_byte2 & 7) == 0) v1 = random_byte2 & 8;
-  if (misc_state[v1] || enemy_flag[kHammerEnemyOfsData[v1]]) return 0;
+  if ((random_byte2 & 7) == 0)
+    v1 = random_byte2 & 8;
+  if (misc_state[v1] || enemy_flag[kHammerEnemyOfsData[v1]])
+    return 0;
   hammer_enemy_offset[v1] = object_index;
   misc_state[v1] = -112;
   misc_boundboxctrl[v1] = 7;
@@ -4318,8 +4396,7 @@ void ProcHammerObj(uint8 k) {
       obj_yspeed.misc[k] = -2;
       enemy_state[v1] &= ~8u;
       k = object_index;
-      obj_xspeed.misc[object_index] =
-          kHammerXSpdData[(uint8)(enemy_moving_dir[v1] - 1)];
+      obj_xspeed.misc[object_index] = kHammerXSpdData[(uint8)(enemy_moving_dir[v1] - 1)];
     } else if (v2 < 2u) {
       v3 = k + 17;
       R0_ = 16;
@@ -4331,7 +4408,8 @@ void ProcHammerObj(uint8 k) {
       PlayerHammerCollision(object_index);
       goto LABEL_14;
     }
-    if (--misc_state[k] == 0x81) sound_ch1 = 55;
+    if (--misc_state[k] == 0x81)
+      sound_ch1 = 55;
     if (enemy_id[v1] == 45) {
       v4 = 8;
     } else if (enemy_moving_dir[v1] == 2) {
@@ -4395,7 +4473,8 @@ void MiscObjectsCore() {
   for (i = 8; (i & 0x80u) == 0; --i) {
     object_index = i;
     v1 = misc_state[i];
-    if (!v1) continue;
+    if (!v1)
+      continue;
     if (__CFSHL__(v1, 1)) {
       ProcHammerObj(i);
       continue;
@@ -4406,7 +4485,8 @@ void MiscObjectsCore() {
       R1_ = 3;
       ImposeGravity(i + 17, 0);
       i = object_index;
-      if (obj_yspeed.misc[object_index] == 5) ++misc_state[object_index];
+      if (obj_yspeed.misc[object_index] == 5)
+        ++misc_state[object_index];
     } else {
       ++misc_state[i];
       v2 = obj_xpos_lo.misc[i];
@@ -4418,7 +4498,8 @@ void MiscObjectsCore() {
         continue;
       }
     }
-    if (!obj_yspeed.misc[i]) SpinningCoinSprite_Init(i);
+    if (!obj_yspeed.misc[i])
+      SpinningCoinSprite_Init(i);
     RelativeMiscPosition(i);
     GetMiscOffscreenBits(i);
     GetMiscBoundBox(i);
@@ -4443,7 +4524,9 @@ void AddToScore() {
   GetSBNibbles();
 }
 
-void GetSBNibbles() { UpdateNumber(kStatusBarNybbles[current_player_mirror]); }
+void GetSBNibbles() {
+  UpdateNumber(kStatusBarNybbles[current_player_mirror]);
+}
 
 void UpdateNumber(uint8 a) {
   int8 v1;  // al
@@ -4451,7 +4534,8 @@ void UpdateNumber(uint8 a) {
   PrintStatusBarNumbers(a);
   if (!vram_buffer1[vram_buffer1_offset - 11]) {
     v1 = 40;
-    if (vram_buffer1[vram_buffer1_offset - 15] == 2) v1 = 36;
+    if (vram_buffer1[vram_buffer1_offset - 15] == 2)
+      v1 = 36;
     vram_buffer1[vram_buffer1_offset - 11] = v1;
   }
 }
@@ -4465,7 +4549,8 @@ void Spr02E_Powerup_Init(uint8 k) {
   enemy_hitbox_ctrl[9] = 3;
   if (power_up_type < 2u) {
     v1 = player_status;
-    if (player_status >= 2u) v1 = player_status >> 1;
+    if (player_status >= 2u)
+      v1 = player_status >> 1;
     power_up_type = v1;
   }
   enemy_sprattrib[9] = 48;
@@ -4487,7 +4572,7 @@ void PowerUpObjHandler(uint8 k) {
           EnemyJump(9u);
         }
       }
-    LABEL_13:
+LABEL_13:
       RelativeEnemyPosition(9u);
       GetEnemyOffscreenBits(9u);
       GetEnemyBoundBox(9u);
@@ -4506,7 +4591,8 @@ void PowerUpObjHandler(uint8 k) {
         enemy_moving_dir[9] = __CFSHL__(0x80, 1);
       }
     }
-    if (enemy_state[9] >= 6u) goto LABEL_13;
+    if (enemy_state[9] >= 6u)
+      goto LABEL_13;
   }
 }
 // 7E0241: using guessed type int8;
@@ -4522,7 +4608,8 @@ void PlayerHeadCollision(uint8 a) {
   uint8 t;
 
   v1 = 17;
-  if (!player_size) v1 = 18;
+  if (!player_size)
+    v1 = 18;
   block_state[spr_data_offset_ctrl] = v1;
   DestroyBlockMetatile();
   v2 = spr_data_offset_ctrl;
@@ -4533,7 +4620,8 @@ void PlayerHeadCollision(uint8 a) {
   v5 = RomPtr_RAM(*(uint16 *)&R6_)[v3];
   t = BlockBumpedChk(v5);
   R0_ = v5;
-  if (!player_size) v5 = player_size;
+  if (!player_size)
+    v5 = player_size;
   if (t != 0xff) {
     block_state[v2] = 17;
     v5 = -4;
@@ -4543,7 +4631,8 @@ void PlayerHeadCollision(uint8 a) {
         brick_coin_timer = 11;
         ++brick_coin_timer_flag;
       }
-      if (!brick_coin_timer) v6 = -4;
+      if (!brick_coin_timer)
+        v6 = -4;
       v5 = v6;
     }
   }
@@ -4553,7 +4642,8 @@ void PlayerHeadCollision(uint8 a) {
   block_bounce_timer = 16;
   R5_ = a;
   v7 = 0;
-  if (crouching_flag || player_size) v7 = 1;
+  if (crouching_flag || player_size)
+    v7 = 1;
   obj_ypos_lo.block[v2] = (kBlockYPosAdderData[v7] + obj_ypos_lo.player) & 0xF0;
   if (block_state[v2] == 17)
     BumpBlock();
@@ -4588,41 +4678,36 @@ void BumpBlock() {
   v1 = BlockBumpedChk(R5_);
   if (v1 != 0xff) {
     v2 = v1;
-    if (v1 >= 9u) v2 = v1 - ((v1 < 9u) + 5);
+    if (v1 >= 9u)
+      v2 = v1 - ((v1 < 9u) + 5);
     R4_ = *((uint8 *)kDATA_03BF64 + (uint8)(2 * v2));
     R5_ = *((uint8 *)kDATA_03BF64 + (uint8)(2 * v2) + 1);
     switch ((uint8)(2 * v2) >> 1) {
-      case 0:
-      case 4:
-        v3 = 0;
-        goto LABEL_8;
-      case 1:
-      case 2:
-      case 7:
-        EmptyMiscSlot = FindEmptyMiscSlot();
-        obj_xpos_hi.misc[EmptyMiscSlot] = obj_xpos_hi.block[v0];
-        obj_xpos_lo.misc[EmptyMiscSlot] = obj_xpos_lo.block[v0] | 5;
-        obj_ypos_lo.misc[EmptyMiscSlot] = obj_ypos_lo.block[v0] - 16;
-        SetupCoinCommon(v0, EmptyMiscSlot);
-        return;
-      case 3:
-      case 8:
-        v3 = 3;
-        goto LABEL_8;
-      case 5:
-        Spr02F_Vine_Init(9u, spr_data_offset_ctrl);
-        return;
-      case 6:
-        v3 = 2;
-      LABEL_8:
-        power_up_type = v3;
-        enemy_id[9] = 46;
-        obj_xpos_hi.enemy[9] = obj_xpos_hi.block[v0];
-        obj_xpos_lo.enemy[9] = obj_xpos_lo.block[v0];
-        obj_ypos_hi.enemy[9] = 1;
-        obj_ypos_lo.enemy[9] = obj_ypos_lo.block[v0] - 8;
-        Spr02E_Powerup_Init(v0);
-        break;
+    case 0:
+    case 4: v3 = 0; goto LABEL_8;
+    case 1:
+    case 2:
+    case 7:
+      EmptyMiscSlot = FindEmptyMiscSlot();
+      obj_xpos_hi.misc[EmptyMiscSlot] = obj_xpos_hi.block[v0];
+      obj_xpos_lo.misc[EmptyMiscSlot] = obj_xpos_lo.block[v0] | 5;
+      obj_ypos_lo.misc[EmptyMiscSlot] = obj_ypos_lo.block[v0] - 16;
+      SetupCoinCommon(v0, EmptyMiscSlot);
+      return;
+    case 3:
+    case 8: v3 = 3; goto LABEL_8;
+    case 5: Spr02F_Vine_Init(9u, spr_data_offset_ctrl); return;
+    case 6:
+      v3 = 2;
+LABEL_8:
+      power_up_type = v3;
+      enemy_id[9] = 46;
+      obj_xpos_hi.enemy[9] = obj_xpos_hi.block[v0];
+      obj_xpos_lo.enemy[9] = obj_xpos_lo.block[v0];
+      obj_ypos_hi.enemy[9] = 1;
+      obj_ypos_lo.enemy[9] = obj_ypos_lo.block[v0] - 8;
+      Spr02E_Powerup_Init(v0);
+      break;
     }
   }
 }
@@ -4634,7 +4719,8 @@ uint8 BlockBumpedChk(uint8 a) {
   uint8 result;  // di
 
   for (result = 13; (result & 0x80u) == 0; --result) {
-    if (a == kBrickQBlockMetatiles[result]) break;
+    if (a == kBrickQBlockMetatiles[result])
+      break;
   }
   return result;
 }
@@ -4644,7 +4730,8 @@ void BrickShatter() {
 
   v0 = CheckTopOfBlock();
   block_repflag[v0] = 1;
-  if (!sound_ch3) sound_ch3 = 7;
+  if (!sound_ch3)
+    sound_ch3 = 7;
   SpawnBrickChunks(v0);
   obj_yspeed.player = -2;
   digit_modifier[5] = 5;
@@ -4702,7 +4789,8 @@ void BlockObjectsCore(uint8 k) {
       GetBlockOffscreenBits(v4);
       DrawBlock(v4);
       block_state[v4] = 1;
-      if ((obj_ypos_lo.block[v4] & 0xFu) >= 5) return;
+      if ((obj_ypos_lo.block[v4] & 0xFu) >= 5)
+        return;
       block_repflag[v4] = 1;
       goto LABEL_10;
     }
@@ -4716,9 +4804,10 @@ void BlockObjectsCore(uint8 k) {
     GetBlockOffscreenBits(v4);
     DrawBrickChunks(v4);
     if (obj_ypos_hi.block[v4]) {
-      if (obj_ypos_lo.misc[v4 - 2] > 0xF0u) obj_ypos_lo.misc[v4 - 2] = -16;
+      if (obj_ypos_lo.misc[v4 - 2] > 0xF0u)
+        obj_ypos_lo.misc[v4 - 2] = -16;
       if (obj_ypos_lo.block[v4] >= 0xF0u)
-      LABEL_10:
+LABEL_10:
         block_state[v4] = 0;
     }
   }
@@ -4742,13 +4831,16 @@ void BlockObjMT_Updater() {
   }
 }
 
-uint8 MoveEnemyHoriz(uint8 k) { return MoveObjectHoriz(k + 1); }
+uint8 MoveEnemyHoriz(uint8 k) {
+  return MoveObjectHoriz(k + 1);
+}
 
 uint8 MovePlayerHoriz() {
   uint8 result;  // al
 
   result = jumpspring_anim_ctrl;
-  if (!jumpspring_anim_ctrl) return MoveObjectHoriz(jumpspring_anim_ctrl);
+  if (!jumpspring_anim_ctrl)
+    return MoveObjectHoriz(jumpspring_anim_ctrl);
   return result;
 }
 
@@ -4756,8 +4848,7 @@ uint8 MoveObjectHoriz(uint8 k) {
   uint8 v1;  // al
 
   v1 = (int8) * (&obj_xspeed.player + k) >> 4;
-  uint16 t =
-      *(&obj_xpos_fract.player + k) + (uint8)(16 * *(&obj_xspeed.player + k));
+  uint16 t = *(&obj_xpos_fract.player + k) + (uint8)(16 * *(&obj_xspeed.player + k));
   *(&obj_xpos_fract.player + k) = t;
   t = (t >> 8) + (int8)v1;
   AddHiLo(&obj_xpos_hi.player + k, &obj_xpos_lo.player + k, t);
@@ -4779,11 +4870,17 @@ void MoveD_EnemyVert(uint8 k) {
     func_sub_C17F(k, 0x3Du);
 }
 
-void MoveFallingPlatform(uint8 k) { func_sub_C17F(k, 0x20u); }
+void MoveFallingPlatform(uint8 k) {
+  func_sub_C17F(k, 0x20u);
+}
 
-void MoveRedPTroopaDown(uint8 k) { MoveRedPTroopa(k, 0); }
+void MoveRedPTroopaDown(uint8 k) {
+  MoveRedPTroopa(k, 0);
+}
 
-void MoveRedPTroopaUp(uint8 k) { MoveRedPTroopa(k, 1u); }
+void MoveRedPTroopaUp(uint8 k) {
+  MoveRedPTroopa(k, 1u);
+}
 
 void MoveRedPTroopa(uint8 k, uint8 j) {
   R0_ = 3;
@@ -4792,22 +4889,34 @@ void MoveRedPTroopa(uint8 k, uint8 j) {
   RedPTroopaGrav(k + 1, j);
 }
 
-void MoveDropPlatform(uint8 k) { func_sub_C179(k, 0x7Fu); }
+void MoveDropPlatform(uint8 k) {
+  func_sub_C179(k, 0x7Fu);
+}
 
-void MoveEnemySlowVert(uint8 k) { func_sub_C179(k, 0xFu); }
+void MoveEnemySlowVert(uint8 k) {
+  func_sub_C179(k, 0xFu);
+}
 
-void func_sub_C179(uint8 k, uint8 j) { SetXMoveAmt(k, j, 2u); }
+void func_sub_C179(uint8 k, uint8 j) {
+  SetXMoveAmt(k, j, 2u);
+}
 
-void MoveJ_EnemyVert(uint8 k) { func_sub_C17F(k, 0x1Cu); }
+void MoveJ_EnemyVert(uint8 k) {
+  func_sub_C17F(k, 0x1Cu);
+}
 
-void func_sub_C17F(uint8 k, uint8 j) { SetXMoveAmt(k, j, 3u); }
+void func_sub_C17F(uint8 k, uint8 j) {
+  SetXMoveAmt(k, j, 3u);
+}
 
 void SetXMoveAmt(uint8 k, uint8 j, uint8 a) {
   R0_ = j;
   ImposeGravitySpr(k + 1, a);
 }
 
-void func_sub_C18C(uint8 k) { ImposeGravityBlock(k); }
+void func_sub_C18C(uint8 k) {
+  ImposeGravityBlock(k);
+}
 
 void ImposeGravityBlock(uint8 k) {
   R0_ = 80;
@@ -4819,9 +4928,13 @@ void ImposeGravitySpr(uint8 k, uint8 a) {
   ImposeGravity(k, 0);
 }
 
-void MovePlatformDown(uint8 k) { MovePlatformCommon(k, 0); }
+void MovePlatformDown(uint8 k) {
+  MovePlatformCommon(k, 0);
+}
 
-void MovePlatformUp(uint8 k) { MovePlatformCommon(k, 1u); }
+void MovePlatformUp(uint8 k) {
+  MovePlatformCommon(k, 1u);
+}
 
 void MovePlatformCommon(uint8 k, uint8 a) {
   uint8 v2;  // di
@@ -4831,16 +4944,21 @@ void MovePlatformCommon(uint8 k, uint8 a) {
   v2 = enemy_id[k];
   v3 = k + 1;
   v4 = 5;
-  if (v2 == 41) v4 = 9;
+  if (v2 == 41)
+    v4 = 9;
   R0_ = v4;
   R1_ = 10;
   R2_ = 3;
   RedPTroopaGrav(v3, a);
 }
 
-void RedPTroopaGrav(uint8 k, uint8 a) { ImposeGravity(k, a); }
+void RedPTroopaGrav(uint8 k, uint8 a) {
+  ImposeGravity(k, a);
+}
 
-void ImposeGravity_Far(uint8 k, uint8 a) { ImposeGravity(k, a); }
+void ImposeGravity_Far(uint8 k, uint8 a) {
+  ImposeGravity(k, a);
+}
 
 void ImposeGravity(uint8 k, uint8 a) {
   bool v4;   // cf
@@ -4851,8 +4969,7 @@ void ImposeGravity(uint8 k, uint8 a) {
 
   uint16 t = *(&obj_sub_ypos.player + k) + *(&obj_sub_yspeed.player + k);
   *(&obj_sub_ypos.player + k) = t;
-  AddHiLo((&obj_ypos_hi.player + k), (&obj_ypos_lo.player + k),
-          (int8) * (&obj_yspeed.player + k) + (t >> 8));
+  AddHiLo((&obj_ypos_hi.player + k), (&obj_ypos_lo.player + k), (int8) * (&obj_yspeed.player + k) + (t >> 8));
 
   v5 = *(&obj_sub_yspeed.player + k);
   v4 = __CFADD__(R0_, v5);
@@ -4911,7 +5028,8 @@ void BulletBill_MoveNew(uint8 k) {
       oam[64].charnum = tempE4;
       oam[64].flags = 45;
       oam_tile_size_buffer[v2 + 256] = 2;
-      if (tempE6) oam_tile_size_buffer[v2 + 256] = 3;
+      if (tempE6)
+        oam_tile_size_buffer[v2 + 256] = 3;
     }
   }
 }
@@ -4928,7 +5046,8 @@ void HandleScreenTransition() {
   if (fade_direction & 1) {
     if ((inidisp_mirror & 0x80u) == 0) {
       if (!cutscene_var1680 || inidisp_mirror) {
-        if (--inidisp_mirror) goto LABEL_14;
+        if (--inidisp_mirror)
+          goto LABEL_14;
       }
       WriteReg(INIDISP, 0x80u);
       inidisp_mirror = 0x80;
@@ -4959,7 +5078,8 @@ LABEL_14:
     ClearAllOams();
     mosaic_mirror = (16 * (inidisp_mirror ^ 0xF)) | 0xF;
     CODE_03C35C();
-    if (inidisp_mirror == 15) enable_mosaic_fades_flag = 0;
+    if (inidisp_mirror == 15)
+      enable_mosaic_fades_flag = 0;
   }
 }
 
@@ -4981,7 +5101,8 @@ void ClearAllOams() {
 void CODE_03C35C() {
   uint8 i;  // di
 
-  for (i = -48; i != 0xF0; i += 4) get_OamEnt(oam_buf, i)->ypos = -16;
+  for (i = -48; i != 0xF0; i += 4)
+    get_OamEnt(oam_buf, i)->ypos = -16;
 }
 
 void CODE_03C36E() {
@@ -5020,7 +5141,8 @@ void EnemiesAndLoopsCore(uint8 k) {
 
   v14 = enemy_flag[k];
   if (__CFSHL__(v14, 1)) {
-    if (!enemy_flag[v14 & 0xF]) enemy_flag[k] = 0;
+    if (!enemy_flag[v14 & 0xF])
+      enemy_flag[k] = 0;
     return;
   }
   if (v14) {
@@ -5029,7 +5151,7 @@ void EnemiesAndLoopsCore(uint8 k) {
   }
   if ((area_parser_task_num & 7) != 7) {
     while (!loop_command || current_column_pos_lo) {
-    LABEL_31:
+LABEL_31:
       if (enemy_frenzy_queue) {
         enemy_id[k] = enemy_frenzy_queue;
         enemy_flag[k] = 1;
@@ -5040,34 +5162,31 @@ void EnemiesAndLoopsCore(uint8 k) {
       }
       v2 = enemy_data_offset2;
       v3 = IndirPtr(&enemy_data_ptr, enemy_data_offset2);
-      if (*v3 == 0xFF) goto LABEL_59;
-      if ((*v3 & 0xF) != 14 && k >= 8u &&
-          (*IndirPtr(&enemy_data_ptr, (uint8)(v2 + 1)) & 0x3F) != 46)
+      if (*v3 == 0xFF)
+        goto LABEL_59;
+      if ((*v3 & 0xF) != 14 && k >= 8u && (*IndirPtr(&enemy_data_ptr, (uint8)(v2 + 1)) & 0x3F) != 46)
         return;
       uint16 t;
       t = PAIR16(screen_right_xpos_hi, screen_right_xpos) + 48;
       R7_ = t & 0xF0;
       R6_ = t >> 8;
       v4 = enemy_data_offset2 + 1;
-      if (__CFSHL__(*IndirPtr(&enemy_data_ptr, (uint8)(enemy_data_offset2 + 1)),
-                    1) &&
-          !enemy_object_page_sel) {
+      if (__CFSHL__(*IndirPtr(&enemy_data_ptr, (uint8)(enemy_data_offset2 + 1)), 1) && !enemy_object_page_sel) {
         ++enemy_object_page_sel;
         ++enemy_object_page_loc;
       }
       v5 = v4 - 1;
-      if ((*IndirPtr(&enemy_data_ptr, v5) & 0xF) != 15 ||
-          enemy_object_page_sel) {
+      if ((*IndirPtr(&enemy_data_ptr, v5) & 0xF) != 15 || enemy_object_page_sel) {
         obj_xpos_hi.enemy[k] = enemy_object_page_loc;
         v6 = *IndirPtr(&enemy_data_ptr, v5) & 0xF0;
         obj_xpos_lo.enemy[k] = v6;
-        if (obj_xpos_hi.enemy[k] >=
-            ((v6 < screen_right_xpos) + screen_right_xpos_hi)) {
+        if (obj_xpos_hi.enemy[k] >= ((v6 < screen_right_xpos) + screen_right_xpos_hi)) {
           if (R6_ < ((R7_ < obj_xpos_lo.enemy[k]) + obj_xpos_hi.enemy[k])) {
-          LABEL_59:
+LABEL_59:
             v11 = enemy_frenzy_buffer;
             if (!enemy_frenzy_buffer) {
-              if (vine_flag_offset != 1) return;
+              if (vine_flag_offset != 1)
+                return;
               v11 = 0;
             }
             if (k == 9) {
@@ -5080,20 +5199,23 @@ void EnemiesAndLoopsCore(uint8 k) {
             obj_ypos_hi.enemy[k] = 1;
             v7 = 16 * *IndirPtr(&enemy_data_ptr, v5);
             obj_ypos_lo.enemy[k] = v7;
-            if (v7 == 0xE0) goto LABEL_66;
+            if (v7 == 0xE0)
+              goto LABEL_66;
             v8 = v5 + 1;
-            if ((*IndirPtr(&enemy_data_ptr, v8) & 0x40) != 0 &&
-                !secondary_hard_mode)
+            if ((*IndirPtr(&enemy_data_ptr, v8) & 0x40) != 0 && !secondary_hard_mode)
               goto LABEL_71;
             v9 = IndirPtr(&enemy_data_ptr, v8);
             v10 = *v9 & 0x3F;
             if (v10 < 0x37u || (*v9 & 0x3F) == 63) {
-              if (v10 == 6 && primary_hard_mode) v10 = 2;
+              if (v10 == 6 && primary_hard_mode)
+                v10 = 2;
               enemy_id[k] = v10;
-              if (v10 == 45) bowser_var0F4C = 0;
+              if (v10 == 45)
+                bowser_var0F4C = 0;
               enemy_flag[k] = 1;
               InitEnemyObject(k);
-              if (enemy_flag[k]) goto LABEL_71;
+              if (enemy_flag[k])
+                goto LABEL_71;
             } else {
               HandleGroupEnemies(v10);
             }
@@ -5104,33 +5226,32 @@ void EnemiesAndLoopsCore(uint8 k) {
               goto LABEL_70;
             goto LABEL_71;
           }
-        LABEL_66:
+LABEL_66:
           v12 = v5 + 2;
           if (*IndirPtr(&enemy_data_ptr, v12) >> 5 == world_number) {
             v13 = v12 - 1;
             area_pointer = *IndirPtr(&enemy_data_ptr, v13);
             entrance_page = *IndirPtr(&enemy_data_ptr, (uint8)(v13 + 1)) & 0x1F;
           }
-        LABEL_70:
+LABEL_70:
           ++enemy_data_offset2;
-        LABEL_71:
+LABEL_71:
           ++enemy_data_offset2;
           ++enemy_data_offset2;
           enemy_object_page_sel = 0;
         }
         return;
       }
-      enemy_object_page_loc =
-          *IndirPtr(&enemy_data_ptr, (uint8)(v5 + 1)) & 0x3F;
+      enemy_object_page_loc = *IndirPtr(&enemy_data_ptr, (uint8)(v5 + 1)) & 0x3F;
       ++enemy_data_offset2;
       ++enemy_data_offset2;
       ++enemy_object_page_sel;
     }
     v1 = 11;
     do {
-      if ((--v1 & 0x80u) != 0) goto LABEL_31;
-    } while (world_number != kLoopCmdWorldNumber[v1] ||
-             column_pos_hi != kLoopCmdPageNumber[v1]);
+      if ((--v1 & 0x80u) != 0)
+        goto LABEL_31;
+    } while (world_number != kLoopCmdWorldNumber[v1] || column_pos_hi != kLoopCmdPageNumber[v1]);
     if (obj_ypos_lo.player != kLoopCmdYPosition[v1] || player_state) {
       if (world_number != 6) {
         if (!var0EDB) {
@@ -5145,21 +5266,22 @@ void EnemiesAndLoopsCore(uint8 k) {
       }
     } else if (!var0EDB) {
       sound_ch3 = 41;
-      if (world_number != 6) goto LABEL_29;
+      if (world_number != 6)
+        goto LABEL_29;
       ++multi_loop_correct_cntr;
     }
     if (++multi_loop_pass_cntr != 3) {
-    LABEL_30:
+LABEL_30:
       loop_command = 0;
       goto LABEL_31;
     }
     if (multi_loop_correct_cntr == 3) {
-    LABEL_29:
+LABEL_29:
       multi_loop_pass_cntr = 0;
       multi_loop_correct_cntr = 0;
       goto LABEL_30;
     }
-  LABEL_28:
+LABEL_28:
     ExecGameLoopback(v1);
     KillAllEnemies();
     goto LABEL_29;
@@ -5199,7 +5321,9 @@ void CheckpointEnemyID(uint8 k) {
 }
 // A6E6: using guessed type int (*funcs_A6DE[55])();
 
-void NoEnemyInit(uint8 k) { ; }
+void NoEnemyInit(uint8 k) {
+  ;
+}
 
 void Goomba_Init(uint8 k) {
   NormalEnemy_Init(k);
@@ -5269,7 +5393,8 @@ void RedPTroopa_Init(uint8 k) {
   v1 = 48;
   v2 = obj_ypos_lo.enemy[k];
   obj_xpos_fract.enemy[k] = v2;
-  if (v2 < 0) v1 = -32;
+  if (v2 < 0)
+    v1 = -32;
   obj_xspeed.enemy[k] = obj_ypos_lo.enemy[k] + v1;
   SetBBox_3(k);
 }
@@ -5324,7 +5449,8 @@ void LakituAndSpinyHandler(uint8 k) {
     if (++lakitu_reappear_timer >= 7u) {
       v2 = 8;
       while (enemy_flag[v2]) {
-        if ((--v2 & 0x80u) != 0) return;
+        if ((--v2 & 0x80u) != 0)
+          return;
       }
       enemy_state[v2] = 0;
       enemy_id[v2] = 17;
@@ -5356,7 +5482,8 @@ void CreateSpiny(uint8 k, uint8 j) {
     SmallBBox(v4);
     v5 = 2;
     obj_xspeed.enemy[v4] = 0;
-    if (!sign8(0)) v5 = 1;
+    if (!sign8(0))
+      v5 = 1;
     enemy_moving_dir[v4] = v5;
     obj_yspeed.enemy[v4] = -3;
     enemy_flag[v4] = 1;
@@ -5395,7 +5522,8 @@ void FlyingCheepCheep_Init(uint8 k) {
     SmallBBox(k);
     frenzy_enemy_timer = kFlyCCTimerData[*(&random_byte2 + k) & 3];
     v1 = 3;
-    if (secondary_hard_mode) v1 = 4;
+    if (secondary_hard_mode)
+      v1 = 4;
     R0_ = v1;
     if (k < v1) {
       R0_ = *(&random_byte1 + k) & 3;
@@ -5404,10 +5532,12 @@ void FlyingCheepCheep_Init(uint8 k) {
       v2 = 0;
       if (obj_xspeed.player) {
         v2 = 4;
-        if (obj_xspeed.player >= 0x19u) v2 = 8;
+        if (obj_xspeed.player >= 0x19u)
+          v2 = 8;
       }
       R0_ += v2;
-      if ((*(&random_byte2 + k) & 3) != 0) R0_ = *(&random_byte3 + k) & 0xF;
+      if ((*(&random_byte2 + k) & 3) != 0)
+        R0_ = *(&random_byte3 + k) & 0xF;
       v3 = R1_ + v2;
       obj_xspeed.enemy[k] = kFlyCCXSpeedData[(uint8)(R1_ + v2)];
       enemy_moving_dir[k] = 1;
@@ -5454,7 +5584,8 @@ void DuplicateEnemyObj(uint8 k) {
   uint8 v1;  // di
 
   v1 = -1;
-  do ++v1;
+  do
+    ++v1;
   while (enemy_flag[v1]);
   duplicate_obj_offset = v1;
   enemy_flag[v1] = k | 0x80;
@@ -5477,7 +5608,8 @@ void BowserFlame_Init(uint8 k) {
     var0F4D_new = k;
     if (enemy_id[browser_front_offset] != 45) {
       v1 = SetFlameTimer() + 32;
-      if (secondary_hard_mode) v1 -= 16;
+      if (secondary_hard_mode)
+        v1 -= 16;
       frenzy_enemy_timer = v1;
       v2 = *(&random_byte1 + k) & 3;
       obj_sub_ypos.enemy[k] = v2;
@@ -5523,7 +5655,8 @@ void InitFireworks(uint8 k) {
     frenzy_enemy_timer = 32;
     --fireworks_counter;
     v1 = 10;
-    do --v1;
+    do
+      --v1;
     while (enemy_id[v1] != 49);
     v2 = obj_xpos_lo.enemy[v1];
     R0_ = obj_xpos_hi.enemy[v1] - (v2 < 0x30u);
@@ -5552,22 +5685,27 @@ void BulletBillCheepCheep(uint8 k) {
     if (area_type) {
       v6 = -1;
       while (++v6 < 9u) {
-        if (enemy_flag[v6] && enemy_id[v6] == 8) return;
+        if (enemy_flag[v6] && enemy_id[v6] == 8)
+          return;
       }
       sound_ch3 = 9;
       v2 = 8;
     } else {
-      if (k >= 3u) return;
+      if (k >= 3u)
+        return;
       v1 = *(&random_byte1 + k) >= 0xAAu;
-      if (world_number != 1) ++v1;
+      if (world_number != 1)
+        ++v1;
       v2 = kSwimCC_IDData[v1 & 1];
     }
     enemy_id[k] = v2;
-    if (bit_m_filter == 0xFF) bit_m_filter = 0;
+    if (bit_m_filter == 0xFF)
+      bit_m_filter = 0;
     for (i = *(&random_byte1 + k) & 7;; i = (v4 + 1) & 7) {
       v4 = i;
       v5 = kBitmasks[i];
-      if ((bit_m_filter & v5) == 0) break;
+      if ((bit_m_filter & v5) == 0)
+        break;
     }
     bit_m_filter |= v5;
     PutAtRightExtent(k, kEnemy17YPosData[v4]);
@@ -5589,16 +5727,19 @@ void HandleGroupEnemies(uint8 a) {
   v2 = a - 55;
   if (v2 < 4u) {
     v1 = 6;
-    if (primary_hard_mode) v1 = 2;
+    if (primary_hard_mode)
+      v1 = 2;
   }
   R1_ = v1;
   v3 = -80;
-  if ((v2 & 2) != 0) v3 = 112;
+  if ((v2 & 2) != 0)
+    v3 = 112;
   R0_ = v3;
   R2_ = screen_right_xpos_hi;
   R3_ = screen_right_xpos;
   v4 = 2;
-  if (v2 & 1) v4 = 3;
+  if (v2 & 1)
+    v4 = 3;
   number_of_group_enemies = v4;
 LABEL_9:
   v5 = -1;
@@ -5614,7 +5755,8 @@ LABEL_9:
       obj_ypos_hi.enemy[v5] = 1;
       enemy_flag[v5] = 1;
       CheckpointEnemyID(v5);
-      if (--number_of_group_enemies) goto LABEL_9;
+      if (--number_of_group_enemies)
+        goto LABEL_9;
       break;
     }
   }
@@ -5646,13 +5788,16 @@ void InitEnemyFrenzy(uint8 k) {
 }
 // B859: using guessed type int (*funcs_B851[6])();
 
-void NoFrenzyCode(uint8 k) { ; }
+void NoFrenzyCode(uint8 k) {
+  ;
+}
 
 void EndFrenzy(uint8 k) {
   uint8 i;  // di
 
   for (i = 9; (i & 0x80u) == 0; --i) {
-    if (enemy_id[i] == 17) enemy_state[i] = 1;
+    if (enemy_id[i] == 17)
+      enemy_state[i] = 1;
   }
   enemy_frenzy_buffer = 0;
   enemy_flag[k] = 0;
@@ -5664,19 +5809,23 @@ void JumpGPTroopa_Init(uint8 k) {
   TallBBox2(k);
 }
 
-void TallBBox2(uint8 k) { enemy_hitbox_ctrl[k] = 3; }
+void TallBBox2(uint8 k) {
+  enemy_hitbox_ctrl[k] = 3;
+}
 
 void BalPlatform_Init(uint8 k) {
-  uint8 v1;          // di
-  int8 v2;  // al
+  uint8 v1;  // di
+  int8 v2;   // al
 
   --obj_ypos_lo.enemy[k];
   --obj_ypos_lo.enemy[k];
-  if (!secondary_hard_mode) PosPlatform(k, 2u);
+  if (!secondary_hard_mode)
+    PosPlatform(k, 2u);
   v1 = -1;
   v2 = bal_platform_alignment;
   enemy_state[k] = bal_platform_alignment;
-  if (v2 < 0) v1 = k;
+  if (v2 < 0)
+    v1 = k;
   bal_platform_alignment = v1;
   enemy_moving_dir[k] = 0;
   PosPlatform(k, 0);
@@ -5715,7 +5864,8 @@ void SPBBox(uint8 k) {
   uint8 v1;  // al
 
   v1 = 5;
-  if (area_type != 3 && !secondary_hard_mode) v1 = 6;
+  if (area_type != 3 && !secondary_hard_mode)
+    v1 = 6;
   enemy_hitbox_ctrl[k] = v1;
 }
 
@@ -5753,7 +5903,9 @@ void PosPlatform(uint8 k, uint8 j) {
   obj_xpos_hi.enemy[k] += kPlatPosDataHigh[j] + v3;
 }
 
-void EndOfEnemyInitCode(uint8 k) { ; }
+void EndOfEnemyInitCode(uint8 k) {
+  ;
+}
 
 void RunEnemyObjectsCore() {
   int8 v0;   // al
@@ -5761,12 +5913,15 @@ void RunEnemyObjectsCore() {
 
   v0 = 0;
   v1 = enemy_id[object_index];
-  if (v1 >= 0x15u) v0 = v1 - 20;
+  if (v1 >= 0x15u)
+    v0 = v1 - 20;
   ((void (*)(uint8))funcs_BC01[v0])(object_index);
 }
 // BC09: using guessed type int (*funcs_BC01[34])();
 
-void NoRunCode(uint8 k) { ; }
+void NoRunCode(uint8 k) {
+  ;
+}
 
 void RunRetainerObj(uint8 k) {
   GetEnemyOffscreenBits(k);
@@ -5783,7 +5938,8 @@ void RunNormalEnemies(uint8 k) {
   EnemyToBGCollisionDet(k);
   EnemiesCollision(k);
   PlayerEnemyCollision(k);
-  if (!timer_control) EnemyMovementSubs(k);
+  if (!timer_control)
+    EnemyMovementSubs(k);
   OffscreenBoundsCheck(k);
 }
 
@@ -5797,7 +5953,9 @@ void EnemyMovementSubs(uint8 k) {
 }
 // BDF0: using guessed type int (*funcs_BDE8[21])();
 
-void NoMoveCode(uint8 k) { ; }
+void NoMoveCode(uint8 k) {
+  ;
+}
 
 void RunBowserFlame(uint8 k) {
   ProcBowserFlame(k);
@@ -5829,7 +5987,8 @@ void RunLargePlatform(uint8 k) {
   RelativeEnemyPosition(k);
   LargePlatformBoundBox(k);
   LargePlatformCollision(k);
-  if (!timer_control) LargePlatformSubroutines(k);
+  if (!timer_control)
+    LargePlatformSubroutines(k);
   RelativeEnemyPosition(k);
   DrawLargePlatform(k);
   OffscreenBoundsCheck(k);
@@ -5859,7 +6018,8 @@ void EraseEnemyObject2(uint8 k) {
     oam[121].ypos = -16;
     oam[122].ypos = -16;
     oam[123].ypos = -16;
-    if (area_data_addr_index == 34) cloud_type_override = 0;
+    if (area_data_addr_index == 34)
+      cloud_type_override = 0;
   }
   enemy_flag[k] = 0;
   enemy_id[k] = 0;
@@ -5881,8 +6041,7 @@ void MovePodoboo(uint8 k) {
     *(&enemy_interval_timer + k) = v1 & 9 | 6;
     obj_yspeed.enemy[k] = -7;
   }
-  if ((obj_yspeed.enemy[k] & 0x80u) == 0 && obj_ypos_lo.enemy[k] >= 0xC0u &&
-      podoboo_array_1[k] == 2) {
+  if ((obj_yspeed.enemy[k] & 0x80u) == 0 && obj_ypos_lo.enemy[k] >= 0xC0u && podoboo_array_1[k] == 2) {
     ++podoboo_array_1[k];
     podoboo_array_2[k] = 0;
     sound_ch3 = 39;
@@ -5902,13 +6061,11 @@ void ProcHammerBro(uint8 k) {
   } else if (enemy_data_c[k]) {
     --enemy_data_c[k];
     if ((offscreen_bits.enemy & 0xC) != 0) {
-    LABEL_4:
+LABEL_4:
       CODE_03CEE9(k);
       return;
     }
-    if (enemy_data_d[k] ||
-        (enemy_data_d[k] = kHammerThrowTmrData[secondary_hard_mode],
-         !(SpawnThrownHammer(k) & 1))) {
+    if (enemy_data_d[k] || (enemy_data_d[k] = kHammerThrowTmrData[secondary_hard_mode], !(SpawnThrownHammer(k) & 1))) {
       --enemy_data_d[k];
       CODE_03CEE9(k);
     } else {
@@ -5916,12 +6073,12 @@ void ProcHammerBro(uint8 k) {
       CODE_03CEE9(k);
     }
   } else {
-    if ((enemy_state[k] & 7) == 1) goto LABEL_4;
+    if ((enemy_state[k] & 7) == 1)
+      goto LABEL_4;
     R0_ = 0;
     v1 = -6;
     v2 = obj_ypos_lo.enemy[k];
-    if (v2 < 0 || (v1 = -3, ++R0_, (uint8)v2 < 0x70u) ||
-        (--R0_, (*(&random_byte2 + k) & 1) != 0))
+    if (v2 < 0 || (v1 = -3, ++R0_, (uint8)v2 < 0x70u) || (--R0_, (*(&random_byte2 + k) & 1) != 0))
       CODE_03CEC7(k, v1);
     else
       CODE_03CEC7(k, 0xFAu);
@@ -5934,7 +6091,8 @@ void CODE_03CEC7(uint8 k, uint8 j) {
   obj_yspeed.enemy[k] = j;
   enemy_state[k] |= 1u;
   v2 = *(&random_byte3 + k) & R0_;
-  if (!secondary_hard_mode) v2 = secondary_hard_mode;
+  if (!secondary_hard_mode)
+    v2 = secondary_hard_mode;
   enemy_frame_timer[k] = kHammerBroJumpLData[v2];
   enemy_data_c[k] = *(&random_byte2 + k) | 0xC0;
   CODE_03CEE9(k);
@@ -5945,12 +6103,14 @@ void CODE_03CEE9(uint8 k) {
   uint8 v2;  // di
 
   v1 = -4;
-  if ((frame_counter & 0x40) == 0) v1 = 4;
+  if ((frame_counter & 0x40) == 0)
+    v1 = 4;
   obj_xspeed.enemy[k] = v1;
   v2 = 1;
   if ((PlayerEnemyDiff(k) & 0x80u) == 0) {
     v2 = 2;
-    if (!*(&enemy_interval_timer + k)) obj_xspeed.enemy[k] = -8;
+    if (!*(&enemy_interval_timer + k))
+      obj_xspeed.enemy[k] = -8;
   }
   enemy_moving_dir[k] = v2;
   MoveNormalEnemy(k);
@@ -5966,28 +6126,33 @@ void MoveNormalEnemy(uint8 k) {
   uint8 v7;  // [rsp+47h] [rbp-1h]
 
   v1 = 0;
-  if ((enemy_state[k] & 0x40) != 0) goto LABEL_7;
-  if (__CFSHL__(enemy_state[k], 1)) goto LABEL_12;
+  if ((enemy_state[k] & 0x40) != 0)
+    goto LABEL_7;
+  if (__CFSHL__(enemy_state[k], 1))
+    goto LABEL_12;
   if ((enemy_state[k] & 0x20) != 0) {
     MoveD_EnemyVert(k);
     MoveEnemyHoriz(k);
     return;
   }
   v2 = enemy_state[k] & 7;
-  if (!v2) goto LABEL_12;
+  if (!v2)
+    goto LABEL_12;
   if (v2 == 5 || v2 < 3u) {
-  LABEL_7:
+LABEL_7:
     MoveD_EnemyVert(k);
     v1 = 0;
     if (enemy_state[k] == 2) {
       MoveEnemyHoriz(k);
       return;
     }
-    if ((enemy_state[k] & 0x40) != 0 && enemy_id[k] != 46) v1 = 1;
-  LABEL_12:
+    if ((enemy_state[k] & 0x40) != 0 && enemy_id[k] != 46)
+      v1 = 1;
+LABEL_12:
     v3 = obj_xspeed.enemy[k];
     v7 = v3;
-    if (v3 < 0) v1 += 2;
+    if (v3 < 0)
+      v1 += 2;
     obj_xspeed.enemy[k] = kXSpeedAdderData[v1] + v3;
     MoveEnemyHoriz(k);
     obj_xspeed.enemy[k] = v7;
@@ -5995,13 +6160,15 @@ void MoveNormalEnemy(uint8 k) {
   }
   v4 = *(&enemy_interval_timer + k);
   if (v4) {
-    if (v4 == 14 && enemy_id[k] == 6) EraseEnemyObject(k);
+    if (v4 == 14 && enemy_id[k] == 6)
+      EraseEnemyObject(k);
   } else {
     enemy_state[k] = 0;
     v5 = (frame_counter & 1) + 1;
     enemy_moving_dir[k] = v5;
     v6 = v5 - 1;
-    if (primary_hard_mode) v6 += 2;
+    if (primary_hard_mode)
+      v6 += 2;
     obj_xspeed.enemy[k] = kRevivedXSpeed[v6];
   }
 }
@@ -6012,9 +6179,7 @@ void MoveJumpingEnemy(uint8 k) {
 }
 
 void ProcMoveRedPTroopa(uint8 k) {
-  if (obj_sub_yspeed.enemy[k] | obj_yspeed.enemy[k] ||
-      (obj_sub_ypos.enemy[k] = 0,
-       obj_ypos_lo.enemy[k] >= obj_xpos_fract.enemy[k])) {
+  if (obj_sub_yspeed.enemy[k] | obj_yspeed.enemy[k] || (obj_sub_ypos.enemy[k] = 0, obj_ypos_lo.enemy[k] >= obj_xpos_fract.enemy[k])) {
     if (obj_ypos_lo.enemy[k] < obj_xspeed.enemy[k])
       MoveRedPTroopaDown(k);
     else
@@ -6031,13 +6196,16 @@ void MoveFlyGreenPTroopa(uint8 k) {
   MoveWithXMCntrs(k);
   v1 = 1;
   if ((frame_counter & 3) == 0) {
-    if ((frame_counter & 0x40) == 0) v1 = -1;
+    if ((frame_counter & 0x40) == 0)
+      v1 = -1;
     R0_ = v1;
     obj_ypos_lo.enemy[k] += v1;
   }
 }
 
-void XMoveCntr_GreenPTroopa(uint8 k) { XMoveCntr_Platform(k, 0x13u); }
+void XMoveCntr_GreenPTroopa(uint8 k) {
+  XMoveCntr_Platform(k, 0x13u);
+}
 
 void XMoveCntr_Platform(uint8 k, uint8 a) {
   uint8 v2;  // di
@@ -6087,7 +6255,8 @@ void MoveBloober(uint8 k) {
         v1 = player_moving_dir;
       } else {
         v1 = 2;
-        if ((PlayerEnemyDiff(k) & 0x80u) != 0) v1 = 1;
+        if ((PlayerEnemyDiff(k) & 0x80u) != 0)
+          v1 = 1;
       }
       enemy_moving_dir[k] = v1;
     }
@@ -6114,9 +6283,9 @@ void ProcSwimmingB(uint8 k) {
   int8 v3;   // [rsp+47h] [rbp-1h]
 
   if ((obj_yspeed.enemy[k] & 2) != 0) {
-    if (*(&enemy_interval_timer + k) ||
-        (uint8)(obj_ypos_lo.enemy[k] + 16) < obj_ypos_lo.player) {
-      if (!(frame_counter & 1)) ++obj_ypos_lo.enemy[k];
+    if (*(&enemy_interval_timer + k) || (uint8)(obj_ypos_lo.enemy[k] + 16) < obj_ypos_lo.player) {
+      if (!(frame_counter & 1))
+        ++obj_ypos_lo.enemy[k];
     } else {
       obj_yspeed.enemy[k] = 0;
     }
@@ -6136,7 +6305,8 @@ void ProcSwimmingB(uint8 k) {
       v1 = obj_sub_yspeed.enemy[k] + 1;
       obj_sub_yspeed.enemy[k] = v1;
       obj_xspeed.enemy[k] = v1;
-      if (v1 == 2) ++obj_yspeed.enemy[k];
+      if (v1 == 2)
+        ++obj_yspeed.enemy[k];
     }
   }
 }
@@ -6204,7 +6374,8 @@ void MoveSwimmingCheepCheep(uint8 k) {
         v11 = 16;
         v12 = obj_sub_yspeed.enemy[k] - obj_ypos_lo.enemy[k];
       }
-      if ((uint8)v12 >= 0xFu) obj_xspeed.enemy[k] = v11;
+      if ((uint8)v12 >= 0xFu)
+        obj_xspeed.enemy[k] = v11;
     }
   }
 }
@@ -6239,13 +6410,15 @@ void ProcFirebar(uint8 k) {
     R0_ = 1;
     FirebarCollision(v3);
     v7 = 5;
-    if (enemy_id[k] >= 0x1Fu) v7 = 11;
+    if (enemy_id[k] >= 0x1Fu)
+      v7 = 11;
     tempED = v7;
     R0_ = 0;
     do {
       GetFirebarPosition(tempEF);
       DrawFirebar_Collision();
-      if (R0_ == 4) R6_ = enemy_obj_id[duplicate_obj_offset];
+      if (R0_ == 4)
+        R6_ = enemy_obj_id[duplicate_obj_offset];
       ++R0_;
     } while (R0_ < tempED);
   }
@@ -6265,7 +6438,8 @@ void DrawFirebar_Collision() {
   v0 = R6_;
   v1 = R1_;
   R5_ = R3_ >> 1;
-  if (!(R3_ & 1)) v1 = -R1_;
+  if (!(R3_ & 1))
+    v1 = -R1_;
   v2 = rel_xpos_lo.enemy + v1;
   oam = get_OamEnt(oam_buf, R6_);
   oam[64].xpos = v2;
@@ -6280,7 +6454,8 @@ void DrawFirebar_Collision() {
       v6 = R2_;
       v7 = R5_ & 1;
       R5_ >>= 1;
-      if (!v7) v6 = -R2_;
+      if (!v7)
+        v6 = -R2_;
       enemy = rel_ypos.enemy + v6;
     }
   } else {
@@ -6313,17 +6488,22 @@ void FirebarCollision(uint8 j) {
       }
       for (i = player;; i = kFirebarYPos[R5_++] + obj_ypos_lo.player) {
         v3 = i - R7_;
-        if (v3 < 0) v3 = -v3;
+        if (v3 < 0)
+          v3 = -v3;
         if ((uint8)v3 < 8u && R6_ < 0xF0u) {
           R4_ = rel_xpos_lo.player + 4;
           v4 = rel_xpos_lo.player + 4 - R6_;
-          if (v4 < 0) v4 = R6_ - (rel_xpos_lo.player + 4);
-          if ((uint8)v4 < 8u) break;
+          if (v4 < 0)
+            v4 = R6_ - (rel_xpos_lo.player + 4);
+          if ((uint8)v4 < 8u)
+            break;
         }
-        if (R5_ == 2) goto LABEL_19;
+        if (R5_ == 2)
+          goto LABEL_19;
       }
       v5 = 1;
-      if (R4_ < R6_) v5 = 2;
+      if (R4_ < R6_)
+        v5 = 2;
       enemy_moving_dir[0] = v5;
       v6 = R0_;
       InjurePlayer();
@@ -6339,11 +6519,13 @@ void GetFirebarPosition(uint8 a) {
   uint8 v2;  // al
 
   v1 = a & 0xF;
-  if (v1 >= 9u) v1 = (v1 ^ 0xF) + 1;
+  if (v1 >= 9u)
+    v1 = (v1 ^ 0xF) + 1;
   R1_ = v1;
   R1_ = kFirebarPosLookupTbl[(uint8)(v1 + kFirebarTblOffsets[R0_])];
   v2 = (a + 8) & 0xF;
-  if (v2 >= 9u) v2 = (v2 ^ 0xF) + 1;
+  if (v2 >= 9u)
+    v2 = (v2 ^ 0xF) + 1;
   R2_ = v2;
   R2_ = kFirebarPosLookupTbl[(uint8)(v2 + kFirebarTblOffsets[R0_])];
   R3_ = kFirebarMirrorData[a >> 3];
@@ -6361,8 +6543,10 @@ void MoveFlyingCheepCheep(uint8 k) {
     SetXMoveAmt(k, 0xDu, 5u);
     v1 = obj_sub_yspeed.enemy[k] >> 4;
     v2 = obj_ypos_lo.enemy[k] - kPRandomSubtracter[v1];
-    if (v2 < 0) v2 = kPRandomSubtracter[v1] - obj_ypos_lo.enemy[k];
-    if ((uint8)v2 < 8u) v1 = (uint8)(obj_sub_yspeed.enemy[k] + 16) >> 4;
+    if (v2 < 0)
+      v2 = kPRandomSubtracter[v1] - obj_ypos_lo.enemy[k];
+    if ((uint8)v2 < 8u)
+      v1 = (uint8)(obj_sub_yspeed.enemy[k] + 16) >> 4;
     enemy_sprattrib[k] = kFlyCCBPriority[v1];
   }
 }
@@ -6381,7 +6565,8 @@ void MoveLakitu(uint8 k) {
       v1 = 16;
     } else {
       enemy_frenzy_buffer = 18;
-      for (i = 2; (i & 0x80u) == 0; --i) *(&R1_ + i) = kLakituDiffAdj[i];
+      for (i = 2; (i & 0x80u) == 0; --i)
+        *(&R1_ + i) = kLakituDiffAdj[i];
       v1 = PlayerLakituDiff(k);
     }
     obj_xspeed.enemy[k] = v1;
@@ -6396,10 +6581,10 @@ void MoveLakitu(uint8 k) {
 }
 
 uint8 PlayerLakituDiff(uint8 k) {
-  uint8 v1;          // di
-  uint8 result;      // al
-  uint8 v3;          // di
-  int8 v4;  // di
+  uint8 v1;      // di
+  uint8 result;  // al
+  uint8 v3;      // di
+  int8 v4;       // di
 
   v1 = 0;
   if ((PlayerEnemyDiff(k) & 0x80u) != 0) {
@@ -6411,7 +6596,8 @@ uint8 PlayerLakituDiff(uint8 k) {
     if (enemy_id[k] == 17 && v1 != obj_yspeed.enemy[k]) {
       if (obj_yspeed.enemy[k]) {
         result = --obj_xspeed.enemy[k];
-        if (result) return result;
+        if (result)
+          return result;
       }
       obj_yspeed.enemy[k] = v1;
     }
@@ -6420,7 +6606,8 @@ uint8 PlayerLakituDiff(uint8 k) {
   v3 = 0;
   if (obj_xspeed.player && scroll_amount) {
     v3 = 1;
-    if (obj_xspeed.player >= 0x19u && scroll_amount >= 2u) v3 = 2;
+    if (obj_xspeed.player >= 0x19u && scroll_amount >= 2u)
+      v3 = 2;
     if ((enemy_id[k] != 18 || !obj_xspeed.player) && !obj_yspeed.enemy[k])
       v3 = 0;
   }
@@ -6453,7 +6640,7 @@ void BridgeCollapse() {
 
   v0 = browser_front_offset;
   if (enemy_id[browser_front_offset] != 45) {
-  LABEL_5:
+LABEL_5:
     if (!bridge_collapse_sfx_flag) {
       music_ch1 = 11;
       bridge_collapse_sfx_flag = 11;
@@ -6516,10 +6703,10 @@ void RunBowser(uint8 k) {
           bowser_feet_counter = 32;
           browser_body_controls ^= 1u;
         }
-        if ((frame_counter & 0xF) == 0) enemy_moving_dir[k] = 2;
+        if ((frame_counter & 0xF) == 0)
+          enemy_moving_dir[k] = 2;
         if (!enemy_frame_timer[k] || (PlayerEnemyDiff(k) & 0x80u) == 0 ||
-            (enemy_moving_dir[k] = 1, bowser_movement_speed = 2,
-             enemy_frame_timer[k] = 32, bowser_fire_breath_timer = 32,
+            (enemy_moving_dir[k] = 1, bowser_movement_speed = 2, enemy_frame_timer[k] = 32, bowser_fire_breath_timer = 32,
              obj_xpos_lo.enemy[k] < 0xB0u)) {
           if ((frame_counter & 3) == 0) {
             if (obj_xpos_lo.enemy[k] == bowser_orig_xpos)
@@ -6533,7 +6720,8 @@ void RunBowser(uint8 k) {
                 v3 = -v3;
                 v2 = 1;
               }
-              if (v3 >= bowser_var06DC) bowser_movement_speed = v2;
+              if (v3 >= bowser_var06DC)
+                bowser_movement_speed = v2;
             }
           }
         }
@@ -6562,7 +6750,8 @@ void RunBowser(uint8 k) {
       browser_body_controls ^= 0x80u;
     } while ((browser_body_controls & 0x80u) != 0);
     v5 = SetFlameTimer();
-    if (secondary_hard_mode) v5 -= 16;
+    if (secondary_hard_mode)
+      v5 -= 16;
     bowser_fire_breath_timer = v5;
     enemy_frenzy_buffer = 21;
     BowserGfxHandler(k);
@@ -6572,7 +6761,8 @@ void RunBowser(uint8 k) {
 void KillAllEnemies() {
   int8 i;  // si
 
-  for (i = 8; i >= 0; --i) EraseEnemyObject(i);
+  for (i = 8; i >= 0; --i)
+    EraseEnemyObject(i);
   enemy_frenzy_buffer = 0;
 }
 
@@ -6586,7 +6776,8 @@ void BowserGfxHandler(uint8 k) {
 
   ProcessBowserHalf(k);
   v1 = 16;
-  if (enemy_moving_dir[k] & 1) v1 = -16;
+  if (enemy_moving_dir[k] & 1)
+    v1 = -16;
   v2 = obj_xpos_lo.enemy[k] + v1;
   v3 = duplicate_obj_offset;
   obj_xpos_lo.enemy[duplicate_obj_offset] = v2;
@@ -6616,7 +6807,8 @@ void ProcessBowserHalf(uint8 k) {
   if (!enemy_state[k]) {
     enemy_hitbox_ctrl[k] = 10;
     GetEnemyBoundBox(k);
-    if (game_mode != 2) PlayerEnemyCollision(k);
+    if (game_mode != 2)
+      PlayerEnemyCollision(k);
   }
 }
 
@@ -6638,7 +6830,8 @@ void ProcBowserFlame(uint8 k) {
   if (k != var0F4D_new || !bowser_var0F4C || bowser_var014B != 6) {
     if (!timer_control) {
       v1 = 64;
-      if (secondary_hard_mode) v1 = 96;
+      if (secondary_hard_mode)
+        v1 = 96;
       R0_ = v1;
       v2 = obj_xpos_fract.enemy[k];
       v3 = v2 < R0_;
@@ -6651,25 +6844,28 @@ void ProcBowserFlame(uint8 k) {
         obj_ypos_lo.enemy[k] = obj_sub_yspeed.enemy[k] + v5;
     }
     RelativeEnemyPosition(k);
-    if (!enemy_state[k]) ProcBowserFlame_Sub(k);
+    if (!enemy_state[k])
+      ProcBowserFlame_Sub(k);
   }
 }
 
 void RunFireworks(uint8 k) {
   uint8 v2;  // di
 
-  if (obj_yspeed.enemy[k]-- != 1) goto LABEL_5;
+  if (obj_yspeed.enemy[k]-- != 1)
+    goto LABEL_5;
   obj_yspeed.enemy[k] = 8;
   if (++obj_xspeed.enemy[k] == 1) {
     sound_ch1 = 41;
-  LABEL_5:
+LABEL_5:
     RelativeEnemyPosition(k);
     rel_ypos.fireball = rel_ypos.enemy;
     rel_xpos_lo.fireball = rel_xpos_lo.enemy;
     DrawExplosion_Fireworks(enemy_obj_id[k], obj_xspeed.enemy[k]);
     return;
   }
-  if (obj_xspeed.enemy[k] < 4u) goto LABEL_5;
+  if (obj_xspeed.enemy[k] < 4u)
+    goto LABEL_5;
   enemy_flag[k] = 0;
   v2 = enemy_obj_id[k];
   oam_tile_size_buffer[v2 + 256] = 3;
@@ -6689,35 +6885,33 @@ void RunStarFlagObj(uint8 k) {
 
   enemy_frenzy_buffer = 0;
   switch (star_flag_task_control) {
-    case 1:
-      v1 = 5;
-      v2 = level_timer_ones;
-      if (level_timer_ones != 1) {
-        v1 = 3;
-        if (level_timer_ones != 3) {
-          v1 = 0;
-          if (level_timer_ones != 6) v2 = -1;
-        }
+  case 1:
+    v1 = 5;
+    v2 = level_timer_ones;
+    if (level_timer_ones != 1) {
+      v1 = 3;
+      if (level_timer_ones != 3) {
+        v1 = 0;
+        if (level_timer_ones != 6)
+          v2 = -1;
       }
-      fireworks_counter = v2;
-      enemy_state[k] = v1;
-      if ((ReadReg(APUI03) & 0x7F) != 75) sound_ch3 = 75;
+    }
+    fireworks_counter = v2;
+    enemy_state[k] = v1;
+    if ((ReadReg(APUI03) & 0x7F) != 75)
+      sound_ch3 = 75;
+    ++star_flag_task_control;
+    break;
+  case 2:
+    if ((level_timer_hundreds | level_timer_tens | level_timer_ones) == 0) {
+      unused_byte_7E0E1A = sound_ch3 = 0x4c;
       ++star_flag_task_control;
-      break;
-    case 2:
-      if ((level_timer_hundreds | level_timer_tens | level_timer_ones) == 0) {
-        unused_byte_7E0E1A = sound_ch3 = 0x4c;
-        ++star_flag_task_control;
-      } else {
-        CODE_03D809();
-      }
-      break;
-    case 3:
-      RaiseFlagSetoffFWorks(k);
-      break;
-    case 4:
-      DelayToAreaEnd(k);
-      break;
+    } else {
+      CODE_03D809();
+    }
+    break;
+  case 3: RaiseFlagSetoffFWorks(k); break;
+  case 4: DelayToAreaEnd(k); break;
   }
 }
 
@@ -6732,7 +6926,8 @@ void EndAreaPoints() {
   uint8 v0;  // di
 
   v0 = 11;
-  if (current_player) v0 = 17;
+  if (current_player)
+    v0 = 17;
   DigitsMathRoutine(v0);
   UpdateNumber((16 * current_player) | 4);
 }
@@ -6773,28 +6968,36 @@ void DrawFlagSetTimer(uint8 k) {
   IncrementSFTask2();
 }
 
-void IncrementSFTask2() { ++star_flag_task_control; }
+void IncrementSFTask2() {
+  ++star_flag_task_control;
+}
 
 void DelayToAreaEnd(uint8 k) {
   DrawStarFlag(k);
-  if (!*(&enemy_interval_timer + k) && !event_music_buffer) IncrementSFTask2();
+  if (!*(&enemy_interval_timer + k) && !event_music_buffer)
+    IncrementSFTask2();
 }
 
 void MovePiranhaPlant(uint8 k) {
   uint8 v1;  // al
   uint8 v2;  // al
 
-  if (enemy_state[k] || enemy_frame_timer[k]) goto LABEL_15;
-  if (obj_yspeed.enemy[k]) goto LABEL_9;
-  if ((obj_xspeed.enemy[k] & 0x80u) != 0) goto LABEL_8;
-  if ((PlayerEnemyDiff(k) & 0x80u) != 0) R0_ = -R0_;
+  if (enemy_state[k] || enemy_frame_timer[k])
+    goto LABEL_15;
+  if (obj_yspeed.enemy[k])
+    goto LABEL_9;
+  if ((obj_xspeed.enemy[k] & 0x80u) != 0)
+    goto LABEL_8;
+  if ((PlayerEnemyDiff(k) & 0x80u) != 0)
+    R0_ = -R0_;
   if (R0_ >= 0x21u) {
-  LABEL_8:
+LABEL_8:
     obj_xspeed.enemy[k] = -obj_xspeed.enemy[k];
     ++obj_yspeed.enemy[k];
-  LABEL_9:
+LABEL_9:
     v1 = obj_sub_yspeed.enemy[k];
-    if ((obj_xspeed.enemy[k] & 0x80u) != 0) v1 = obj_sub_ypos.enemy[k];
+    if ((obj_xspeed.enemy[k] & 0x80u) != 0)
+      v1 = obj_sub_ypos.enemy[k];
     R0_ = v1;
     if (frame_counter & 1) {
       if (!timer_control) {
@@ -6829,31 +7032,32 @@ uint8 FirebarSpin(uint8 k, uint8 a) {
 }
 
 void BalancePlatform(uint8 k) {
-  uint8 v1;          // al
-  uint8 v2;          // di
-  int8 v3;           // al
-  uint8 v4;          // al
-  int8 v5;           // al
-  int8 v6;  // al
-  uint8 v7;          // di
-  int8 v8;           // al
-  uint16 v9;         // si
-  int16 v10;         // ax
-  int v11;           // edx
-  int16 v12;         // ax
-  uint16 v13;        // si
-  int16 v14;         // ax
-  int v15;           // edx
-  int16 v16;         // ax
-  uint8 v17;         // [rsp+47h] [rbp-1h]
-  uint8 v18;         // [rsp+47h] [rbp-1h]
+  uint8 v1;    // al
+  uint8 v2;    // di
+  int8 v3;     // al
+  uint8 v4;    // al
+  int8 v5;     // al
+  int8 v6;     // al
+  uint8 v7;    // di
+  int8 v8;     // al
+  uint16 v9;   // si
+  int16 v10;   // ax
+  int v11;     // edx
+  int16 v12;   // ax
+  uint16 v13;  // si
+  int16 v14;   // ax
+  int v15;     // edx
+  int16 v16;   // ax
+  uint8 v17;   // [rsp+47h] [rbp-1h]
+  uint8 v18;   // [rsp+47h] [rbp-1h]
 
   if (obj_ypos_hi.enemy[k] == 3) {
     EraseEnemyObject(k);
     return;
   }
   v1 = enemy_state[k];
-  if ((v1 & 0x80u) != 0) return;
+  if ((v1 & 0x80u) != 0)
+    return;
   v2 = enemy_state[k];
   R0_ = enemy_data_d[k];
   if (enemy_moving_dir[k]) {
@@ -6872,7 +7076,8 @@ void BalancePlatform(uint8 k) {
     v17 = obj_ypos_lo.enemy[k];
     v3 = enemy_data_d[k];
     if (v3 >= 0) {
-      if (v3 != object_index) goto LABEL_19;
+      if (v3 != object_index)
+        goto LABEL_19;
     } else {
       v4 = obj_sub_yspeed.enemy[k];
       R0_ = v4 + 5;
@@ -6882,22 +7087,23 @@ void BalancePlatform(uint8 k) {
           StopPlatforms(k, v2);
           goto LABEL_22;
         }
-      LABEL_19:
+LABEL_19:
         MovePlatformUp(k);
-      LABEL_22:
+LABEL_22:
         obj_ypos_lo.enemy[enemy_state[k]] += v17 - obj_ypos_lo.enemy[k];
         v6 = enemy_data_d[k];
-        if (v6 >= 0) PositionPlayerOnVPlat(v6);
+        if (v6 >= 0)
+          PositionPlayerOnVPlat(v6);
         v7 = object_index;
-        if (obj_sub_yspeed.enemy[object_index] |
-            obj_yspeed.enemy[object_index]) {
+        if (obj_sub_yspeed.enemy[object_index] | obj_yspeed.enemy[object_index]) {
           v18 = obj_yspeed.enemy[object_index];
           SetupPlatformRope(object_index, v18);
           tempF3 = (uint8)screen_left_xpos16 >> 3;
           tempF4 = (4 * (HIBYTE(screen_left_xpos16) & 1)) | 0x20;
           v8 = ((uint8)screen_left_xpos16 >> 3) + 31;
           tempF5 = v8 & 0x1F;
-          if ((v8 & 0x20) != 0) tempF6 = tempF4 ^ 4;
+          if ((v8 & 0x20) != 0)
+            tempF6 = tempF4 ^ 4;
           if ((unsigned int)(*(uint16 *)&R0_ & 0x241F) >= *(uint16 *)&tempF3 ||
               (unsigned int)(*(uint16 *)&R0_ & 0x241F) < *(uint16 *)&tempF5) {
             v9 = *(uint16 *)&vram_buffer1_offset;
@@ -6910,8 +7116,7 @@ void BalancePlatform(uint8 k) {
               *(uint16 *)&vram_buffer1[v9 + 5] = 36;
               *(uint16 *)&vram_buffer1[v9 + 7] = 36;
             } else {
-              if ((*(uint16 *)&vram_buffer1[v9 + 1] & 0xF003) == 0xA000 ||
-                  (*(uint16 *)&vram_buffer1[v9 + 1] & 0xF003) == 0xB000) {
+              if ((*(uint16 *)&vram_buffer1[v9 + 1] & 0xF003) == 0xA000 || (*(uint16 *)&vram_buffer1[v9 + 1] & 0xF003) == 0xB000) {
                 v12 = 6236;
               } else {
                 v12 = 4258;
@@ -6933,8 +7138,7 @@ void BalancePlatform(uint8 k) {
             *(uint16 *)&vram_buffer1[v15 + 3] = 768;
             if ((v18 & 0x80) != 0) {
               *(uint16 *)&vram_buffer1[v13 + 5] = 4258;
-              if ((*(uint16 *)&vram_buffer1[v13 + 1] & 0xF003) == 0xA000 ||
-                  (*(uint16 *)&vram_buffer1[v13 + 1] & 0xF003) == 0xB000) {
+              if ((*(uint16 *)&vram_buffer1[v13 + 1] & 0xF003) == 0xA000 || (*(uint16 *)&vram_buffer1[v13 + 1] & 0xF003) == 0xB000) {
                 v16 = 6207;
               } else {
                 v16 = 6307;
@@ -6955,7 +7159,7 @@ void BalancePlatform(uint8 k) {
     goto LABEL_22;
   }
   if (k == R0_) {
-  LABEL_9:
+LABEL_9:
     InitPlatformFall(k, v1);
     return;
   }
@@ -6977,11 +7181,13 @@ void SetupPlatformRope(uint8 j, uint8 a) {
   R2_ = v3 + obj_xpos_hi.enemy[j];
   R0_ = (uint8)(v2 & 0xF0) >> 3;
   v4 = obj_ypos_lo.enemy[j];
-  if ((a & 0x80u) != 0) v4 += 8;
+  if ((a & 0x80u) != 0)
+    v4 += 8;
   R1_ = (2 * (4 * v4 + __CFSHL__(v4, 1)) + __CFSHL__(2 * v4, 1)) & 3 | 0x20;
   R1_ |= 4 * (R2_ & 1);
   R0_ += (4 * v4 + __CFSHL__(v4, 1)) & 0xE0;
-  if (obj_ypos_lo.enemy[j] >= 0xE8u) R0_ &= ~0x40u;
+  if (obj_ypos_lo.enemy[j] >= 0xE8u)
+    R0_ &= ~0x40u;
 }
 
 void InitPlatformFall(uint8 k, uint8 j) {
@@ -7003,15 +7209,15 @@ void PlatformFall(uint8 k, uint8 j) {
   int8 v2;  // al
 
   MoveFallingPlatform(k);
-  if ((enemy_state[j] & 0x80u) != 0) MoveFallingPlatform(j);
+  if ((enemy_state[j] & 0x80u) != 0)
+    MoveFallingPlatform(j);
   v2 = enemy_data_d[object_index];
-  if (v2 >= 0) PositionPlayerOnVPlat(v2);
+  if (v2 >= 0)
+    PositionPlayerOnVPlat(v2);
 }
 
 void YMovingPlatform(uint8 k) {
-  if (obj_sub_yspeed.enemy[k] | obj_yspeed.enemy[k] ||
-      (obj_sub_ypos.enemy[k] = 0,
-       obj_ypos_lo.enemy[k] >= obj_xpos_fract.enemy[k])) {
+  if (obj_sub_yspeed.enemy[k] | obj_yspeed.enemy[k] || (obj_sub_ypos.enemy[k] = 0, obj_ypos_lo.enemy[k] >= obj_xpos_fract.enemy[k])) {
     if (obj_ypos_lo.enemy[k] < obj_xspeed.enemy[k])
       MovePlatformDown(k);
     else
@@ -7023,13 +7229,15 @@ void YMovingPlatform(uint8 k) {
 }
 
 void ChkYPCollision(uint8 k) {
-  if ((enemy_data_d[k] & 0x80u) == 0) PositionPlayerOnVPlat(k);
+  if ((enemy_data_d[k] & 0x80u) == 0)
+    PositionPlayerOnVPlat(k);
 }
 
 void XMovingPlatform(uint8 k) {
   XMoveCntr_Platform(k, 0xEu);
   MoveWithXMCntrs(k);
-  if ((enemy_data_d[k] & 0x80u) == 0) PositionPlayerOnHPlat(k);
+  if ((enemy_data_d[k] & 0x80u) == 0)
+    PositionPlayerOnHPlat(k);
 }
 
 void PositionPlayerOnHPlat(uint8 k) {
@@ -7089,7 +7297,8 @@ void ChkSmallPlatCollision(uint8 k) {
 
   v1 = enemy_data_d[k];
   if (v1) {
-    if (v1 != 0xFF) PositionPlayerOnS_Plat(k, v1);
+    if (v1 != 0xFF)
+      PositionPlayerOnS_Plat(k, v1);
   }
 }
 
@@ -7105,20 +7314,16 @@ void OffscreenBoundsCheck(uint8 k) {
     v3 = v2 >= 5u;
     if (v2 == 5 || (v3 = v2 >= 0xDu, v2 == 13)) {
       v4 = v3;
-      v3 = __CFADD__(v3, screen_left_xpos_lo) |
-           __CFADD__(v3 + screen_left_xpos_lo, 56);
+      v3 = __CFADD__(v3, screen_left_xpos_lo) | __CFADD__(v3 + screen_left_xpos_lo, 56);
       v1 = v4 + screen_left_xpos_lo + 56;
     }
     R1_ = v1 - (!v3 + 72);
     R0_ = screen_left_xpos_hi - (v1 < (uint8)(!v3 + 72));
     R3_ = screen_right_xpos + 72;
     R2_ = __CFADD__(screen_right_xpos, 72) + screen_right_xpos_hi;
-    if ((int8)(obj_xpos_hi.enemy[k] - ((obj_xpos_lo.enemy[k] < R1_) + R0_)) <
-            0 ||
-        (int8)(obj_xpos_hi.enemy[k] - ((obj_xpos_lo.enemy[k] < R3_) + R2_)) >=
-                0 &&
-            enemy_state[k] != 5 && v2 != 13 && v2 != 48 && v2 != 49 &&
-            v2 != 50) {
+    if ((int8)(obj_xpos_hi.enemy[k] - ((obj_xpos_lo.enemy[k] < R1_) + R0_)) < 0 ||
+        (int8)(obj_xpos_hi.enemy[k] - ((obj_xpos_lo.enemy[k] < R3_) + R2_)) >= 0 && enemy_state[k] != 5 && v2 != 13 && v2 != 48 &&
+            v2 != 49 && v2 != 50) {
       EraseEnemyObject(k);
     }
   }
@@ -7139,8 +7344,7 @@ void FireballEnemyCollision(uint8 k) {
       if ((enemy_state[v3] & 0x20) == 0) {
         if (enemy_flag[v3]) {
           v4 = enemy_id[v3];
-          if ((v4 < 0x24u || v4 >= 0x2Bu) &&
-              (v4 != 6 || enemy_state[v3] < 2u) && !spr_array_D[v3]) {
+          if ((v4 < 0x24u || v4 >= 0x2Bu) && (v4 != 6 || enemy_state[v3] < 2u) && !spr_array_D[v3]) {
             if (SprObjectCollisionCore(4 * v3 + 4, v2) & 1) {
               fireball_state[object_index] = 0x80;
               HandleEnemyFBallCol(R1_);
@@ -7171,13 +7375,16 @@ void HandleEnemyFBallCol(uint8 k) {
   v2 = enemy_flag[R1_];
   if (v2 < 0) {
     v1 = v2 & 0xF;
-    if (enemy_id[v2 & 0xF] == 45) goto LABEL_6;
+    if (enemy_id[v2 & 0xF] == 45)
+      goto LABEL_6;
     v1 = R1_;
   }
   v3 = enemy_id[v1];
-  if (v3 == 2) return;
+  if (v3 == 2)
+    return;
   if (v3 != 45) {
-    if (v3 != 8 && v3 != 12 && v3 < 0x15u) ShellOrBlockDefeat(v1);
+    if (v3 != 8 && v3 != 12 && v3 < 0x15u)
+      ShellOrBlockDefeat(v1);
     return;
   }
 LABEL_6:
@@ -7206,7 +7413,8 @@ LABEL_6:
         v6 = 8;
         while (1) {
           v7 = enemy_id[(uint8)v6--];
-          if (v6 < 0) break;
+          if (v6 < 0)
+            break;
           if (v7 == 45) {
             v8 = v6 + 1;
             enemy_flag[v8] = 0;
@@ -7218,7 +7426,8 @@ LABEL_6:
       v1 = v10;
     }
     v9 = 32;
-    if (v4 < 3u) v9 = 35;
+    if (v4 < 3u)
+      v9 = 35;
     enemy_state[v1] = v9;
     func_sub_DDAE(R1_, 9u);
   }
@@ -7238,7 +7447,8 @@ void ShellOrBlockDefeat(uint8 k) {
   enemy_state[k] = enemy_state[k] & 0x1F | 0x20;
   v2 = 2;
   v3 = enemy_id[k];
-  if (v3 == 5) v2 = 6;
+  if (v3 == 5)
+    v2 = 6;
   if (v3 == 6)
     func_sub_DDAE(k, 1u);
   else
@@ -7264,7 +7474,8 @@ void PlayerHammerCollision(uint8 k) {
       if (!misc_collision_flag[object_index]) {
         misc_collision_flag[object_index] = 1;
         obj_xspeed.misc[v2] = -obj_xspeed.misc[v2];
-        if (!player_star_power_timer) InjurePlayer();
+        if (!player_star_power_timer)
+          InjurePlayer();
       }
     } else {
       misc_collision_flag[object_index] = 0;
@@ -7280,7 +7491,8 @@ void HandlePowerUpCollision(uint8 k) {
   sound_ch1 = 10;
   if (power_up_type < 2u) {
     if (player_status) {
-      if (player_status != 1) return;
+      if (player_status != 1)
+        return;
       player_status = 2;
       GetPlayerColors();
       v1 = 12;
@@ -7306,8 +7518,7 @@ void PlayerEnemyCollision(uint8 k) {
   uint8 v5;                // al
   uint8 v6;                // di
 
-  if (!(frame_counter & 1) && !(CheckPlayerVertical() & 1) &&
-      (k == 9 && rel_xpos_lo.enemy > 0xF3u || !spr_array_D[k]) &&
+  if (!(frame_counter & 1) && !(CheckPlayerVertical() & 1) && (k == 9 && rel_xpos_lo.enemy > 0xF3u || !spr_array_D[k]) &&
       game_engine_subroutine == 8 && (enemy_state[k] & 0x20) == 0) {
     EnemyBoundBoxOfs = GetEnemyBoundBoxOfs();
     v2 = PlayerCollisionCore(EnemyBoundBoxOfs);
@@ -7328,18 +7539,16 @@ void PlayerEnemyCollision(uint8 k) {
     if (!(spr_array_D[object_index] | enemy_collision_bits[object_index] & 1)) {
       enemy_collision_bits[object_index] |= 1u;
       switch (v4) {
-        case 0x12u:
-          goto LABEL_23;
-        case 0xDu:
-        case 0xCu:
-          goto LABEL_21;
-        case 0x33u:
-        LABEL_23:
-          ChkForPlayerInjury(v3);
-          return;
+      case 0x12u: goto LABEL_23;
+      case 0xDu:
+      case 0xCu: goto LABEL_21;
+      case 0x33u:
+LABEL_23:
+        ChkForPlayerInjury(v3);
+        return;
       }
       if (v4 >= 0x15u || !area_type) {
-      LABEL_21:
+LABEL_21:
         InjurePlayer();
         return;
       }
@@ -7354,7 +7563,8 @@ void PlayerEnemyCollision(uint8 k) {
         obj_xspeed.enemy[v3] = kKickedShellXSpdData[yy];
         v5 = stomp_chain_counter + 3;
         v6 = *(&enemy_interval_timer + v3);
-        if (v6 < 3u) v5 = kKickedShellPtsData[v6];
+        if (v6 < 3u)
+          v5 = kKickedShellPtsData[v6];
         SetupFloateyNumber(v3, v5);
       }
     }
@@ -7366,16 +7576,13 @@ void ChkForPlayerInjury(uint8 k) {
   uint8 v2;  // di
   uint8 v3;  // [rsp+47h] [rbp-1h]
 
-  if ((int8)obj_yspeed.player > 0 ||
-      enemy_id[k] >= 7u &&
-          (uint8)(obj_ypos_lo.player + 12) < obj_ypos_lo.enemy[k] ||
-      stomp_timer) {
-    if (enemy_id[k] == 18) goto LABEL_25;
+  if ((int8)obj_yspeed.player > 0 || enemy_id[k] >= 7u && (uint8)(obj_ypos_lo.player + 12) < obj_ypos_lo.enemy[k] || stomp_timer) {
+    if (enemy_id[k] == 18)
+      goto LABEL_25;
     sound_ch1 = 2;
     v1 = enemy_id[k];
     v2 = 0;
-    if (v1 == 20 || v1 == 8 || v1 == 51 || v1 == 12 || (v2 = 1, v1 == 5) ||
-        (v2 = 2, v1 == 17) || (v2 = 3, v1 == 7)) {
+    if (v1 == 20 || v1 == 8 || v1 == 51 || v1 == 12 || (v2 = 1, v1 == 5) || (v2 = 2, v1 == 17) || (v2 = 3, v1 == 7)) {
       SetupFloateyNumber(k, kStompedEnemyPtsData[v2]);
       v3 = enemy_moving_dir[k];
       SetStun(k);
@@ -7404,7 +7611,7 @@ void ChkForPlayerInjury(uint8 k) {
   } else if (!player_hurt_timer) {
     if (rel_xpos_lo.player >= rel_xpos_lo.enemy) {
       if (enemy_moving_dir[k] == 1) {
-      LABEL_25:
+LABEL_25:
         InjurePlayer();
         return;
       }
@@ -7417,7 +7624,8 @@ void ChkForPlayerInjury(uint8 k) {
 }
 
 void InjurePlayer() {
-  if (!player_hurt_timer) ForceInjury(player_hurt_timer);
+  if (!player_hurt_timer)
+    ForceInjury(player_hurt_timer);
 }
 
 void ForceInjury(uint8 a) {
@@ -7432,7 +7640,9 @@ void ForceInjury(uint8 a) {
   }
 }
 
-void SetPROut_1(uint8 a) { SetPRout(1u, a); }
+void SetPROut_1(uint8 a) {
+  SetPRout(1u, a);
+}
 
 void SetPRout(uint8 j, uint8 a) {
   game_engine_subroutine = a;
@@ -7456,7 +7666,8 @@ uint8 EnemyFacePlayer(uint8 k) {
   uint8 v1;  // di
 
   v1 = 1;
-  if ((PlayerEnemyDiff(k) & 0x80u) != 0) v1 = 2;
+  if ((PlayerEnemyDiff(k) & 0x80u) != 0)
+    v1 = 2;
   enemy_moving_dir[k] = v1;
   return v1 - 1;
 }
@@ -7468,8 +7679,7 @@ void SetupFloateyNumber1(uint8 k, uint8 a) {
   score_spr_xpos_lo[k] = rel_xpos_lo.enemy;
   tempED = obj_xpos_lo.enemy[k];
   tempEE = obj_xpos_hi.enemy[k];
-  floateynum_xpos_word[(uint8)(2 * k) >> 1] =
-      *(uint16 *)&tempED - screen_left_xpos16;
+  floateynum_xpos_word[(uint8)(2 * k) >> 1] = *(uint16 *)&tempED - screen_left_xpos16;
 }
 
 uint8 SetupFloateyNumber(uint8 k, uint8 a) {
@@ -7481,8 +7691,7 @@ uint8 SetupFloateyNumber(uint8 k, uint8 a) {
     tempE4 = obj_xpos_lo.enemy[k];
     tempE5 = obj_xpos_hi.enemy[k];
     a = tempE4 - screen_left_xpos16;
-    floateynum_xpos_word[(uint8)(2 * k) >> 1] =
-        *(uint16 *)&tempE4 - screen_left_xpos16;
+    floateynum_xpos_word[(uint8)(2 * k) >> 1] = *(uint16 *)&tempE4 - screen_left_xpos16;
     score_spr_xpos_lo[k] = a;
   }
   return a;
@@ -7508,7 +7717,8 @@ void EnemiesCollision(uint8 k) {
           while (1) {
             R1_ = v3;
             v8 = EnemyBoundBoxOfs;
-            if (!enemy_flag[v3]) goto LABEL_20;
+            if (!enemy_flag[v3])
+              goto LABEL_20;
             v4 = enemy_id[v3];
             if (v4 >= 0x15u || v4 == 17 || v4 == 13 || spr_array_D[v3])
               goto LABEL_20;
@@ -7523,13 +7733,14 @@ void EnemiesCollision(uint8 k) {
               goto LABEL_18;
             if ((kSetBitsMask[object_index] & enemy_collision_bits[R1_]) == 0)
               break;
-          LABEL_20:
+LABEL_20:
             EnemyBoundBoxOfs = v8;
             v3 = R1_ - 1;
-            if ((int8)(R1_ - 1) < 0) return;
+            if ((int8)(R1_ - 1) < 0)
+              return;
           }
           enemy_collision_bits[R1_] |= kSetBitsMask[object_index];
-        LABEL_18:
+LABEL_18:
           ProcEnemyCollisions(v6, v7);
           goto LABEL_20;
         }
@@ -7542,8 +7753,10 @@ void ProcEnemyCollisions(uint8 k, uint8 j) {
   uint8 v2;  // si
   uint8 v3;  // al
 
-  if (((enemy_state[k] | enemy_state[j]) & 0x20) != 0) return;
-  if (enemy_id[k] == 5) enemy_state[k] = 0;
+  if (((enemy_state[k] | enemy_state[j]) & 0x20) != 0)
+    return;
+  if (enemy_id[k] == 5)
+    enemy_state[k] = 0;
   if (enemy_state[k] >= 6u) {
     if (__CFSHL__(enemy_state[j], 1)) {
       SetupFloateyNumber(k, 6u);
@@ -7566,9 +7779,10 @@ void ProcEnemyCollisions(uint8 k, uint8 j) {
     SetupFloateyNumber(object_index, shell_chain_counter[R1_] + 4);
     v2 = R1_;
     ++shell_chain_counter[R1_];
-  LABEL_12:
+LABEL_12:
     v3 = shell_chain_counter[v2] + 18;
-    if (v3 >= 0x1Au) v3 = 0;
+    if (v3 >= 0x1Au)
+      v3 = 0;
     sound_ch1 = v3;
   }
 }
@@ -7610,7 +7824,9 @@ void ChkForPlayerC_LargeP(uint8 k) {
   DoReturn();
 }
 
-void DoReturn() { ; }
+void DoReturn() {
+  ;
+}
 
 void SmallPlatformCollision(uint8 k) {
   uint8 EnemyBoundBoxOfs;  // di
@@ -7621,9 +7837,9 @@ void SmallPlatformCollision(uint8 k) {
       R0_ = 2;
       do {
         EnemyBoundBoxOfs = GetEnemyBoundBoxOfs();
-        if ((offscreen_bits.enemy & 2) != 0) break;
-        if (*(&player_hitbox_top + EnemyBoundBoxOfs) >= 0x20u &&
-            PlayerCollisionCore(EnemyBoundBoxOfs) & 1) {
+        if ((offscreen_bits.enemy & 2) != 0)
+          break;
+        if (*(&player_hitbox_top + EnemyBoundBoxOfs) >= 0x20u && PlayerCollisionCore(EnemyBoundBoxOfs) & 1) {
           ProcLPlatCollisions(object_index, EnemyBoundBoxOfs);
           return;
         }
@@ -7639,21 +7855,19 @@ void ProcLPlatCollisions(uint8 k, uint8 j) {
   uint8 v2;  // al
   uint8 v3;  // di
 
-  if ((uint8)(*(&player_hitbox_bottom + j) - player_hitbox_top) < 4u &&
-      (obj_yspeed.player & 0x80u) != 0)
+  if ((uint8)(*(&player_hitbox_bottom + j) - player_hitbox_top) < 4u && (obj_yspeed.player & 0x80u) != 0)
     obj_yspeed.player = 1;
-  if ((uint8)(player_hitbox_bottom - *(&player_hitbox_top + j)) >= 6u ||
-      (obj_yspeed.player & 0x80u) != 0) {
+  if ((uint8)(player_hitbox_bottom - *(&player_hitbox_top + j)) >= 6u || (obj_yspeed.player & 0x80u) != 0) {
     R0_ = 1;
     if ((uint8)(player_hitbox_right - *(&player_hitbox_left + j)) < 8u ||
-        (++R0_, (uint8)(*(&player_hitbox_right + j) -
-                        (player_hitbox_left + 1)) < 9u)) {
+        (++R0_, (uint8)(*(&player_hitbox_right + j) - (player_hitbox_left + 1)) < 9u)) {
       ImpedePlayerMove();
     }
   } else {
     v2 = R0_;
     v3 = enemy_id[k];
-    if (v3 != 43 && v3 != 44) v2 = k;
+    if (v3 != 43 && v3 != 44)
+      v2 = k;
     enemy_data_d[object_index] = v2;
     player_state = 0;
   }
@@ -7669,7 +7883,9 @@ void PositionPlayerOnS_Plat(uint8 k, uint8 a) {
     obj_ypos_hi.player = 2;
 }
 
-void PositionPlayerOnVPlat(uint8 k) { CODE_03E2CE(k, obj_ypos_lo.enemy[k]); }
+void PositionPlayerOnVPlat(uint8 k) {
+  CODE_03E2CE(k, obj_ypos_lo.enemy[k]);
+}
 
 void CODE_03E2CE(uint8 k, uint8 a) {
   if (game_engine_subroutine != 11 && obj_ypos_hi.enemy[k] == 1) {
@@ -7680,11 +7896,17 @@ void CODE_03E2CE(uint8 k, uint8 a) {
   }
 }
 
-uint8 CheckPlayerVertical() { return (offscreen_bits.player & 0xF0) != 0; }
+uint8 CheckPlayerVertical() {
+  return (offscreen_bits.player & 0xF0) != 0;
+}
 
-uint8 GetEnemyBoundBoxOfs() { return GetEnemyBoundBoxOfsArg(object_index); }
+uint8 GetEnemyBoundBoxOfs() {
+  return GetEnemyBoundBoxOfsArg(object_index);
+}
 
-uint8 GetEnemyBoundBoxOfsArg(uint8 a) { return 4 * a + 4; }
+uint8 GetEnemyBoundBoxOfsArg(uint8 a) {
+  return 4 * a + 4;
+}
 
 void PlayerBGCollision() {
   uint8 v0;   // al
@@ -7708,34 +7930,43 @@ void PlayerBGCollision() {
   int8 v29;   // al
   uint8 a;    // [rsp+47h] [rbp-1h]
 
-  if (disable_collision_detection || game_engine_subroutine == 11 ||
-      game_engine_subroutine < 4u)
+  if (disable_collision_detection || game_engine_subroutine == 11 || game_engine_subroutine < 4u)
     return;
   v0 = 1;
   if (!swimming_flag) {
-    if (player_state && player_state != 3) goto LABEL_9;
+    if (player_state && player_state != 3)
+      goto LABEL_9;
     v0 = 2;
   }
   player_state = v0;
 LABEL_9:
-  if (obj_ypos_hi.player != 1) return;
+  if (obj_ypos_hi.player != 1)
+    return;
   player_collision_bits = -1;
-  if (obj_ypos_lo.player >= 0xCFu) return;
+  if (obj_ypos_lo.player >= 0xCFu)
+    return;
   v1 = 2;
-  if (!crouching_flag && !player_size) v1 = swimming_flag != 0;
+  if (!crouching_flag && !player_size)
+    v1 = swimming_flag != 0;
   tempEB = kBlockBufferAdderData[v1];
   v2 = player_size;
-  if (crouching_flag) v2 = player_size + 1;
-  if (obj_ypos_lo.player < kPlayerBGUpperExtent[v2]) goto LABEL_29;
+  if (crouching_flag)
+    v2 = player_size + 1;
+  if (obj_ypos_lo.player < kPlayerBGUpperExtent[v2])
+    goto LABEL_29;
   tempE4 = 1;
   v3 = BlockBufferColli_Head(tempEB);
-  if (!v3) goto LABEL_29;
+  if (!v3)
+    goto LABEL_29;
   v6 = v3;
-  if (CheckForCoinMTiles(v3)) goto LABEL_61;
-  if ((obj_yspeed.player & 0x80u) == 0 || R4_ < 4u) goto LABEL_29;
+  if (CheckForCoinMTiles(v3))
+    goto LABEL_61;
+  if ((obj_yspeed.player & 0x80u) == 0 || R4_ < 4u)
+    goto LABEL_29;
   v8 = v6;
   if (CheckForSolidMTiles(v6)) {
-    if (v8 != 42) sound_ch1 = 1;
+    if (v8 != 42)
+      sound_ch1 = 1;
   } else if (area_type && !block_bounce_timer) {
     PlayerHeadCollision(v8);
     goto LABEL_29;
@@ -7743,12 +7974,13 @@ LABEL_9:
   obj_yspeed.player = 1;
 LABEL_29:
   v9 = tempEB;
-  if (obj_ypos_lo.player >= 0xCFu) goto LABEL_45;
+  if (obj_ypos_lo.player >= 0xCFu)
+    goto LABEL_45;
   tempE4 = 0;
   v10 = BlockBufferColli_Feet(tempEB);
   v12 = v10;
   if (CheckForCoinMTiles(v10)) {
-  LABEL_61:
+LABEL_61:
     HandleCoinMetatile();
     return;
   }
@@ -7758,9 +7990,11 @@ LABEL_29:
   v13 = a;
   R1_ = a;
   if (!a) {
-    if (!R0_) goto LABEL_45;
+    if (!R0_)
+      goto LABEL_45;
     v13 = R0_;
-    if (CheckForCoinMTiles(v13)) goto LABEL_61;
+    if (CheckForCoinMTiles(v13))
+      goto LABEL_61;
   }
   v16 = v13;
   if (!CheckForClimbMTiles(v13) && (obj_yspeed.player & 0x80u) == 0) {
@@ -7793,22 +8027,27 @@ LABEL_45:
     v19 = v18 + 1;
     tempEB = v19;
     if (obj_ypos_lo.player >= 0x20u) {
-      if (obj_ypos_lo.player >= 0xE4u) return;
+      if (obj_ypos_lo.player >= 0xE4u)
+        return;
       tempE4 = 0;
       v20 = BlockBufferColli_Side(v19);
       if (v20) {
         if (v20 != 32 && v20 != 117) {
           v22 = v20;
-          if (!CheckForClimbMTiles(v20)) break;
+          if (!CheckForClimbMTiles(v20))
+            break;
         }
       }
     }
     v18 = tempEB + 1;
-    if (obj_ypos_lo.player < 8u || obj_ypos_lo.player >= 0xD0u) return;
+    if (obj_ypos_lo.player < 8u || obj_ypos_lo.player >= 0xD0u)
+      return;
     tempE4 = 0;
     v22 = BlockBufferColli_Side(v18);
-    if (v22) break;
-    if (!--R0_) return;
+    if (v22)
+      break;
+    if (!--R0_)
+      return;
   }
   if (ChkInvisibleMTiles(v22)) {
     v25 = v22;
@@ -7817,14 +8056,16 @@ LABEL_45:
       return;
     }
     v27 = v25;
-    if (CheckForCoinMTiles(v25)) goto LABEL_61;
+    if (CheckForCoinMTiles(v25))
+      goto LABEL_61;
     v29 = v27;
     if (ChkJumpspringMetatiles(v27)) {
-      if (jumpspring_anim_ctrl) return;
+      if (jumpspring_anim_ctrl)
+        return;
       goto LABEL_76;
     }
     if (player_state || player_facing_dir != 1 || v29 != 118 && v29 != 35) {
-    LABEL_76:
+LABEL_76:
       ImpedePlayerMove();
       return;
     }
@@ -7836,7 +8077,8 @@ LABEL_45:
     player_sprattrib &= 0xCFu;
     if ((obj_xpos_lo.player & 0xF) != 0)
       change_area_timer = kAreaChangeTimerData[screen_left_xpos_hi != 0];
-    if (game_engine_subroutine == 8) game_engine_subroutine = 2;
+    if (game_engine_subroutine == 8)
+      game_engine_subroutine = 2;
   }
 }
 
@@ -7851,7 +8093,8 @@ void HandleAxeMetatile() {
 
   game_mode_task = 0;
   game_mode = 2;
-  if (ReadReg(APUI02) != 11) music_ch1 = -16;
+  if (ReadReg(APUI02) != 11)
+    music_ch1 = -16;
   obj_xspeed.player = 24;
   for (i = 0; i != 9; ++i) {
     if (enemy_id[i] == 45 && enemy_flag[i] == 1) {
@@ -7886,7 +8129,8 @@ void HandleClimbing(uint8 a) {
           v1 = 4;
           climbing_ypos_unk = obj_ypos_lo.player;
           do {
-            if (obj_ypos_lo.player >= kFlagpoleYPosData[v1]) break;
+            if (obj_ypos_lo.player >= kFlagpoleYPosData[v1])
+              break;
             --v1;
           } while (v1);
           flagpole_score = v1;
@@ -7911,15 +8155,16 @@ void HandleClimbing(uint8 a) {
         player_facing_dir = 2;
       obj_xpos_lo.player = kClimbXPosAdder[player_facing_dir - 1] + 16 * R6_;
       if (!R6_)
-        obj_xpos_hi.player =
-            kClimbPLocAdder[player_facing_dir - 1] + screen_right_xpos_hi;
+        obj_xpos_hi.player = kClimbPLocAdder[player_facing_dir - 1] + screen_right_xpos_hi;
     }
   }
 }
 // 7E0082: using guessed type int8;
 // 7E0223: using guessed type int8;
 
-uint8 ChkInvisibleMTiles(uint8 a) { return a != 0x62 && a != 0x63; }
+uint8 ChkInvisibleMTiles(uint8 a) {
+  return a != 0x62 && a != 0x63;
+}
 
 void ChkForLandJumpSpring(uint8 a) {
   if (ChkJumpspringMetatiles(a)) {
@@ -7930,7 +8175,9 @@ void ChkForLandJumpSpring(uint8 a) {
   }
 }
 
-uint8 ChkJumpspringMetatiles(uint8 a) { return (a == 111 || a == 112); }
+uint8 ChkJumpspringMetatiles(uint8 a) {
+  return (a == 111 || a == 112);
+}
 
 void HandlePipeEntry() {
   uint8 v0;  // al
@@ -7949,7 +8196,8 @@ void HandlePipeEntry() {
         v1 = 4;
         if (world_number) {
           v1 = 5;
-          if (area_type == 1) v1 = 6;
+          if (area_type == 1)
+            v1 = 6;
         }
         v0 = v1;
         warp_zone_control = v1;
@@ -7957,7 +8205,8 @@ void HandlePipeEntry() {
       v2 = 4 * (v0 & 3);
       if (obj_xpos_lo.player >= 0x60u) {
         ++v2;
-        if (obj_xpos_lo.player >= 0xA0u) ++v2;
+        if (obj_xpos_lo.player >= 0xA0u)
+          ++v2;
       }
       world_number = kWarpZoneNumbers[v2] - 1;
       area_pointer = kAreaAddrOffsets[kWorldAddrOffsets[world_number]];
@@ -7982,17 +8231,20 @@ void ImpedePlayerMove() {
 
   if (R0_ == 1) {
     v0 = 1;
-    if ((obj_xspeed.player & 0x80u) != 0) goto LABEL_9;
+    if ((obj_xspeed.player & 0x80u) != 0)
+      goto LABEL_9;
     v1 = -1;
   } else {
     v0 = 2;
-    if ((int8)(obj_xspeed.player - 1) >= 0) goto LABEL_9;
+    if ((int8)(obj_xspeed.player - 1) >= 0)
+      goto LABEL_9;
     v1 = 1;
   }
   side_collision_timer = 16;
   v2 = 0;
   obj_xspeed.player = 0;
-  if (sign8(v1)) v2 = -1;
+  if (sign8(v1))
+    v2 = -1;
   R0_ = v2;
   v3 = __CFADD__(obj_xpos_lo.player, v1);
   obj_xpos_lo.player += v1;
@@ -8011,14 +8263,14 @@ uint8 CheckForClimbMTiles(uint8 a) {
 }
 
 uint8 CheckForCoinMTiles(uint8 a) {
-  if (a != 0xE9 && a != 0xEA) return 0;
+  if (a != 0xE9 && a != 0xEA)
+    return 0;
   sound_ch3 = 1;
   return 1;
 }
 
 uint8 GetMTileAttrib(uint8 a) {
-  return 2 * (4 * (a & 0xC0) + __CFSHL__(a & 0xC0, 1)) +
-         __CFSHL__(2 * (a & 0xC0), 1);
+  return 2 * (4 * (a & 0xC0) + __CFSHL__(a & 0xC0, 1)) + __CFSHL__(2 * (a & 0xC0), 1);
 }
 
 void EnemyToBGCollisionDet(uint8 k) {
@@ -8032,31 +8284,38 @@ void EnemyToBGCollisionDet(uint8 k) {
   uint8 v10;  // al
   uint8 v11;  // al
 
-  if ((enemy_state[k] & 0x20) != 0) return;
-  if (!(SubtEnemyYPos(k) & 1)) return;
+  if ((enemy_state[k] & 0x20) != 0)
+    return;
+  if (!(SubtEnemyYPos(k) & 1))
+    return;
   v1 = enemy_id[k];
-  if (v1 == 18 && obj_ypos_lo.enemy[k] < 0x25u) return;
+  if (v1 == 18 && obj_ypos_lo.enemy[k] < 0x25u)
+    return;
   if (v1 == 14) {
     EnemyJump(k);
     return;
   }
   if (v1 != 5) {
-    if (v1 != 18 && v1 != 46 && v1 >= 7u) return;
+    if (v1 != 18 && v1 != 46 && v1 >= 7u)
+      return;
     v2 = ChkUnderEnemy(k);
-    if (!v2) goto LABEL_58;
-    if (!ChkForNonSolids(v2)) goto LABEL_58;
+    if (!v2)
+      goto LABEL_58;
+    if (!ChkForNonSolids(v2))
+      goto LABEL_58;
     if (v2 == 39) {
       RomPtr_RAM(*(uint16 *)&R6_)[R2_] = 0;
       v4 = enemy_id[k];
       if (v4 < 0x15u) {
-        if (v4 == 6) KillEnemyAboveBlock(k);
+        if (v4 == 6)
+          KillEnemyAboveBlock(k);
         v4 = SetupFloateyNumber(k, 1u);
       }
       ChkToStunEnemies(k, v4);
       return;
     }
     if ((uint8)(R4_ - 8) >= 5u) {
-    LABEL_58:
+LABEL_58:
       if (enemy_id[k] != 3 || enemy_state[k]) {
         v9 = enemy_state[k];
         if (__CFSHL__(v9, 1))
@@ -8076,10 +8335,12 @@ void EnemyToBGCollisionDet(uint8 k) {
         return;
       }
       if (v6 != 5) {
-        if (v6 >= 3u) return;
+        if (v6 >= 3u)
+          return;
         if (enemy_state[k] == 2) {
           v7 = 16;
-          if (enemy_id[k] == 18) v7 = 0;
+          if (enemy_id[k] == 18)
+            v7 = 0;
           *(&enemy_interval_timer + k) = v7;
           enemy_state[k] = 3;
           EnemyLanding(k);
@@ -8087,12 +8348,12 @@ void EnemyToBGCollisionDet(uint8 k) {
         }
       }
       if (enemy_id[k] != 6) {
-        if (enemy_id[k] != 18 ||
-            (enemy_moving_dir[k] = 1, obj_xspeed.enemy[k] = 8,
-             (frame_counter & 7) != 0)) {
+        if (enemy_id[k] != 18 || (enemy_moving_dir[k] = 1, obj_xspeed.enemy[k] = 8, (frame_counter & 7) != 0)) {
           v8 = 1;
-          if ((PlayerEnemyDiff(k) & 0x80u) != 0) v8 = 2;
-          if (v8 == enemy_moving_dir[k]) ChkForBump_HammerBroJ(k);
+          if ((PlayerEnemyDiff(k) & 0x80u) != 0)
+            v8 = 2;
+          if (v8 == enemy_moving_dir[k])
+            ChkForBump_HammerBroJ(k);
         }
       }
     }
@@ -8104,13 +8365,14 @@ void EnemyToBGCollisionDet(uint8 k) {
     return;
   }
   v11 = ChkUnderEnemy(k);
-  if (!v11) goto LABEL_55;
+  if (!v11)
+    goto LABEL_55;
   if (v11 == 39) {
     KillEnemyAboveBlock(k);
     return;
   }
   if (enemy_frame_timer[k]) {
-  LABEL_55:
+LABEL_55:
     enemy_state[k] |= 1u;
   } else {
     enemy_state[k] &= 0x88u;
@@ -8135,11 +8397,14 @@ void SetStun(uint8 k) {
   enemy_state[k] = enemy_state[k] & 0xF0 | 2;
   --obj_ypos_lo.enemy[k];
   --obj_ypos_lo.enemy[k];
-  if (enemy_id[k] == 7 || (v1 = -3, !area_type)) v1 = -1;
+  if (enemy_id[k] == 7 || (v1 = -3, !area_type))
+    v1 = -1;
   obj_yspeed.enemy[k] = v1;
   v2 = 1;
-  if ((PlayerEnemyDiff(k) & 0x80u) != 0) v2 = 2;
-  if (enemy_id[k] != 51 && enemy_id[k] != 8) enemy_moving_dir[k] = v2;
+  if ((PlayerEnemyDiff(k) & 0x80u) != 0)
+    v2 = 2;
+  if (enemy_id[k] != 51 && enemy_id[k] != 8)
+    enemy_moving_dir[k] = v2;
   obj_xspeed.enemy[k] = kEnemyBGCXSpdData[(uint8)(v2 - 1)];
 }
 
@@ -8154,11 +8419,13 @@ void DoEnemySideCheck(uint8 k) {
       if (tempEB == enemy_moving_dir[k]) {
         v2 = BlockBufferChk_Enemy(k, v1, 1u);
         if (v2) {
-          if (ChkForNonSolids(v2)) break;
+          if (ChkForNonSolids(v2))
+            break;
         }
       }
       --tempEB;
-      if (++v1 >= 0x18u) return;
+      if (++v1 >= 0x18u)
+        return;
     }
     ChkForBump_HammerBroJ(k);
   }
@@ -8183,8 +8450,7 @@ uint8 PlayerEnemyDiff(uint8 k) {
 
   v1 = obj_xpos_lo.enemy[k];
   R0_ = v1 - obj_xpos_lo.player;
-  return obj_xpos_hi.enemy[k] -
-         ((v1 < obj_xpos_lo.player) + obj_xpos_hi.player);
+  return obj_xpos_hi.enemy[k] - ((v1 < obj_xpos_lo.player) + obj_xpos_hi.player);
 }
 
 void EnemyLanding(uint8 k) {
@@ -8218,7 +8484,9 @@ void KillEnemyAboveBlock(uint8 k) {
   obj_yspeed.enemy[k] = -4;
 }
 
-uint8 ChkUnderEnemy(uint8 k) { return BlockBufferChk_Enemy(k, 0x15u, 0); }
+uint8 ChkUnderEnemy(uint8 k) {
+  return BlockBufferChk_Enemy(k, 0x15u, 0);
+}
 
 uint8 ChkForNonSolids(uint8 a) {
   return (a != 42 && a != 0xE9 && a != 0xEA && a != 98);
@@ -8227,8 +8495,7 @@ uint8 ChkForNonSolids(uint8 a) {
 void FireballBGCollision(uint8 k) {
   uint8 v1;  // al
 
-  if (obj_ypos_lo.fireball[k] >= 0x18u && (v1 = BlockBufferChk_FBall(k)) != 0 &&
-      ChkForNonSolids(v1)) {
+  if (obj_ypos_lo.fireball[k] >= 0x18u && (v1 = BlockBufferChk_FBall(k)) != 0 && ChkForNonSolids(v1)) {
     if ((obj_yspeed.fireball[k] & 0x80u) != 0 || fire_spr_hit_ground_flag[k]) {
       fireball_state[k] = 0x80;
       sound_ch1 = 1;
@@ -8242,9 +8509,13 @@ void FireballBGCollision(uint8 k) {
   }
 }
 
-void GetFireballBoundBox(uint8 k) { FBallB(k + 11, 2u); }
+void GetFireballBoundBox(uint8 k) {
+  FBallB(k + 11, 2u);
+}
 
-void GetMiscBoundBox(uint8 k) { FBallB(k + 13, 6u); }
+void GetMiscBoundBox(uint8 k) {
+  FBallB(k + 13, 6u);
+}
 
 void FBallB(uint8 k, uint8 j) {
   j = BoundingBoxCore(k, j);
@@ -8267,9 +8538,9 @@ void GetMaskedOffScrBits(uint8 k, uint8 j) {
 
   v2 = obj_xpos_lo.enemy[k];
   R1_ = v2 - screen_left_xpos_lo;
-  v3 =
-      obj_xpos_hi.enemy[k] - ((v2 < screen_left_xpos_lo) + screen_left_xpos_hi);
-  if (v3 >= 0 && R1_ | (uint8)v3) j = R0_;
+  v3 = obj_xpos_hi.enemy[k] - ((v2 < screen_left_xpos_lo) + screen_left_xpos_hi);
+  if (v3 >= 0 && R1_ | (uint8)v3)
+    j = R0_;
   spr_array_D[k] = offscreen_bits.enemy & j;
   if (k == 9) {
     func_sub_EA11(9u);
@@ -8281,7 +8552,7 @@ void GetMaskedOffScrBits(uint8 k, uint8 j) {
 }
 
 void LargePlatformBoundBox(uint8 k) {
-  int v1;            // rsi
+  int v1;                // rsi
   uint8 XOffscreenBits;  // al
   uint8 v3;              // si
 
@@ -8341,7 +8612,9 @@ void CheckRightScreenBBox(uint8 k, uint8 j) {
   }
 }
 
-uint8 PlayerCollisionCore(uint8 j) { return SprObjectCollisionCore(0, j) & 1; }
+uint8 PlayerCollisionCore(uint8 j) {
+  return SprObjectCollisionCore(0, j) & 1;
+}
 
 uint8 SprObjectCollisionCore(uint8 k, uint8 j) {
   uint8 v2;  // al
@@ -8353,10 +8626,8 @@ uint8 SprObjectCollisionCore(uint8 k, uint8 j) {
   do {
     v2 = *(&player_hitbox_left + j);
     if (v2 >= *(&player_hitbox_left + k)) {
-      if (v2 != *(&player_hitbox_left + k) &&
-          v2 > *(&player_hitbox_right + k) &&
-          (v2 <= *(&player_hitbox_right + j) ||
-           *(&player_hitbox_right + j) < *(&player_hitbox_left + k))) {
+      if (v2 != *(&player_hitbox_left + k) && v2 > *(&player_hitbox_right + k) &&
+          (v2 <= *(&player_hitbox_right + j) || *(&player_hitbox_right + j) < *(&player_hitbox_left + k))) {
         return 0;
       }
     } else if (v2 < *(&player_hitbox_right + k)) {
@@ -8381,19 +8652,29 @@ uint8 BlockBufferChk_Enemy(uint8 k, uint8 j, uint8 a) {
   return BBChk_E(k + 1, j, a);
 }
 
-uint8 BlockBufferChk_FBall(uint8 k) { return BBChk_E(k + 11, 0x1Au, 0); }
+uint8 BlockBufferChk_FBall(uint8 k) {
+  return BBChk_E(k + 11, 0x1Au, 0);
+}
 
 uint8 BBChk_E(uint8 k, uint8 j, uint8 a) {
   return BlockBufferCollision(k, j, a);
 }
 
-uint8 BlockBufferColli_Feet(uint8 j) { return BlockBufferColli_Head(j + 1); }
+uint8 BlockBufferColli_Feet(uint8 j) {
+  return BlockBufferColli_Head(j + 1);
+}
 
-uint8 BlockBufferColli_Head(uint8 j) { return CODE_03EB81(j, 0); }
+uint8 BlockBufferColli_Head(uint8 j) {
+  return CODE_03EB81(j, 0);
+}
 
-uint8 BlockBufferColli_Side(uint8 j) { return CODE_03EB81(j, 1u); }
+uint8 BlockBufferColli_Side(uint8 j) {
+  return CODE_03EB81(j, 1u);
+}
 
-uint8 CODE_03EB81(uint8 j, uint8 a) { return BlockBufferCollision(0, j, a); }
+uint8 CODE_03EB81(uint8 j, uint8 a) {
+  return BlockBufferCollision(0, j, a);
+}
 
 uint8 BlockBufferCollision(uint8 k, uint8 j, uint8 a) {
   uint8 v3;  // al
@@ -8414,7 +8695,8 @@ uint8 BlockBufferCollision(uint8 k, uint8 j, uint8 a) {
   else
     v5 = *(&obj_ypos_lo.player + k);
   R4_ = v5 & 0xF;
-  if (!tempE4 && (R3_ == 98 || R3_ == 99)) R3_ = 0;
+  if (!tempE4 && (R3_ == 98 || R3_ == 99))
+    R3_ = 0;
   return R3_;
 }
 
@@ -8447,7 +8729,9 @@ void DumpTwoSpr_(uint8 j, uint8 a) {
   oam->ypos = a;
 }
 
-void MoveSixSpritesOffscreen(uint8 j) { DumpSixSpr(j, 0xF0u); }
+void MoveSixSpritesOffscreen(uint8 j) {
+  DumpSixSpr(j, 0xF0u);
+}
 
 void DumpSixSpr(uint8 j, uint8 a) {
   OamEnt *oam;  // rbp
@@ -8500,7 +8784,8 @@ void DrawLargePlatform(uint8 k) {
     v2 = object_index;
     v3 = obj_ypos_lo.enemy[object_index];
     DumpFourSpr(v1, v3);
-    if (area_type == 3 || secondary_hard_mode) v3 = -16;
+    if (area_type == 3 || secondary_hard_mode)
+      v3 = -16;
     v4 = enemy_obj_id[v2];
     oam = get_OamEnt(oam_buf, v4);
     oam[68].ypos = v3;
@@ -8523,8 +8808,7 @@ void DrawLargePlatform(uint8 k) {
     DrawLargePlatform_DrawOne(v11);
     v12 = DrawLargePlatform_Next(v11);
     DrawLargePlatform_DrawOne(v12);
-    if (__CFSHL__(offscreen_bits.enemy, 1) && enemy_id[v6] != 39 &&
-        enemy_id[v6] != 38 &&
+    if (__CFSHL__(offscreen_bits.enemy, 1) && enemy_id[v6] != 39 && enemy_id[v6] != 38 &&
         (obj_ypos_hi.enemy[v6] != 1 || rel_ypos.enemy >= 0xF0u)) {
       MoveSixSpritesOffscreen(j);
     }
@@ -8556,7 +8840,8 @@ void DrawPowerUp() {
   if (v5 && v5 != 3) {
     R0_ = v5;
     v2 = frame_counter & 6;
-    if ((frame_counter & 6) == 6) v2 = 14;
+    if ((frame_counter & 6) == 6)
+      v2 = 14;
     v3 = (enemy_sprattrib[9] | v2) ^ 0x28;
     oam = get_OamEnt(oam_buf, (uint8)(enemy_obj_id[9] + 8));
     oam[64].flags = v3;
@@ -8579,18 +8864,16 @@ void EnemyGfxHandler_New(uint8 k) {
 
   v1 = enemy_id[k];
   switch (v1) {
-    case 0xCu:
-      EnemyGfxHandler_Sub4(k);
-      return;
-    case 8u:
-      if (obj_ypos_hi.enemy[k] == 2) EraseEnemyObject(k);
-      break;
-    case 0x33u:
-      if (obj_ypos_hi.enemy[k] == 2) EraseEnemyObject(k);
-      break;
-    default:
-      DrawLevelPreviewSprites_Sub3(k, v1);
-      return;
+  case 0xCu: EnemyGfxHandler_Sub4(k); return;
+  case 8u:
+    if (obj_ypos_hi.enemy[k] == 2)
+      EraseEnemyObject(k);
+    break;
+  case 0x33u:
+    if (obj_ypos_hi.enemy[k] == 2)
+      EraseEnemyObject(k);
+    break;
+  default: DrawLevelPreviewSprites_Sub3(k, v1); return;
   }
   EnemyGfxHandler_Sub1(k);
 }
@@ -8645,8 +8928,7 @@ void DrawLevelPreviewSprites_Sub3(uint8 k, uint8 a) {
   tempF0 = 0;
   R3_ = enemy_moving_dir[k];
   R4_ = enemy_sprattrib[k];
-  if (enemy_id[k] != 13 || (obj_xspeed.enemy[k] & 0x80u) != 0 ||
-      !enemy_frame_timer[k]) {
+  if (enemy_id[k] != 13 || (obj_xspeed.enemy[k] & 0x80u) != 0 || !enemy_frame_timer[k]) {
     tempED = enemy_state[k];
     v2 = tempED & 0x1F;
     v3 = enemy_id[k];
@@ -8658,7 +8940,8 @@ void DrawLevelPreviewSprites_Sub3(uint8 k, uint8 a) {
     if (v3 == 51) {
       --R2_;
       v4 = 32;
-      if (enemy_frame_timer[k]) v4 = 16;
+      if (enemy_frame_timer[k])
+        v4 = 16;
       R4_ = v4;
       v2 = 0;
       tempED = 0;
@@ -8670,23 +8953,28 @@ void DrawLevelPreviewSprites_Sub3(uint8 k, uint8 a) {
     }
     tempEF = v3;
     tempEC = v2;
-    if (v3 == 12 && (obj_yspeed.enemy[object_index] & 0x80u) == 0) ++tempF0;
+    if (v3 == 12 && (obj_yspeed.enemy[object_index] & 0x80u) == 0)
+      ++tempF0;
     if (bowser_gfx_flag) {
       v5 = 22;
-      if (bowser_gfx_flag != 1) v5 = 23;
+      if (bowser_gfx_flag != 1)
+        v5 = 23;
       tempEF = v5;
     }
     if (tempEF == 6) {
       v6 = enemy_state[object_index];
-      if (v6 >= 2u) tempEC = 4;
-      if (!(timer_control | v6 & 0x20) && (frame_counter & 8) == 0) R3_ ^= 3u;
+      if (v6 >= 2u)
+        tempEC = 4;
+      if (!(timer_control | v6 & 0x20) && (frame_counter & 8) == 0)
+        R3_ ^= 3u;
     }
     if (tempEF == 20)
       v7 = 60;
     else
       v7 = R4_ ^ kEnemyAttributeData[tempEF];
     R4_ = v7;
-    if (tempEF == 21 && world_number == 7) R4_ = R4_ & 0xF0 | 4;
+    if (tempEF == 21 && world_number == 7)
+      R4_ = R4_ & 0xF0 | 4;
     if (which_enemy_gfx_offs)
       v8 = kEnemyGfxTableOffsets[tempEF] + 6;
     else
@@ -8694,17 +8982,20 @@ void DrawLevelPreviewSprites_Sub3(uint8 k, uint8 a) {
     v9 = v8;
     if (bowser_gfx_flag) {
       if (bowser_gfx_flag == 1) {
-        if ((browser_body_controls & 0x80u) != 0) v9 = -34;
-        if ((tempED & 0x20) != 0) goto LABEL_45;
+        if ((browser_body_controls & 0x80u) != 0)
+          v9 = -34;
+        if ((tempED & 0x20) != 0)
+          goto LABEL_45;
       } else {
-        if ((browser_body_controls & 1) != 0) v9 = -28;
+        if ((browser_body_controls & 1) != 0)
+          v9 = -28;
         if ((tempED & 0x20) != 0) {
           R2_ -= 16;
-        LABEL_45:
+LABEL_45:
           tempF0 = v9;
         }
       }
-    LABEL_92:
+LABEL_92:
       v10 = tempEB;
       if (!(CODE_05E8CA(tempEB) & 1)) {
         DrawEnemyObjRow(v9, v10);
@@ -8730,14 +9021,16 @@ void DrawLevelPreviewSprites_Sub3(uint8 k, uint8 a) {
         oam[68].charnum = kDATA_03EEDD[v14 + 4];
         oam[69].charnum = kDATA_03EEDD[v14 + 5];
       }
-      if (tempEF == 8) goto LABEL_127;
+      if (tempEF == 8)
+        goto LABEL_127;
       if (tempF0) {
         v16 = get_OamEnt(oam_buf, v12);
         v17 = v12 + 2;
         DumpSixSpr(v17, v16[64].flags | 0x80);
         v12 = v17 - 2;
         v18 = v12;
-        if (tempEF != 5 && tempEF != 17 && tempEF < 0x15u) v18 = v12 + 8;
+        if (tempEF != 5 && tempEF != 17 && tempEF < 0x15u)
+          v18 = v12 + 8;
         v19 = get_OamEnt(oam_buf, v18);
         charnum = v19[64].charnum;
         v31 = v19[65].charnum;
@@ -8747,19 +9040,21 @@ void DrawLevelPreviewSprites_Sub3(uint8 k, uint8 a) {
         v20[69].charnum = v31;
         v20[68].charnum = charnum;
       }
-      if (bowser_gfx_flag) goto LABEL_127;
+      if (bowser_gfx_flag)
+        goto LABEL_127;
       v21 = tempEC;
-      if (tempEF == 5) goto LABEL_127;
-      if ((tempEF == 7 || tempEF == 13 || tempEF == 12 ||
-           (tempEF != 18 || tempEC == 5) && tempEC >= 2u) &&
-          !bowser_gfx_flag && !enemy_array_F40[9]) {
+      if (tempEF == 5)
+        goto LABEL_127;
+      if ((tempEF == 7 || tempEF == 13 || tempEF == 12 || (tempEF != 18 || tempEC == 5) && tempEC >= 2u) && !bowser_gfx_flag &&
+          !enemy_array_F40[9]) {
         v22 = get_OamEnt(oam_buf, v12);
         v23 = v22[64].flags & 0xBE;
         v22[64].flags = v23;
         v22[66].flags = v23;
         v22[68].flags = v23;
         v24 = v23 | 0x40;
-        if (v21 == 5) v24 |= 0x80u;
+        if (v21 == 5)
+          v24 |= 0x80u;
         v22[65].flags = v24;
         v22[67].flags = v24;
         v22[69].flags = v24;
@@ -8782,7 +9077,7 @@ void DrawLevelPreviewSprites_Sub3(uint8 k, uint8 a) {
             v26[67].flags = v27;
             v26[66].flags = v27 & 0xBF;
           }
-        LABEL_127:
+LABEL_127:
           if (tempEF == 13) {
             v30 = get_OamEnt(oam_buf, v12);
             v30[68].flags = v30[68].flags & 0xF0 | 8;
@@ -8814,7 +9109,8 @@ void DrawLevelPreviewSprites_Sub3(uint8 k, uint8 a) {
       }
     } else {
       if (v8 == 0x90) {
-        if ((tempED & 0x20) == 0 && frenzy_enemy_timer < 0x10u) v9 = -106;
+        if ((tempED & 0x20) == 0 && frenzy_enemy_timer < 0x10u)
+          v9 = -106;
         goto LABEL_89;
       }
       if (tempEF < 4u && tempEC >= 2u) {
@@ -8842,11 +9138,13 @@ void DrawLevelPreviewSprites_Sub3(uint8 k, uint8 a) {
     }
     if (tempEF == 5) {
       if (tempED) {
-        if ((tempED & 8) == 0) goto LABEL_89;
+        if ((tempED & 8) == 0)
+          goto LABEL_89;
         v9 = -76;
       }
     } else if (v9 != 72) {
-      if (*(&enemy_interval_timer + object_index) >= 5u) goto LABEL_89;
+      if (*(&enemy_interval_timer + object_index) >= 5u)
+        goto LABEL_89;
       if (v9 == 60) {
         if (*(&enemy_interval_timer + object_index) != 1) {
           ++R2_;
@@ -8854,7 +9152,7 @@ void DrawLevelPreviewSprites_Sub3(uint8 k, uint8 a) {
           ++R2_;
           goto LABEL_87;
         }
-      LABEL_89:
+LABEL_89:
         if ((tempED & 0x20) != 0 && tempEF >= 4u) {
           tempF0 = 1;
           tempEC = 0;
@@ -8871,8 +9169,9 @@ void DrawLevelPreviewSprites_Sub3(uint8 k, uint8 a) {
         goto LABEL_89;
       }
       if ((kEnemyAnimTimingBMask[0] & frame_counter) == 0) {
-      LABEL_87:
-        if (!(timer_control | tempED & 0xA0)) v9 += 6;
+LABEL_87:
+        if (!(timer_control | tempED & 0xA0))
+          v9 += 6;
         goto LABEL_89;
       }
     }
@@ -8895,13 +9194,16 @@ void SprObjectOffscrChk(uint8 j) {
   R4_ = 0;
   CODE_03FEE5(v2);
   v4 = offscreen_bits.enemy >> 6;
-  if ((offscreen_bits.enemy & 0x20) != 0) CODE_03F313(v1, 0x10u);
+  if ((offscreen_bits.enemy & 0x20) != 0)
+    CODE_03F313(v1, 0x10u);
   v3 = v4 & 1;
   v5 = v4 >> 1;
-  if (v3) CODE_03F313(v1, 8u);
+  if (v3)
+    CODE_03F313(v1, 8u);
   if (v5 & 1) {
     CODE_03F313(v1, v5 >> 1);
-    if (enemy_id[v1] != 12 && obj_ypos_hi.enemy[v1] == 2) EraseEnemyObject(v1);
+    if (enemy_id[v1] != 12 && obj_ypos_hi.enemy[v1] == 2)
+      EraseEnemyObject(v1);
   }
 }
 
@@ -8912,7 +9214,8 @@ void DrawEnemyObjRow(uint8 k, uint8 j) {
 
 uint8 DrawOneSpriteRow(uint8 k, uint8 j, uint8 a) {
   R1_ = a;
-  if (R2_ == 0xF9) R2_ = -16;
+  if (R2_ == 0xF9)
+    R2_ = -16;
   return DrawOneSpriteRow_Sub(j);
 }
 
@@ -8951,7 +9254,8 @@ uint8 DrawOneSpriteRow_(uint8 j, uint8 a) {
 
 void CODE_03F313(uint8 k, uint8 a) {
   object_index = k;
-  if (k == 10) k = 9;
+  if (k == 10)
+    k = 9;
   DumpTwoSpr(enemy_obj_id[k] + a, 0xF0u);
 }
 
@@ -8959,7 +9263,8 @@ void CODE_03F326(uint8 k, uint8 a) {
   OamEnt *oam;  // rbp
 
   object_index = k;
-  if (k == 10) k = 9;
+  if (k == 10)
+    k = 9;
   oam = get_OamEnt(oam_buf, (uint8)(enemy_obj_id[k] + a));
   oam[64].ypos = -16;
   oam[66].ypos = -16;
@@ -8985,7 +9290,8 @@ void DrawBlock(uint8 k) {
   tempE5 = obj_xpos_hi.block[k];
   tempE4 = obj_xpos_lo.block[k];
   *(uint16 *)&tempE4 -= screen_left_xpos16;
-  if (tempE5) oam_tile_size_buffer[v1] = 3;
+  if (tempE5)
+    oam_tile_size_buffer[v1] = 3;
 }
 // 7E03B1: using guessed type int8;
 // 7E03BC: using guessed type int8;
@@ -9009,19 +9315,22 @@ void DrawBrickChunks(uint8 k) {
   CODE_03EC3C(v2, R0_ | (16 * frame_counter) & 0xC0);
   v3 = v2 - 2;
   block = rel_ypos.block;
-  if (rel_ypos.block >= 0xF0u) block = -16;
+  if (rel_ypos.block >= 0xF0u)
+    block = -16;
   DumpTwoSpr_(v3, block);
   oam = get_OamEnt(oam_buf, v3);
   oam->xpos = rel_xpos_lo.block;
   R0_ = block_orig_xpos_lo[k] - screen_left_xpos_lo;
   oam[1].xpos = R0_ + R0_ - rel_xpos_lo.block + 6;
   unk5 = rel_ypos.unk5;
-  if (rel_ypos.unk5 >= 0xF0u) unk5 = -16;
+  if (rel_ypos.unk5 >= 0xF0u)
+    unk5 = -16;
   oam[2].ypos = unk5;
   oam[3].ypos = unk5;
   oam[2].xpos = rel_xpos_lo.unk5;
   oam[3].xpos = R0_ + R0_ - rel_xpos_lo.unk5 + 6;
-  if (__CFSHL__(offscreen_bits.block, 1)) DumpTwoSpr_(v3, 0xF0u);
+  if (__CFSHL__(offscreen_bits.block, 1))
+    DumpTwoSpr_(v3, 0xF0u);
   if (offscreen_bits.block) {
     oam_tile_size_buffer[v3] = 1;
     oam_tile_size_buffer[v3 + 8] = 1;
@@ -9049,7 +9358,8 @@ void DrawFireball(uint8 k) {
   v4 = frame_counter >> 2;
   oam->charnum = ((frame_counter & 4) != 0) ^ 0xBE;
   v3 = 40;
-  if ((v4 & 2) != 0) v3 = -24;
+  if ((v4 & 2) != 0)
+    v3 = -24;
   oam->flags = v3;
   if ((obj_xspeed.fireball[k] & 0x80u) != 0 && rel_xpos_lo.fireball >= 0xF8u)
     oam_tile_size_buffer[v1] = 1;
@@ -9066,7 +9376,8 @@ void DrawFirebar(uint8 j) {
   oam = get_OamEnt(oam_buf, j);
   oam[64].charnum = ((frame_counter & 4) != 0) ^ 0xBE;
   v2 = 56;
-  if ((v3 & 2) != 0) v2 = -8;
+  if ((v3 & 2) != 0)
+    v2 = -8;
   oam[64].flags = v2;
 }
 
@@ -9082,14 +9393,15 @@ void DrawExplodingPlayerFireball(uint8 k) {
   v1 = block_obj_id[k];
   if ((obj_xspeed.fireball[k] & 0x80u) == 0) {
     rel_xpos_lo.fireball -= 4;
-    if (rel_xpos_lo.fireball < 0xF8u) goto LABEL_8;
+    if (rel_xpos_lo.fireball < 0xF8u)
+      goto LABEL_8;
     goto LABEL_3;
   }
   if (rel_xpos_lo.fireball >= 0xF0u) {
     if (rel_xpos_lo.fireball < 0xF8u) {
       oam_tile_size_buffer[v1] = 1;
       oam_tile_size_buffer[v1 + 4] = 1;
-    LABEL_3:
+LABEL_3:
       oam_tile_size_buffer[v1 + 8] = 1;
       oam_tile_size_buffer[v1 + 12] = 1;
       goto LABEL_8;
@@ -9129,7 +9441,7 @@ LABEL_8:
 // 7E03BA: using guessed type int8;
 
 void DrawExplosion_Fireworks(uint8 j, uint8 a) {
-  int v2;   // rdi
+  int v2;       // rdi
   uint8 v3;     // si
   uint8 v4;     // al
   OamEnt *oam;  // rbp
@@ -9216,15 +9528,15 @@ void PlayerGfxHandler() {
   uint8 v3;     // al
   OamEnt *v4;   // rdx
 
-  if (turn_around_smoke_flag2) goto LABEL_5;
+  if (turn_around_smoke_flag2)
+    goto LABEL_5;
   if (player_gfx_offset == 24 || player_gfx_offset == 120) {
     ++turn_around_smoke_flag2;
     turn_around_smoke_flag = 0;
-  LABEL_5:
+LABEL_5:
     HandleTurnAroundSmoke();
   }
-  if (game_engine_subroutine == 3 || !player_hurt_timer ||
-      !(frame_counter & 1)) {
+  if (game_engine_subroutine == 3 || !player_hurt_timer || !(frame_counter & 1)) {
     if (game_engine_subroutine == 11) {
       PlayerKilled();
     } else if (player_change_size_flag) {
@@ -9232,11 +9544,10 @@ void PlayerGfxHandler() {
     } else if (swimming_flag && player_state) {
       FindPlayerAction();
       v0 = spr_data_offset;
-      if (!(player_facing_dir & 1)) v0 = spr_data_offset + 4;
+      if (!(player_facing_dir & 1))
+        v0 = spr_data_offset + 4;
       if (!player_size) {
-        if (player_facing_dir == 2 ||
-            (oam = get_OamEnt(oam_buf, v0), xpos = oam[4].xpos,
-             oam[4].xpos = xpos - 8, xpos >= 8u)) {
+        if (player_facing_dir == 2 || (oam = get_OamEnt(oam_buf, v0), xpos = oam[4].xpos, oam[4].xpos = xpos - 8, xpos >= 8u)) {
           v3 = 2;
         } else {
           v3 = 3;
@@ -9244,7 +9555,8 @@ void PlayerGfxHandler() {
         oam_tile_size_buffer[v0 + 16] = v3;
         v4 = get_OamEnt(oam_buf, v0);
         v4[4].charnum = ((uint8)(player_gfx_offset - 40) >> 2) + 8;
-        if (v4[6].ypos >= 0xF0u) v4[4].ypos = -16;
+        if (v4[6].ypos >= 0xF0u)
+          v4[4].ypos = -16;
         v4[6].ypos = -16;
       }
     } else {
@@ -9267,7 +9579,9 @@ void DoChangeSize() {
   PlayerGfxProcessing(v0);
 }
 
-void PlayerKilled() { PlayerGfxProcessing(kPlayerGfxTblOffsets[14]); }
+void PlayerKilled() {
+  PlayerGfxProcessing(kPlayerGfxTblOffsets[14]);
+}
 
 void PlayerGfxProcessing(uint8 a) {
   uint8 v1;  // al
@@ -9278,22 +9592,21 @@ void PlayerGfxProcessing(uint8 a) {
 
   player_gfx_offset = a;
   v1 = mario_goal_walk_var03ce;
-  if (mario_goal_walk_var03ce) goto LABEL_6;
+  if (mario_goal_walk_var03ce)
+    goto LABEL_6;
   if (vertical_pipe_flag_var0218) {
     if (!player_size) {
       player_gfx_offset = -40;
       goto LABEL_7;
     }
     v1 = -32;
-  LABEL_6:
+LABEL_6:
     player_gfx_offset = v1;
   }
 LABEL_7:
   RenderPlayerSub(4u);
   UNUSED_ChkForPlayerAttrib();
-  if (R2_ == 3 &&
-      obj_xpos_hi.player != (obj_xpos_lo.player < (uint8)screen_left_xpos16) +
-                                HIBYTE(screen_left_xpos16)) {
+  if (R2_ == 3 && obj_xpos_hi.player != (obj_xpos_lo.player < (uint8)screen_left_xpos16) + HIBYTE(screen_left_xpos16)) {
     oam_tile_size_buffer[208] = 1;
     oam_tile_size_buffer[216] = 1;
     oam_tile_size_buffer[224] = 1;
@@ -9304,9 +9617,11 @@ LABEL_7:
     fireball_throwing_timer = 0;
     if (!v2) {
       fireball_throwing_timer = player_anim_timer;
-      if (player_state != 1) player_gfx_offset = kPlayerGfxTblOffsets[7];
+      if (player_state != 1)
+        player_gfx_offset = kPlayerGfxTblOffsets[7];
       v3 = 4;
-      if (buttons_left_right | obj_xspeed.player) v3 = 3;
+      if (buttons_left_right | obj_xspeed.player)
+        v3 = 3;
       RenderPlayerSub(v3);
     }
   }
@@ -9316,7 +9631,8 @@ LABEL_7:
   do {
     v2 = R0_ & 1;
     R0_ >>= 1;
-    if (v2) DumpTwoSpr_(v5, 0xF0u);
+    if (v2)
+      DumpTwoSpr_(v5, 0xF0u);
     v5 -= 8;
     --v4;
   } while (v4 >= 0);
@@ -9329,7 +9645,8 @@ void DrawLevelPreviewSprites() {
   DrawLevelPreviewSprites_Sub_New();
   player_gfx_offset = -48;
   RenderPlayerSub_New();
-  for (i = 5; (i & 0x80u) == 0; --i) *(&R2_ + i) = kIntermediatePlayerData[i];
+  for (i = 5; (i & 0x80u) == 0; --i)
+    *(&R2_ + i) = kIntermediatePlayerData[i];
   uint8 j = DrawPlayerLoop(0xB8u, 0xD0u);
   DrawLevelPreviewSprites_Sub(j);
   Entrance_GameTimerSetup();
@@ -9370,7 +9687,8 @@ void DrawLevelPreviewSprites_Sub(uint8 j) {
       oam_tile_size_buffer[v3 + 276] = 0;
       obj_xpos_hi.enemy[v2] = HIBYTE(screen_left_xpos16);
       j = v7;
-      if (enemy_id[v2] == 18) DrawLakituAboveSpinyInLevelPreview(v2);
+      if (enemy_id[v2] == 18)
+        DrawLakituAboveSpinyInLevelPreview(v2);
     }
     ++j;
     ++v2;
@@ -9389,7 +9707,8 @@ void DrawLevelPreviewSprites_Sub(uint8 j) {
     } while (v4);
   }
 LABEL_16:
-  for (i = 4; i >= 0; --i) enemy_id[(uint8)i] = 0;
+  for (i = 4; i >= 0; --i)
+    enemy_id[(uint8)i] = 0;
   which_enemy_gfx_offs = 0;
 }
 
@@ -9608,7 +9927,8 @@ uint8 ProcessPlayerAction() {
     if (player_state == 1) {
       if (!swimming_flag) {
         v0 = 6;
-        if (!crouching_flag) v0 = 0;
+        if (!crouching_flag)
+          v0 = 0;
         goto LABEL_12;
       }
       v4 = GetGfxOffsetAdder(1u);
@@ -9617,24 +9937,26 @@ uint8 ProcessPlayerAction() {
       goto LABEL_20;
     }
     v0 = 6;
-    if (crouching_flag) goto LABEL_12;
+    if (crouching_flag)
+      goto LABEL_12;
     v0 = 2;
-    if (!(buttons_left_right | obj_xspeed.player)) goto LABEL_12;
-    if (player_x_speed_absolute < 9u ||
-        (player_facing_dir & player_moving_dir) != 0) {
+    if (!(buttons_left_right | obj_xspeed.player))
+      goto LABEL_12;
+    if (player_x_speed_absolute < 9u || (player_facing_dir & player_moving_dir) != 0) {
       v4 = GetGfxOffsetAdder(4u);
-    LABEL_20:
+LABEL_20:
       v5 = 3;
       goto LABEL_21;
     }
     v0 = 3;
-  LABEL_12:
+LABEL_12:
     v1 = GetGfxOffsetAdder(v0);
     player_anim_ctrl = 0;
     return kPlayerGfxTblOffsets[v1];
   }
   v0 = 5;
-  if (!obj_yspeed.player) goto LABEL_12;
+  if (!obj_yspeed.player)
+    goto LABEL_12;
   v4 = GetGfxOffsetAdder(5u);
   v5 = 2;
 LABEL_21:
@@ -9643,7 +9965,8 @@ LABEL_21:
   if (!player_anim_timer) {
     player_anim_timer = player_anim_timer_set;
     v6 = player_anim_ctrl + 1;
-    if ((uint8)(player_anim_ctrl + 1) >= R0_) v6 = 0;
+    if ((uint8)(player_anim_ctrl + 1) >= R0_)
+      v6 = 0;
     player_anim_ctrl = v6;
   }
   return CurrentAnimOffset;
@@ -9654,7 +9977,8 @@ uint8 GetCurrentAnimOffset(uint8 j) {
 }
 
 uint8 GetGfxOffsetAdder(uint8 j) {
-  if (player_size) j += 8;
+  if (player_size)
+    j += 8;
   return j;
 }
 
@@ -9676,11 +10000,14 @@ uint8 HandleChangeSize() {
     return kPlayerGfxTblOffsets[15] + 8 * kChangeSizeOffsetAdder[v0];
   v2 = v0 + 10;
   v3 = 9;
-  if (!kChangeSizeOffsetAdder[v2]) v3 = 1;
+  if (!kChangeSizeOffsetAdder[v2])
+    v3 = 1;
   return kPlayerGfxTblOffsets[v3];
 }
 
-void UNUSED_ChkForPlayerAttrib() { ; }
+void UNUSED_ChkForPlayerAttrib() {
+  ;
+}
 
 void PlayerGfxProcessing_Sub_New() {
   uint8 i;      // si
@@ -9712,7 +10039,9 @@ void PlayerGfxProcessing_Sub_New() {
   }
 }
 
-void RelativePlayerPosition() { RelWOfs(0, kRelPos_Player); }
+void RelativePlayerPosition() {
+  RelWOfs(0, kRelPos_Player);
+}
 
 void RelativeBubblePosition(uint8 k) {
   uint8 ProperObjOffset;  // si
@@ -9728,7 +10057,9 @@ void RelativeFireballPosition(uint8 k) {
   RelWOfs(ProperObjOffset, kRelPos_Fireball);
 }
 
-void RelWOfs(uint8 k, uint8 j) { GetObjRelativePosition(k, j); }
+void RelWOfs(uint8 k, uint8 j) {
+  GetObjRelativePosition(k, j);
+}
 
 void RelativeMiscPosition(uint8 k) {
   uint8 ProperObjOffset;  // si
@@ -9761,8 +10092,7 @@ uint8 GetObjRelativePosition(uint8 k, uint8 j) {
     v2 = *(&obj_xpos_lo.player + k);
     v3 = v2 < screen_left_xpos_lo;
     *(&rel_xpos_lo.player + j) = v2 - screen_left_xpos_lo;
-    *(&rel_xpos_hi.player + j) =
-        *(&obj_xpos_hi.player + k) - (v3 + screen_left_xpos_hi);
+    *(&rel_xpos_hi.player + j) = *(&obj_xpos_hi.player + k) - (v3 + screen_left_xpos_hi);
   } else {
     obj_xpos_lo.player = 40;
   }
@@ -9773,7 +10103,9 @@ uint8 GetObjRelativePosition(uint8 k, uint8 j) {
   return result;
 }
 
-void GetPlayerOffscreenBits() { GetOffScreenBitsSet(0, kRelPos_Player); }
+void GetPlayerOffscreenBits() {
+  GetOffScreenBitsSet(0, kRelPos_Player);
+}
 
 void GetFireballOffscreenBits(uint8 k) {
   uint8 ProperObjOffset;  // si
@@ -9796,7 +10128,9 @@ void GetMiscOffscreenBits(uint8 k) {
   GetOffScreenBitsSet(ProperObjOffset, kRelPos_Misc);
 }
 
-uint8 GetProperObjOffset(uint8 k, uint8 j) { return kObjOffsetData[j] + k; }
+uint8 GetProperObjOffset(uint8 k, uint8 j) {
+  return kObjOffsetData[j] + k;
+}
 
 void GetEnemyOffscreenBits(uint8 k) {
   SetOffscrBitsOffset(k, 1u, kRelPos_Enemy);
@@ -9846,7 +10180,8 @@ uint8 RunOffscrBitsSubs(uint8 k) {
     }
     result = kYOffscreenBitsData[v5];
     k = R4_;
-    if (result) break;
+    if (result)
+      break;
   }
   return result;
 }
@@ -9875,7 +10210,8 @@ uint8 GetXOffscreenBits(uint8 k) {
     }
     result = kXOffscreenBitsData[v5];
     k = R4_;
-    if (result) break;
+    if (result)
+      break;
   }
   return result;
 }
@@ -9886,7 +10222,8 @@ uint8 DividePDiff(uint8 k, uint8 j, uint8 a) {
   R5_ = a;
   if (R7_ < R6_) {
     v3 = (R7_ >> 3) & 7;
-    if (!j) v3 += R5_;
+    if (!j)
+      v3 += R5_;
     return v3;
   }
   return k;
@@ -9897,13 +10234,14 @@ void GetEnemyXPos(uint8 k) {
   LOBYTE(xpos16) = obj_xpos_lo.enemy[k];
 }
 
-void GetSomeXpos_(uint8 k) { xpos16 = xpos_new_var0E16; }
+void GetSomeXpos_(uint8 k) {
+  xpos16 = xpos_new_var0E16;
+}
 
 void DrawLargePlatform_DrawOne(uint8 j) {
   R4_ = 6;
   some_xpos_0E12 = xpos16 - screen_left_xpos16;
-  oam_tile_size_buffer[j + 256] =
-      (uint16)(xpos16 - screen_left_xpos16) >> 8 != 0;
+  oam_tile_size_buffer[j + 256] = (uint16)(xpos16 - screen_left_xpos16) >> 8 != 0;
 }
 
 void CODE_03FEE5(uint8 j) {

@@ -1,6 +1,6 @@
-#include "smb1_rtl.h"
 #include "smb1_consts.h"
 #include "smb1_funcs.h"
+#include "smb1_rtl.h"
 #include "smb1_variables.h"
 void UploadSpuData() {
   WriteReg(NMITIMEN, 0);
@@ -66,13 +66,15 @@ void HandleSPCUploads_Main() {
     WriteReg(APUI00, v13);
     while (v13 != ReadReg(APUI00))
       ;
-    if (Unreachable()) break;
+    if (Unreachable())
+      break;
     v2 = IndirPtr(&R0_, v12);
     v0 = v12 + 1;
     HIBYTE(v1) = *v2;
     for (LOBYTE(v1) = 0;; LOBYTE(v1) = v1 + 1) {
       WriteRegWord(APUI00, v1);
-      if (!--v4) break;
+      if (!--v4)
+        break;
       v3 = IndirPtr(&R0_, v0++);
       HIBYTE(v1) = *v3;
       while ((uint8)v1 != ReadReg(APUI00))
@@ -97,50 +99,50 @@ void HandleSPCUploads_Main() {
 }
 
 void SaveGame_Main() {
-  uint8 v0;           // al
-  uint16 v1;          // si
-  uint16 v2;          // si
-  uint8 v3;           // al
-  uint8 v4;           // al
-  uint16 v5;          // si
-  uint16 updated;     // si
-  uint16 v7;          // si
-  uint8 v8;           // di
-  int8 v9;   // al
-  uint16 v10;         // si
-  uint16 v11;         // ax
-  int8 v12;  // al
-  uint16 v13;         // si
-  uint16 v14;         // si
-  uint16 v15;         // si
-  uint16 v16;         // si
-  uint8 v17;          // di
-  int8 v18;  // al
-  uint16 v19;         // si
-  uint16 v20;         // ax
-  int8 v21;  // al
-  uint16 v22;         // si
-  uint16 k;           // [rsp+43h] [rbp-5h]
-  uint16 ka;          // [rsp+43h] [rbp-5h]
+  uint8 v0;        // al
+  uint16 v1;       // si
+  uint16 v2;       // si
+  uint8 v3;        // al
+  uint8 v4;        // al
+  uint16 v5;       // si
+  uint16 updated;  // si
+  uint16 v7;       // si
+  uint8 v8;        // di
+  int8 v9;         // al
+  uint16 v10;      // si
+  uint16 v11;      // ax
+  int8 v12;        // al
+  uint16 v13;      // si
+  uint16 v14;      // si
+  uint16 v15;      // si
+  uint16 v16;      // si
+  uint8 v17;       // di
+  int8 v18;        // al
+  uint16 v19;      // si
+  uint16 v20;      // ax
+  int8 v21;        // al
+  uint16 v22;      // si
+  uint16 k;        // [rsp+43h] [rbp-5h]
+  uint16 ka;       // [rsp+43h] [rbp-5h]
 
   if (!sram_hard_mode_flag) {
     *(uint16 *)&R0_ = 0;
     if (number_of_players) {
       if (player_hard_mode_flag == other_player_hard_mode) {
-        if (world_number < offscreen_players_world) goto LABEL_13;
+        if (world_number < offscreen_players_world)
+          goto LABEL_13;
       } else if (player_hard_mode_flag != 1) {
-      LABEL_13:
+LABEL_13:
         R2_ = other_player_hard_mode;
         if (other_player_hard_mode == *(&g_byte_700015 + g_word_700004)) {
           v4 = *(&g_byte_700010 + g_word_700004);
-          if ((v4 & 0x80u) == 0 && v4 >= offscreen_players_world) goto LABEL_18;
+          if ((v4 & 0x80u) == 0 && v4 >= offscreen_players_world)
+            goto LABEL_18;
         } else if (other_player_hard_mode != 1) {
           goto LABEL_18;
         }
-        updated = StoreDataToSaveFileAndUpdateTempChecksum_Main(
-            g_word_700004, offscreen_players_world);
-        v2 = StoreDataToSaveFileAndUpdateTempChecksum_Main(
-            updated, player_other_players_level_number_display);
+        updated = StoreToSramAndUpdateChecksum(g_word_700004, offscreen_players_world);
+        v2 = StoreToSramAndUpdateChecksum(updated, player_other_players_level_number_display);
         v3 = player_other_players_level;
         goto LABEL_20;
       }
@@ -148,61 +150,61 @@ void SaveGame_Main() {
     R2_ = player_hard_mode_flag;
     if (player_hard_mode_flag == *(&g_byte_700015 + g_word_700004)) {
       v0 = *(&g_byte_700010 + g_word_700004);
-      if ((v0 & 0x80u) == 0 && v0 >= world_number) goto LABEL_18;
+      if ((v0 & 0x80u) == 0 && v0 >= world_number)
+        goto LABEL_18;
     } else if (player_hard_mode_flag != 1) {
-    LABEL_18:
-      v5 = StoreDataToSaveFileAndUpdateTempChecksum_Main(
-          g_word_700004, *(&g_byte_700010 + g_word_700004));
-      v2 = StoreDataToSaveFileAndUpdateTempChecksum_Main(
-          v5, *(&g_byte_700010 + v5));
+LABEL_18:
+      v5 = StoreToSramAndUpdateChecksum(g_word_700004, *(&g_byte_700010 + g_word_700004));
+      v2 = StoreToSramAndUpdateChecksum(v5, *(&g_byte_700010 + v5));
       v3 = *(&g_byte_700010 + v2);
       goto LABEL_20;
     }
-    v1 = StoreDataToSaveFileAndUpdateTempChecksum_Main(g_word_700004,
-                                                       world_number);
-    v2 = StoreDataToSaveFileAndUpdateTempChecksum_Main(v1, 0);
+    v1 = StoreToSramAndUpdateChecksum(g_word_700004, world_number);
+    v2 = StoreToSramAndUpdateChecksum(v1, 0);
     v3 = 0;
-  LABEL_20:
-    v7 = StoreDataToSaveFileAndUpdateTempChecksum_Main(v2, v3);
+LABEL_20:
+    v7 = StoreToSramAndUpdateChecksum(v2, v3);
     R4_ = number_of_lives;
     R5_ = other_player_num_lives;
     v8 = current_player;
     v9 = *(&R4_ + current_player);
-    if (v9 < 0) v9 = 4;
-    v10 = StoreDataToSaveFileAndUpdateTempChecksum_Main(v7, v9);
+    if (v9 < 0)
+      v9 = 4;
+    v10 = StoreToSramAndUpdateChecksum(v7, v9);
     v11 = v8 ^ 1;
     v12 = *(&R4_ + v11);
-    if (v12 < 0) v12 = 4;
-    k = StoreDataToSaveFileAndUpdateTempChecksum_Main(v10, v12);
+    if (v12 < 0)
+      v12 = 4;
+    k = StoreToSramAndUpdateChecksum(v10, v12);
     SaveGame_CODE_009041();
-    v13 = StoreDataToSaveFileAndUpdateTempChecksum_Main(
-        k, R2_ | *(&g_byte_700010 + k));
-    *(uint16 *)(&g_byte_700010 + StoreDataToSaveFileAndUpdateTempChecksum_Main(
-                                     v13, number_of_players)) =
-        -*(uint16 *)&R0_;
+    v13 = StoreToSramAndUpdateChecksum(k, R2_ | *(&g_byte_700010 + k));
+    *(uint16 *)(&g_byte_700010 + StoreToSramAndUpdateChecksum(v13, number_of_players)) = -*(uint16 *)&R0_;
+    RtlWriteSram();
     return;
   }
   *(uint16 *)&R0_ = 0;
-  v14 = StoreDataToSaveFileAndUpdateTempChecksum_Main(g_word_700004,
-                                                      sram_world_number2);
-  v15 = StoreDataToSaveFileAndUpdateTempChecksum_Main(v14, 0);
-  v16 = StoreDataToSaveFileAndUpdateTempChecksum_Main(v15, 0);
+  v14 = StoreToSramAndUpdateChecksum(g_word_700004, sram_world_number2);
+  v15 = StoreToSramAndUpdateChecksum(v14, 0);
+  v16 = StoreToSramAndUpdateChecksum(v15, 0);
   R4_ = number_of_lives;
   R5_ = other_player_num_lives;
   v17 = current_player;
   v18 = *(&R4_ + current_player);
-  if (v18 < 0) v18 = 4;
-  v19 = StoreDataToSaveFileAndUpdateTempChecksum_Main(v16, v18);
+  if (v18 < 0)
+    v18 = 4;
+  v19 = StoreToSramAndUpdateChecksum(v16, v18);
   v20 = v17 ^ 1;
   v21 = *(&R4_ + v20);
-  if (v21 < 0) v21 = 4;
-  ka = StoreDataToSaveFileAndUpdateTempChecksum_Main(v19, v21);
+  if (v21 < 0)
+    v21 = 4;
+  ka = StoreToSramAndUpdateChecksum(v19, v21);
   SaveGame_CODE_009041();
-  v22 = StoreDataToSaveFileAndUpdateTempChecksum_Main(ka, sram_hard_mode_flag);
-  *(uint16 *)(&g_byte_700010 + StoreDataToSaveFileAndUpdateTempChecksum_Main(
-                                   v22, number_of_players)) = -*(uint16 *)&R0_;
+  v22 = StoreToSramAndUpdateChecksum(ka, sram_hard_mode_flag);
+  *(uint16 *)(&g_byte_700010 + StoreToSramAndUpdateChecksum(v22, number_of_players)) = -*(uint16 *)&R0_;
   sram_hard_mode_flag = 0;
   sram_world_number2 = 0;
+
+  RtlWriteSram();
 }
 
 void SaveGame_CODE_009041() {
@@ -211,22 +213,21 @@ void SaveGame_CODE_009041() {
   uint16 v2;  // si
 
   v0 = 5;
-  v1 = 1;
+  v1 = 0;
   do {
-    v1 = displayed_score[v0] >=
-         (uint8)(!v1 + *((uint8 *)&vram_buffer2[751] + v0));
+    v1 = displayed_score[v0] < v1 + sram_top_score[v0];
     --v0;
   } while ((v0 & 0x8000u) == 0);
-  if (v1) {
-    v2 = v0 + 1;
+  if (!v1) {
+    v2 = 0;
     do {
-      *((uint8 *)&vram_buffer2[751] + v2) = displayed_score[v2];
+      sram_top_score[v2] = displayed_score[v2];
       ++v2;
     } while (v2 < 6u);
   }
 }
 
-uint16 StoreDataToSaveFileAndUpdateTempChecksum_Main(uint16 k, uint8 a) {
+uint16 StoreToSramAndUpdateChecksum(uint16 k, uint8 a) {
   uint16 result;  // si
   bool v3;        // cf
 
@@ -254,9 +255,8 @@ void ResetGame_Main() {
   WriteReg(APUI02, 0);
   WriteReg(APUI03, 0);
   WriteReg(APUI01, 0xF0u);
-  // ROMBANK00_START();
-  printf("Reset not impl!\n");
-  Unreachable();
+
+  g_smb1_want_reset = true;
 }
 
 void InitializeSelectedRAM(uint8 j, uint16 a) {
@@ -335,8 +335,7 @@ void LoadSplashScreen() {
   WriteRegWord(DAS0L, 0x1000u);
   WriteReg(MDMAEN, 1u);
   for (i = 30; (i & 0x80u) == 0; i -= 2)
-    palette_mirror[(i >> 1) + 240] =
-        kLoadSplashScreen_SplashScreenPalette[i >> 1];
+    palette_mirror[(i >> 1) + 240] = kLoadSplashScreen_SplashScreenPalette[i >> 1];
   coldata1_mirror = 32;
   coldata2_mirror = 64;
   coldata3_mirror = 0x80;
@@ -421,10 +420,8 @@ void HandleSplashScreenMarioCoinShine_Main() {
   R0_ = 2 * splash_screen_palette_animation_index;
   v0 = 6 * splash_screen_palette_animation_index;
   for (i = 0; i < 6u; ++i) {
-    *((uint8 *)&palette_mirror[246] + i) =
-        kHandleSplashScreenMarioCoinShine_DATA_009E75[v0];
-    *((uint8 *)&palette_mirror[253] + i) =
-        kHandleSplashScreenMarioCoinShine_DATA_009E8D[v0++];
+    *((uint8 *)&palette_mirror[246] + i) = kHandleSplashScreenMarioCoinShine_DATA_009E75[v0];
+    *((uint8 *)&palette_mirror[253] + i) = kHandleSplashScreenMarioCoinShine_DATA_009E8D[v0++];
   }
   ++update_entire_palette_flag;
   if (!--splash_screen_palette_animation_timer) {
@@ -455,7 +452,7 @@ void LoadFileSelectMenu_Sub() {
   uint16 v0;                                // si
   uint16 v1;                                // di
   uint16 FileSelectMenu_BufferStripeImage;  // si
-  int v3;                               // rbx
+  int v3;                                   // rbx
   unsigned int v4;                          // edx
   uint16 v5;                                // ax
   uint16 v6;                                // ax
@@ -469,8 +466,7 @@ void LoadFileSelectMenu_Sub() {
   v1 = 0;
   do {
     *(uint16 *)&R2_ = v1;
-    FileSelectMenu_BufferStripeImage = LoadFileSelectMenu_BufferStripeImage(
-        v0, kLoadFileSelectMenu_FileSelectTextPtrs[v1 >> 1]);
+    FileSelectMenu_BufferStripeImage = LoadFileSelectMenu_BufferStripeImage(v0, kLoadFileSelectMenu_FileSelectTextPtrs[v1 >> 1]);
     v3 = *(uint16 *)&R2_ >> 1;
     v4 = kSaveFileLocations_Main[v3];
     v12 = *(uint16 *)(&g_byte_700010 + kSaveFileLocations_Main[v3]);
@@ -480,8 +476,7 @@ void LoadFileSelectMenu_Sub() {
       v5 = -29450;
     else
       v5 = -29429;
-    v0 = LoadFileSelectMenu_BufferStripeImage(FileSelectMenu_BufferStripeImage,
-                                              v5);
+    v0 = LoadFileSelectMenu_BufferStripeImage(FileSelectMenu_BufferStripeImage, v5);
     HIBYTE(v6) = 0;
     v7 = R2_ >> 1;
     if ((R4_ & 0x80u) != 0) {
@@ -496,10 +491,8 @@ void LoadFileSelectMenu_Sub() {
         LOBYTE(v6) = v8 & 7;
       }
       LOBYTE(v6) = 2 * v6;
-      vram_buffer1[v0 + 7 - 12] =
-          *((uint8 *)kLoadFileSelectMenu_WorldNumberTiles + v6);
-      vram_buffer1[v0 + 8 - 12] =
-          *((uint8 *)kLoadFileSelectMenu_WorldNumberTiles + v6 + 1);
+      vram_buffer1[v0 + 7 - 12] = *((uint8 *)kLoadFileSelectMenu_WorldNumberTiles + v6);
+      vram_buffer1[v0 + 8 - 12] = *((uint8 *)kLoadFileSelectMenu_WorldNumberTiles + v6 + 1);
       if (*(&title_screen_file_aselected_world + v7) >= 8u) {
         vram_buffer1[v0 + 5 - 12] = -2;
         vram_buffer1[v0 + 6 - 12] = 8;
@@ -508,7 +501,8 @@ void LoadFileSelectMenu_Sub() {
     v1 = *(uint16 *)&R2_ + 2;
   } while (*(uint16 *)&R2_ != 4);
   v9 = -29408;
-  if (title_screen_erase_file_process) v9 = -29381;
+  if (title_screen_erase_file_process)
+    v9 = -29381;
   v10 = LoadFileSelectMenu_BufferStripeImage(v0, v9);
   vram_buffer1[v10 + 1] = 0xff;
   *(uint16 *)&vram_buffer1_offset = v10;
@@ -522,7 +516,8 @@ uint16 LoadFileSelectMenu_BufferStripeImage(uint16 k, uint16 a) {
   *(uint16 *)&R0_ = a;
   for (i = 0;; ++i) {
     v3 = RomPtr_08(*(uint16 *)&R0_)[i];
-    if (v3 == 0xFF) break;
+    if (v3 == 0xFF)
+      break;
     vram_buffer1[++k] = v3;
   }
   return k;
@@ -552,7 +547,8 @@ void LoadPlayerSelectMenu_Sub() {
 
   v0 = (uint8)(save_buffer_2_player_flag + 1);
   R4_ = kLoadPlayerSelectMenu_ShowLineFlags[v0];
-  if (!R6_) number_of_players = kLoadPlayerSelectMenu_NewCursorPos[v0];
+  if (!R6_)
+    number_of_players = kLoadPlayerSelectMenu_NewCursorPos[v0];
   v1 = *(uint16 *)&vram_buffer1_offset;
   v2 = 0;
   do {
@@ -572,21 +568,22 @@ void LoadPlayerSelectMenu_Sub() {
     }
     while (1) {
       v6 = RomPtr_08(*(uint16 *)&R0_)[i];
-      if (v6 == 0xFF) break;
+      if (v6 == 0xFF)
+        break;
       vram_buffer1[++v1] = v6;
       ++i;
     }
     v2 = *(uint16 *)&R2_ + 2;
   } while (*(uint16 *)&R2_ != 2);
   v7 = -29018;
-  if (sram_controller_type_x) v7 = -28977;
-  FileSelectMenu_BufferStripeImage =
-      LoadFileSelectMenu_BufferStripeImage(v1, v7);
+  if (sram_controller_type_x)
+    v7 = -28977;
+  FileSelectMenu_BufferStripeImage = LoadFileSelectMenu_BufferStripeImage(v1, v7);
   vram_buffer1[FileSelectMenu_BufferStripeImage + 1] = 0xff;
-  v10 = LoadFileSelectMenu_BufferStripeImage(FileSelectMenu_BufferStripeImage,
-                                             0x8EF8u);
+  v10 = LoadFileSelectMenu_BufferStripeImage(FileSelectMenu_BufferStripeImage, 0x8EF8u);
   vram_buffer1[v10 + 1] = 0xff;
-  if (displayed_score[0]) vram_buffer1[v10 + -1 - 12] = displayed_score[0];
+  if (displayed_score[0])
+    vram_buffer1[v10 + -1 - 12] = displayed_score[0];
   vram_buffer1[v10 + 1 - 12] = displayed_score[1];
   vram_buffer1[v10 + 3 - 12] = displayed_score[2];
   vram_buffer1[v10 + 5 - 12] = displayed_score[3];
@@ -630,14 +627,14 @@ void LoadSaveFileData_Main() {
   v0 = kSaveFileLocations_Main[(uint8)(2 * number_of_players) >> 1];
   g_sram[0x4] = v0;
   v1 = 0;
-  do *(&save_buffer + v1++) = *(&g_byte_700010 + v0++);
+  do
+    *(&save_buffer + v1++) = *(&g_byte_700010 + v0++);
   while (v1 != *(uint16 *)&R4_);
   original_level = sram_initial_selected_level;
   save_buffer_current_level = sram_initial_selected_level;
   world_number = sram_world_number & 7;
   save_buffer = sram_world_number & 7;
-  sram_initial_selected_level = kUNK_05D272[(
-      uint8)(sram_initial_selected_level + 4 * (sram_world_number & 7))];
+  sram_initial_selected_level = kUNK_05D272[(uint8)(sram_initial_selected_level + 4 * (sram_world_number & 7))];
   save_buffer_area_number_original = sram_initial_selected_level;
   area_number = sram_initial_selected_level;
   save_buffer_hard_mode_active_flag = sram_world_number >= 8u;
@@ -653,13 +650,13 @@ void VerifySaveDataIsValid() {
   while (1) {
     debug_flag = 0;
     sram_controller_type_x = 0;
-    if (g_word_700002 == 0x9743 && g_word_701FFC == 21281) break;
+    if (g_word_700002 == 0x9743 && g_word_701FFC == 21281)
+      break;
     *(uint16 *)&R0_ = 0x2000;
     InitializeSelectedRAM(0x70u, 0);
     IsValid_CODE_008D41 = 0;
     do {
-      IsValid_CODE_008D41 =
-          VerifySaveDataIsValid_CODE_008D41(IsValid_CODE_008D41);
+      IsValid_CODE_008D41 = VerifySaveDataIsValid_CODE_008D41(IsValid_CODE_008D41);
       ++g_word_700004;
     } while (g_word_700004 < 3u);
     g_word_700002 = -26813;
@@ -679,7 +676,7 @@ void VerifySaveDataIsValid() {
       ++v1;
       --v2;
     } while (v2);
-    if (*(uint16 *)(&g_byte_700010 + v1) + *(uint16 *)&R0_) {
+    if ((uint16)(*(uint16 *)(&g_byte_700010 + v1) + *(uint16 *)&R0_)) {
       v1 = VerifySaveDataIsValid_CODE_008D41(*(uint16 *)&R2_);
       *(uint16 *)&R2_ = v1;
     } else {
@@ -733,25 +730,21 @@ void MoveTitleScreenMenuCursor_Main(uint8 a) {
 
   R0_ = 0;
   for (R1_ = a;; a = R1_) {
-    v1 = (a & 0xC) != 0
-             ? kMoveTitleScreenMenuCursor_AdditionTable[(uint8)(a & 0xC) >> 3]
-             : 1;
+    v1 = (a & 0xC) != 0 ? kMoveTitleScreenMenuCursor_AdditionTable[(uint8)(a & 0xC) >> 3] : 1;
     v2 = number_of_players + v1;
     if (v2 == 0xFF) {
-      v2 = *((uint8 *)&kMoveTitleScreenMenuCursor_NumberOfMenuItems +
-             splash_screen_display_mario_coin_shine_flag) -
-           1;
-    } else if (v2 >= *((uint8 *)&kMoveTitleScreenMenuCursor_NumberOfMenuItems +
-                       splash_screen_display_mario_coin_shine_flag)) {
+      v2 = *((uint8 *)&kMoveTitleScreenMenuCursor_NumberOfMenuItems + splash_screen_display_mario_coin_shine_flag) - 1;
+    } else if (v2 >= *((uint8 *)&kMoveTitleScreenMenuCursor_NumberOfMenuItems + splash_screen_display_mario_coin_shine_flag)) {
       v2 = 0;
     }
     number_of_players = v2;
-    if (R0_) break;
-    if (!splash_screen_display_mario_coin_shine_flag) break;
+    if (R0_)
+      break;
+    if (!splash_screen_display_mario_coin_shine_flag)
+      break;
     ++R0_;
     if ((save_buffer_2_player_flag & 0x80u) != 0 ||
-        *((uint8 *)&kMoveTitleScreenMenuCursor_BlankSettingLoc +
-          save_buffer_2_player_flag) != number_of_players) {
+        *((uint8 *)&kMoveTitleScreenMenuCursor_BlankSettingLoc + save_buffer_2_player_flag) != number_of_players) {
       break;
     }
   }

@@ -1,3 +1,5 @@
+extern bool g_smb1_want_reset;
+
 #define R0_ (*(uint8*)(g_ram+0x0))
 #define R1_ (*(uint8*)(g_ram+0x1))
 #define R2_ (*(uint8*)(g_ram+0x2))
@@ -629,6 +631,7 @@
 #define save_buffer_2_player_flag (*(uint8*)(g_ram+0x1FB06))
 #define save_buffer_checksum (*(uint16*)(g_ram+0x1FB07))
 #define g_byte_7FFFFF (*(uint8*)(g_ram+0x1FFFF))
+
 #define g_byte_700000 (*(uint8*)(g_sram+0x0))
 #define g_word_700002 (*(uint16*)(g_sram+0x2))
 #define g_word_700004 (*(uint16*)(g_sram+0x4))

@@ -1,3 +1,5 @@
+#include "smb1_rtl.h"
+
 #define kDATA_0382DE ((uint8*)RomFixedPtr(0x82BE))
 #define kDATA_0382F1 ((uint8*)RomFixedPtr(0x82D1))
 #define kDATA_038304 ((uint16*)RomFixedPtr(0x82E4))

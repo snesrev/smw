@@ -442,14 +442,8 @@ void RtlSaveSnapshot(const char *filename, bool saving_with_bug) {
 }
 
 static const char *const kBugSaves[] = {
-"bug-1684600326",
-"walking_on_moleman",
-"slowfireballs",
-"flying_fish",
-"entering_this_area",
-"dunno1",
-"caping_behind_goal",
-"bouncing_fire",
+"smb1-bug-1685617878",
+"smb1-bug-1685620273",
 };
 
 void RtlSaveLoad(int cmd, int slot) {

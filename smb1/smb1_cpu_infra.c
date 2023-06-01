@@ -4,6 +4,8 @@
 #include "smb1_variables.h"
 #include "smb1_funcs.h"
 
+bool g_smb1_want_reset;
+
 void Smb1RunOneFrameOfGame_Internal();
 
 static const uint32 kPatchedCarrys_SMB1[] = {
@@ -36,7 +38,7 @@ static const uint32 kPatchedCarrys_SMB1[] = {
 };
 
 uint32 PatchBugs_SMB1(void) {
-  if (FixBugHook(0x088054) || FixBugHook(0x088007) || FixBugHook(0x088039)) {
+  if (FixBugHook(0x088054) || FixBugHook(0x088007) || FixBugHook(0x088039) || FixBugHook(0x8827D)) {
     RtlSetUploadingApu(true);
   } else if (FixBugHook(0x880C2)) {
     RtlSetUploadingApu(false);
@@ -50,6 +52,9 @@ uint32 PatchBugs_SMB1(void) {
   } else if (FixBugHook(0xC63E)) {
     //  Spr02F_Vine_Init reads from y
     g_cpu->y = 0;
+  } else if (FixBugHook(0x8034)) {
+    // Remove the copy detection check
+    return 0x8057;
   }
   return 0;
 }
@@ -119,9 +124,15 @@ void Smb1RunOneFrameOfGame(void) {
   snes->cpu->nmiWanted = snes->cpu->irqWanted = false;
   snes->inVblank = snes->inNmi = false;
 
-  if (snes->cpu->pc == 0x8000)
+  if (snes->cpu->pc == 0x8000) {
+RESET_GAME:
     Smb1VectorReset();
+  }
   Smb1RunOneFrameOfGame_Internal();
+  if (g_smb1_want_reset) {
+    g_smb1_want_reset = false;
+    goto RESET_GAME;
+  }
 
   Smb1VectorNMI();
 

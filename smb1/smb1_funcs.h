@@ -672,7 +672,7 @@ void UploadTilesetGraphicsDma(void);
 
 // Bank 8
 uint16 LoadFileSelectMenu_BufferStripeImage(uint16 k, uint16 a);
-uint16 StoreDataToSaveFileAndUpdateTempChecksum_Main(uint16 k, uint8 a);
+uint16 StoreToSramAndUpdateChecksum(uint16 k, uint8 a);
 uint16 VerifySaveDataIsValid_CODE_008D41(uint16 k);
 void ChangeSelectedWorld_Main(uint8 a);
 void CheckWhichControllersArePluggedIn_Main(void);
