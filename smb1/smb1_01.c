@@ -762,10 +762,10 @@ void DecodeAreaData_Sub2_New(uint16 j) {
   uint8 AreaObjXPosition_Far;  // [rsp+46h] [rbp-2h]
   uint8 t0;
 
-  *(uint16 *)&tempF3 = area_data_ptr.addr;
-  *(uint16 *)&tempF4 = *(uint16 *)((int8 *)&area_data_ptr.addr + 1);
-  *(uint16 *)&tempF5 = *(uint16 *)&area_data_ptr.bank;
-  v1 = *(uint16 *)IndirPtr(&tempF3, (j + 2)) & 0x7F;
+  tempF3 = area_data_ptr.addr;
+  tempF4 = area_data_ptr.addr >> 8;
+  tempF5 = area_data_ptr.bank;
+  v1 = *IndirPtr(&tempF3, (j + 2)) & 0x7F;
   R0_ = *((uint8 *)kDATA_048E43 + v1);
   R1_ = *((uint8 *)kDATA_048E43 + v1 + 1);
   v2 = object_index;
