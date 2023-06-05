@@ -254,7 +254,15 @@ Snes *SnesInit(const char *filename) {
 
   RtlSetupEmuCallbacks(NULL, &RtlRunFrameCompare, NULL);
 
-  g_rtl_game_info = *(uint32*)g_rom == 0x4c80154c ? &kSmb1GameInfo : &kSmwGameInfo;
+  if (memcmp(g_rom + 0x7fc0, "Super Mario Bros. LL ", 21) == 0) {
+    g_rtl_game_info = &kSmbllGameInfo;
+  } else if (memcmp(g_rom + 0x7fc0, "Super Mario Bros. 1  ", 21) == 0) {
+    g_rtl_game_info = &kSmb1GameInfo;
+  } else {
+    g_rtl_game_info = &kSmwGameInfo;
+  }
+
+  
 
   game_id = g_rtl_game_info->game_id;
   g_rtl_game_info->initialize();
@@ -308,6 +316,7 @@ again_theirs:
 
   if (g_fail) {
     g_fail = false;
+
 
     printf("Verify failure!\n");
 

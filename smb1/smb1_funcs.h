@@ -133,7 +133,6 @@ void DestroyBlockMetatile(void);
 void DigitsMathRoutine(uint8 j);
 void DoChangeSize(void);
 void DoEnemySideCheck(uint8 k);
-void DoReturn(void);
 void DonePlayerTask(void);
 void DrawBlock(uint8 k);
 void DrawBrickChunks(uint8 k);

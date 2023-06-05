@@ -200,7 +200,8 @@ LABEL_20:
   ka = StoreToSramAndUpdateChecksum(v19, v21);
   SaveGame_CODE_009041();
   v22 = StoreToSramAndUpdateChecksum(ka, sram_hard_mode_flag);
-  *(uint16 *)(&g_byte_700010 + StoreToSramAndUpdateChecksum(v22, number_of_players)) = -*(uint16 *)&R0_;
+  uint16 tt = StoreToSramAndUpdateChecksum(v22, number_of_players);
+  *(uint16 *)(&g_byte_700010 + tt) = -*(uint16 *)&R0_;
   sram_hard_mode_flag = 0;
   sram_world_number2 = 0;
 

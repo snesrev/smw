@@ -442,8 +442,7 @@ void RtlSaveSnapshot(const char *filename, bool saving_with_bug) {
 }
 
 static const char *const kBugSaves[] = {
-"smb1-bug-1685617878",
-"smb1-bug-1685620273",
+"smb1-bug-1685653215",
 };
 
 void RtlSaveLoad(int cmd, int slot) {
@@ -551,7 +550,7 @@ void WriteRegWord(uint16 reg, uint16 value) {
 
 uint8 *IndirPtr(void *ptr, uint16 offs) {
   uint32 a = (*(uint32 *)ptr & 0xffffff) + offs;
-  if ((a >> 16) >= 0x7e && (a >> 16) <= 0x7f || a < 0x2000) {
+  if ((a >> 16) >= 0x7e && (a >> 16) <= 0x7f || (a & 0xffff) < 0x2000) {
     return &g_ram[a & 0x1ffff];
   } else {
     return RomPtr(a);

@@ -151,6 +151,12 @@
     <ClCompile Include="..\smb1\smb1_02.c" />
     <ClCompile Include="..\smb1\smb1_08.c" />
     <ClCompile Include="..\smb1\smb1_cpu_infra.c" />
+    <ClCompile Include="..\smbll\smbll_00.c" />
+    <ClCompile Include="..\smbll\smbll_01.c" />
+    <ClCompile Include="..\smbll\smbll_02.c" />
+    <ClCompile Include="..\smbll\smbll_08.c" />
+    <ClCompile Include="..\smbll\smbll_0b.c" />
+    <ClCompile Include="..\smbll\smbll_cpu_infra.c" />
     <ClCompile Include="..\third_party\gl_core\gl_core_3_1.c" />
     <ClCompile Include="common_cpu_infra.c" />
     <ClCompile Include="common_rtl.c" />
@@ -214,6 +220,10 @@
     <ClInclude Include="..\smb1\smb1_funcs.h" />
     <ClInclude Include="..\smb1\smb1_rtl.h" />
     <ClInclude Include="..\smb1\smb1_variables.h" />
+    <ClInclude Include="..\smbll\smbll_consts.h" />
+    <ClInclude Include="..\smbll\smbll_funcs.h" />
+    <ClInclude Include="..\smbll\smbll_rtl.h" />
+    <ClInclude Include="..\smbll\smbll_variables.h" />
     <ClInclude Include="..\third_party\gl_core\gl_core_3_1.h" />
     <ClInclude Include="common_cpu_infra.h" />
     <ClInclude Include="common_rtl.h" />
