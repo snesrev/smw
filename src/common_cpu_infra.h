@@ -48,4 +48,5 @@ typedef struct Snapshot {
 
 extern const RtlGameInfo kSmwGameInfo;
 extern const RtlGameInfo kSmb1GameInfo;
+extern const RtlGameInfo kSmbllGameInfo;
 extern const RtlGameInfo *g_rtl_game_info;

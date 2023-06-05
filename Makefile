@@ -1,6 +1,6 @@
 TARGET_EXEC:=smw
 
-SRCS:=$(wildcard smb1/*.c src/*.c src/snes/*.c) third_party/gl_core/gl_core_3_1.c
+SRCS:=$(wildcard smb1/*.c smbll/*.c src/*.c src/snes/*.c) third_party/gl_core/gl_core_3_1.c
 OBJS:=$(SRCS:%.c=%.o)
 
 PYTHON:=/usr/bin/env python3

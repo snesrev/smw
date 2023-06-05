@@ -17,6 +17,9 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
+    <Filter Include="Smb Lost Levels">
+      <UniqueIdentifier>{c20be95b-4f11-4834-a006-bfb273e4bc0b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="spc_player.c">
@@ -133,6 +136,24 @@
     <ClCompile Include="common_rtl.c">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="..\smbll\smbll_02.c">
+      <Filter>Smb Lost Levels</Filter>
+    </ClCompile>
+    <ClCompile Include="..\smbll\smbll_08.c">
+      <Filter>Smb Lost Levels</Filter>
+    </ClCompile>
+    <ClCompile Include="..\smbll\smbll_00.c">
+      <Filter>Smb Lost Levels</Filter>
+    </ClCompile>
+    <ClCompile Include="..\smbll\smbll_0b.c">
+      <Filter>Smb Lost Levels</Filter>
+    </ClCompile>
+    <ClCompile Include="..\smbll\smbll_01.c">
+      <Filter>Smb Lost Levels</Filter>
+    </ClCompile>
+    <ClCompile Include="..\smbll\smbll_cpu_infra.c">
+      <Filter>Smb Lost Levels</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="funcs.h">
@@ -221,6 +242,18 @@
     </ClInclude>
     <ClInclude Include="common_rtl.h">
       <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smbll\smbll_funcs.h">
+      <Filter>Smb Lost Levels</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smbll\smbll_consts.h">
+      <Filter>Smb Lost Levels</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smbll\smbll_variables.h">
+      <Filter>Smb Lost Levels</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smbll\smbll_rtl.h">
+      <Filter>Smb Lost Levels</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -7,6 +7,7 @@
 enum {
   kGameID_SMW = 1,
   kGameID_SMB1 = 2,
+  kGameID_SMBLL = 3,
 };
 
 extern uint8 g_ram[0x20000];
