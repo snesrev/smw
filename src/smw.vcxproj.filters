@@ -22,7 +22,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="spc_player.c">
+    <ClCompile Include="smw_spc_player.c">
       <Filter>Smw</Filter>
     </ClCompile>
     <ClCompile Include="snes\apu.c">
@@ -162,7 +162,7 @@
     <ClInclude Include="variables.h">
       <Filter>Smw</Filter>
     </ClInclude>
-    <ClInclude Include="spc_player.h">
+    <ClInclude Include="smw_spc_player.h">
       <Filter>Smw</Filter>
     </ClInclude>
     <ClInclude Include="snes\apu.h">

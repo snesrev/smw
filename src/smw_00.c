@@ -134,58 +134,6 @@ void ResetSpritesFunc(int wh) {
     g_ram[0x201 + wh * 4] = 0xf0;
 }
 
-void HandleSPCUploads_SPC700UploadLoop() {  // 008079
-  int16 v1;
-
-  uint16 v0 = 0;
-  while (ReadRegWord(APUI00) != 0xBBAA)
-    ;
-  LOBYTE(v1) = -52;
-  while (1) {
-    uint8 *v9 = IndirPtr(&R0_W, v0);
-    uint16 v10 = v0 + 2;
-    int16 v4 = *(uint16 *)v9;
-    uint8 *v11 = IndirPtr(&R0_W, v10);
-    uint16 v12 = v10 + 2;
-    WriteRegWord(APUI02, *(uint16 *)v11);
-    WriteReg(APUI01, v4 != 0);
-    WriteReg(APUI00, v1);
-    while ((uint8)v1 != ReadReg(APUI00))
-      ;
-    if (Unreachable())
-      break;
-    uint8 *v2 = IndirPtr(&R0_, v12);
-    v0 = v12 + 1;
-    HIBYTE(v1) = *v2;
-    for (LOBYTE(v1) = 0;; LOBYTE(v1) = v1 + 1) {
-      WriteRegWord(APUI00, v1);
-      if (!--v4)
-        break;
-      uint8 *v3 = IndirPtr(&R0_, v0++);
-      HIBYTE(v1) = *v3;
-      while ((uint8)v1 != ReadReg(APUI00))
-        ;
-    }
-    uint8 Reg;
-    bool v6;
-    do {
-      Reg = ReadReg(APUI00);
-      v6 = (uint8)v1 >= Reg;
-    } while ((uint8)v1 != Reg);
-    do {
-      bool v8 = v6;
-      v6 = ((uint8)v6 + (uint8)v1 >= 256);
-      int8 v7 = v8 + v1;
-      v6 |= ((uint8)v7 + 3 >= 256);
-      LOBYTE(v1) = v7 + 3;
-    } while (!(uint8)v1);
-  }
-  WriteReg(APUI00, 0);
-  WriteReg(APUI01, 0);
-  WriteReg(APUI02, 0);
-  WriteReg(APUI03, 0);
-}
-
 void HandleSPCUploads_UploadSPCEngine() {  // 0080e8
   R0_ = 0;
   R1_ = 0x80;
@@ -194,7 +142,8 @@ void HandleSPCUploads_UploadSPCEngine() {  // 0080e8
 }
 
 void HandleSPCUploads_UploadDataToSPC() {  // 0080f7
-  // HandleSPCUploads_SPC700UploadLoop();
+  if (g_use_my_apu_code)
+    RtlApuUpload(RomPtr(load24(R0_)));
 }
 
 void HandleSPCUploads_UploadSamples() {  // 0080fd
@@ -212,7 +161,6 @@ void HandleSPCUploads_UploadOverworldMusicBank() {  // 00810e
 }
 
 void HandleSPCUploads_StrtSPCMscUpld() {  // 00811d
-  WriteReg(APUI01, 0xFF);
   HandleSPCUploads_UploadDataToSPC();
   for (uint8 i = 3; (i & 0x80) == 0; --i) {
     WriteReg((SnesRegs)(i + APUI00), 0);

@@ -114,6 +114,16 @@ uint32 PatchBugs_SMW1(void) {
     R4_W = 0;
   } else if (FixBugHook(0x3A0A7)) {  // Spr0A8_Blargg OOB
     R3_ = (spr_table1602[g_cpu->x] != 0) * 5;
+  } else if (FixBugHook(0x811D)) {
+    if (g_use_my_apu_code)
+      return 0x8125;
+    RtlSetUploadingApu(true);
+  } else if (FixBugHook(0x80F7)) {
+    if (g_use_my_apu_code)
+      return 0x80fc;
+    RtlSetUploadingApu(true);
+  } else if (FixBugHook(0x80FB)) {
+    RtlSetUploadingApu(false);
   }
   return 0;
 }
@@ -179,8 +189,10 @@ void SmwRunOneFrameOfGame(void) {
   snes->cpu->nmiWanted = snes->cpu->irqWanted = false;
   snes->inVblank = snes->inNmi = false;
 
-  if (snes->cpu->pc == 0x8000)
+  if (snes->cpu->pc == 0x8000) {
+    snes->cpu->pc = 0x8001;
     SmwVectorReset();
+  }
   SmwRunOneFrameOfGame_Internal();
 
   SmwVectorNMI();

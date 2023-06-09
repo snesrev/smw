@@ -154,7 +154,6 @@ void HandlePlayerPhysics_Swimming(void);
 void HandlePlayerPhysics_UpdatePMeter(void);
 uint8 HandlePlayerPhysics_UpdatePMeterEx(uint8 j);
 void HandleSPCUploads_008134(void);
-void HandleSPCUploads_SPC700UploadLoop(void);
 void HandleSPCUploads_StrtSPCMscUpld(void);
 void HandleSPCUploads_UploadCreditsMusicBank(void);
 void HandleSPCUploads_UploadDataToSPC(void);
