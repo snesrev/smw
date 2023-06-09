@@ -1345,8 +1345,6 @@ restart:
       break;
     }
     case 0x58: { // cli imp
-      if (game_id == kGameID_SMW && cur_pc == 0x80fb)
-        RtlSetUploadingApu(false);
       cpu->i = false;
       break;
     }
@@ -1562,8 +1560,6 @@ restart:
       break;
     }
     case 0x78: { // sei imp
-      if (game_id == kGameID_SMW && cur_pc == 0x80f7)
-        RtlSetUploadingApu(true);
       cpu->i = true;
       break;
     }

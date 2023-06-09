@@ -263,8 +263,6 @@ void snes_writeBBus(Snes* snes, uint8_t adr, uint8_t val) {
     return;
   }
   if(adr < 0x80) {
-    if (adr == 0x41 && (game_id == kGameID_SMW && snes->cpu->pc == 0x8122))
-      RtlSetUploadingApu(true);
     RtlApuWrite(0x2100 + adr, val);
     return;
   }

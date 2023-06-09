@@ -20,7 +20,7 @@
 #include "common_cpu_infra.h"
 #include "config.h"
 #include "util.h"
-#include "spc_player.h"
+#include "smw_spc_player.h"
 
 #ifdef __SWITCH__
 #include "switch_impl.h"
@@ -403,8 +403,8 @@ int main(int argc, char** argv) {
   g_audio_mutex = SDL_CreateMutex();
   if (!g_audio_mutex) Die("No mutex");
 
-  g_spc_player = SpcPlayer_Create();
-  SpcPlayer_Initialize(g_spc_player);
+  g_spc_player = SmwSpcPlayer_Create();
+  g_spc_player->initialize(g_spc_player);
 
   bool enable_audio = true;
   if (enable_audio) {
