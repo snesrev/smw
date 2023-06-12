@@ -151,6 +151,7 @@
     <ClCompile Include="..\smb1\smb1_02.c" />
     <ClCompile Include="..\smb1\smb1_08.c" />
     <ClCompile Include="..\smb1\smb1_cpu_infra.c" />
+    <ClCompile Include="..\smb1\smb1_spc_player.c" />
     <ClCompile Include="..\smbll\smbll_00.c" />
     <ClCompile Include="..\smbll\smbll_01.c" />
     <ClCompile Include="..\smbll\smbll_02.c" />
