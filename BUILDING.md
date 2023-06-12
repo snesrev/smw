@@ -55,15 +55,6 @@ Download VS installer. On installer prompt, make sure you're on "Workloads" and 
 2. Change the build target from `Debug` to `Release`
 3. Build the solution.
 
-## Building with Tiny C Compiler
-
- Dependencies and requirements:
- * You'll need [TCC](https://github.com/FitzRoyX/tinycc/releases/download/tcc_20230519/tcc_20230519.zip) and [SDL2](https://github.com/libsdl-org/SDL/releases/download/release-2.26.5/SDL2-devel-2.26.5-VC.zip) in order to compile using TCC.
-
-1. Unzip both TCC and SDL and place them in `third_party` folder.
-2. Double click `run_with_tcc.bat`
-3. Wait for it to compile and the game will automatically boot-up.
-
 # Linux/MacOS
 
 CD to your SM root folder and open the terminal and type:
