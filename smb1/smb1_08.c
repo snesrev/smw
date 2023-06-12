@@ -6,15 +6,15 @@ void UploadSpuData() {
   WriteReg(NMITIMEN, 0);
   WriteReg(HDMAEN, 0);
   WriteReg(APUI01, 0xFFu);
-  R0_ = 70;
-  R1_ = -95;
+  R0_ = 0x46;
+  R1_ = 0xa1;
   R2_ = 8;
   HandleSPCUploads_Main();
 }
 
 void UploadSPCEngine() {
   R0_ = 0;
-  R1_ = -48;
+  R1_ = 0xd0;
   R2_ = 9;
   HandleSPCUploads_Main();
 }
