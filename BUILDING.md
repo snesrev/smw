@@ -77,7 +77,7 @@ Dependencies and requirements:
 3. To install `zstandard` make sure you've installed Python and added to PATH. Open up CMD and type `pip install zstandard` to install the required dep.
 4. In the `other` folder drag and drop your renamed rom into `extract.py` or by typing `extract.py` in the command line to extract the necessary files.
 5. Move `smb1.sfc` and `smbll.sfc` to root folder.
-6. Before running the games, make sure to recompile or else it won't boot up.
+6. Before running the games, make sure to recompile or else they won't boot up.
 7. Drag your desired game to `smw.exe` in order to run.
 
   
