@@ -50,7 +50,7 @@ pacman -S mingw-w64-x86_64-SDL2 && pacman -S make && pacman -S mingw-w64-x86_64-
 -LC:/msys64/mingw64/lib -lmingw32 -mwindows -lSDL2main -lSDL2
 ```
 
-After you've done installing everything, cd to `smw` folder. Type `make`
+After you've done installing everything, in the terminal, type `make`
 In order to speed up the compilation, type `make -j16`
 
 ## Building with Visual Studio
