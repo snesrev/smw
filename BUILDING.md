@@ -36,7 +36,7 @@ Note: *Make sure you're using MINGW64 and you're in `smw` folder in the terminal
 
 1. Install MSYS2 on your machine.
 2. Place the copy of your rom in the main directory.
-3. Install the necessary dependencies by inputting this command in MSYS2 terminal:
+3. Install the necessary dependencies and SDL2 by inputting this command in MSYS2 terminal:
 
 ```sh
 pacman -S mingw-w64-x86_64-SDL2 && pacman -S make && pacman -S mingw-w64-x86_64-gcc
