@@ -221,6 +221,8 @@ static const MemMapSized kSpcPlayer_Maps[] = {
 {offsetof(SmasSpcPlayer, chan5_var25), 0x25, 1},
 {offsetof(SmasSpcPlayer, enable_some_randomstuff), 0x26, 1},
 {offsetof(SmasSpcPlayer, chan5_var27), 0x27, 1},
+{offsetof(SmasSpcPlayer, timer_cycles), 0x28, 1},
+{offsetof(SmasSpcPlayer, last_written_edl), 0x29, 1},
 {offsetof(SmasSpcPlayer, sfx_sound_ptr_cur), 0x2c, 2},
 {offsetof(SmasSpcPlayer, port0_note_length_left), 0x2e, 1},
 {offsetof(SmasSpcPlayer, port0_note_length), 0x2f, 1},
@@ -298,6 +300,7 @@ static void Randomstuff_Disable(SmasSpcPlayer *p);
 static void Port1_FuncA(SmasSpcPlayer *p);
 static void Chan7_WriteInstrumentData(SmasSpcPlayer *p, uint8 a);
 static void Port1_HandleCmd(SmasSpcPlayer *p);
+static void Chan7_Func1605(SmasSpcPlayer *p);
 
 static const uint8 kEffectByteLength[27] = { 1, 1, 2, 3, 0, 1, 2, 1, 2, 1, 1, 3, 0, 1, 2, 3, 1, 3, 3, 0, 1, 3, 0, 3, 3, 3, 1 };
 
@@ -353,6 +356,13 @@ static void SmasSpcPlayer_CopyVariablesFromRam(SmasSpcPlayer *p) {
     p->channel[i].index = i;
 }
 
+static void SmasSpcPlayer_CopyVariables(SpcPlayer *p_in, bool copy_to_ram) {
+  SmasSpcPlayer *p = (SmasSpcPlayer *)p_in;
+  if (copy_to_ram)
+    SmasSpcPlayer_CopyVariablesToRam(p);
+  else
+    SmasSpcPlayer_CopyVariablesFromRam(p);
+}
 
 static inline void Chan_DoAnyFade(uint16 *p, uint16 add, uint8 target, uint8 cont) {
   if (!cont)
@@ -374,8 +384,6 @@ static void Spc_Reset(SmasSpcPlayer *p) {
   Dsp_Write(p, MVOLR, 0x60);
   Dsp_Write(p, DIR, 0x3c);
   HIBYTE(p->tempo) = 16;
-  p->timer_cycles = 0;
-
 }
 
 static void Spc_Loop_Part1(SmasSpcPlayer *p) {
@@ -394,6 +402,8 @@ static void Spc_Loop_Part1(SmasSpcPlayer *p) {
     }
   }
   p->key_OFF = p->key_ON = 0;
+  uint8 bit = ((p->lfsr_value ^ (p->lfsr_value >> 8)) & 2 ? 0 : 0x80);
+  p->lfsr_value = swap16((swap16(p->lfsr_value) >> 1)) | bit;
 }
 
 static void Spc_Loop_Part2(SmasSpcPlayer *p, uint8 ticks) {
@@ -502,7 +512,7 @@ static void WritePitch(SmasSpcPlayer *p, Channel *c, uint16 pitch) {
 }
 
 static void SomeRandomStuff(SmasSpcPlayer *p) {
-  uint8 *rp = p->ram + (--p->somerandomstuff_ctr & 3) * 0x3f;
+  uint8 *rp = p->ram + 0xfe00 + (--p->somerandomstuff_ctr & 3) * 0x3f;
   for (int i = 0; i < 7; i++) {
     rp += 1;
     for (int j = 0; j < 4; j++) {
@@ -712,7 +722,7 @@ less_0xf3:
     p->some_volume_flag = 0;
     p->port_to_snes_a[2] = a;
     t = WORD(p->ram[0xc000 + (a - 1) * 2]);
-    if (HIBYTE(t) == 0) {
+    if ((t >> 8) == 0) {
       p->port_to_snes_a[2] = 0;
       return;
     }
@@ -898,7 +908,8 @@ static void ComputePitchAdd(Channel *c, uint8 pitch) {
 }
 
 
-static void SpcPlayer_Upload(SmasSpcPlayer *p, const uint8_t *data) {
+static void SmasSpcPlayer_Upload(SpcPlayer *p_in, const uint8_t *data) {
+  SmasSpcPlayer *p = (SmasSpcPlayer *)p_in;
   Dsp_Write(p, EVOLL, 0);
   Dsp_Write(p, EVOLR, 0);
   Dsp_Write(p, KOF, 0xff);
@@ -922,6 +933,9 @@ static void SpcPlayer_Upload(SmasSpcPlayer *p, const uint8_t *data) {
   p->extra_tempo = 0;
   if (!p->var_3F8)
     p->port_to_snes_a[2] = 0;
+  memset(p->base.input_ports, 0, sizeof(p->base.input_ports));
+  memset(p->last_value_from_snes, 0, sizeof(p->last_value_from_snes));
+  memset(p->new_value_from_snes, 0, sizeof(p->new_value_from_snes));
 }
 
 static void Channel_SetInstrument(SmasSpcPlayer *p, Channel *c, uint8 instrument) {
@@ -1148,7 +1162,7 @@ static void Port0_HandleCmd(SmasSpcPlayer *p) {
 
     if (p->new_value_from_snes[0] == 0x7f) {
       p->extra_tempo = 10;
-      p->tempo = (HIBYTE(p->tempo) + 10) << 8;
+      p->tempo = (HIBYTE(p->tempo) + 11) << 8;
       p->new_value_from_snes[3] = cmd = 0x1d;
       goto label_a;
     } else if (p->new_value_from_snes[0]) {
@@ -1210,8 +1224,6 @@ label_c:
           Dsp_Write(p, V4VOLR, cmd);
           cmd = p->ram[++p->sfx_sound_ptr_cur];
         }
-      } else {
-        cmd = p->ram[++p->sfx_sound_ptr_cur];
       }
     }
 
@@ -1292,7 +1304,7 @@ static void Port3_HandleCmd(SmasSpcPlayer *p) {
     return;
   }
 
-  p->port_to_snes_a[3] = cmd;
+  p->port_to_snes_a[3] = p->new_value_from_snes[3];
   p->port3_timeout = 2;
   Dsp_Write(p, KOF, 0x40);
   p->is_chan_on |= 0x40;
@@ -1335,8 +1347,6 @@ lbl_begin:
           Dsp_Write(p, V6VOLR, cmd);
           cmd = p->ram[++p->port3_cur_ptr];
         }
-      } else {
-        cmd = p->ram[++p->port3_cur_ptr];
       }
     }
 
@@ -1469,10 +1479,10 @@ static void Chan7_WriteInstrumentData(SmasSpcPlayer *p, uint8 a) {
 }
 
 static void Port1_HandleCmd(SmasSpcPlayer *p) {
-  if (p->new_value_from_snes[3] == 0xff) {
+  if (p->new_value_from_snes[1] == 0xff) {
     assert(0);
     return;
-  } else if (p->new_value_from_snes[3] == 0xf0) {
+  } else if (p->new_value_from_snes[1] == 0xf0) {
     assert(0);
     return;
   }
@@ -1536,10 +1546,279 @@ static void Port1_HandleCmd(SmasSpcPlayer *p) {
       WritePitch(p, &p->channel[7], p->channel[7].pitch);
     }
   } else if (p->port_to_snes_a[1] == 4) {
+    Chan7_Func1605(p);
+  }
+}
+
+static void Chan7_Func1605(SmasSpcPlayer *p) {
+  static const uint8 kChan7Notes[] = {0xB7, 0xB5, 0xB8, 0xB5, 0x70 };
+  if (p->chan7_timer != 0) {
     if (!--p->chan7_timer) {
       p->chan7_note_index = 5;
       p->some_timer = 1;
       Chan7_WriteInstrumentData(p, 1);
     }
+    return;
+  }
+
+  if (--p->some_timer == 0) {
+    p->some_timer = 4;
+    if (--p->chan7_note_index != 0) {
+      PlayNote(p, &p->channel[7], kChan7Notes[p->chan7_note_index]);
+      Dsp_Write(p, V7VOLL, 20);
+      Dsp_Write(p, V7VOLR, 20);
+      Write_KeyOn(p, 0x80);
+    } else {
+      p->port_to_snes_a[1] = 0;
+      p->is_chan_on &= ~0x80;
+      p->channel[7].pitch_slide_length = 0;
+      p->channel[7].channel_transpositionb = p->channel[7].channel_transpositiona;
+      p->channel[7].fine_tunea = p->channel[7].fine_tuneb;
+      p->channel[7].pitch_envelope_num_ticksa = p->channel[7].pitch_envelope_num_ticksb;
+      Channel_SetInstrument(p, &p->channel[7], p->channel[7].instrument_id);
+    }
+  }
+  if (p->some_timer == 2)
+    Dsp_Write(p, KOF, 0x80);
+}
+
+static void SmasSpcPlayer_Initialize(SpcPlayer *p_in) {
+  SmasSpcPlayer *p = (SmasSpcPlayer *)p_in;
+  dsp_reset(p->base.dsp);
+  Spc_Reset(p);
+  Spc_Loop_Part1(p);
+}
+
+static void SmasSpcPlayer_GenerateSamples(SpcPlayer *p_in) {
+  SmasSpcPlayer *p = (SmasSpcPlayer *)p_in;
+  assert(p->timer_cycles <= 64);
+  assert(p->base.dsp->sampleOffset <= 534);
+
+  for (;;) {
+    if (p->timer_cycles >= 64) {
+      Spc_Loop_Part2(p, p->timer_cycles >> 6);
+      Spc_Loop_Part1(p);
+      p->timer_cycles &= 63;
+    }
+
+    // sample rate 32000
+    int n = 534 - p->base.dsp->sampleOffset;
+    if (n > (64 - p->timer_cycles))
+      n = (64 - p->timer_cycles);
+
+    p->timer_cycles += n;
+
+    for (int i = 0; i < n; i++)
+      dsp_cycle(p->base.dsp);
+
+    if (p->base.dsp->sampleOffset == 534)
+      break;
   }
 }
+
+SpcPlayer *SmasSpcPlayer_Create(void) {
+  SmasSpcPlayer *p = (SmasSpcPlayer *)malloc(sizeof(SmasSpcPlayer));
+  memset(p, 0, sizeof(SmasSpcPlayer));
+  p->base.dsp = dsp_init(p->ram);
+  p->base.ram = p->ram;
+  p->base.initialize = &SmasSpcPlayer_Initialize;
+  p->base.gen_samples = &SmasSpcPlayer_GenerateSamples;
+  p->base.upload = &SmasSpcPlayer_Upload;
+  p->base.copy_vars = &SmasSpcPlayer_CopyVariables;
+  p->reg_write_history = 0;
+  return &p->base;
+}
+
+
+// =======================================
+#define WITH_SPC_PLAYER_DEBUGGING 0
+#if WITH_SPC_PLAYER_DEBUGGING
+
+#include <SDL.h>
+
+static DspRegWriteHistory my_write_hist;
+static SmasSpcPlayer my_spc_snapshot;
+static int loop_ctr;
+
+bool CompareSpcImpls(SmasSpcPlayer *p, SmasSpcPlayer *p_org, Apu *apu) {
+  SmasSpcPlayer_CopyVariablesToRam(p);
+  memcpy(p->ram + 0x120, apu->ram + 0x120, 256 - 32);  // stack
+  memcpy(p->ram + 0xf1, apu->ram + 0xf1, 15);  // dsp regs
+  memcpy(p->ram + 0x10, apu->ram + 0x10, 8);  // temp regs
+  memcpy(p->ram + 0x44, apu->ram + 0x44, 1);  // chn
+  p->ram[0x46] = apu->ram[0x46]; // chn
+  int errs = 0;
+  static const uint16 ranges[][2] = {
+    {0x0, 0x500},
+    {0x1500, 0x2c00},
+    {0x3c00, 0xffff},
+  };
+
+  for (int j = 0; j < 2; j++) {
+    for (int i = ranges[j][0], i_end = ranges[j][1]; i != i_end; i++) {  // skip compare echo etc
+      if (p->ram[i] != apu->ram[i]) {
+        if (errs < 16) {
+          if (errs == 0)
+            printf("@%d\n", loop_ctr);
+          printf("%.4X: %.2X != %.2X (mine, theirs) orig %.2X\n", i, p->ram[i], apu->ram[i], p_org->ram[i]);
+          errs++;
+        }
+      }
+    }
+  }
+
+  int n = my_write_hist.count < apu->hist.count ? apu->hist.count : my_write_hist.count;
+  for (size_t i = 0; i != n; i++) {
+    if (i >= my_write_hist.count || i >= apu->hist.count || my_write_hist.addr[i] != apu->hist.addr[i] || my_write_hist.val[i] != apu->hist.val[i]) {
+      if (errs == 0)
+        printf("@%d\n", loop_ctr);
+      printf("%d: ", (int)i);
+      if (i >= my_write_hist.count) printf("[??: ??]"); else printf("[%.2x: %.2x]", my_write_hist.addr[i], my_write_hist.val[i]);
+      printf(" != ");
+      if (i >= apu->hist.count) printf("[??: ??]"); else printf("[%.2x: %.2x]", apu->hist.addr[i], apu->hist.val[i]);
+      printf("\n");
+      errs++;
+    }
+  }
+
+  if (errs) {
+    printf("Total %d errors\n", errs);
+    return false;
+  }
+
+  apu->hist.count = 0;
+  my_write_hist.count = 0;
+  loop_ctr++;
+  return true;
+}
+
+extern bool g_debug_apu_cycles;
+
+void RunAudioPlayer(void) {
+  if (SDL_Init(SDL_INIT_AUDIO) != 0) {
+    printf("Failed to init SDL: %s\n", SDL_GetError());
+    return;
+  }
+
+  SDL_AudioSpec want, have;
+  SDL_AudioDeviceID device;
+  SDL_memset(&want, 0, sizeof(want));
+  want.freq = 44100;
+  want.format = AUDIO_S16;
+  want.channels = 2;
+  want.samples = 2048;
+  want.callback = NULL; // use queue
+  device = SDL_OpenAudioDevice(NULL, 0, &want, &have, 0);
+  if (device == 0) {
+    printf("Failed to open audio device: %s\n", SDL_GetError());
+    return;
+  }
+  int16_t *audioBuffer = (int16_t *)malloc(735 * 4); // *2 for stereo, *2 for sizeof(int16)
+  SDL_PauseAudioDevice(device, 0);
+
+  SmasSpcPlayer *p = (SmasSpcPlayer *)SmasSpcPlayer_Create();
+
+  FILE *f = fopen("d:/code/smw/smb1_dis/audio.spc", "rb");
+  fread(p->ram, 1, 65536, f);
+  fclose(f);
+
+  p->reg_write_history = &my_write_hist;
+
+  bool run_both = 1;
+
+  if (!run_both) {
+    SmasSpcPlayer_Initialize(&p->base);
+
+    p->base.input_ports[0] = 4;
+
+    for (;;) {
+      SmasSpcPlayer_GenerateSamples(&p->base);
+
+      int16_t audioBuffer[736 * 2];
+      dsp_getSamples(p->base.dsp, audioBuffer, 736);
+      SDL_QueueAudio(device, audioBuffer, 736 * 2 * have.channels);
+      while (SDL_GetQueuedAudioSize(device) >= 736 * 4 * 3/* 44100 * 4 * 300*/)
+        SDL_Delay(1);
+    }
+
+  } else {
+    Apu *apu = apu_init();
+    apu_reset(apu);
+    apu->spc->pc = 0x500;
+
+    memcpy(apu->ram, p->ram, 65536);
+
+    CompareSpcImpls(p, &my_spc_snapshot, apu);
+
+    //   g_debug_apu_cycles = true;
+
+    uint64_t cycle_counter = 0;
+    int tgt = 0x57b;
+    uint8 ticks_next = 0;
+    bool apu_debug = 0;
+    bool is_initialize = true;
+    for (;;) {
+      if (apu_debug && apu->cpuCyclesLeft == 0) {
+        char line[80];
+        getProcessorStateSpc(apu, line);
+        puts(line);
+      }
+
+      apu_cycle(apu);
+
+      if (((apu->cycles - 1) & 0x1f) == 0)
+        dsp_cycle(p->base.dsp);
+
+//      if (apu->spc->pc == 0x14c1) {
+//        apu_debug = 1;
+//      }
+
+      if (apu->spc->pc == tgt) {
+        tgt ^= 0x57B ^ 0x57C;
+        if (tgt == 0x57B) {
+          uint8 ticks = ticks_next;
+          ticks_next = apu->spc->y;
+          my_spc_snapshot = *p;
+          for (;;) {
+            my_write_hist.count = 0;
+            if (is_initialize) {
+              SmasSpcPlayer_Initialize(&p->base);
+            } else {
+              Spc_Loop_Part2(p, ticks);
+              Spc_Loop_Part1(p);
+            }
+            if (CompareSpcImpls(p, &my_spc_snapshot, apu))
+              break;
+            *p = my_spc_snapshot;
+          }
+          is_initialize = false;
+
+          if (cycle_counter == 0)
+            apu->inPorts[2] = p->base.input_ports[2] = 15;
+          if (cycle_counter == 10000)
+            apu->inPorts[0] = p->base.input_ports[0] = 0x7f;
+//          if (cycle_counter == 2000)
+//            apu->inPorts[3] = p->base.input_ports[3] = cycle_counter / 500;
+          if (cycle_counter % 1000 == 0)
+            apu->inPorts[3] = p->base.input_ports[3] = cycle_counter / 1000 + 1;
+//          if (cycle_counter == 2000)
+//            apu->inPorts[1] = p->base.input_ports[1] = 3;
+//          if (cycle_counter == 3000)
+//            apu->inPorts[1] = p->base.input_ports[1] = 1;
+
+          cycle_counter++;
+        }
+      }
+
+      if (p->base.dsp->sampleOffset == 534) {
+        int16_t audioBuffer[736 * 2];
+        dsp_getSamples(p->base.dsp, audioBuffer, 736);
+        SDL_QueueAudio(device, audioBuffer, 736 * 2 * have.channels);
+        while (SDL_GetQueuedAudioSize(device) >= 736 * 4 * 3/* 44100 * 4 * 300*/) {
+          SDL_Delay(1);
+        }
+      }
+    }
+  }
+}
+#endif  // WITH_SPC_PLAYER_DEBUGGING

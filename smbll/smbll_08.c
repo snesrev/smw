@@ -34,6 +34,8 @@ void Smbll_UploadMainSampleData() {
 }
 
 void Smbll_HandleSPCUploads_Main() {
+  if (g_use_my_apu_code)
+    RtlApuUpload(RomPtr(load24(R0_)));
   return;
   uint16 v0;   // di
   uint16 v1;   // ax

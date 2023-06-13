@@ -11,8 +11,8 @@ enum {
 };
 
 extern uint8 g_ram[0x20000];
-#define RTL_SRAM_SIZE 0x800
 extern uint8 *g_sram;
+extern int g_sram_size;
 extern const uint8 *g_rom;
 
 #define GET_BYTE(p) (*(uint8*)(p))

@@ -8,7 +8,7 @@
 #include <time.h>
 
 enum RunMode { RM_BOTH, RM_MINE, RM_THEIRS };
-uint8 g_runmode = RM_THEIRS;
+uint8 g_runmode = RM_BOTH;
 
 extern int g_got_mismatch_count;
 
@@ -250,6 +250,7 @@ Snes *SnesInit(const char *filename) {
   }
 
   g_sram = g_snes->cart->ram;
+  g_sram_size = g_snes->cart->ramSize;
   g_rom = g_snes->cart->rom;
 
   RtlSetupEmuCallbacks(NULL, &RtlRunFrameCompare, NULL);
@@ -261,8 +262,6 @@ Snes *SnesInit(const char *filename) {
   } else {
     g_rtl_game_info = &kSmwGameInfo;
   }
-
-  
 
   game_id = g_rtl_game_info->game_id;
   g_rtl_game_info->initialize();
@@ -317,7 +316,6 @@ again_theirs:
   if (g_fail) {
     g_fail = false;
 
-
     printf("Verify failure!\n");
 
     g_snes->ppu = g_snes->snes_ppu;
@@ -355,7 +353,7 @@ static void RtlRunFrameCompare(uint16 input, int run_what) {
     g_rtl_game_info->run_frame();
     g_snes->runningWhichVersion = 0;
   } else {
-    g_use_my_apu_code =  true;
+    g_use_my_apu_code = true;
     RunOneFrameOfGame_Both();
   }
 }
