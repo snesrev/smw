@@ -11,6 +11,15 @@
 
 # Windows
 
+## Building with Tiny C Compiler
+
+ Dependencies and requirements:
+ * You'll need [TCC](https://github.com/FitzRoyX/tinycc/releases/download/tcc_20230519/tcc_20230519.zip) and [SDL2](https://github.com/libsdl-org/SDL/releases/download/release-2.26.5/SDL2-devel-2.26.5-VC.zip) in order to compile using TCC.
+
+1. Unzip both TCC and SDL and place them in `third_party` folder.
+2. Double click `run_with_tcc.bat`
+3. Wait for it to compile and the game will automatically boot-up.
+
 ## Building with MSYS2
 
 Dependencies and requirements:
@@ -22,7 +31,7 @@ Note: *Make sure you're using MINGW64 and you're in `smw` folder in the terminal
 
 1. Install MSYS2 on your machine.
 2. Place the copy of your rom in the main directory.
-3. Install the necessary dependencies by inputting this command in the terminal.
+3. Install the necessary dependencies by inputting this command in MSYS2 terminal:
 
 ```sh
 pacman -S mingw-w64-x86_64-SDL2 && pacman -S make && pacman -S mingw-w64-x86_64-gcc
@@ -34,10 +43,6 @@ pacman -S mingw-w64-x86_64-SDL2 && pacman -S make && pacman -S mingw-w64-x86_64-
 5. After that type `sdl2-config --libs`, should output:
 ```sh
 -LC:/msys64/mingw64/lib -lmingw32 -mwindows -lSDL2main -lSDL2
-```
-Also you need pkg-config
-```sh
-pacman -S pkg-config
 ```
 
 After you've done installing everything, cd to `smw` folder. Type `make`
@@ -54,15 +59,6 @@ Download VS installer. On installer prompt, make sure you're on "Workloads" and 
 1. Open `smw.sln` solution.
 2. Change the build target from `Debug` to `Release`
 3. Build the solution.
-
-## Building with Tiny C Compiler
-
- Dependencies and requirements:
- * You'll need [TCC](https://github.com/FitzRoyX/tinycc/releases/download/tcc_20230519/tcc_20230519.zip) and [SDL2](https://github.com/libsdl-org/SDL/releases/download/release-2.26.5/SDL2-devel-2.26.5-VC.zip) in order to compile using TCC.
-
-1. Unzip both TCC and SDL and place them in `third_party` folder.
-2. Double click `run_with_tcc.bat`
-3. Wait for it to compile and the game will automatically boot-up.
 
 # Linux/MacOS
 
@@ -85,6 +81,7 @@ Dependencies and requirements:
   * The `switch-sdl2` library
   * [DevKitPro](https://github.com/devkitPro/installer)
   * [Atmosphere](https://github.com/Atmosphere-NX/Atmosphere)
+  * `pk-config`
   
 1. Make sure you've installed Atmosphere on your Switch.
 2. Please download the DevKitPro version of MSYS2 through their installer, as the default MSYS2 causes issues with windows compiling.
