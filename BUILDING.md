@@ -1,7 +1,10 @@
-# Requirements
+# Welcome to the building instructions for the project! Please make sure to prepeare the required files and install the necessary dependencies for your current OS.
+
+# Requirements:
   * A Super Mario World rom (Make sure to rename it to `smw.sfc`)
-  * libsdl2-dev
+  * `libsdl2-dev` (The installation for this will be different for each compiler.)
   * Super Mario World repo `git clone --recursive https://github.com/snesrev/smw`
+  * [Python](https://www.python.org/) (During installation, make sure to check the "Add to PATH")
   
  For Linux/MacOS you must install these for your desired OS:
  * Ubuntu/Debian: `sudo apt install libsdl2-dev`
@@ -19,6 +22,8 @@
 1. Unzip both TCC and SDL and place them in `third_party` folder.
 2. Double click `run_with_tcc.bat`
 3. Wait for it to compile and the game will automatically boot-up.
+
+# More advanced methods
 
 ## Building with MSYS2
 
@@ -60,9 +65,17 @@ Download VS installer. On installer prompt, make sure you're on "Workloads" and 
 2. Change the build target from `Debug` to `Release`
 3. Build the solution.
 
+# Running SMB1 and SMBLL
+
+Dependencies and requirements:
+
+  * Super Mario All-Stars rom (US version and not + Mario World)
+  * `zstandard`
+
+  
 # Linux/MacOS
 
-CD to your SM root folder and open the terminal and type:
+Open the terminal and CD to your SM root folder:
 ```sh
 make
 ```
