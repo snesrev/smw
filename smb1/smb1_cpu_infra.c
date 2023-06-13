@@ -38,7 +38,11 @@ static const uint32 kPatchedCarrys_SMB1[] = {
 };
 
 uint32 PatchBugs_SMB1(void) {
-  if (FixBugHook(0x088054) || FixBugHook(0x088007) || FixBugHook(0x088039) || FixBugHook(0x8827D)) {
+  if (FixBugHook(0x088054)) {
+    if (g_use_my_apu_code)
+      return 0x88AEA; // ret
+    RtlSetUploadingApu(true);
+  } else if (FixBugHook(0x088007) || FixBugHook(0x088039) || FixBugHook(0x8827D)) {
     RtlSetUploadingApu(true);
   } else if (FixBugHook(0x880C2)) {
     RtlSetUploadingApu(false);
@@ -126,6 +130,7 @@ void Smb1RunOneFrameOfGame(void) {
 
   if (snes->cpu->pc == 0x8000) {
 RESET_GAME:
+    snes->cpu->pc = 0x8001;
     Smb1VectorReset();
   }
   Smb1RunOneFrameOfGame_Internal();

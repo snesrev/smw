@@ -198,6 +198,7 @@ static const MemMapSized kSpcPlayer_Maps[] = {
 {offsetof(SmwSpcPlayer, key_ON), 0x47, 1},
 {offsetof(SmwSpcPlayer, cur_chan_bit), 0x48, 1},
 {offsetof(SmwSpcPlayer, main_tempo_accum), 0x49, 1},
+{offsetof(SmwSpcPlayer, timer_cycles), 0x4a, 1},
 {offsetof(SmwSpcPlayer, tempo), 0x50, 2},
 {offsetof(SmwSpcPlayer, tempo_fade_num_ticks), 0x52, 1},
 {offsetof(SmwSpcPlayer, tempo_fade_final), 0x53, 1},
@@ -316,10 +317,11 @@ static void Spc_Reset(SmwSpcPlayer *p) {
 
   SmwSpcPlayer_CopyVariablesFromRam(p);
 
+  memset(p->base.input_ports, 0, sizeof(p->base.input_ports));
+
   for (int i = 11; i >= 0; i--)
     Dsp_Write(p, kDefDspRegs[i], kDefDspValues[i]);
   HIBYTE(p->tempo) = 0x36;
-  p->timer_cycles = 0;
 }
 
 static void Spc_Loop_Part2(SmwSpcPlayer *p, uint8 ticks) {
@@ -355,9 +357,10 @@ static void Spc_Loop_Part2(SmwSpcPlayer *p, uint8 ticks) {
 static void ReadPortFromSnes(SmwSpcPlayer *p, int port) {
   uint8 old = p->last_value_from_snes[port];
   p->last_value_from_snes[port] = p->base.input_ports[port];
-  if (p->base.input_ports[port] != old)
+
+  if (p->base.input_ports[port] != old) {
     p->new_value_from_snes[port] = p->base.input_ports[port];
-  else
+  } else
     p->new_value_from_snes[port] = 0;
 }
 
@@ -1271,30 +1274,6 @@ static void CalcFinalVolume(SmwSpcPlayer *p, Channel *c, uint8 vol) {
   c->final_volume = t * t >> 8;
 }
 
-static void SpcPlayer_GenerateSamples(SmwSpcPlayer *p) {
-  assert(p->timer_cycles <= 64);
-  assert(p->base.dsp->sampleOffset <= 534);
-
-  for (;;) {
-    if (p->timer_cycles >= 64) {
-      Spc_Loop_Part2(p, p->timer_cycles >> 6);
-      p->timer_cycles &= 63;
-    }
-
-    // sample rate 32000
-    int n = 534 - p->base.dsp->sampleOffset;
-    if (n > (64 - p->timer_cycles))
-      n = (64 - p->timer_cycles);
-    p->timer_cycles += n;
-
-    for (int i = 0; i < n; i++)
-      dsp_cycle(p->base.dsp);
-
-    if (p->base.dsp->sampleOffset == 534)
-      break;
-  }
-}
-
 static void SmwSpcPlayer_Initialize(SpcPlayer *p_in) {
   SmwSpcPlayer *p = (SmwSpcPlayer *)p_in;
   dsp_reset(p->base.dsp);
@@ -1347,9 +1326,11 @@ static void SmwSpcPlayer_Upload(SpcPlayer *p_in, const uint8_t *data) {
   p->smw_pause_music = 0;
   p->smw_player_on_yoshi = 0;
   p->echo_channels = 0;
-  Dsp_Write(p, FLG, 0x20);
+  memset(p->base.input_ports, 0, sizeof(p->base.input_ports));
+  memset(p->last_value_from_snes, 0, sizeof(p->last_value_from_snes));
+  memset(p->new_value_from_snes, 0, sizeof(p->new_value_from_snes));
+  Dsp_Write(p, FLG, 0x20);  
 }
-
 
 SpcPlayer *SmwSpcPlayer_Create(void) {
   SmwSpcPlayer *p = (SmwSpcPlayer *)malloc(sizeof(SmwSpcPlayer));

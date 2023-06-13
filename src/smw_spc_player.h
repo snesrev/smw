@@ -22,5 +22,6 @@ typedef struct SpcPlayer {
 } SpcPlayer;
 
 
-SpcPlayer *SmwSpcPlayer_Create();
+SpcPlayer *SmwSpcPlayer_Create(void);
+SpcPlayer *SmasSpcPlayer_Create(void);
 

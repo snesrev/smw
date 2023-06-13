@@ -13,6 +13,7 @@ void SmwSavePlaythroughSnapshot();
 
 uint8 g_ram[0x20000];
 uint8 *g_sram;
+int g_sram_size;
 const uint8 *g_rom;
 bool g_is_uploading_apu;
 bool g_did_finish_level_hook;
@@ -159,7 +160,7 @@ void RtlReset(int mode) {
   snes_frame_counter = 0;
   snes_reset(g_snes, true);
   if (!(mode & 1))
-    memset(g_sram, 0, RTL_SRAM_SIZE);
+    memset(g_sram, 0, g_sram_size);
 
   RtlApuLock();
   RtlRestoreMusicAfterLoad_Locked(true);
@@ -191,7 +192,6 @@ void StateRecorder_Load(StateRecorder *sr, FILE *f, bool replay_mode) {
     hdr[5] = (hdr[5] & 1) ? hdr[6] : 0;
   } else if (hdr[0] == 2) {
     ReadFromFile(f, hdr + 8, 8 * sizeof(uint32));
-
   } else {
     assert(0);
   }
@@ -220,8 +220,8 @@ void StateRecorder_Load(StateRecorder *sr, FILE *f, bool replay_mode) {
       assert(state.p == state.pend);
     } else {
       RtlReset(2);
-      if (sr->base_snapshot.size == RTL_SRAM_SIZE)
-        memcpy(g_sram, sr->base_snapshot.data, RTL_SRAM_SIZE);
+      if (sr->base_snapshot.size == g_sram_size)
+        memcpy(g_sram, sr->base_snapshot.data, g_sram_size);
       is_reset = true;
     }
   } else {
@@ -237,7 +237,7 @@ void StateRecorder_Load(StateRecorder *sr, FILE *f, bool replay_mode) {
     if (hdr[6] == 269349) {
       // In the snapshot that's 269349 bytes big, the cart RAM is at 0x213eb
       printf("Warning. Old snapshot not supported! Reading only SRAM!\n");
-      memcpy(g_snes->cart->ram, arr.data + 0x213eb, RTL_SRAM_SIZE);
+      memcpy(g_snes->cart->ram, arr.data + 0x213eb, g_sram_size);
     } else {
       LoadFuncState state = { {&loadFunc }, arr.data, arr.data, arr.data + arr.size };
       LoadSnesState(&state.base);
@@ -259,7 +259,7 @@ void StateRecorder_Save(StateRecorder *sr, FILE *f, bool saving_with_bug) {
   SaveFuncState savest = { {&saveFunc} };
   SaveSnesState(&savest.base);
   assert(sr->base_snapshot.size == 0 ||
-    sr->base_snapshot.size == savest.array.size || sr->base_snapshot.size == RTL_SRAM_SIZE);
+    sr->base_snapshot.size == savest.array.size || sr->base_snapshot.size == g_sram_size);
 
   hdr[0] = 2;
   hdr[1] = sr->total_frames;
@@ -592,6 +592,7 @@ static uint8 g_apu_write_ent_pos, g_apu_queue_size, g_apu_time_since_empty;
 void RtlSetUploadingApu(bool uploading) {
   RtlApuLock();
   if (g_is_uploading_apu != uploading && !g_use_my_apu_code) {
+
     if (!uploading) {
       g_snes->apuCatchupCycles = 10000;
       snes_catchupApu(g_snes);
@@ -663,51 +664,48 @@ static void RtlPopApuState_Locked(void) {
   }
 }
 
-static void RtlResetApuQueue(void) {
+static void RtlResetApuQueue_Locked(void) {
   g_apu_write_ent_pos = g_apu_time_since_empty = g_apu_queue_size = 0;
-  memset(g_apu_write.ports, 0, sizeof(g_apu_write.ports));
+  uint8 *input_ports = g_use_my_apu_code ? g_spc_player->input_ports : g_snes->apu->inPorts;
+  memcpy(g_apu_write.ports, input_ports, sizeof(g_apu_write.ports));
 }
 
 void RtlApuUpload(const uint8 *p) {
   RtlApuLock();
-  RtlResetApuQueue();
   g_spc_player->upload(g_spc_player, p);
+  RtlResetApuQueue_Locked();
   RtlApuUnlock();
 }
 
 void RtlApuReset() {
   RtlApuLock();
+  g_spc_player->initialize(g_spc_player);
   apu_reset(g_snes->apu);
+  RtlResetApuQueue_Locked();
   RtlApuUnlock();
 }
 
 void RtlRestoreMusicAfterLoad_Locked(bool is_reset) {
   if (g_use_my_apu_code) {
     memcpy(g_spc_player->ram, g_snes->apu->ram, 65536);
+    memcpy(g_spc_player->input_ports, g_snes->apu->inPorts, 4);
     memcpy(g_spc_player->dsp->ram, g_snes->apu->dsp->ram, sizeof(Dsp) - offsetof(Dsp, ram));
     g_spc_player->copy_vars(g_spc_player, false);
   }
-
   if (is_reset) {
     g_spc_player->initialize(g_spc_player);
   }
-
-  RtlResetApuQueue();
+  RtlResetApuQueue_Locked();
 }
 
 void RtlSaveMusicStateToRam_Locked(void) {
   if (g_use_my_apu_code) {
     SpcPlayer *spc_player = g_spc_player;
 
-    uint8 tmp[4];
-    memcpy(tmp, spc_player->input_ports, 4);
-    memcpy(spc_player->input_ports, g_apu_write.ports, 4);
-
     g_spc_player->copy_vars(g_spc_player, true);
     memcpy(g_snes->apu->dsp->ram, g_spc_player->dsp->ram, sizeof(Dsp) - offsetof(Dsp, ram));
     memcpy(g_snes->apu->ram, g_spc_player->ram, 65536);
-
-    memcpy(spc_player->input_ports, tmp, 4);
+    memcpy(g_snes->apu->inPorts, g_spc_player->input_ports, 4);
   }
 }
 
@@ -743,12 +741,12 @@ void RtlReadSram(void) {
   snprintf(filename, sizeof(filename), "saves/%s.srm", g_rtl_game_info->title);
   FILE *f = fopen(filename, "rb");
   if (f) {
-    if (fread(g_sram, 1, RTL_SRAM_SIZE, f) != RTL_SRAM_SIZE)
+    if (fread(g_sram, 1, g_sram_size, f) != g_sram_size)
       fprintf(stderr, "Error reading %s\n", filename);
     fclose(f);
     RtlSynchronizeWholeState();
-    ByteArray_Resize(&state_recorder.base_snapshot, RTL_SRAM_SIZE);
-    memcpy(state_recorder.base_snapshot.data, g_sram, RTL_SRAM_SIZE);
+    ByteArray_Resize(&state_recorder.base_snapshot, g_sram_size);
+    memcpy(state_recorder.base_snapshot.data, g_sram, g_sram_size);
   }
 }
 
@@ -759,7 +757,7 @@ void RtlWriteSram(void) {
   rename(filename, filename_bak);
   FILE *f = fopen(filename, "wb");
   if (f) {
-    fwrite(g_sram, 1, RTL_SRAM_SIZE, f);
+    fwrite(g_sram, 1, g_sram_size, f);
     fclose(f);
   } else {
     fprintf(stderr, "Unable to write %s\n", filename);
