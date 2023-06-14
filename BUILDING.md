@@ -65,6 +65,7 @@ Download VS installer. On installer prompt, make sure you're on "Workloads" and 
 2. Change the build target from `Debug` to `Release`
 3. Build the solution.
 
+
 # Running SMB1 and SMBLL
 
 Dependencies and requirements:
@@ -80,7 +81,7 @@ Dependencies and requirements:
 6. Before running the games, make sure to recompile or else they won't boot up.
 7. Drag your desired game to `smw.exe` in order to run.
 
-  
+ 
 # Linux/MacOS
 
 Open the terminal and CD to your SM root folder:
