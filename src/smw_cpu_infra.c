@@ -56,6 +56,8 @@ static const uint32 kPatchedCarrys_SMW[] = {
   0x2f231,
   0x2f23d,
   0x2f245,
+
+  0x3C073,
 };
 
 static uint8 preserved_db;
