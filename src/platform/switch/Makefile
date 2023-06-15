@@ -40,9 +40,9 @@ include $(DEVKITPRO)/libnx/switch_rules
 SRC_DIR     := ../../
 TARGET		:=	smw
 BUILD		:=	bin
-SOURCES		:=  $(SRC_DIR) $(SRC_DIR)/snes $(SRC_DIR)/platform/switch/src $(SRC_DIR)/../third_party/gl_core
+SOURCES		:=  $(SRC_DIR) $(SRC_DIR)../smb1 $(SRC_DIR)../smbll $(SRC_DIR)/snes $(SRC_DIR)/platform/switch/src $(SRC_DIR)/../third_party/gl_core
 
-CFILES := $(wildcard $(SRC_DIR)/*.c $(SRC_DIR)/snes/*.c $(SRC_DIR)/platform/switch/src/*.c) $(SRC_DIR)/../third_party/gl_core/gl_core_3_1.c
+CFILES := $(foreach dir,$(SOURCES),$(wildcard $(dir)/*.c))
 
 INCLUDES	:=	include $(SRC_DIR)/../ ./src/
 APP_TITLE   :=  Super Mario World
