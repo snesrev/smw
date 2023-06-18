@@ -95,98 +95,86 @@ void BufferCreditsBackgrounds() {  // 0c93dd
   *(uint16 *)&blocks_screen_to_place_current_object = 0;
   do {
     int v0 = (uint16)(2 * blocks_screen_to_place_current_object) >> 1;
-    ptr_layer2_data = kBufferCreditsBackgrounds_Layer2Pointers[v0];
-    *(uint16 *)&temp65 = kBufferCreditsBackgrounds_TilePageModifier[v0];
-    bool v1 = ptr_layer2_data >= 0xE8FE;
+    ptr_layer2_data.addr = kBufferCreditsBackgrounds_Layer2Pointers[v0];
+    uint16 modifier = kBufferCreditsBackgrounds_TilePageModifier[v0];
+    bool v1 = ptr_layer2_data.addr >= 0xE8FE;
     for (uint16 i = 0; i != 512; ++i) {
       blocks_layer2_tiles_hi[i] = v1;
       blocks_layer2_tiles_hi[i + 512] = v1;
     }
-    ptr_layer2_data_bank = 12;
-    *(uint16 *)&R13_ = 0xb900;
-    BufferCreditsBackgrounds_0C944C();
-    BufferCreditsBackgrounds_0C94C0();
+    ptr_layer2_data.bank = 12;
+    BufferCreditsBackgrounds_0C944C(0xb900);
+    BufferCreditsBackgrounds_0C94C0(modifier);
     ++*(uint16 *)&blocks_screen_to_place_current_object;
   } while (*(uint16 *)&blocks_screen_to_place_current_object != 7);
-  WORD(temp65) = 0x5840;
-  temp67 = 0;
+  credits_var65 = 0x5840;
+  credits_index = 0;
   blocks_screen_to_place_current_object = 0;
   UpdateCreditsBackground();
   InitializeCreditsEggPositions();
   io_music_ch1 = 9;
 }
 
-void BufferCreditsBackgrounds_0C944C() {  // 0c944c
-  *(uint16 *)&R3_ = 0;
-  *(uint16 *)&R5_ = 0;
-  R15_ = 126;
+void BufferCreditsBackgrounds_0C944C(uint16 r13w) {  // 0c944c
+  uint16 R3 = 0;
+  uint16 R5 = 0;
+  uint8 *wp = g_ram + r13w;
   do {
-    int16 v0 = *(uint16 *)&R3_;
-    R7_ = *IndirPtr(&ptr_layer2_data, *(uint16 *)&R3_);
+    int16 v0 = R3;
+    uint8 r7 = *IndirPtr(&ptr_layer2_data, R3);
     uint16 v1 = v0 + 1;
-    *(uint16 *)&R3_ = v1;
-    if ((R7_ & 0x80) == 0) {
+    R3 = v1;
+    if ((r7 & 0x80) == 0) {
       do {
-        int16 v4 = *(uint16 *)&R3_;
-        uint8 v5 = *IndirPtr(&ptr_layer2_data, *(uint16 *)&R3_);
-        *(uint16 *)&R3_ = v4 + 1;
-        int16 v6 = *(uint16 *)&R5_;
-        IndirWriteByte(&R13_, *(uint16 *)&R5_, v5);
-        *(uint16 *)&R5_ = v6 + 1;
-        --R7_;
-      } while ((R7_ & 0x80) == 0);
+        int16 v4 = R3;
+        uint8 v5 = *IndirPtr(&ptr_layer2_data, R3);
+        R3 = v4 + 1;
+        int16 v6 = R5;
+        wp[R5] = v5;
+        R5 = v6 + 1;
+      } while ((--r7 & 0x80) == 0);
     } else {
-      R7_ &= ~0x80;
+      r7 &= ~0x80;
       uint8 v2 = *IndirPtr(&ptr_layer2_data, v1);
-      *(uint16 *)&R3_ = v1 + 1;
-      uint16 v3 = *(uint16 *)&R5_;
+      R3 = v1 + 1;
+      uint16 v3 = R5;
       do {
-        IndirWriteByte(&R13_, v3++, v2);
-        --R7_;
-      } while ((R7_ & 0x80) == 0);
-      *(uint16 *)&R5_ = v3;
+        wp[v3++] = v2;
+      } while ((--r7 & 0x80) == 0);
+      R5 = v3;
     }
-  } while (*IndirPtr(&ptr_layer2_data, *(uint16 *)&R3_) != 0xFF || *IndirPtr(&ptr_layer2_data, *(uint16 *)&R3_ + 1) != 0xFF);
-  R0_W = 0x9100;
+  } while (*IndirPtr(&ptr_layer2_data, R3) != 0xFF || *IndirPtr(&ptr_layer2_data, R3 + 1) != 0xFF);
+  uint16 r0w = 0x9100;
   for (uint16 i = 0; i != 0x400; i += 2) {
-    pointer_map16_tiles[i >> 1] = R0_W;
-    R0_W += 8;
+    pointer_map16_tiles[i >> 1] = r0w;
+    r0w += 8;
   }
 }
 
-void BufferCreditsBackgrounds_0C94C0() {  // 0c94c0
-  uint16 v0;
+void BufferCreditsBackgrounds_0C94C0(uint16 mask) {  // 0c94c0
+  LongPtr p_lo = { .addr = 0x7e, .addr = 0xb900 };
+  LongPtr p_hi = { .addr = 0x7e, .addr = 0xbd00 };
 
-  ptr_lo_map16_data = 0xb900;
-  ptr_lo_map16_data_bank = 126;
-  ptr_hi_map16_data_bank = 126;
-  ptr_hi_map16_data = 0xbd00;
-  ptr_layer2_data_bank = 13;
-  R4_W = 240;
-  HIBYTE(v0) = blocks_screen_to_place_current_object;
-  LOBYTE(v0) = 0;
-  R0_W = v0;
-  R8_W = 127;
+  uint16 r4w = 240;
+  uint16 r0w = blocks_screen_to_place_current_object << 8;
+  uint16 r8w = 127;
   while (1) {
     do {
-      uint16 v1 = R4_W;
-      R2_ = *IndirPtr(&ptr_lo_map16_data, R4_W);
-      R3_ = *IndirPtr(&ptr_hi_map16_data, v1);
-      ptr_layer2_data = pointer_map16_tiles[(uint16)(2 * R2_W) >> 1];
-      R6_W = (4 * R0_W) & 0x3F;
-      uint16 v2 = R6_W | (2 * ((4 * R0_W) & 0xFFC0));
-      *(uint16 *)&ow_layer2_tiles[v2] = *(uint16 *)&temp65 & *(uint16 *)IndirPtr(&ptr_layer2_data, 0);
-      *(uint16 *)&ow_layer2_tiles[v2 + 64] = *(uint16 *)&temp65 & *(uint16 *)IndirPtr(&ptr_layer2_data, 2);
-      *(uint16 *)&ow_layer2_tiles[v2 + 2] = *(uint16 *)&temp65 & *(uint16 *)IndirPtr(&ptr_layer2_data, 4);
-      *(uint16 *)&ow_layer2_tiles[v2 + 66] = *(uint16 *)&temp65 & *(uint16 *)IndirPtr(&ptr_layer2_data, 6);
-      ++R0_W;
-      ++R4_W;
-      --R8_W;
-    } while ((R8_W & 0x8000) == 0);
-    R8_W = 127;
-    if (R4_W != 368)
+      uint16 r2w = *IndirPtr(&p_lo, r4w) | *IndirPtr(&p_hi, r4w) << 8;
+      LongPtr p2 = { .bank = 13, .addr = pointer_map16_tiles[(uint16)(2 * r2w) >> 1] };
+      uint16 v2 = (4 * r0w) & 0x3F | (2 * ((4 * r0w) & 0xFFC0));
+      *(uint16 *)&ow_layer2_tiles[v2] = mask & *(uint16 *)IndirPtr(&p2, 0);
+      *(uint16 *)&ow_layer2_tiles[v2 + 64] = mask & *(uint16 *)IndirPtr(&p2, 2);
+      *(uint16 *)&ow_layer2_tiles[v2 + 2] = mask & *(uint16 *)IndirPtr(&p2, 4);
+      *(uint16 *)&ow_layer2_tiles[v2 + 66] = mask & *(uint16 *)IndirPtr(&p2, 6);
+      ++r0w;
+      ++r4w;
+      --r8w;
+    } while ((r8w & 0x8000) == 0);
+    r8w = 127;
+    if (r4w != 368)
       break;
-    R4_W = 672;
+    r4w = 672;
   }
 }
 
@@ -216,55 +204,49 @@ void GameMode1B_EndingCinema_BufferNextRowOfCredits() {  // 0c9eb1
   uint16 v0 = stripe_image_upload;
   uint16 v1 = 0;
   int v2 = stripe_image_upload;
-  stripe_image_upload_data[stripe_image_upload] = temp66;
-  stripe_image_upload_data[v2 + 1] = temp65;
+  WORD(stripe_image_upload_data[v2 + 0]) = swap16(credits_var65);
   uint16 v3 = v0 + 2;
   do
     stripe_image_upload_data[v3++] = kGameMode1B_EndingCinema_DATA_0C9EAC[v1++];
   while (v1 != 5);
   uint16 v4 = v3 - 1;
   stripe_image_upload = v4;
-  uint16 v5 = kGameMode1B_EndingCinema_RowPointers[(uint16)(2 * temp67++) >> 1];
+  uint16 v5 = kGameMode1B_EndingCinema_RowPointers[credits_index++];
   if (kGameMode1B_EndingCinema_Tilemaps[v5] != 0xFF) {
-    R2_ = kGameMode1B_EndingCinema_Tilemaps[v5];
-    R0_ = kGameMode1B_EndingCinema_Tilemaps[v5 + 1];
-    R1_ = 0;
+    uint8 r2 = kGameMode1B_EndingCinema_Tilemaps[v5];
+    uint16 r0w = kGameMode1B_EndingCinema_Tilemaps[v5 + 1];
     uint16 v6 = v5 + 2;
-    stripe_image_upload_data[v4] = temp66;
-    stripe_image_upload_data[v4 + 1] = R2_ + temp65;
+    WORD(stripe_image_upload_data[v4]) = swap16(credits_var65) + (r2 << 8);
     uint16 v7 = v4 + 2;
-    stripe_image_upload_data[v7] = R1_;
-    stripe_image_upload_data[v7 + 1] = R0_;
+    WORD(stripe_image_upload_data[v7]) = swap16(r0w);
     uint16 v8 = v7 + 2;
     do {
       *(uint16 *)&stripe_image_upload_data[v8] = *(uint16 *)&kGameMode1B_EndingCinema_Tilemaps[v6];
       v8 += 2;
       v6 += 2;
-      --R0_W;
-      --R0_W;
-    } while ((R0_W & 0x8000) == 0);
+      r0w -= 2;
+    } while ((r0w & 0x8000) == 0);
     *(uint16 *)&stripe_image_upload_data[v8] = 255;
     stripe_image_upload = v8;
   }
-  *(uint16 *)&temp65 += 32;
-  if ((*(uint16 *)&temp65 & 0x3FF) == 0)
-    *(uint16 *)&temp65 ^= 0xC00;
+  credits_var65 += 32;
+  if ((credits_var65 & 0x3FF) == 0)
+    credits_var65 ^= 0xC00;
 }
 
 void GameMode1B_EndingCinema_Sub() {  // 0c9f6a
   get_PointU16(l1_l2_scroll_spr_speed, 0)->x = -128;
-  R0_W = mirror_current_layer2_xpos;
-  GameMode1B_EndingCinema_0C9FCB(0);
-  mirror_current_layer2_xpos = R0_W;
+  uint16 r0w = mirror_current_layer2_xpos;
+  r0w += GameMode1B_EndingCinema_0C9FCB(0);
+  mirror_current_layer2_xpos = r0w;
   if (mirror_layer3_ypos < 0x559) {
     get_PointU16(l1_l2_scroll_spr_speed, 2)->x = 64;
-    uint16 v0 = mirror_layer3_ypos;
-    *(&R0_W + 1) = mirror_layer3_ypos;
-    R4_W = v0;
-    GameMode1B_EndingCinema_0C9FCB(2);
-    uint16 v1 = *(&R0_W + 1);
-    if (v1 != R4_W) {
-      mirror_layer3_ypos = *(&R0_W + 1);
+    uint16 r1w = mirror_layer3_ypos;
+    uint16 r4w = mirror_layer3_ypos;
+    r4w += GameMode1B_EndingCinema_0C9FCB(2);
+    uint16 v1 = r1w;
+    if (v1 != r4w) {
+      mirror_layer3_ypos = r1w;
       if ((v1 & 7) == 1)
         GameMode1B_EndingCinema_BufferNextRowOfCredits();
     }
@@ -286,17 +268,15 @@ LABEL_11:
   SetSprXYPos(0, 82, 143);
   spr_oamindex[0] = -96;
   SpawnEndingYoshiSpriteAndDrawPlayer();
-  R0_ = 81;
-  R1_ = 0;
-  R2_ = kGameMode1B_EndingCinema_PeachOnYoshiOffset[spr_table1602[0]] - 123;
-  DrawCreditsPeachRedAndYellowYoshi_Peach(0, 4 * spr_table1602[0]);
-  R14_ = -96;
-  MakeCreditsEggsBounce();
-  R2_ = 16;
-  DrawEndingBabyYoshis();
+  uint8 r0 = 81;
+  uint8 r2 = kGameMode1B_EndingCinema_PeachOnYoshiOffset[spr_table1602[0]] - 123;
+  DrawCreditsPeachRedAndYellowYoshi_Peach(0, 4 * spr_table1602[0], r0, r2);
+  MakeCreditsEggsBounce(-96);
+  r2 = 16;
+  DrawEndingBabyYoshis(r2);
 }
 
-void GameMode1B_EndingCinema_0C9FCB(uint8 k) {  // 0c9fcb
+uint16 GameMode1B_EndingCinema_0C9FCB(uint8 k) {  // 0c9fcb
   uint16 v4;
 
   PointU16 *pt = get_PointU16(l1_l2_scroll_spr_sub_pos, k);
@@ -308,7 +288,7 @@ void GameMode1B_EndingCinema_0C9FCB(uint8 k) {  // 0c9fcb
   uint8 v5 = v3;
   LOBYTE(v4) = HIBYTE(v3);
   HIBYTE(v4) = v5;
-  *(uint16 *)((int8 *)&R0_W + k) += v4;
+  return v4;
 }
 
 void InitializeCreditsEggPositions() {  // 0ca051
@@ -333,64 +313,56 @@ void InitializeCreditsEggPositions() {  // 0ca051
 }
 
 void GameMode1D_LoadYoshisHouse_DrawEndingYoshisHouseDecorations() {  // 0ca0e3
-  R0_ = 16;
-  R2_ = 16;
-  R1_ = 47;
+  uint8 r0 = 16;
+  uint8 r2 = 16;
+  uint8 r1 = 47;
   uint8 v0 = -112;
   for (uint8 i = 0; i != 42; ++i) {
     if (kGameMode1D_LoadYoshisHouse_Tiles[i] != 0xFF) {
       OamEnt *oam = get_OamEnt(oam_buf, v0);
       oam[64].charnum = kGameMode1D_LoadYoshisHouse_Tiles[i];
       oam[64].flags = kGameMode1D_LoadYoshisHouse_Prop[i];
-      oam[64].xpos = R0_;
-      oam[64].ypos = R1_;
+      oam[64].xpos = r0;
+      oam[64].ypos = r1;
       sprites_oamtile_size_buffer[(v0 >> 2) + 64] = 2;
       v0 += 4;
     }
-    R0_ += 16;
-    if (R0_ == 0xF0) {
-      R0_ = R2_;
-      R1_ += 16;
+    r0 += 16;
+    if (r0 == 0xF0) {
+      r0 = r2;
+      r1 += 16;
     }
   }
 }
 
 void DrawEndingThankYou() {  // 0ca146
-  R8_W = 63;
-  R10_W = 63;
-  R0_W = 0;
-  R2_W = 0;
-  R4_W = 0;
-  DrawEndingThankYou_Entry2(0x50, 0);
+  DrawEndingThankYou_Entry2(0x50, 0, 0, 0, 63);
 }
 
-void DrawEndingThankYou_Entry2(uint8 k, uint8 j) {  // 0ca159
-  R0_W += 128;
-  R2_W = R0_W;
-  DrawEndingThankYou_0CA183(k, j);
-  R0_W = 128 - R4_W - 64;
-  R2_W = 128 - R4_W - 64;
-  R8_W = 63;
-  R10_W = 63;
-  DrawEndingThankYou_0CA183(k, j);
+void DrawEndingThankYou_Entry2(uint8 k, uint8 j, uint16 r0w, uint16 r4, uint16 r8) {  // 0ca159
+  r0w += 128;
+  uint16 r2w = r0w;
+  DrawEndingThankYou_0CA183(k, j, r8, r0w, r2w);
+  r0w = 128 - r4 - 64;
+  r2w = 128 - r4 - 64;
+  DrawEndingThankYou_0CA183(k, j, 63, r0w, r2w);
 }
 
-void DrawEndingThankYou_0CA183(uint8 k, uint8 j) {  // 0ca183
+void DrawEndingThankYou_0CA183(uint8 k, uint8 j, uint16 r8, uint16 r0w, uint16 r2) {  // 0ca183
   do {
-    if (!R1_) {
+    if (r0w < 256) {
       OamEnt *oam = get_OamEnt(oam_buf, k);
       oam[64].charnum = kDrawEndingThankYou_Tiles[j];
       oam[64].flags = 53;
-      oam[64].xpos = R0_;
-      oam[64].ypos = R8_;
+      oam[64].xpos = r0w;
+      oam[64].ypos = r8;
       sprites_oamtile_size_buffer[(k >> 2) + 64] = 2;
       k += 4;
     }
-    R0_W += 16;
+    r0w += 16;
     if ((j & 7) == 3) {
-      R0_ = R2_;
-      R1_ = R3_;
-      R8_ += 16;
+      r0w = r2;
+      r8 += 16;
     }
     ++j;
   } while ((j & 7) != 0);
@@ -408,6 +380,7 @@ void sub_CA1ED() {  // 0ca1ed
 }
 
 void WalkingIntoYoshisHouseDuringEnding_0CA1F6() {  // 0ca1f6
+  uint8 r2;
   player_ypos = 352;
   if (sprites_cutscene_sprite_xpos_lo[0] == 112) {
     yoshi_stray_yoshi_flag = 0;
@@ -415,14 +388,13 @@ void WalkingIntoYoshisHouseDuringEnding_0CA1F6() {  // 0ca1f6
     HandlePlayerPoseAndAnimationTimersDuringEnding_0CA764();
     SpawnEndingYoshiSpriteAndDrawPlayer_0CA7B4();
     if (!l1_l2_scroll_spr_current_state[0]) {
-      R0_ = spr_xpos_lo[0];
-      R2_ = -97;
-      R14_ = 1;
-      DrawCameraFacingEndingYoshis_BlueYoshi(0xB4, 0);
+      uint8 r0 = spr_xpos_lo[0];
+      r2 = -97;
+      DrawCameraFacingEndingYoshis_BlueYoshi(0xB4, 0, 1, r0, r2);
     }
-    R0_W = PAIR16(sprites_cutscene_sprite_xpos_hi[0], sprites_cutscene_sprite_xpos_lo[0]) + 16;
-    R2_ = -97;
-    DrawCreditsPeachRedAndYellowYoshi_Peach(0xA4, 0xC);
+    uint16 r0w = PAIR16(sprites_cutscene_sprite_xpos_hi[0], sprites_cutscene_sprite_xpos_lo[0]) + 16;
+    r2 = -97;
+    DrawCreditsPeachRedAndYellowYoshi_Peach(0xA4, 0xC, r0w, r2);
   } else {
     sprites_cutscene_sprite_xspeed[0] = -8;
     UpdateCutsceneSpritePosition_X(0);
@@ -434,18 +406,17 @@ void WalkingIntoYoshisHouseDuringEnding_0CA1F6() {  // 0ca1f6
     SetSprYPos(0, 0x160);
     spr_oamindex[0] = 48;
     SpawnEndingYoshiSpriteAndDrawPlayer();
-    R0_W = PAIR16(sprites_cutscene_sprite_xpos_hi[0], sprites_cutscene_sprite_xpos_lo[0]) + 16;
-    R2_ = -97;
+    uint16 r0w = PAIR16(sprites_cutscene_sprite_xpos_hi[0], sprites_cutscene_sprite_xpos_lo[0]) + 16;
+    r2 = -97;
     PointU16 *pt = get_PointU16(l1_l2_scroll_spr_sub_pos, 0);
     if ((int8)--LOBYTE(pt->x) < 0) {
       LOBYTE(pt->x) = 6;
       HIBYTE(pt->x) ^= 1;
     }
-    DrawCreditsPeachRedAndYellowYoshi_Peach(0xA4, 4 * (HIBYTE(pt->x) + 3));
+    DrawCreditsPeachRedAndYellowYoshi_Peach(0xA4, 4 * (HIBYTE(pt->x) + 3), r0w, r2);
   }
-  R0_ = sprites_cutscene_sprite_xpos_lo[7];
-  R1_ = sprites_cutscene_sprite_xpos_hi[7];
-  if (R0_W == 48) {
+  uint16 r0w = sprites_cutscene_sprite_xpos_lo[7] | sprites_cutscene_sprite_xpos_hi[7] << 8;
+  if (r0w == 48) {
     if (!*(uint16 *)l1_l2_scroll_spr_current_state)
       ++*(uint16 *)l1_l2_scroll_spr_current_state;
   } else {
@@ -460,10 +431,10 @@ void WalkingIntoYoshisHouseDuringEnding_0CA1F6() {  // 0ca1f6
 }
 
 void WalkingIntoYoshisHouseDuringEnding_0CA2FC() {  // 0ca2fc
-  R14_ = -81;
-  MakeCreditsEggsBounce();
-  R2_ = -120;
-  DrawEndingBabyYoshis();
+  uint8 r2;
+  MakeCreditsEggsBounce(-81);
+  r2 = -120;
+  DrawEndingBabyYoshis(r2);
 }
 
 void ProcessCheeringYoshis() {  // 0ca315
@@ -490,19 +461,16 @@ void ProcessCheeringYoshis() {  // 0ca315
 LABEL_10:
   LOBYTE(misc_layer3_xspeed) = v0;
   if (sprites_draw_ending_yoshis == 1) {
-    R0_ = 24;
-    R1_ = 0;
-    R2_ = sprites_cutscene_sprite_ypos_lo[1];
-    DrawCreditsPeachRedAndYellowYoshi_Peach(0xD0, 4 * (kProcessCheeringYoshis_DATA_0CA30D[(uint8)misc_layer3_xspeed] + 7));
-    R0_ = -44;
-    R1_ = 0;
-    R2_ = sprites_cutscene_sprite_ypos_lo[1];
-    DrawCreditsPeachRedAndYellowYoshi_Peach(0xF0, 4 * (kProcessCheeringYoshis_DATA_0CA30D[(uint8)misc_layer3_xspeed] + 10));
+    uint8 r0 = 24;
+    uint8 r2 = sprites_cutscene_sprite_ypos_lo[1];
+    DrawCreditsPeachRedAndYellowYoshi_Peach(0xD0, 4 * (kProcessCheeringYoshis_DATA_0CA30D[(uint8)misc_layer3_xspeed] + 7), r0, r2);
+    r0 = -44;
+    r2 = sprites_cutscene_sprite_ypos_lo[1];
+    DrawCreditsPeachRedAndYellowYoshi_Peach(0xF0, 4 * (kProcessCheeringYoshis_DATA_0CA30D[(uint8)misc_layer3_xspeed] + 10), r0, r2);
     uint8 v1 = 2 * kProcessCheeringYoshis_DATA_0CA311[(uint8)misc_layer3_xspeed];
-    R0_ = 80;
-    R2_ = sprites_cutscene_sprite_ypos_lo[1];
-    R14_ = 0;
-    DrawCameraFacingEndingYoshis_BlueYoshi(0xF0, v1);
+    r0 = 80;
+    r2 = sprites_cutscene_sprite_ypos_lo[1];
+    DrawCameraFacingEndingYoshis_BlueYoshi(0xF0, v1, 0, r0, r2);
   }
 }
 
@@ -562,44 +530,40 @@ void YoshisWatchInExcitementDuringEnding_0CA478() {  // 0ca478
   if ((misc_layer3_xspeed & 3) != 0) {
     YoshisWatchInExcitementDuringEnding_0CA4B6();
   } else {
-    R0_ = 24;
-    R1_ = 0;
-    R2_ = -97;
-    DrawCreditsPeachRedAndYellowYoshi_Peach(0xD0, 4 * ((misc_layer3_xspeed & 3) + 7));
-    R0_ = -44;
-    R1_ = 0;
-    R2_ = -97;
-    DrawCreditsPeachRedAndYellowYoshi_Peach(0xF0, 4 * ((misc_layer3_xspeed & 3) + 10));
+    uint8 r2;
+    uint8 r0 = 24;
+    r2 = -97;
+    DrawCreditsPeachRedAndYellowYoshi_Peach(0xD0, 4 * ((misc_layer3_xspeed & 3) + 7), r0, r2);
+    r0 = -44;
+    r2 = -97;
+    DrawCreditsPeachRedAndYellowYoshi_Peach(0xF0, 4 * ((misc_layer3_xspeed & 3) + 10), r0, r2);
     YoshisWatchInExcitementDuringEnding_0CA4E9();
   }
 }
 
 void YoshisWatchInExcitementDuringEnding_0CA4B6() {  // 0ca4b6
-  R0_ = 24;
-  R1_ = 0;
-  R2_ = -89;
-  DrawLeaningEndingYoshis(0xC0, 4 * ((misc_layer3_xspeed & 3) - 1));
-  R0_ = -52;
-  R1_ = 0;
-  R2_ = -89;
-  DrawLeaningEndingYoshis(0xD8, 4 * ((misc_layer3_xspeed & 3) - 1 + 2));
+  uint8 r2;
+  uint8 r0 = 24;
+  r2 = -89;
+  DrawLeaningEndingYoshis(0xC0, 4 * ((misc_layer3_xspeed & 3) - 1), r0, r2);
+  r0 = -52;
+  r2 = -89;
+  DrawLeaningEndingYoshis(0xD8, 4 * ((misc_layer3_xspeed & 3) - 1 + 2), r0, r2);
   YoshisWatchInExcitementDuringEnding_0CA4E9();
 }
 
 void YoshisWatchInExcitementDuringEnding_0CA4E9() {  // 0ca4e9
   uint8 v0 = 2 * kYoshisWatchInExcitementDuringEnding_DATA_0CA439[misc_layer3_xspeed & 3];
-  R0_ = 80;
-  R2_ = -97;
-  R14_ = 0;
-  DrawCameraFacingEndingYoshis_BlueYoshi(0xF0, v0);
+  uint8 r0 = 80;
+  uint8 r2 = -97;
+  DrawCameraFacingEndingYoshis_BlueYoshi(0xF0, v0, 0, r0, r2);
   YoshisWatchInExcitementDuringEnding_0CA510(v0);
 }
 
 void YoshisWatchInExcitementDuringEnding_0CA510(uint8 j) {  // 0ca510
-  R0_ = spr_xpos_lo[0];
-  R2_ = -97;
-  R14_ = 1;
-  DrawCameraFacingEndingYoshis_BlueYoshi(0xB4, j);
+  uint8 r0 = spr_xpos_lo[0];
+  uint8 r2 = -97;
+  DrawCameraFacingEndingYoshis_BlueYoshi(0xB4, j, 1, r0, r2);
   WalkingIntoYoshisHouseDuringEnding_0CA1F6();
 }
 
@@ -685,15 +649,7 @@ void SlideInThankYouDuringEnding() {  // 0ca65b
     HIBYTE(misc_layer3_tide_sub_ypos) = -16;
     v0 = 0;
   }
-  R0_ = v0;
-  R2_ = v0;
-  R4_ = v0;
-  R1_ = 0;
-  R3_ = 0;
-  R5_ = 0;
-  R8_ = 63;
-  R10_ = 63;
-  DrawEndingThankYou_Entry2(0x50, 0);
+  DrawEndingThankYou_Entry2(0x50, 0, v0, v0, 63);
   --HIBYTE(misc_layer3_xspeed);
   if ((misc_layer3_xspeed & 0x8000) != 0) {
     HIBYTE(misc_layer3_xspeed) = 6;
@@ -705,6 +661,7 @@ void SlideInThankYouDuringEnding() {  // 0ca65b
 }
 
 void EveryoneCheeringDuringEnding() {  // 0ca6b0
+  uint8 r2;
   DrawEndingThankYou();
   ProcessCheeringYoshis();
   WalkingIntoYoshisHouseDuringEnding_0CA2FC();
@@ -714,13 +671,12 @@ void EveryoneCheeringDuringEnding() {  // 0ca6b0
   HandlePlayerPoseAndAnimationTimersDuringEnding_0CA764();
   SpawnEndingYoshiSpriteAndDrawPlayer_0CA7B4();
   uint8 v0 = 2 * kProcessCheeringYoshis_DATA_0CA311[(uint8)misc_layer3_xspeed];
-  R0_ = spr_xpos_lo[0];
-  R2_ = sprites_cutscene_sprite_ypos_lo[1];
-  R14_ = 1;
-  DrawCameraFacingEndingYoshis_BlueYoshi(0xB4, v0);
-  R0_W = PAIR16(sprites_cutscene_sprite_xpos_hi[0], sprites_cutscene_sprite_xpos_lo[0]) + 16;
-  R2_ = -97;
-  DrawCreditsPeachRedAndYellowYoshi_Peach(0xA4, 4 * (((uint8)(counter_global_frames & 8) >> 3) + 5));
+  uint8 r0 = spr_xpos_lo[0];
+  r2 = sprites_cutscene_sprite_ypos_lo[1];
+  DrawCameraFacingEndingYoshis_BlueYoshi(0xB4, v0, 1, r0, r2);
+  uint16 r0w = PAIR16(sprites_cutscene_sprite_xpos_hi[0], sprites_cutscene_sprite_xpos_lo[0]) + 16;
+  r2 = -97;
+  DrawCreditsPeachRedAndYellowYoshi_Peach(0xA4, 4 * (((uint8)(counter_global_frames & 8) >> 3) + 5), r0w, r2);
   if (!--HIBYTE(misc_layer3_tide_sub_ypos)) {
     ++misc_game_mode;
     HIBYTE(misc_layer3_yspeed) = 64;
@@ -773,65 +729,65 @@ void SpawnEndingYoshiSpriteAndDrawPlayer_0CA7B4() {  // 0ca7b4
   PlayerDraw();
 }
 
-void DrawCreditsPeachRedAndYellowYoshi_Peach(uint8 k_in, uint8 j_in) {  // 0ca821
+void DrawCreditsPeachRedAndYellowYoshi_Peach(uint8 k_in, uint8 j_in, uint16 r0w, uint8 r2) {  // 0ca821
   uint16 j = j_in;
   uint16 k = k_in;
 
   int16 v2 = k;
   if (j >= 0x28)
     k = k | 0x100;
-  R4_ = 1;
+  uint8 r4 = 1;
   do {
-    if (R1_)
+    if (r0w >= 256)
       break;
-    R10_ = 2;
-    uint8 v3 = R0_;
+    uint8 r10 = 2;
+    uint8 v3 = r0w;
     OamEnt *oam = get_OamEnt(oam_buf, k);
-    oam[1].xpos = R0_;
+    oam[1].xpos = r0w;
     oam->xpos = v3 + 8;
     if (v3 >= 0xF8)
-      R10_ = 1;
-    uint8 v5 = R2_;
-    oam->ypos = R2_;
+      r10 = 1;
+    uint8 v5 = r2;
+    oam->ypos = r2;
     oam[1].ypos = v5;
     oam[1].charnum = *((uint8 *)kDrawCreditsPeachRedAndYellowYoshi_DATA_0CA7B9 + j);
     oam->charnum = *((uint8 *)kDrawCreditsPeachRedAndYellowYoshi_DATA_0CA7B9 + j + 1);
     oam[1].flags = *((uint8 *)kDrawCreditsPeachRedAndYellowYoshi_DATA_0CA7ED + j);
     oam->flags = *((uint8 *)kDrawCreditsPeachRedAndYellowYoshi_DATA_0CA7ED + j + 1);
-    R2_ += 16;
+    r2 += 16;
     sprites_oamtile_size_buffer[(k >> 2) + 1] = 2;
-    sprites_oamtile_size_buffer[k >> 2] = R10_;
+    sprites_oamtile_size_buffer[k >> 2] = r10;
     k = k + 8;
     j = j + 2;
-    --R4_;
-  } while ((R4_ & 0x80) == 0);
+    --r4;
+  } while ((r4 & 0x80) == 0);
 }
 
-void MakeCreditsEggsBounce() {  // 0ca8a3
+void MakeCreditsEggsBounce(uint8 r14) {  // 0ca8a3
   for (uint8 i = 13; i != 6; --i) {
     sprites_cutscene_sprite_yspeed[i] += sprites_cutscene_sprite_table_0AF6[i];
     UpdateCutsceneSpritePosition_Y(i);
-    if (sprites_cutscene_sprite_ypos_lo[i] >= R14_) {
+    if (sprites_cutscene_sprite_ypos_lo[i] >= r14) {
       sprites_cutscene_sprite_sub_ypos[i] = 0;
       sprites_cutscene_sprite_yspeed[i] = -10;
       sprites_cutscene_sprite_table_0AF6[i] = 1;
-      sprites_cutscene_sprite_ypos_lo[i] = R14_;
+      sprites_cutscene_sprite_ypos_lo[i] = r14;
     }
   }
 }
 
-void DrawEndingBabyYoshis() {  // 0ca8df
-  R14_ = misc_layer3_yspeed;
+void DrawEndingBabyYoshis(uint8 r2) {  // 0ca8df
+  uint8 r14 = misc_layer3_yspeed;
   for (uint8 i = 13; i != 6; --i) {
     if (!sprites_cutscene_sprite_xpos_hi[i]) {
-      R0_ = sprites_cutscene_sprite_xpos_lo[i];
-      R1_ = sprites_cutscene_sprite_ypos_lo[i];
-      uint8 v1 = R2_;
-      OamEnt *oam = get_OamEnt(oam_buf, R2_);
-      oam->xpos = R0_;
-      oam->ypos = R1_;
-      int8 v3 = R14_ & 1;
-      R14_ >>= 1;
+      uint8 r0 = sprites_cutscene_sprite_xpos_lo[i];
+      uint8 r1 = sprites_cutscene_sprite_ypos_lo[i];
+      uint8 v1 = r2;
+      OamEnt *oam = get_OamEnt(oam_buf, r2);
+      oam->xpos = r0;
+      oam->ypos = r1;
+      int8 v3 = r14 & 1;
+      r14 >>= 1;
       if (v3) {
         oam->charnum = -22;
         oam->flags = kDrawEndingBabyYoshis_BabyYoshiProp[(uint8)(i - 7)];
@@ -840,23 +796,20 @@ void DrawEndingBabyYoshis() {  // 0ca8df
         oam->flags = 33;
       }
       sprites_oamtile_size_buffer[v1 >> 2] = 2;
-      ++R2_;
-      ++R2_;
-      ++R2_;
-      ++R2_;
+      r2 += 4;
     }
   }
 }
 
-void DrawLeaningEndingYoshis(uint8 k, uint8 j) {  // 0ca99e
+void DrawLeaningEndingYoshis(uint8 k, uint8 j, uint8 r0, uint8 r2) {  // 0ca99e
   uint8 v2 = kDrawLeaningEndingYoshis_DATA_0CA99A[j >> 2];
-  R4_ = 2;
+  uint8 r4 = 2;
   do {
     OamEnt *oam = get_OamEnt(oam_buf, k);
-    oam->xpos = R0_ + *((uint8 *)kDrawLeaningEndingYoshis_DATA_0CA96A + v2);
-    oam[1].xpos = R0_ + *((uint8 *)kDrawLeaningEndingYoshis_DATA_0CA96A + v2 + 1);
-    oam->ypos = R2_ + *((uint8 *)kDrawLeaningEndingYoshis_DATA_0CA982 + v2);
-    oam[1].ypos = R2_ + *((uint8 *)kDrawLeaningEndingYoshis_DATA_0CA982 + v2 + 1);
+    oam->xpos = r0 + *((uint8 *)kDrawLeaningEndingYoshis_DATA_0CA96A + v2);
+    oam[1].xpos = r0 + *((uint8 *)kDrawLeaningEndingYoshis_DATA_0CA96A + v2 + 1);
+    oam->ypos = r2 + *((uint8 *)kDrawLeaningEndingYoshis_DATA_0CA982 + v2);
+    oam[1].ypos = r2 + *((uint8 *)kDrawLeaningEndingYoshis_DATA_0CA982 + v2 + 1);
     oam->charnum = *((uint8 *)kDrawLeaningEndingYoshis_DATA_0CA93A + v2);
     oam[1].charnum = *((uint8 *)kDrawLeaningEndingYoshis_DATA_0CA93A + v2 + 1);
     oam->flags = *((uint8 *)kDrawLeaningEndingYoshis_DATA_0CA952 + v2);
@@ -865,26 +818,25 @@ void DrawLeaningEndingYoshis(uint8 k, uint8 j) {  // 0ca99e
     uint8 v6 = k;
     uint8 v4 = k >> 2;
     uint8 v5 = 2;
-    if ((R4_ & 2) == 0)
+    if ((r4 & 2) == 0)
       v5 = 0;
     sprites_oamtile_size_buffer[v4] = v5;
     sprites_oamtile_size_buffer[v4 + 1] = v5;
     k = v6 + 8;
     v2 = v7 + 2;
-    --R4_;
-  } while ((R4_ & 0x80) == 0);
+  } while ((--r4 & 0x80) == 0);
 }
 
-void DrawCameraFacingEndingYoshis_BlueYoshi(uint8 k, uint8 j) {  // 0caa15
-  uint8 v2 = R14_;
+void DrawCameraFacingEndingYoshis_BlueYoshi(uint8 k, uint8 j, uint8 r14, uint8 r0, uint8 r2) {  // 0caa15
+  uint8 v2 = r14;
   OamEnt *oam = get_OamEnt(oam_buf, k);
   oam->flags = kDrawCameraFacingEndingYoshis_Prop[v2 * 2 + 0];
   oam[1].flags = kDrawCameraFacingEndingYoshis_Prop[v2 * 2 + 1];
-  uint8 v4 = R0_;
-  oam->xpos = R0_;
+  uint8 v4 = r0;
+  oam->xpos = r0;
   oam[1].xpos = v4;
-  uint8 v5 = R2_;
-  oam->ypos = R2_;
+  uint8 v5 = r2;
+  oam->ypos = r2;
   oam[1].ypos = v5 + 16;
   oam->charnum = *(kDrawCameraFacingEndingYoshis_Tiles + j);
   oam[1].charnum = *(kDrawCameraFacingEndingYoshis_Tiles + j + 1);
@@ -963,36 +915,30 @@ void CreditsFadeOut_0CABB2() {  // 0cabb2
   palettes_dynamic_palette_colors[13] = 18;
   palettes_background_color = *(uint16 *)((int8 *)&kGlobalPalettes_Sky +
                                           (uint16)(2 * (kCreditsFadeOut_SkyColorSetting[blocks_screen_to_place_current_object] & 0xF)));
-  R0_W = 0xb0b0;
-  R0_W = kCreditsFadeOut_BGPaletteIndex[kCreditsFadeOut_BGPaletteSetting[blocks_screen_to_place_current_object] & 0xF] + 0xb0b0;
-  R2_W = 0;
-  R4_W = 0;
-  R8_W = 1;
+  uint16 r0w = kCreditsFadeOut_BGPaletteIndex[kCreditsFadeOut_BGPaletteSetting[blocks_screen_to_place_current_object] & 0xF] + 0xb0b0;
+  LongPtr p0 = { .bank = 0, .addr = r0w };
+  uint16 r4w = 0;
+  uint16 n = 1;
   uint16 v0;
   do {
-    v0 = R4_W;
+    v0 = r4w;
     for (int16 i = 5; i >= 0; --i) {
-      *(uint16 *)&palettes_dynamic_palette_colors[v0] = *(uint16 *)IndirPtr(&R0_W, 0);
-      ++R0_W;
-      ++R0_W;
+      *(uint16 *)&palettes_dynamic_palette_colors[v0] = *(uint16 *)IndirPtr(&p0, 0);
+      p0.addr += 2;
       v0 += 2;
     }
-    R4_W += 14;
-    --R8_W;
-  } while ((R8_W & 0x8000) == 0);
+    r4w += 14;
+    --n;
+  } while ((n & 0x8000) == 0);
   *(uint16 *)&palettes_dynamic_palette_colors[v0] = 0;
 }
 
 void GetLayer1And2PointersForEnemyRollcall() {  // 0cad8c
-  ++counter_enemy_rollcall_screen;
-  uint8 v0 = -1;
-  if (counter_enemy_rollcall_screen == 12)
-    v0 = 12;
-  temp67 = 12;
-  ptr_layer2_data_bank = v0;
-  int v1 = (uint8)(2 * counter_enemy_rollcall_screen) >> 1;
-  *(uint16 *)&temp65 = kGetLayer1And2PointersForEnemyRollcall_Layer1Ptrs[v1];
-  ptr_layer2_data = kGetLayer1And2PointersForEnemyRollcall_Layer2Ptrs[v1];
+  int v1 = ++counter_enemy_rollcall_screen;
+  ptr_layer2_data.bank = (counter_enemy_rollcall_screen == 12) ? 12 : 0xff;
+  ptr_layer2_data.addr = kGetLayer1And2PointersForEnemyRollcall_Layer2Ptrs[v1];
+  ptr_layer1_data.bank = 12;
+  ptr_layer1_data.addr = kGetLayer1And2PointersForEnemyRollcall_Layer1Ptrs[v1];
 }
 
 void InitializeEnemyRollcallLayerPositions() {  // 0cadf6
@@ -1001,14 +947,13 @@ void InitializeEnemyRollcallLayerPositions() {  // 0cadf6
   uint8 v6 = 2 * counter_enemy_rollcall_screen;
   LoadStripeImage();
   if ((ow_level_tile_settings[73] & 0x80) != 0) {
-    R0_ = *((uint8 *)kInitializeEnemyRollcallLayerPositions_SpecialWorldEnemyNamePtrs + (uint8)(2 * counter_enemy_rollcall_screen));
-    R1_ = *((uint8 *)kInitializeEnemyRollcallLayerPositions_SpecialWorldEnemyNamePtrs + (uint8)(2 * counter_enemy_rollcall_screen) + 1);
-    R2_ = 13;
+    uint16 r0w = kInitializeEnemyRollcallLayerPositions_SpecialWorldEnemyNamePtrs[counter_enemy_rollcall_screen];
+    LongPtr p0 = { .bank = 0xd, .addr = r0w };
     uint8 v0 = 0;
     uint8 v1 = stripe_image_upload;
     uint16 v3;
     do {
-      uint8 *v2 = IndirPtr(&R0_W, v0);
+      uint8 *v2 = IndirPtr(&p0, v0);
       v3 = *(uint16 *)v2;
       *(uint16 *)&stripe_image_upload_data[v1] = *(uint16 *)v2;
       v0 += 2;
@@ -1070,45 +1015,45 @@ LABEL_7:
   --pt[1].x;
   if ((pt->x & (uint8)mirror_current_layer1_xpos) == 0)
     goto LABEL_7;
-LABEL_10:
-  HIBYTE(v2) = 0;
+LABEL_10:;
   uint8 v3 = 32;
   if (counter_enemy_rollcall_screen == 5)
     v3 = 48;
-  R0_ = v3;
-  LOBYTE(v2) = 2 * counter_enemy_rollcall_screen;
+  uint8 r0 = v3;
+  v2 = 2 * counter_enemy_rollcall_screen;
   uint16 v4 = kGameMode25_ShowEnemyRollcallScreen_EnemyRollcallSpriteDataPtrs[v2 >> 1];
-  *(uint16 *)&R1_ = 127;
+  uint16 r1w = 127;
   int16 v5 = 508;
   while (1) {
     uint16 v9 = v5;
     uint16 x = mirror_current_layer1_xpos;
     if ((kGameMode25_ShowEnemyRollcallScreen_TileData[v4 + 3] & 0x20) != 0)
       x = get_PointU16(misc_layer1_pos, 0)->x;
-    *(uint16 *)&R3_ = x;
+    uint8 r4 = x >> 8;
     if (kGameMode25_ShowEnemyRollcallScreen_TileData[v4] == 0xFF)
       break;
     OamEnt *oam = get_OamEnt(oam_buf, v9);
-    int t = kGameMode25_ShowEnemyRollcallScreen_TileData[v4] - R3_;
+    int t = kGameMode25_ShowEnemyRollcallScreen_TileData[v4] - (x & 0xff);
     oam->xpos = t;
-    R4_ = (0 - R4_ - (t < 0)) & 1;
-    sprites_oamtile_size_buffer[*(uint16 *)&R1_] = R4_ | ((uint8)(kGameMode25_ShowEnemyRollcallScreen_TileData[v4 + 3] & 0x10) >> 3);
+    r4 = (0 - r4 - (t < 0)) & 1;
+    sprites_oamtile_size_buffer[r1w] = r4 | ((uint8)(kGameMode25_ShowEnemyRollcallScreen_TileData[v4 + 3] & 0x10) >> 3);
 
     oam->ypos = kGameMode25_ShowEnemyRollcallScreen_TileData[v4 + 1];
     oam->charnum = kGameMode25_ShowEnemyRollcallScreen_TileData[v4 + 2];
-    oam->flags = R0_ | kGameMode25_ShowEnemyRollcallScreen_TileData[v4 + 3] & 0xCF;
+    oam->flags = r0 | kGameMode25_ShowEnemyRollcallScreen_TileData[v4 + 3] & 0xCF;
     v5 = v9 - 4;
     v4 += 4;
-    --R1_;
+    --BYTE(r1w);
   }
 }
 
 void DisplayCastleDestructionText() {  // 0cc94e
   if (l1_l2_scroll_spr_current_state[1]) {
     if ((--l1_l2_scroll_spr_current_state[1] & 0x1F) == 0) {
-      R0_ = 8 * (misc_currently_active_boss_end_cutscene - 1);
-      R0_ |= (uint8)(l1_l2_scroll_spr_current_state[1] & 0xE0) >> 5;
-      graphics_stripe_image_to_upload = 3 * R0_ + 33;
+      uint8 r0;
+      r0 = 8 * (misc_currently_active_boss_end_cutscene - 1);
+      r0 |= (uint8)(l1_l2_scroll_spr_current_state[1] & 0xE0) >> 5;
+      graphics_stripe_image_to_upload = 3 * r0 + 33;
     }
   }
 }
@@ -1168,9 +1113,9 @@ void GameMode19_Cutscene_LemmyCutscene() {  // 0cca2f
 void GameMode19_Cutscene_WendyCutscene() {  // 0cca51
   ProcessMop();
   if (l1_l2_scroll_spr_timer[0]) {
-    R0_ = -80;
+    uint8 r0 = -80;
     sprites_cutscene_sprite_xpos_lo[1] = 104;
-    DrawWhiteFlag(0x30);
+    DrawWhiteFlag(0x30, r0);
   }
   kGameMode19_Cutscene_Ptrs0CCA6E[l1_l2_scroll_spr_current_state[0]]();
 }
@@ -1205,8 +1150,8 @@ void RaiseFlagUpFromRubble() {  // 0ccace
         sprites_cutscene_sprite_xspeed[1] = -16;
         CopyOfUpdateCutsceneSpritePosition_X(1);
       }
-      R0_ = -85;
-      DrawWhiteFlag(0x30);
+      uint8 r0 = -85;
+      DrawWhiteFlag(0x30, r0);
     }
   } else {
     l1_l2_scroll_spr_timer[0] = 0;
@@ -1214,9 +1159,9 @@ void RaiseFlagUpFromRubble() {  // 0ccace
   }
 }
 
-void DrawWhiteFlag(uint8 k) {  // 0ccafd
+void DrawWhiteFlag(uint8 k, uint8 r0) {  // 0ccafd
   OamEnt *oam = get_OamEnt(oam_buf, k);
-  oam[96].xpos = R0_;
+  oam[96].xpos = r0;
   oam[96].ypos = sprites_cutscene_sprite_xpos_lo[1];
   oam[96].charnum = -26;
   oam[96].flags = 33;
@@ -1259,18 +1204,18 @@ void HandleTNTFuse_TNTFuseAndLineDraw() {  // 0ccb80
   uint8 v0 = 96;
   if (l1_l2_scroll_spr_spriteid[0])
     v0 = sprites_cutscene_sprite_xpos_lo[0];
-  R0_ = v0;
-  R1_ = 103;
+  uint8 r0 = v0;
+  uint8 r1 = 103;
   for (uint8 i = 20; i != 40; i += 4) {
-    if (R0_ < 0xB0) {
+    if (r0 < 0xB0) {
       OamEnt *oam = get_OamEnt(oam_buf, i);
-      oam[96].xpos = R0_;
-      oam[96].ypos = R1_;
+      oam[96].xpos = r0;
+      oam[96].ypos = r1;
       oam[96].charnum = -28;
       oam[96].flags = 63;
       sprites_oamtile_size_buffer[(i >> 2) + 96] = 2;
     }
-    R0_ += 16;
+    r0 += 16;
   }
   if (l1_l2_scroll_spr_spriteid[0]) {
     if ((uint8)(sprites_cutscene_sprite_xpos_lo[0] - 8) < 0xB0) {
@@ -1294,26 +1239,26 @@ void DrawCastleDestructionCastleDoor() {  // 0ccbfa
 }
 
 void sub_CCBFC(uint8 k) {  // 0ccbfc
-  R0_ = -88;
-  R2_ = -88;
-  R1_ = 95;
-  DrawCastleDestructionCastleDoor_Entry3(k);
+  uint8 r0 = -88;
+  uint8 r2 = -88;
+  uint8 r1 = 95;
+  DrawCastleDestructionCastleDoor_Entry3(k, r0, r1, r2);
 }
 
-void DrawCastleDestructionCastleDoor_Entry3(uint8 k) {  // 0ccc06
+void DrawCastleDestructionCastleDoor_Entry3(uint8 k, uint8 r0, uint8 r1, uint8 r2) {  // 0ccc06
   uint8 v1 = 0;
   do {
     OamEnt *oam = get_OamEnt(oam_buf, k);
-    oam[96].xpos = R0_;
-    oam[96].ypos = R1_;
+    oam[96].xpos = r0;
+    oam[96].ypos = r1;
     oam[96].charnum = kDrawCastleDestructionCastleDoor_Tiles[v1];
     oam[96].flags = 45;
     sprites_oamtile_size_buffer[(k >> 2) + 96] = 2;
     ++v1;
-    R0_ += 8;
+    r0 += 8;
     if ((v1 & 1) == 0) {
-      R0_ = R2_;
-      R1_ += 8;
+      r0 = r2;
+      r1 += 8;
     }
     k += 4;
   } while (v1 != 4);
@@ -1337,16 +1282,16 @@ void HandleTNTExplosion() {  // 0ccc51
 }
 
 void HandleTNTExplosion_TNTExplosionDraw() {  // 0cccb6
-  R8_ = kHandleTNTExplosion_DATA_0CCCB1[(uint8)(l1_l2_scroll_spr_scroll_type_index[0] + 1)];
+  uint8 r8 = kHandleTNTExplosion_DATA_0CCCB1[(uint8)(l1_l2_scroll_spr_scroll_type_index[0] + 1)];
   uint8 v0 = -96;
   if (l1_l2_scroll_spr_scroll_type_index[0] == 0xFF)
     v0 = -88;
-  R0_ = v0;
-  R4_ = v0;
-  R2_ = 87;
+  uint8 r0 = v0;
+  uint8 r4 = v0;
+  uint8 r2 = 87;
   uint8 v1 = 0;
   do {
-    uint8 v2 = kHandleTNTExplosion_DATA_0CCC9F[R8_];
+    uint8 v2 = kHandleTNTExplosion_DATA_0CCC9F[r8];
     if (v2) {
       OamEnt *oam = get_OamEnt(oam_buf, v1);
       oam[1].charnum = v2;
@@ -1354,16 +1299,16 @@ void HandleTNTExplosion_TNTExplosionDraw() {  // 0cccb6
       if ((l1_l2_scroll_spr_scroll_type_index[0] & 0x80) == 0 && (l1_l2_scroll_spr_scroll_type_index[0] & 2) != 0)
         v4 = 57;
       oam[1].flags = v4;
-      oam[1].xpos = R0_;
-      oam[1].ypos = R2_;
+      oam[1].xpos = r0;
+      oam[1].ypos = r2;
       sprites_oamtile_size_buffer[(v1 >> 2) + 1] = 2;
     }
-    ++R8_;
-    R0_ += 16;
+    ++r8;
+    r0 += 16;
     v1 += 4;
     if (v1 == 12) {
-      R0_ = R4_;
-      R2_ += 16;
+      r0 = r4;
+      r2 += 16;
     }
   } while (v1 != 24);
 }
@@ -1446,10 +1391,10 @@ LABEL_15:
 
 void HandleCastleLiftoff_0CCE2A() {  // 0cce2a
   HandleCastleLiftoff_DrawCastleDust();
-  R0_ = -88;
-  R2_ = -88;
-  R1_ = 95 - sprites_cutscene_sprite_ypos_lo[0];
-  DrawCastleDestructionCastleDoor_Entry3(0x14);
+  uint8 r0 = -88;
+  uint8 r2 = -88;
+  uint8 r1 = 95 - sprites_cutscene_sprite_ypos_lo[0];
+  DrawCastleDestructionCastleDoor_Entry3(0x14, r0, r1, r2);
 }
 
 void HandleCastleLiftoff_DrawCastleDust() {  // 0cce48
@@ -1457,23 +1402,23 @@ void HandleCastleLiftoff_DrawCastleDust() {  // 0cce48
     l1_l2_scroll_spr_spriteid[1] = 5;
     l1_l2_scroll_spr_scroll_type_index[0] ^= 1;
   }
-  R0_ = -104;
+  uint8 r0 = -104;
   uint8 v0 = 33;
   if (l1_l2_scroll_spr_scroll_type_index[0])
     v0 = 97;
-  R4_ = v0;
+  uint8 r4 = v0;
   uint8 v1 = 4 * l1_l2_scroll_spr_scroll_type_index[0];
   uint8 v2 = 0;
   uint8 v4;
   do {
     OamEnt *oam = get_OamEnt(oam_buf, v2);
-    oam[1].xpos = R0_;
+    oam[1].xpos = r0;
     oam[1].ypos = sprites_cutscene_sprite_ypos_lo[1];
     oam[1].charnum = kHandleCastleLiftoff_CastleDustTiles[v1];
-    oam[1].flags = R4_;
+    oam[1].flags = r4;
     v4 = v2;
     sprites_oamtile_size_buffer[(v2 >> 2) + 1] = 2;
-    R0_ += 16;
+    r0 += 16;
     ++v1;
     v2 += 4;
   } while (v4 != 12);
@@ -1541,10 +1486,10 @@ void HandleDudTNTExplosion() {  // 0ccf72
 }
 
 void HandleDudTNTExplosion_0CCF90() {  // 0ccf90
-  R0_ = -88;
-  R2_ = -88;
-  R1_ = 95;
-  DrawCastleDestructionCastleDoor_Entry3(8);
+  uint8 r0 = -88;
+  uint8 r2 = -88;
+  uint8 r1 = 95;
+  DrawCastleDestructionCastleDoor_Entry3(8, r0, r1, r2);
 }
 
 void HandleDudTNTExplosion_DrawDudTNTExplosion(uint8 k) {  // 0ccfa3
@@ -1613,29 +1558,29 @@ LABEL_12:;
     else
       v0 = -87;
   }
-  R0_ = v0;
-  R2_ = v0;
-  R1_ = 95;
-  DrawCastleDestructionCastleDoor_Entry3(8);
+  uint8 r0 = v0;
+  uint8 r2 = v0;
+  uint8 r1 = 95;
+  DrawCastleDestructionCastleDoor_Entry3(8, r0, r1, r2);
 }
 
 void DrawCutsceneContactEffect() {  // 0cd069
   uint8 v0 = 0;
   uint8 v1 = 4;
-  R0_ = player_xpos + 16;
-  R2_ = player_xpos + 16;
-  R1_ = player_ypos + 16;
+  uint8 r0 = player_xpos + 16;
+  uint8 r2 = player_xpos + 16;
+  uint8 r1 = player_ypos + 16;
   do {
     OamEnt *oam = get_OamEnt(oam_buf, v1);
-    oam->xpos = R0_;
-    oam->ypos = R1_;
+    oam->xpos = r0;
+    oam->ypos = r1;
     oam->charnum = kDrawCutsceneContactEffect_Tiles[v0];
     oam->flags = kDrawCutsceneContactEffect_Prop[v0];
     sprites_oamtile_size_buffer[v1 >> 2] = 0;
-    R0_ += 8;
+    r0 += 8;
     if (++v0 == 2) {
-      R0_ = R2_;
-      R1_ += 8;
+      r0 = r2;
+      r1 += 8;
     }
     v1 += 4;
   } while (v0 != 4);
@@ -1720,18 +1665,18 @@ void HandleCastleCrumblingDown_DrawCastleRubble() {  // 0cd1d0
 }
 
 void ProcessMop_EraseColumn() {  // 0cd22d
-  R1_ = stripe_image_upload;
+  uint8 r1 = stripe_image_upload;
   int8 v0 = 12;
   uint8 v1 = stripe_image_upload + 12;
   do
     stripe_image_upload_data[v1--] = kProcessMop_DATA_0CD1F0[(uint8)v0--];
   while (v0 >= 0);
   LOBYTE(stripe_image_upload) = stripe_image_upload + 12;
-  R0_ = player_xpos + 96;
+  uint8 r0 = player_xpos + 96;
   uint8 v2 = player_xpos + 96 + ((uint8)(LOBYTE(get_PointU16(l1_l2_scroll_spr_speed, 0)->x) - 56) >> 2);
   int v3 = v2 >> 1;
-  int v4 = R1_;
-  *(uint16 *)&stripe_image_upload_data[R1_] = kProcessMop_DATA_0CD1FD[v3];
+  int v4 = r1;
+  *(uint16 *)&stripe_image_upload_data[r1] = kProcessMop_DATA_0CD1FD[v3];
   *(uint16 *)&stripe_image_upload_data[v4 + 6] = kProcessMop_DATA_0CD1FD[v3 + 1];
   if (v2 == 28)
     l1_l2_scroll_spr_timer[0] = 1;
@@ -1878,23 +1823,23 @@ void DrawQuestionMark() {  // 0cd4a4
   uint8 v0 = 0;
   if (!player_current_power_up)
     v0 = 8;
-  R2_ = v0;
+  uint8 r2 = v0;
   uint8 v1 = 64;
-  R0_ = 2;
+  uint8 r0 = 2;
   uint8 v2 = 4 * l1_l2_scroll_spr_timer[1];
   do {
     if (kDrawQuestionMark_XDisp[v2] != 0x80) {
       OamEnt *oam = get_OamEnt(oam_buf, v1);
       oam->xpos = player_xpos + kDrawQuestionMark_XDisp[v2];
-      oam->ypos = R2_ + player_ypos + kDrawQuestionMark_YDisp[v2];
+      oam->ypos = r2 + player_ypos + kDrawQuestionMark_YDisp[v2];
       oam->charnum = -74;
       oam->flags = 49;
       sprites_oamtile_size_buffer[v1 >> 2] = 0;
       v1 += 4;
     }
     ++v2;
-    --R0_;
-  } while ((R0_ & 0x80) == 0);
+    --r0;
+  } while ((r0 & 0x80) == 0);
 }
 
 void DrawPlayerCough_RoyCutscene() {  // 0cd4f8
@@ -1906,10 +1851,10 @@ void DrawPlayerCough_RoyCutscene() {  // 0cd4f8
       uint8 v1 = 0;
       if (!player_current_power_up)
         v1 = 8;
-      R0_ = v1;
+      uint8 r0 = v1;
       OamEnt *oam = get_OamEnt(oam_buf, 0x34);
       oam->xpos = player_xpos + 4;
-      oam->ypos = R0_ + player_ypos + sprites_cutscene_sprite_ypos_lo[2];
+      oam->ypos = r0 + player_ypos + sprites_cutscene_sprite_ypos_lo[2];
       oam->charnum = kDrawPlayerCough_Tiles[(uint8)-sprites_cutscene_sprite_ypos_lo[2] >> 2];
       oam->flags = 51;
       sprites_oamtile_size_buffer[13] = 0;
@@ -1932,11 +1877,10 @@ void DrawPlayerCough_MortonCutscene() {  // 0cd557
       uint8 v1 = 15;
       if (!player_current_power_up)
         v1 = 19;
-      R0_ = v1;
-      R1_ = 12;
+      uint8 r0 = v1;
       OamEnt *oam = get_OamEnt(oam_buf, 0x34);
       oam->xpos = player_xpos + sprites_cutscene_sprite_xpos_lo[3] + 12;
-      oam->ypos = R0_ + player_ypos + sprites_cutscene_sprite_ypos_lo[3];
+      oam->ypos = r0 + player_ypos + sprites_cutscene_sprite_ypos_lo[3];
       oam->charnum = kDrawPlayerCough_Tiles[sprites_cutscene_sprite_xpos_lo[3] >> 2];
       oam->flags = 51;
       sprites_oamtile_size_buffer[13] = 0;
@@ -2008,21 +1952,21 @@ void ProcessMop() {  // 0cd6ec
     uint8 v2 = 2 * player_walking_frame;
     if (player_current_power_up)
       ++v2;
-    R0_ = kProcessMop_DATA_0CD6C4[v2];
-    R1_ = kProcessMop_DATA_0CD6CA[v2];
+    uint8 r0 = kProcessMop_DATA_0CD6C4[v2];
+    uint8 r1 = kProcessMop_DATA_0CD6CA[v2];
     int8 v3 = 0;
     if (player_facing_direction & 1)
       v3 = 0x80;
-    R2_ = ((uint8)((player_facing_direction >> 2) + v3) >> 1) ^ 0x61;
+    uint8 r2 = ((uint8)((player_facing_direction >> 2) + v3) >> 1) ^ 0x61;
     for (uint8 j = 2; (j & 0x80) == 0; --j) {
-      int8 v5 = kProcessMop_DATA_0CD6D0[j] + R0_;
-      if ((R2_ & 0x40) != 0)
+      int8 v5 = kProcessMop_DATA_0CD6D0[j] + r0;
+      if ((r2 & 0x40) != 0)
         v5 = -v5;
       OamEnt *oam = get_OamEnt(oam_buf, (uint8)(4 * j));
       oam[80].xpos = player_xpos + v5;
-      oam[80].ypos = player_ypos + kProcessMop_DATA_0CD6D3[j] + R1_;
+      oam[80].ypos = player_ypos + kProcessMop_DATA_0CD6D3[j] + r1;
       oam[80].charnum = kProcessMop_Tiles[j];
-      oam[80].flags = R2_;
+      oam[80].flags = r2;
     }
     return;
   }
@@ -2034,19 +1978,19 @@ void ProcessMop() {  // 0cd6ec
     v7 = 56;
   player_current_pose = v7;
   uint8 v9 = 0;
-  R0_ = x - 1;
+  uint8 r0 = x - 1;
   int8 v10 = -84;
   do {
     OamEnt *v11 = get_OamEnt(oam_buf, v9);
     v11[80].charnum = v10;
     v11[80].flags = 33;
     v11[80].xpos = player_xpos;
-    uint8 v12 = R0_;
-    v11[80].ypos = R0_;
+    uint8 v12 = r0;
+    v11[80].ypos = r0;
     uint8 v13 = v12 + 16;
     if (v13 >= 0x68)
       v13 = 104;
-    R0_ = v13;
+    r0 = v13;
     v9 += 4;
     v10 = -82;
   } while (v9 < 0x14);

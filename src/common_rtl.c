@@ -10,6 +10,7 @@ struct StateRecorder;
 static void RtlSaveMusicStateToRam_Locked();
 static void RtlRestoreMusicAfterLoad_Locked(bool is_reset);
 void SmwSavePlaythroughSnapshot();
+void SmwLoadNextPlaybackSnapshot();
 
 uint8 g_ram[0x20000];
 uint8 *g_sram;
@@ -18,6 +19,7 @@ const uint8 *g_rom;
 bool g_is_uploading_apu;
 bool g_did_finish_level_hook;
 uint8 game_id;
+bool g_playback_mode = 0;
 
 static uint8 *g_rtl_memory_ptr;
 static RunFrameFunc *g_rtl_runframe;
@@ -404,6 +406,8 @@ bool RtlRunFrame(int inputs) {
       RtlClearKeyLog();
     }
     g_did_finish_level_hook = false;
+    if (g_playback_mode)
+      SmwLoadNextPlaybackSnapshot();
   }
 
   // Avoid up/down and left/right from being pressed at the same time
@@ -441,9 +445,19 @@ void RtlSaveSnapshot(const char *filename, bool saving_with_bug) {
   fclose(f);
 }
 
+static void RtlLoadFromFile(FILE *f, bool replay) {
+  RtlApuLock();
+  StateRecorder_Load(&state_recorder, f, replay);
+  ppu_copy(g_snes->my_ppu, g_snes->ppu);
+  RtlApuUnlock();
+  RtlSynchronizeWholeState();
+}
+
 static const char *const kBugSaves[] = {
-"smb1-bug-1685653215",
+  "playthrough/75_1",
 };
+
+
 
 void RtlSaveLoad(int cmd, int slot) {
   char name[128];
@@ -461,20 +475,31 @@ void RtlSaveLoad(int cmd, int slot) {
   printf("*** %s slot %d: %s\n",
     cmd == kSaveLoad_Save ? "Saving" : cmd == kSaveLoad_Load ? "Loading" : "Replaying", slot, name);
   if (cmd != kSaveLoad_Save) {
-
     FILE *f = fopen(name, "rb");
     if (f == NULL) {
       printf("Failed fopen: %s\n", name);
       return;
     }
-    RtlApuLock();
-    StateRecorder_Load(&state_recorder, f, cmd == kSaveLoad_Replay);
-    ppu_copy(g_snes->my_ppu, g_snes->ppu);
-    RtlApuUnlock();
-    RtlSynchronizeWholeState();
+    RtlLoadFromFile(f, cmd == kSaveLoad_Replay);
     fclose(f);
   } else {
     RtlSaveSnapshot(name, false);
+  }
+}
+
+static int g_playback_ctr = 75 * 2;
+void SmwLoadNextPlaybackSnapshot() {
+  char name[128];
+  for (int i = 0; i < 10; i++) {
+    g_playback_ctr++;
+    sprintf(name, "saves/playthrough/%d_%d.sav", g_playback_ctr >> 1, (g_playback_ctr & 1) + 1);
+    FILE *f = fopen(name, "rb");
+    if (f) {
+      printf("Playthrough %s\n", name);
+      RtlLoadFromFile(f, true);
+      fclose(f);
+      return;
+    }
   }
 }
 

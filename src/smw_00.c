@@ -21,7 +21,7 @@ static FuncV *const kInitAndMainLoop_GameModePtrs[42] = {
     &GameMode0E_ShowOverworld,
     &GameModeXX_FadeInOrOut_MosaicFade,
     &GameMode10_BufferLevelLoadMessage,
-    &GameMode11_LoadSublevel_SA1Pack_OptimizeThisRoutine1,
+    &GameMode11_LoadSublevel_0096D5,
     &GameMode12_PrepareLevel,
     &GameModeXX_FadeInOrOut_MosaicFade,
     &GameMode14_InLevel,
@@ -47,7 +47,9 @@ static FuncV *const kInitAndMainLoop_GameModePtrs[42] = {
     &GameMode28_ShowTheEnd,
     &GameMode29_DoNothingOnTheEndScreen,
 };
-static FuncV *const kGenerateTile_TileGenerationPtr[27] = {
+
+typedef void TileGenFunc(GenTileArgs *gta);
+static TileGenFunc *const kGenerateTile_TileGenerationPtr[27] = {
     &sub_C074,
     &sub_C077,
     &sub_C077,
@@ -135,33 +137,24 @@ void ResetSpritesFunc(int wh) {
 }
 
 void HandleSPCUploads_UploadSPCEngine() {  // 0080e8
-  R0_ = 0;
-  R1_ = 0x80;
-  R2_ = 14;
-  HandleSPCUploads_UploadDataToSPC();
+  HandleSPCUploads_UploadDataToSPC(RomPtr(0xe8000));
 }
 
-void HandleSPCUploads_UploadDataToSPC() {  // 0080f7
+void HandleSPCUploads_UploadDataToSPC(const uint8 *p) {  // 0080f7
   if (g_use_my_apu_code)
-    RtlApuUpload(RomPtr(load24(R0_)));
+    RtlApuUpload(p);
 }
 
 void HandleSPCUploads_UploadSamples() {  // 0080fd
-  R0_ = 0;
-  R1_ = 0x80;
-  R2_ = 15;
-  HandleSPCUploads_StrtSPCMscUpld();
+  HandleSPCUploads_StrtSPCMscUpld(RomPtr(0xf8000));
 }
 
 void HandleSPCUploads_UploadOverworldMusicBank() {  // 00810e
-  R0_ = -79;
-  R1_ = -104;
-  R2_ = 14;
-  HandleSPCUploads_StrtSPCMscUpld();
+  HandleSPCUploads_StrtSPCMscUpld(RomPtr(0xe98b1));
 }
 
-void HandleSPCUploads_StrtSPCMscUpld() {  // 00811d
-  HandleSPCUploads_UploadDataToSPC();
+void HandleSPCUploads_StrtSPCMscUpld(const uint8 *p) {  // 00811d
+  HandleSPCUploads_UploadDataToSPC(p);
   for (uint8 i = 3; (i & 0x80) == 0; --i) {
     WriteReg((SnesRegs)(i + APUI00), 0);
     *(&io_sound_ch1 + i) = 0;
@@ -172,18 +165,12 @@ void HandleSPCUploads_StrtSPCMscUpld() {  // 00811d
 void HandleSPCUploads_008134() {  // 008134
   if (flag_active_bonus_game || misc_intro_level_flag == 0xE9 ||
       !(flag_show_player_start | (uint8)(counter_sublevels_entered | misc_intro_level_flag))) {
-    R0_ = -42;
-    R1_ = -82;
-    R2_ = 14;
-    HandleSPCUploads_StrtSPCMscUpld();
+    HandleSPCUploads_StrtSPCMscUpld(RomPtr(0xeaed6));
   }
 }
 
 void HandleSPCUploads_UploadCreditsMusicBank() {  // 008159
-  R0_ = 0;
-  R1_ = -28;
-  R2_ = 3;
-  HandleSPCUploads_StrtSPCMscUpld();
+  HandleSPCUploads_StrtSPCMscUpld(RomPtr(0x3e400));
 }
 
 void SmwVectorNMI() {
@@ -416,10 +403,9 @@ void CompressOamEntExt() {  // 008494
 }
 
 void LoadStripeImage() {  // 0085d2
-  R0_ = *((uint8 *)&kLoadStripeImage_StripeImagePtrs[0].addr + graphics_stripe_image_to_upload);
-  R1_ = *((uint8 *)&kLoadStripeImage_StripeImagePtrs[0].addr + graphics_stripe_image_to_upload + 1);
-  R2_ = *(&kLoadStripeImage_StripeImagePtrs[0].bank + graphics_stripe_image_to_upload);
-  LoadStripeImage_UploadToVRAM(R2_);
+//  printf("M: upl stripe %d\n", graphics_stripe_image_to_upload);
+  LongPtr p0 = *(LongPtr *)((uint8 *)&kLoadStripeImage_StripeImagePtrs[0].addr + graphics_stripe_image_to_upload);
+  LoadStripeImage_UploadToVRAM(p0);
   if (!graphics_stripe_image_to_upload) {
     LOBYTE(stripe_image_upload) = graphics_stripe_image_to_upload;
     HIBYTE(stripe_image_upload) = graphics_stripe_image_to_upload;
@@ -430,14 +416,14 @@ void LoadStripeImage() {  // 0085d2
 
 void ClearLayer3Tilemap() {  // 0085fa
   TurnOffIO();
-  R0_ = -4;
+  g_ram[0] = 0xfc;
   WriteReg(VMAIN, 0);
   WriteReg(VMADDL, 0);
   WriteReg(VMADDH, 0x50);
   for (uint8 i = 6; (i & 0x80) == 0; --i)
     WriteReg((SnesRegs)(i + 0x4310), kClearLayer3Tilemap_PARAMS_008649[i]);
   WriteReg(MDMAEN, 2);
-  R0_ = 56;
+  g_ram[0] = 56;
   WriteReg(VMAIN, 0x80);
   WriteReg(VMADDL, 0);
   WriteReg(VMADDH, 0x50);
@@ -478,43 +464,42 @@ void GameMode14_InLevel_0086C7() {  // 0086c7
   ResetSpritesFunc(100);
 }
 
-void LoadStripeImage_UploadToVRAM(uint8 a) {  // 00871e
+void LoadStripeImage_UploadToVRAM(LongPtr p0) {  // 00871e
   int16 v5;
 
-  WriteReg(A1B1, a);
+  WriteReg(A1B1, p0.bank);
   uint16 v1 = 0;
   while (1) {
-    uint8 *v2 = IndirPtr(&R0_, v1);
+    uint8 *v2 = IndirPtr(&p0, v1);
     if ((*v2 & 0x80) != 0)
       break;
-    R4_ = *v2;
+    uint8 r4 = *v2;
     v1 = v1 + 1;
-    R3_ = *IndirPtr(&R0_, v1++);
-    R7_ = __CFSHL__(*IndirPtr(&R0_, v1), 1);
+    uint16 R3 = r4 << 8 | *IndirPtr(&p0, v1++);
+    uint8 r7 = __CFSHL__(*IndirPtr(&p0, v1), 1);
     WriteReg(BBAD1, 0x18);
-    R5_ = (uint8)(*IndirPtr(&R0_, v1) & 0x40) >> 3;
-    R6_ = 0;
-    WriteReg(DMAP1, R5_ | 1);
-    WriteRegWord(VMADDL, *(uint16 *)&R3_);
-    uint8 *v4 = IndirPtr(&R0_W, v1);
+    uint8 r5 = (uint8)(*IndirPtr(&p0, v1) & 0x40) >> 3;
+    WriteReg(DMAP1, r5 | 1);
+    WriteRegWord(VMADDL, R3);
+    uint8 *v4 = IndirPtr(&p0, v1);
     LOBYTE(v5) = HIBYTE(*(uint16 *)v4);
     HIBYTE(v5) = *(uint16 *)v4;
     uint16 v6 = (v5 & 0x3FFF) + 1;
     v1 = v1 + 2;
-    WriteRegWord(A1T1L, R0_W + v1);
+    WriteRegWord(A1T1L, p0.addr + v1);
     WriteRegWord(DAS1L, v6);
-    if (*(uint16 *)&R5_) {
-      WriteReg(VMAIN, R7_);
+    if (r5) {
+      WriteReg(VMAIN, r7);
       WriteReg(MDMAEN, 2);
       WriteReg(BBAD1, 0x19);
-      WriteRegWord(VMADDL, *(uint16 *)&R3_);
-      WriteRegWord(A1T1L, R0_W + v1 + 1);
+      WriteRegWord(VMADDL, R3);
+      WriteRegWord(A1T1L, p0.addr + v1 + 1);
       WriteRegWord(DAS1L, v6);
       v6 = 2;
     }
-    *(uint16 *)&R3_ = v6;
+    R3 = v6;
     v1 = v6 + v1;
-    WriteReg(VMAIN, R7_ | 0x80);
+    WriteReg(VMAIN, r7 | 0x80);
     WriteReg(MDMAEN, 2);
   }
 }
@@ -637,7 +622,7 @@ void UploadLevelLayer1And2Tilemaps() {  // 0087ad
 void InitializeFirst8KBOfRAM() {  // 008a4e
   uint16 v0 = 0x1ffe;
   do {
-    *(uint16 *)((int8 *)&R0_W + v0) = 0;
+    WORD(g_ram[v0]) = 0;
     do
       v0 -= 2;
     while ((int16)(v0 - 511) < 0 && (int16)(v0 - 256) >= 0);
@@ -667,39 +652,39 @@ void SetStandardPPUSettings() {  // 008a79
 }
 
 void ManipulateMode7Image() {  // 008acd
-  R0_ = HIBYTE(misc_m7_angle);
-  ManipulateMode7Image_008AE8();
-  R0_W = misc_m7_angle;
+  uint8 r0 = HIBYTE(misc_m7_angle);
+  ManipulateMode7Image_008AE8(r0);
+  r0 = misc_m7_angle;
   *(uint16 *)&mirror_m7_matrix_dlo = *(uint16 *)&mirror_m7_matrix_alo;
   *(uint16 *)&mirror_m7_matrix_clo = -*(uint16 *)&mirror_m7_matrix_blo;
-  ManipulateMode7Image_008AE8();
+  ManipulateMode7Image_008AE8(r0);
 }
 
-void ManipulateMode7Image_008AE8() {  // 008ae8
+void ManipulateMode7Image_008AE8(uint8 r0) {  // 008ae8
   uint16 v0 = 2 * ((misc_m7_rotation >> 7) & 3);
   int16 v2 = kManipulateMode7Image_DATA_008ABC[v0 >> 1] + (kManipulateMode7Image_DATA_008AB4[v0 >> 1] ^ (uint8)(2 * misc_m7_rotation));
   int16 v1 = v2;
-  v2 = ManipulateMode7Image_008B2B(v2);
+  v2 = ManipulateMode7Image_008B2B(v2, r0);
   if (v0 >= 4)
     v2 = -v2;
   *(uint16 *)&mirror_m7_matrix_blo = v2;
   int16 v3 = ((v1 ^ 0xFE) + 2) & 0x1FF;
-  v3 = ManipulateMode7Image_008B2B(v3);
+  v3 = ManipulateMode7Image_008B2B(v3, r0);
   if ((uint16)(v0 - 2) < 4)
     v3 = -v3;
   *(uint16 *)&mirror_m7_matrix_alo = v3;
 }
 
-uint16 ManipulateMode7Image_008B2B(uint16 k) {  // 008b2b
+uint16 ManipulateMode7Image_008B2B(uint16 k, uint8 r0) {  // 008b2b
   uint16 v2;
 
   uint8 v1 = *((uint8 *)kManipulateMode7Image_DATA_008B57 + k + 1);
   if (v1)
-    v1 = R0_;
-  R1_ = v1;
+    v1 = r0;
+  uint8 r1 = v1;
   WriteReg(WRMPYA, *((uint8 *)kManipulateMode7Image_DATA_008B57 + k));
-  WriteReg(WRMPYB, R0_);
-  HIBYTE(v2) = R1_ + ReadReg(RDMPYH);
+  WriteReg(WRMPYB, r0);
+  HIBYTE(v2) = r1 + ReadReg(RDMPYH);
   LOBYTE(v2) = ReadReg(RDMPYL);
   return v2 >> 5;
 }
@@ -779,30 +764,21 @@ void UpdateStatusBarCounters() {  // 008e1a
     misc_status_bar_tilemap[v2++ + 28] = -4;
   }
   for (uint8 k = 3; (k & 0x80) == 0; k -= 3) {
-    R0_ = *(&player_mario_score_hi + k);
-    R1_ = 0;
-    if (__PAIR32__(R0_W, *(uint16 *)(&player_mario_score_lo + k)) >= 0xF423F) {
+    uint16 r0w = *(&player_mario_score_hi + k);
+    if (__PAIR32__(r0w, *(uint16 *)(&player_mario_score_lo + k)) >= 0xF423F) {
       *(&player_mario_score_hi + k) = 15;
       *(&player_mario_score_mid + k) = 66;
       *(&player_mario_score_lo + k) = 63;
     }
   }
-  R0_ = player_mario_score_hi;
-  R1_ = 0;
-  R3_ = player_mario_score_mid;
-  R2_ = player_mario_score_lo;
-  UpdateStatusBarCounters_Loop2(0x14, 0);
+  UpdateStatusBarCounters_Loop2(0x14, 0, player_mario_score_hi, PAIR16(player_mario_score_mid, player_mario_score_lo));
   for (uint8 m = 0; m != 6; ++m) {
     if (misc_status_bar_tilemap[m + 48])
       break;
     misc_status_bar_tilemap[m + 48] = -4;
   }
   if (player_current_character) {
-    R0_ = player_luigi_score_hi;
-    R1_ = 0;
-    R3_ = player_luigi_score_mid;
-    R2_ = player_luigi_score_lo;
-    UpdateStatusBarCounters_Loop2(0x14, 0);
+    UpdateStatusBarCounters_Loop2(0x14, 0, player_luigi_score_hi, PAIR16(player_luigi_score_mid, player_luigi_score_lo));
     for (uint8 n = 0; n != 6; ++n) {
       if (misc_status_bar_tilemap[n + 48])
         break;
@@ -834,11 +810,10 @@ void UpdateStatusBarCounters() {  // 008e1a
     v10 = -4;
   misc_status_bar_tilemap[27] = v9.first;
   misc_status_bar_tilemap[26] = v10;
-  R0_ = 0;
-  R1_ = 0;
-  R3_ = 0;
-  R2_ = *(&player_mario_bonus_stars + player_current_character);
-  UpdateStatusBarCounters_009051(9, 0x10);
+//  r0 = 0;
+//  r1 = 0;
+  uint16 r2w = *(&player_mario_bonus_stars + player_current_character);
+  UpdateStatusBarCounters_009051(9, 0x10, r2w);
   uint8 ii;
   for (ii = 0; ii != 1; ++ii) {
     if (misc_status_bar_tilemap[ii + 37])
@@ -859,28 +834,28 @@ void UpdateStatusBarCounters() {  // 008e1a
   uint8 v14 = counter_yoshi_coins_to_display;
   if (counter_yoshi_coins_to_display >= 5)
     v14 = 0;
-  R0_ = v14 - 1;
+  uint8 r0 = v14 - 1;
   for (uint8 kk = 0; kk != 4; ++kk) {
     uint8 v16 = -4;
-    if ((R0_ & 0x80) == 0)
+    if ((r0 & 0x80) == 0)
       v16 = 46;
     misc_status_bar_tilemap[kk + 6] = v16;
-    --R0_;
+    --r0;
   }
 }
 
-void UpdateStatusBarCounters_Loop2(uint8 k, uint8 j) {  // 009012
+void UpdateStatusBarCounters_Loop2(uint8 k, uint8 j, uint16 r0w, uint16 r2w) {  // 009012
   do {
     for (misc_status_bar_tilemap[k + 28] = 0;; ++misc_status_bar_tilemap[k + 28]) {
       int v2 = j >> 1;
-      bool v3 = R2_W >= kUpdateStatusBarCounters_DATA_008FFA[v2 + 1];
-      R6_W = R2_W - kUpdateStatusBarCounters_DATA_008FFA[v2 + 1];
+      bool v3 = r2w >= kUpdateStatusBarCounters_DATA_008FFA[v2 + 1];
+      uint16 r6 = r2w - kUpdateStatusBarCounters_DATA_008FFA[v2 + 1];
       uint16 v4 = !v3 + kUpdateStatusBarCounters_DATA_008FFA[v2];
-      R4_W = R0_W - v4;
-      if (R0_W < v4)
+      uint16 r4 = r0w - v4;
+      if (r0w < v4)
         break;
-      R2_W = R6_W;
-      R0_W = R4_W;
+      r2w = r6;
+      r0w = r4;
     }
     ++k;
     j += 4;
@@ -896,15 +871,15 @@ PairU16 HexToDec(uint8 a) {  // 009045
   return MakePairU16_AX(a, v1);
 }
 
-void UpdateStatusBarCounters_009051(uint8 k, uint8 j) {  // 009051
+void UpdateStatusBarCounters_009051(uint8 k, uint8 j, uint16 r2w) {  // 009051
   do {
     for (misc_status_bar_tilemap[k + 28] = 0;; ++misc_status_bar_tilemap[k + 28]) {
       int v2 = j >> 1;
-      bool v3 = R2_W >= kUpdateStatusBarCounters_DATA_008FFA[v2 + 1];
-      R6_W = R2_W - kUpdateStatusBarCounters_DATA_008FFA[v2 + 1];
+      bool v3 = r2w >= kUpdateStatusBarCounters_DATA_008FFA[v2 + 1];
+      uint16 r6 = r2w - kUpdateStatusBarCounters_DATA_008FFA[v2 + 1];
       if (!v3)
         break;
-      R2_W = R6_W;
+      r2w = r6;
     }
     ++k;
     j += 4;
@@ -918,16 +893,16 @@ void UpdateStatusBarCounters_DrawItemBoxItem() {  // 009079
     if (misc_nmito_use_flag != 0xC1)
       get_OamEnt(oam_buf, 0)->ypos = -16;
   }
-  R1_ = v0;
+  uint8 r1 = v0;
   if (player_current_item_box) {
-    R0_ = kUpdateStatusBarCounters_ItemBoxItemProperties[player_current_item_box - 1];
+    uint8 r0 = kUpdateStatusBarCounters_ItemBoxItemProperties[player_current_item_box - 1];
     if (player_current_item_box == 3)
-      R0_ = kUpdateStatusBarCounters_StarPaletteFrames[(counter_global_frames >> 1) & 3];
-    uint8 v1 = R1_;
-    OamEnt *oam = get_OamEnt(oam_buf, R1_);
+      r0 = kUpdateStatusBarCounters_StarPaletteFrames[(counter_global_frames >> 1) & 3];
+    uint8 v1 = r1;
+    OamEnt *oam = get_OamEnt(oam_buf, r1);
     oam->xpos = 120;
     oam->ypos = 15;
-    oam->flags = R0_ | 0x30;
+    oam->flags = r0 | 0x30;
     oam->charnum = kUpdateStatusBarCounters_ItemBoxItemTile[player_current_item_box - 1];
     sprites_oamtile_size_buffer[v1 >> 2] = 2;
   }
@@ -952,11 +927,10 @@ void DrawLoadingLetters() {  // 0091b1
     v0 = 38;
     v1 = -92;
   }
-  R0_ = v1;
-  R1_ = 0;
+  uint16 r0w = v1;
   uint8 v2 = 112;
   do {
-    DrawLoadingLetters_Draw(v0++, v2);
+    r0w = DrawLoadingLetters_Draw(v0++, v2, r0w);
     if (v0 == 8 && player_current_character)
       v0 = 14;
     v2 -= 8;
@@ -964,20 +938,16 @@ void DrawLoadingLetters() {  // 0091b1
   CompressOamEntExt();
 }
 
-void DrawLoadingLetters_Draw(uint8 k, uint8 j) {  // 0091e9
+uint16 DrawLoadingLetters_Draw(uint8 k, uint8 j, uint16 r0w) {  // 0091e9
   OamEnt *oam = get_OamEnt(oam_buf, j);
   oam[66].flags = kDrawLoadingLetters_TileData_TopProp[k];
   oam[67].flags = kDrawLoadingLetters_TileData_BottomProp[k];
-  uint8 v3 = R0_;
-  oam[66].xpos = R0_;
-  oam[67].xpos = v3;
-  R0_ = v3 - 8;
-  if (v3 < 8)
-    --R1_;
+  oam[66].xpos = r0w;
+  oam[67].xpos = r0w;
+  r0w -= 8;
   uint8 v4 = j >> 2;
-  uint8 v5 = R1_ & 1;
-  sprites_oamtile_size_buffer[v4 + 66] = R1_ & 1;
-  sprites_oamtile_size_buffer[v4 + 67] = v5;
+  sprites_oamtile_size_buffer[v4 + 66] = (r0w >> 8) & 1;
+  sprites_oamtile_size_buffer[v4 + 67] = (r0w >> 8) & 1;
   int8 v6 = kDrawLoadingLetters_TileData[k];
   if (v6 >= 0) {
     OamEnt *v7 = get_OamEnt(oam_buf, j);
@@ -986,6 +956,7 @@ void DrawLoadingLetters_Draw(uint8 k, uint8 j) {  // 0091e9
     v7[66].ypos = 104;
     v7[67].ypos = 112;
   }
+  return r0w;
 }
 
 void UpdateEntirePalette() {  // 00922f
@@ -1165,10 +1136,9 @@ void GameMode06_CircleEffect_009440(uint8 a) {  // 009440
 }
 
 void GameMode06_CircleEffect_009443() {  // 009443
-  UpdateHDMAWindowBuffer_SetCircleHDMAPointer();
-  R0_ = 0x80;
-  R1_ = 112;
-  UpdateHDMAWindowBuffer_KeyholeEntry(0x70);
+  uint8 r0 = 0x80;
+  uint8 r1 = 112;
+  UpdateHDMAWindowBuffer_KeyholeEntry(UpdateHDMAWindowBuffer_SetCircleHDMAPointer(), r0, r1);
 }
 
 void GameMode19_Cutscene() {  // 009468
@@ -1234,15 +1204,14 @@ void GameMode19_Cutscene_GameMode1BEntry() {  // 0094fd
 }
 
 void UploadBigLayer3LettersToVRAM() {  // 00955e
-  GraphicsDecompressionRoutines(0x2F);
+  LongPtr p0 = GraphicsDecompressionRoutines(0x2F);
   WriteReg(VMAIN, 0x80);
   WriteRegWord(VMADDL, 0x4600);
   int16 v0 = 512;
   do {
-    uint8 *v1 = IndirPtr(&R0_W, 0);
+    uint8 *v1 = IndirPtr(&p0, 0);
     WriteRegWord(VMDATAL, *(uint16 *)v1);
-    ++R0_W;
-    ++R0_W;
+    p0.addr += 2;
     --v0;
   } while (v0);
 }
@@ -1372,10 +1341,10 @@ void GameMode11_LoadSublevel_GameMode03Entry() {  // 0096ae
 void GameMode11_LoadSublevel_0096CF(uint8 j, uint8 a) {  // 0096cf
   misc_intro_level_flag = a;
   ow_players_map[0] = j;
-  GameMode11_LoadSublevel_SA1Pack_OptimizeThisRoutine1();
+  GameMode11_LoadSublevel_0096D5();
 }
 
-void GameMode11_LoadSublevel_SA1Pack_OptimizeThisRoutine1() {  // 0096d5
+void GameMode11_LoadSublevel_0096D5() {  // 0096d5
   WriteReg(NMITIMEN, 0);
   DamagePlayer_DisableButtons();
   if (!counter_sublevels_entered && flag_show_player_start)
@@ -1434,7 +1403,7 @@ void GameMode17_ShowDeathMessage() {  // 009759
       if (((players_lives[1] | players_lives[0]) & 0x80) != 0) {
         for (uint8 i = 12; (i & 0x80) == 0; --i) {
           flag_collected5_yoshi_coins[i] = 0;
-          *(&R6_ + i) = 0;
+          g_ram[6 + i] = 0;
           flag_collected_moons[i] = 0;
         }
         ++flag_show_continue_and_end;
@@ -1444,16 +1413,13 @@ void GameMode17_ShowDeathMessage() {  // 009759
     return;
   }
   timer_display_death_message_animation = v0;
-  R0_ = v0 - 96;
-  R1_ = 2 * R1_ + (v0 >= 0x60);
+  uint16 r0w = v0 + 0xa0;
   uint8 v2 = misc_death_message_to_display;
   uint8 v3 = 72;
   do {
-    if (v3 == 40) {
-      R0_ = 120 - timer_display_death_message_animation;
-      R1_ = (2 * (120 - timer_display_death_message_animation) + (timer_display_death_message_animation <= 0x78)) ^ 1;
-    }
-    DrawLoadingLetters_Draw(v2++, v3);
+    if (v3 == 40)
+      r0w = 120 - timer_display_death_message_animation;
+    DrawLoadingLetters_Draw(v2++, v3, r0w);
     v3 -= 8;
   } while (v3);
   CompressOamEntExt();
@@ -1560,17 +1526,17 @@ void UploadMode7KoopaBossesAndLavaAnimation() {  // 0098a9
     v2 = 8;
     v3 = 22;
   }
-  R0_W = v2;
-  R2_W = 0xc680;
+  uint16 r0w = v2;
+  uint16 r2w = 0xc680;
   WriteRegWord(VMAIN, 0);
   WriteRegWord(DMAP2, 0x1800);
   WriteReg(A1B2, 0x7E);
   do {
     WriteRegWord(VMADDL, kUploadMode7KoopaBossesAndLavaAnimation_VRAMAddressToUpload[v3 >> 1]);
-    uint16 v4 = R2_W;
-    WriteRegWord(A1T2L, R2_W);
-    R2_W = R0_W + v4;
-    WriteRegWord(DAS2L, R0_W);
+    uint16 v4 = r2w;
+    WriteRegWord(A1T2L, r2w);
+    r2w = r0w + v4;
+    WriteRegWord(DAS2L, r0w);
     WriteReg(MDMAEN, 4);
     v3 -= 2;
   } while ((v3 & 0x80) == 0);
@@ -1602,7 +1568,7 @@ void GameMode12_PrepareLevel_PrepareNonIggyLarryRoom() {  // 009925
       v3 = 0xfb80;
     if (v4 == 18)
       v3 = 800;
-    R0_W = v3;
+    uint16 r0w = v3;
     uint16 v5 = 0;
     int16 v6 = 0xc05a;
     do {
@@ -1615,7 +1581,7 @@ void GameMode12_PrepareLevel_PrepareNonIggyLarryRoom() {  // 009925
       LOBYTE(v7) = HIBYTE(v7);
       HIBYTE(v7) = v9;
       *(uint16 *)&stripe_image_upload_data[v5 + 132] = v7;
-      v10 = __PAIR16__(v7, v9) - R0_W;
+      v10 = __PAIR16__(v7, v9) - r0w;
       int8 v11 = v10;
       LOBYTE(v10) = HIBYTE(v10);
       HIBYTE(v10) = v11;
@@ -1726,8 +1692,8 @@ uint8 HandleMenuCursor_Main_ReturnsTwice(uint8 j) {  // 009ad0
       counter_blinking_cursor_frame = 0;
       uint8 v2 = misc_blinking_cursor_pos + kHandleMenuCursor_DATA_009AC8[(what >> 2) - 1];
       if ((int8)v2 < 0)
-        v2 = temp8a - 1;
-      if (v2 >= temp8a)
+        v2 = player_collision_var8a - 1;
+      if (v2 >= player_collision_var8a)
         misc_blinking_cursor_pos = 0;
       else
         misc_blinking_cursor_pos = v2;
@@ -1769,8 +1735,7 @@ void GameMode09_EraseFile() {  // 009b1a
     } else {
       misc_blinking_cursor_pos = v0;
       misc_which_file_to_erase |= kGameMode09_EraseFile_DATA_009B17[v0];
-      R5_ = misc_which_file_to_erase;
-      BufferFileSelectText_Entry3(0);
+      BufferFileSelectText_Entry3(0, misc_which_file_to_erase);
     }
   }
 }
@@ -1819,13 +1784,13 @@ void SaveGame() {  // 009bc9
   uint16 v0 = PAIR16(kSaveFileLocations_Hi[misc_current_save_file], kSaveFileLocations_Lo[misc_current_save_file]);
   for (int k = v0; ; k += 288) {
     uint16 j = 0;
-    WORD(temp8a) = 0;
+    uint16 sum = 0;
     do {
       uint8 v3 = ow_save_buffer[j];
       g_sram[k++] = v3;
-      WORD(temp8a) += v3;
+      sum += v3;
     } while (++j < 0x8D);
-    WORD(g_sram[k]) = 0x5a5a - *(uint16 *)&temp8a;
+    WORD(g_sram[k]) = 0x5a5a - sum;
     if (k >= 0x1ad)
       break;
   }
@@ -1900,8 +1865,7 @@ void GameMode08_FileSelect() {  // 009cd1
   ++*(uint16 *)&misc_game_mode;
   if (v0 == 3) {
     misc_which_file_to_erase = 0;
-    R5_ = 0;
-    BufferFileSelectText_Entry3(0);
+    BufferFileSelectText_Entry3(0, 0);
   } else {
     misc_current_save_file = v0;
     PairU16 v1 = BufferFileSelectText_009DB5(v0);
@@ -1910,11 +1874,11 @@ void GameMode08_FileSelect() {  // 009cd1
     if (first != 0xffff) {
       uint16 v6 = first;
       misc_intro_level_flag = 0;
-      R0_ = -113;
+      uint8 r0 = -113;
       do {
         g_sram[second++] = g_sram[first++];
-        --R0_;
-      } while (R0_);
+        --r0;
+      } while (r0);
       uint16 v4 = v6;
       for (uint16 i = 0; i < 0x8D; ++i)
         ow_save_buffer[i] = g_sram[v4++];
@@ -1937,11 +1901,10 @@ void FileSelectColorMath(uint16 a, uint8 j) {  // 009d30
 }
 
 void BufferFileSelectText() {  // 009d38
-  R5_ = 0;
-  BufferFileSelectText_Entry3(0xCB);
+  BufferFileSelectText_Entry3(0xCB, 0);
 }
 
-void BufferFileSelectText_Entry3(uint8 k) {  // 009d3c
+void BufferFileSelectText_Entry3(uint8 k, uint8 r5) {  // 009d3c
   uint16 kk = k;
 
   int16 v1 = k;
@@ -1949,12 +1912,11 @@ void BufferFileSelectText_Entry3(uint8 k) {  // 009d3c
     stripe_image_upload_data[i] = kFileSelectText_EraseFile[kk];
     kk = kk + 1;
   }
-  R0_ = -124;
+  uint8 r0 = -124;
   uint8 v3 = 2;
   do {
-    R4_ = v3;
-    int8 v4 = R5_ & 1;
-    R5_ >>= 1;
+    int8 v4 = r5 & 1;
+    r5 >>= 1;
     if (!v4) {
       uint16 first = BufferFileSelectText_009DB5(v3).first;
       if (first != 0xffff) {
@@ -1967,8 +1929,8 @@ void BufferFileSelectText_Entry3(uint8 k) {  // 009d3c
           second = -121;
           v7 = -120;
         }
-        uint8 v9 = R0_;
-        stripe_image_upload_data[R0_ + 4] = v7;
+        uint8 v9 = r0;
+        stripe_image_upload_data[r0 + 4] = v7;
         if (!second)
           second = -4;
         stripe_image_upload_data[v9 + 2] = second;
@@ -1982,9 +1944,8 @@ void BufferFileSelectText_Entry3(uint8 k) {  // 009d3c
         } while (v10);
       }
     }
-    R0_ -= 36;
-    v3 = R4_ - 1;
-  } while ((int8)(R4_ - 1) >= 0);
+    r0 -= 36;
+  } while ((int8)--v3 >= 0);
 }
 
 PairU16 BufferFileSelectText_009DB5(uint8 k) {  // 009db5
@@ -1997,13 +1958,13 @@ PairU16 BufferFileSelectText_009DB5(uint8 k) {  // 009db5
   for (;;) {
     uint16 v9 = v2;
     uint16 v8 = i;
-    WORD(temp8a) = *(uint16 *)&g_sram[v2 + 141];
+    uint16 sum = WORD(g_sram[v2 + 141]);
     uint16 v4 = 141;
     do {
-      WORD(temp8a) += g_sram[v2++];
+      sum += g_sram[v2++];
     } while (--v4);
 
-    if (WORD(temp8a) == 0x5A5A)
+    if (sum == 0x5A5A)
       return MakePairU16(v9, v8);
     if (v9 >= 428)
       return MakePairU16(v9 == 428 ? v9 : 0xffff, v8);
@@ -2060,37 +2021,29 @@ void GameMode0A_PlayerSelect_009E62() {  // 009e62
 }
 
 void HandleMenuCursor_009E82(uint8 j) {  // 009e82
-  int16 v5;
-
   uint8 v1 = kHandleMenuCursor_DATA_009E7E[misc_blinking_cursor_pos];
   if (((counter_blinking_cursor_frame ^ 0x1F) & 0x18) == 0)
     v1 = 0;
-  R0_ = v1;
+  uint8 r0w = v1;
   uint8 v2 = stripe_image_upload;
   int v3 = j >> 1;
-  *(uint16 *)&temp8a = kHandleMenuCursor_DATA_009E6A[v3];
-  R2_W = *(uint16 *)&temp8a;
+  *(uint16 *)&player_collision_var8a = kHandleMenuCursor_DATA_009E6A[v3];
+  uint16 r2w = *(uint16 *)&player_collision_var8a;
   uint16 v4 = kHandleMenuCursor_DATA_009E74[v3];
   do {
-    int8 v6 = v4;
-    LOBYTE(v5) = HIBYTE(v4);
-    HIBYTE(v5) = v6;
-    *(uint16 *)&stripe_image_upload_data[v2] = v5;
-    int8 v7 = v5;
-    LOBYTE(v5) = v6;
-    HIBYTE(v5) = v7;
-    uint16 v10 = v5 + 64;
-    *(uint16 *)&stripe_image_upload_data[v2 + 2] = 256;
+    WORD(stripe_image_upload_data[v2]) = swap16(v4);
+    uint16 v10 = v4 + 64;
+    WORD(stripe_image_upload_data[v2 + 2]) = 256;
     int16 v8 = 0x38fc;
-    int8 v9 = R0_W & 1;
-    R0_W >>= 1;
+    int8 v9 = r0w & 1;
+    r0w >>= 1;
     if (v9)
       v8 = 0x3d2e;
-    *(uint16 *)&stripe_image_upload_data[v2 + 4] = v8;
+    WORD(stripe_image_upload_data[v2 + 4]) = v8;
     v4 = v10;
     v2 += 6;
-    --R2_W;
-  } while (R2_W);
+    --r2w;
+  } while (r2w);
   HandleMenuCursor_009ED4(v2);
 }
 
@@ -2164,9 +2117,9 @@ void GameMode28_ShowTheEnd() {  // 009f7c
 
 void InitializeLevelLayer3() {  // 009fb8
   uint8 v4;
-  R0_ = 3 * misc_level_tileset_setting;
+  uint8 r0 = 3 * misc_level_tileset_setting;
   if (misc_level_layer3_settings) {
-    uint8 v0 = R0_ + misc_level_layer3_settings - 1;
+    uint8 v0 = r0 + misc_level_layer3_settings - 1;
     int8 v1 = kInitializeLevelLayer3_DATA_009F88[v0];
     if (v1 >= 0) {
       flag_layer3_tide_level = kInitializeLevelLayer3_DATA_009F88[v0];
@@ -2196,12 +2149,8 @@ LABEL_15:
   mirror_color_math_select_and_enable &= ~4;
 LABEL_16:
   if (misc_level_layer3_settings) {
-    R1_ = R0_ + misc_level_layer3_settings - 1;
-    uint8 v6 = R1_;
-    R0_ = *((uint8 *)&kInitializeLevelLayer3_Layer3ImagePtrs[0].addr + (uint8)(3 * R1_));
-    R1_ = *((uint8 *)&kInitializeLevelLayer3_Layer3ImagePtrs[0].addr + (uint8)(3 * R1_) + 1);
-    R2_ = kInitializeLevelLayer3_Layer3ImagePtrs[v6].bank;
-    LoadStripeImage_UploadToVRAM(R2_);
+    uint8 v6 = r0 + misc_level_layer3_settings - 1;
+    LoadStripeImage_UploadToVRAM(kInitializeLevelLayer3_Layer3ImagePtrs[v6]);
   }
 }
 
@@ -2461,13 +2410,12 @@ void UploadLevelExAnimationData() {  // 00a390
 }
 
 void UploadLevelAnimations_YellowFlash(uint8 a) {  // 00a41c
-  R0_ = 0;
-  UploadLevelAnimations_RedFlash(a);
+  UploadLevelAnimations_RedFlash(a, 0);
 }
 
-void UploadLevelAnimations_RedFlash(uint8 a) {  // 00a41e
+void UploadLevelAnimations_RedFlash(uint8 a, uint8 r0) {  // 00a41e
   WriteReg(CGADD, a);
-  uint8 v1 = R0_ + ((uint8)(counter_local_frames & 0x1C) >> 1);
+  uint8 v1 = r0 + ((uint8)(counter_local_frames & 0x1C) >> 1);
   WriteReg(CGDATA, *((uint8 *)kGlobalPalettes_Flashing + v1));
   WriteReg(CGDATA, *((uint8 *)kGlobalPalettes_Flashing + v1 + 1));
 }
@@ -2496,26 +2444,23 @@ void UpdatePaletteFromIndexedTable() {  // 00a488
     return;
 
   uint16 v0 = kUpdatePaletteFromIndexedTable_DATA_00A47F[palettes_palette_upload_table_index + 2];
-  R2_ = v0;
-  R1_ = 0;
-  R0_ = 0;
-  R4_ = 0;
+  LongPtr p0 = { .bank = v0, .addr = 0 };
   v1 = WORD(kUpdatePaletteFromIndexedTable_DATA_00A47F[palettes_palette_upload_table_index]);
   uint16 v2 = v1;
   while (1) {
-    uint8 v3 = *IndirPtr(&R0_, v2);
+    uint8 v3 = *IndirPtr(&p0, v2);
     if (!v3)
       break;
     WriteRegWord(A1B2, v0);
     WriteReg(DAS2L, v3);
-    R3_ = v3;
+    uint8 r3 = v3;
     WriteReg(DAS2H, 0);
     uint16 v4 = v2 + 1;
-    uint8 *v5 = IndirPtr(&R0_, v4);
+    uint8 *v5 = IndirPtr(&p0, v4);
     WriteReg(CGADD, *v5);
     WriteRegWord(DMAP2, 0x2200);
     WriteRegWord(A1T2L, ++v4);
-    v2 = *(uint16 *)&R3_ + v4;
+    v2 = r3 + v4;
     WriteReg(MDMAEN, 4);
   }
   UpdatePaletteFromIndexedTable_00AE47();
@@ -2536,8 +2481,7 @@ void UploadOverworldExAnimationData() {  // 00a4e3
   WriteReg(MDMAEN, 4);
   if (pointer_current_overworld_process != 10) {
     UploadLevelAnimations_YellowFlash(0x6D);
-    R0_ = 16;
-    UploadLevelAnimations_RedFlash(0x7D);
+    UploadLevelAnimations_RedFlash(0x7D, 16);
   }
 }
 
@@ -2600,11 +2544,12 @@ void InitializeLevelTileAnimations() {  // 00a5f9
 }
 
 void InitializeLevelRAM() {  // 00a635
+  int8 v0 = 0;
   if (spr45_directional_coins_despawn_timer | timer_silver_pswitch | timer_blue_pswitch)
     goto LABEL_4;
   if (!timer_star_power)
     goto LABEL_6;
-  int8 v0 = misc_music_register_backup;
+  v0 = misc_music_register_backup;
   if ((misc_music_register_backup & 0x80) != 0)
 LABEL_4:
     v0 = misc_music_register_backup & 0x7F;
@@ -2622,7 +2567,7 @@ LABEL_6:
                                           blocks_give_life_in_bonus_flags_row1;
   uint8 v1 = 35;
   do
-    *(&ptr_hi_map16_data_bank + v1--) = 0;
+    *(&ptr_hi_map16_data.bank + v1--) = 0;
   while (v1);
   uint8 v2 = 55;
   do
@@ -2675,8 +2620,8 @@ LABEL_8:
     flag_sprites_locked = 0;
     if (timer_end_level_via_keyhole) {
       misc_music_register_backup |= 0x7F;
-      temp1436 = player_xpos | 4;
-      temp1438 = player_ypos + 16;
+      LOBYTE(player_on_tilting_platform_xpos) = player_xpos | 4;
+      LOBYTE(player_on_tilting_platform_ypos) = player_ypos + 16;
     }
     if (in_yoshi_wings_bonus_area) {
       player_current_state = 8;
@@ -2756,49 +2701,46 @@ void UploadLoadingLettersTiles() {  // 00a7c2
 }
 
 void BufferLoadingLetterTiles() {  // 00a82d
-  GraphicsDecompressionRoutines(0xF);
+  LongPtr p0 = GraphicsDecompressionRoutines(0xF);
   if (flag_active_bonus_game)
-    R0_W += 48;
+    p0.addr += 48;
   uint16 v0 = 0;
   do {
     int16 v1 = 8;
     do {
-      *(uint16 *)&graphics_decompressed_loading_letters[v0] = *(uint16 *)IndirPtr(&R0_W, 0);
+      *(uint16 *)&graphics_decompressed_loading_letters[v0] = *(uint16 *)IndirPtr(&p0, 0);
       v0 += 2;
-      ++R0_W;
-      ++R0_W;
+      p0.addr += 2;
       --v1;
     } while (v1);
     int16 v2 = 8;
     do {
-      *(uint16 *)&graphics_decompressed_loading_letters[v0] = *IndirPtr(&R0_W, 0);
+      *(uint16 *)&graphics_decompressed_loading_letters[v0] = *IndirPtr(&p0, 0);
       v0 += 2;
-      ++R0_W;
+      p0.addr += 1;
       --v2;
     } while (v2);
   } while (v0 < 0x300);
   GraphicsDecompressionRoutines(0);
-  R0_W = 0xb3f0;
-  *(uint16 *)&R1_ = 0x7eb3;
+  p0 = (LongPtr){ .bank = 0x7e, .addr = 0xb3f0 };
   uint16 v3 = 0;
   do {
     int16 v4 = 8;
     do {
-      decompressed_gfx_plus_256[v3 >> 1] = *(uint16 *)IndirPtr(&R0_W, 0);
+      decompressed_gfx_plus_256[v3 >> 1] = *(uint16 *)IndirPtr(&p0, 0);
       v3 += 2;
-      ++R0_W;
-      ++R0_W;
+      p0.addr += 2;
       --v4;
     } while (v4);
     int16 v5 = 8;
     do {
-      decompressed_gfx_plus_256[v3 >> 1] = *IndirPtr(&R0_W, 0);
+      decompressed_gfx_plus_256[v3 >> 1] = *IndirPtr(&p0, 0);
       v3 += 2;
-      ++R0_W;
+      p0.addr += 1;
       --v5;
     } while (v5);
     if (v3 == 192)
-      R0_W = 0xb570;
+      p0.addr = 0xb570;
   } while (v3 < 0x180);
   flag_upload_load_screen_letters_tovram = 1;
   flag_restoresp1_tiles_after_mario_start = 1;
@@ -2807,44 +2749,45 @@ void BufferLoadingLetterTiles() {  // 00a82d
 void UploadGraphicsFiles_Layer3() {  // 00a993
   WriteReg(VMADDL, 0);
   WriteReg(VMADDH, 0x40);
-  R15_ = 3;
-  R14_ = 40;
+  uint8 r15 = 3;
+  uint8 r14 = 40;
   do {
-    GraphicsDecompressionRoutines(R14_);
+    LongPtr p0 = GraphicsDecompressionRoutines(r14);
     int16 v0 = 0x3ff;
     uint16 v1 = 0;
     do {
-      uint8 *v2 = IndirPtr(&R0_W, v1);
+      uint8 *v2 = IndirPtr(&p0, v1);
       WriteRegWord(VMDATAL, *(uint16 *)v2);
       v1 += 2;
       --v0;
     } while (v0 >= 0);
-    ++R14_;
-    --R15_;
-  } while ((R15_ & 0x80) == 0);
+    ++r14;
+    --r15;
+  } while ((r15 & 0x80) == 0);
   WriteReg(VMADDL, 0);
   WriteReg(VMADDH, 0x60);
   UploadGraphicsFiles_UploadGFXFile(0);
 }
 
 void UploadGraphicsFiles() {  // 00a9da
+  uint8 arr[4];
   WriteReg(VMAIN, 0x80);
   int8 v0 = 3;
   uint8 v1 = 4 * graphics_level_sprite_graphics_setting;
   do
-    *(&R4_ + (uint8)v0--) = kUploadGraphicsFiles_SpriteGFXList[v1++];
+    arr[v0--] = kUploadGraphicsFiles_SpriteGFXList[v1++];
   while (v0 >= 0);
-  R15_ = 3;
+  uint8 r15 = 3;
   do {
-    uint8 v2 = R15_;
+    uint8 v2 = r15;
     WriteReg(VMADDL, 0);
     WriteReg(VMADDH, kUploadGraphicsFiles_DATA_00A9D2[v2]);
-    if (misc_currently_loaded_sprite_graphics_files[v2] != *(&R4_ + v2))
-      UploadGraphicsFiles_UploadGFXFile(*(&R4_ + v2));
-    --R15_;
-  } while ((R15_ & 0x80) == 0);
+    if (misc_currently_loaded_sprite_graphics_files[v2] != arr[v2])
+      UploadGraphicsFiles_UploadGFXFile(arr[v2]);
+    --r15;
+  } while ((r15 & 0x80) == 0);
   for (uint8 i = 3; (i & 0x80) == 0; --i)
-    misc_currently_loaded_sprite_graphics_files[i] = *(&R4_ + i);
+    misc_currently_loaded_sprite_graphics_files[i] = arr[i];
   if (misc_level_tileset_setting >= 0xFE) {
     if (misc_level_tileset_setting != 0xFE)
       ConvertGFX27IntoNormallFormat();
@@ -2854,57 +2797,49 @@ void UploadGraphicsFiles() {  // 00a9da
     int8 v4 = 3;
     uint8 v5 = 4 * misc_level_tileset_setting;
     do
-      *(&R4_ + (uint8)v4--) = kUploadGraphicsFiles_FGAndBGGFXList[v5++];
+      arr[v4--] = kUploadGraphicsFiles_FGAndBGGFXList[v5++];
     while (v4 >= 0);
-    R15_ = 3;
+    r15 = 3;
     do {
-      uint8 v6 = R15_;
+      uint8 v6 = r15;
       WriteReg(VMADDL, 0);
       WriteReg(VMADDH, kUploadGraphicsFiles_DATA_00A9D6[v6]);
-      if (misc_currently_loaded_sprite_graphics_files[v6 + 4] != *(&R4_ + v6))
-        UploadGraphicsFiles_UploadGFXFile(*(&R4_ + v6));
-      --R15_;
-    } while ((R15_ & 0x80) == 0);
+      if (misc_currently_loaded_sprite_graphics_files[v6 + 4] != arr[v6])
+        UploadGraphicsFiles_UploadGFXFile(arr[v6]);
+      --r15;
+    } while ((r15 & 0x80) == 0);
     for (uint8 k = 3; (k & 0x80) == 0; --k)
-      misc_currently_loaded_sprite_graphics_files[k + 4] = *(&R4_ + k);
+      misc_currently_loaded_sprite_graphics_files[k + 4] = arr[k];
   }
 }
 
 void UploadGraphicsFiles_UploadGFXFile(uint8 j) {  // 00aa6b
   uint16 v4;
-  int16 v8;
   uint16 v11;
-  int16 v15;
 
-  GraphicsDecompressionRoutines(j);
+  LongPtr p0 = GraphicsDecompressionRoutines(j);
   if (j == 1 && (ow_level_tile_settings[73] & 0x80) != 0) {
-    GraphicsDecompressionRoutines(0x31);
+    p0 = GraphicsDecompressionRoutines(0x31);
     j = 1;
   }
   if (misc_level_tileset_setting >= 0x11 && j == 8 || j == 30) {
-    R10_W = -256;
+    uint16 r10w = -256;
     for (int8 i = 127; i >= 0; --i) {
       for (int8 k = 7; k >= 0; --k) {
-        v11 = *(uint16 *)IndirPtr(&R0_W, 0);
+        v11 = *(uint16 *)IndirPtr(&p0, 0);
         WriteRegWord(VMDATAL, v11);
-        int8 v12 = v11;
-        LOBYTE(v11) = HIBYTE(v11);
-        HIBYTE(v11) = v12;
-        *(uint16 *)&graphics_3_bppto4_bppbuffer[(uint8)k] = *(uint16 *)IndirPtr(&R0_W, 0) | v11;
-        ++R0_W;
-        ++R0_W;
+        *(uint16 *)&graphics_3_bppto4_bppbuffer[(uint8)k] = *(uint16 *)IndirPtr(&p0, 0) | swap16(v11);
+        p0.addr += 2;
       }
       for (int8 m = 7; m >= 0; --m) {
-        R12_W = *IndirPtr(&R0_W, 0);
-        uint8 *v14 = IndirPtr(&R0_W, 0);
-        LOBYTE(v15) = HIBYTE(*(uint16 *)v14);
-        HIBYTE(v15) = *(uint16 *)v14;
-        WriteRegWord(VMDATAL, R12_W | R10_W & (*(uint16 *)&graphics_3_bppto4_bppbuffer[(uint8)m] | v15));
-        ++R0_W;
+        uint16 r12w = *IndirPtr(&p0, 0);
+        uint8 *v14 = IndirPtr(&p0, 0);
+        WriteRegWord(VMDATAL, r12w | r10w & (*(uint16 *)&graphics_3_bppto4_bppbuffer[(uint8)m] | swap16(*(uint16 *)v14)));
+        ++p0.addr;
       }
     }
   } else {
-    R10_W = 0;
+    uint16 r10w = 0;
     int16 v1 = -1;
     if (j != 1 && j != 23)
       v1 = 0;
@@ -2912,35 +2847,29 @@ void UploadGraphicsFiles_UploadGFXFile(uint8 j) {  // 00aa6b
     for (int8 n = 127; n >= 0; --n) {
       if (*(uint16 *)flag_alter3_bppto4_bppconversion) {
         if ((uint8)n >= 0x7E || (uint8)n >= 0x6E && (uint8)n < 0x70)
-          R10_W = -256;
+          r10w = -256;
         else
-          R10_W = 0;
+          r10w = 0;
       }
       for (int8 ii = 7; ii >= 0; --ii) {
-        v4 = *(uint16 *)IndirPtr(&R0_W, 0);
+        v4 = *(uint16 *)IndirPtr(&p0, 0);
         WriteRegWord(VMDATAL, v4);
-        int8 v5 = v4;
-        LOBYTE(v4) = HIBYTE(v4);
-        HIBYTE(v4) = v5;
-        *(uint16 *)&graphics_3_bppto4_bppbuffer[(uint8)ii] = *(uint16 *)IndirPtr(&R0_W, 0) | v4;
-        ++R0_W;
-        ++R0_W;
+        *(uint16 *)&graphics_3_bppto4_bppbuffer[(uint8)ii] = *(uint16 *)IndirPtr(&p0, 0) | swap16(v4);
+        p0.addr += 2;
       }
       for (int8 jj = 7; jj >= 0; --jj) {
-        R12_W = *IndirPtr(&R0_W, 0);
-        uint8 *v7 = IndirPtr(&R0_W, 0);
-        LOBYTE(v8) = HIBYTE(*(uint16 *)v7);
-        HIBYTE(v8) = *(uint16 *)v7;
-        WriteRegWord(VMDATAL, R12_W | R10_W & (*(uint16 *)&graphics_3_bppto4_bppbuffer[(uint8)jj] | v8));
-        ++R0_W;
+        uint16 r12w = *IndirPtr(&p0, 0);
+        uint8 *v7 = IndirPtr(&p0, 0);
+        WriteRegWord(VMDATAL, r12w | r10w & (*(uint16 *)&graphics_3_bppto4_bppbuffer[(uint8)jj] | swap16(*(uint16 *)v7)));
+        ++p0.addr;
       }
     }
   }
 }
 
 void ConvertGFX27IntoNormallFormat() {  // 00ab42
-  GraphicsDecompressionRoutines(0x27);
-  uint8 *p = IndirPtr(&R0_, 0);
+  LongPtr p0 = GraphicsDecompressionRoutines(0x27);
+  uint8 *p = IndirPtr(&p0, 0);
   for (int i = 0x3ff; i >= 0; --i) {
     uint32 d = p[0] << 16 | p[1] << 8 | p[2];
     WriteReg(VMDATAH, (d >> 21) & 7);
@@ -2960,128 +2889,63 @@ void ConvertGFX27IntoNormallFormat() {  // 00ab42
 }
 
 void BufferPalettesRoutines_Levels() {  // 00abed
-  R4_W = 0x7fdd;
-  BufferPalettesRoutines_LoadColorInVerticalStrip(2);
-  R4_W = 0x7FFF;
-  BufferPalettesRoutines_LoadColorInVerticalStrip(0x102);
-  R0_W = 0xb170;
-  R4_W = 16;
-  R6_W = 7;
-  R8_W = 1;
-  BufferPalettesRoutines_LoadColors();
-  R0_W = 0xb250;
-  R4_W = 132;
-  R6_W = 5;
-  R8_W = 9;
-  BufferPalettesRoutines_LoadColors();
+  BufferPalettesRoutines_LoadColorInVerticalStrip(2, 0x7fdd);
+  BufferPalettesRoutines_LoadColorInVerticalStrip(0x102, 0x7FFF);
+  BufferPalettesRoutines_LoadColors(0xb170, 16, 7, 1);
+  BufferPalettesRoutines_LoadColors(0xb250, 132, 5, 9);
   palettes_background_color = *(uint16 *)((int8 *)&kGlobalPalettes_Sky + (uint16)(2 * (misc_background_color_setting & 0xF)));
-  R0_W = 0xb190;
-  R0_W = kBufferPalettesRoutines_DATA_00ABD3[misc_fgpalette_setting & 0xF] + 0xb190;
-  R4_W = 68;
-  R6_W = 5;
-  R8_W = 1;
-  BufferPalettesRoutines_LoadColors();
-  R0_W = 0xb318;
-  R0_W = kBufferPalettesRoutines_DATA_00ABD3[misc_sprite_palette_setting & 0xF] + 0xb318;
-  R4_W = 452;
-  R6_W = 5;
-  R8_W = 1;
-  BufferPalettesRoutines_LoadColors();
-  R0_W = 0xb0b0;
-  R0_W = kBufferPalettesRoutines_DATA_00ABD3[misc_bgpalette_setting & 0xF] + 0xb0b0;
-  R4_W = 4;
-  R6_W = 5;
-  R8_W = 1;
-  BufferPalettesRoutines_LoadColors();
-  R0_W = 0xb674;
-  R4_W = 82;
-  R6_W = 6;
-  R8_W = 2;
-  BufferPalettesRoutines_LoadColors();
-  R0_W = 0xb674;
-  R4_W = 306;
-  R6_W = 6;
-  R8_W = 2;
-  BufferPalettesRoutines_LoadColors();
+  uint16 r0w = kBufferPalettesRoutines_DATA_00ABD3[misc_fgpalette_setting & 0xF] + 0xb190;
+  BufferPalettesRoutines_LoadColors(r0w, 68, 5, 1);
+  r0w = kBufferPalettesRoutines_DATA_00ABD3[misc_sprite_palette_setting & 0xF] + 0xb318;
+  BufferPalettesRoutines_LoadColors(r0w, 452, 5, 1);
+  r0w = kBufferPalettesRoutines_DATA_00ABD3[misc_bgpalette_setting & 0xF] + 0xb0b0;
+  BufferPalettesRoutines_LoadColors(r0w, 4, 5, 1);
+  BufferPalettesRoutines_LoadColors(0xb674, 82, 6, 2);
+  BufferPalettesRoutines_LoadColors(0xb674, 306, 6, 2);
 }
 
-void BufferPalettesRoutines_LoadColorInVerticalStrip(uint16 k) {  // 00aced
+void BufferPalettesRoutines_LoadColorInVerticalStrip(uint16 k, uint16 r4) {  // 00aced
   for (int16 i = 7; i >= 0; --i) {
-    palettes_palette_mirror[k >> 1] = R4_W;
+    palettes_palette_mirror[k >> 1] = r4;
     k += 32;
   }
 }
 
-void BufferPalettesRoutines_LoadColors() {  // 00acff
+void BufferPalettesRoutines_LoadColors(uint16 r0, uint16 r4, uint16 r6, uint16 r8) {  // 00acff
   do {
-    uint16 v0 = R4_W;
-    int16 v1 = R6_W;
+    uint16 v0 = r4;
+    int16 v1 = r6;
     do {
-      palettes_palette_mirror[v0 >> 1] = *(uint16 *)RomPtr_00(R0_W);
-      ++R0_W;
-      ++R0_W;
+      palettes_palette_mirror[v0 >> 1] = *(uint16 *)RomPtr_00(r0);
+      r0 += 2;
       v0 += 2;
-      --v1;
-    } while (v1 >= 0);
-    R4_W += 32;
-    --R8_W;
-  } while ((R8_W & 0x8000) == 0);
+    } while (--v1 >= 0);
+    r4 += 32;
+  } while ((--r8 & 0x8000) == 0);
 }
 
 void BufferPalettesRoutines_Overworld() {  // 00ad25
   uint16 v0 = 0xb3d8;
   if (*(int16 *)&ow_level_tile_settings[72] < 0)
     v0 = 0xb732;
-  R0_W = v0;
-  R0_W = v0 + kBufferPalettesRoutines_DATA_00ABDF
+  uint16 r0w = v0 + kBufferPalettesRoutines_DATA_00ABDF
                   [(uint16)(2 * kBufferPalettesRoutines_DATA_00AD1E[(uint16)((misc_level_tileset_setting & 0xF) - 1)]) >> 1];
-  R4_W = 130;
-  R6_W = 6;
-  R8_W = 3;
-  BufferPalettesRoutines_LoadColors();
-  R0_W = 0xb528;
-  R4_W = 82;
-  R6_W = 6;
-  R8_W = 5;
-  BufferPalettesRoutines_LoadColors();
-  R0_W = 0xb57c;
-  R4_W = 258;
-  R6_W = 6;
-  R8_W = 7;
-  BufferPalettesRoutines_LoadColors();
-  R0_W = 0xb5ec;
-  R4_W = 16;
-  R6_W = 7;
-  R8_W = 1;
-  BufferPalettesRoutines_LoadColors();
+  BufferPalettesRoutines_LoadColors(r0w, 130, 6, 3);
+  BufferPalettesRoutines_LoadColors(0xb528, 82, 6, 5);
+  BufferPalettesRoutines_LoadColors(0xb57c, 258, 6, 7);
+  BufferPalettesRoutines_LoadColors(0xb5ec, 16, 7, 1);
 }
 
 void BufferPalettesRoutines_TitleScreen() {  // 00ada6
-  R0_W = 0xb63c;
-  R4_W = 16;
-  R6_W = 7;
-  R8_W = 0;
-  BufferPalettesRoutines_LoadColors();
-  R0_W = 0xb62c;
-  R4_W = 48;
-  R6_W = 7;
-  R8_W = 0;
-  BufferPalettesRoutines_LoadColors();
+  BufferPalettesRoutines_LoadColors(0xb63c, 16, 7, 0);
+  BufferPalettesRoutines_LoadColors(0xb62c, 48, 7, 0);
 }
 
 void BufferPalettesRoutines_IggyLarryPlatform() {  // 00add9
   BufferPalettesRoutines_Levels();
   palettes_background_color = 23;
-  R0_W = 0xb170;
-  R4_W = 16;
-  R6_W = 7;
-  R8_W = 1;
-  BufferPalettesRoutines_LoadColors();
-  R0_W = 0xb65c;
-  R4_W = 0;
-  R6_W = 7;
-  R8_W = 0;
-  BufferPalettesRoutines_LoadColors();
+  BufferPalettesRoutines_LoadColors(0xb170, 16, 7, 1);
+  BufferPalettesRoutines_LoadColors(0xb65c, 0, 7, 0);
 }
 
 void BufferPalettesRoutines_ReznorAndMode7KoopaBosses() {  // 00ae15
@@ -3089,11 +2953,7 @@ void BufferPalettesRoutines_ReznorAndMode7KoopaBosses() {  // 00ae15
   misc_fgpalette_setting = 7;
   BufferPalettesRoutines_Levels();
   palettes_background_color = 23;
-  R0_W = 0xb5f4;
-  R4_W = 24;
-  R6_W = 3;
-  R8_W = 0;
-  BufferPalettesRoutines_LoadColors();
+  BufferPalettesRoutines_LoadColors(0xb5f4, 24, 3, 0);
 }
 
 void UpdatePaletteFromIndexedTable_00AE47() {  // 00ae47
@@ -3118,75 +2978,92 @@ void HandlePaletteFades() {  // 00af17
     mirror_bgmode_and_tile_size_setting = 9;
     ProcessLevelEndRoutines();
   }
-  HandlePaletteFades_00AF35();
+  HandlePaletteFades_00AF35(false);
 }
 
-void HandlePaletteFades_00AF35() {  // 00af35
+void HandlePaletteFades_00AF35(bool run_code_at_end) {  // 00af35
   if ((counter_global_frames & 3) == 0 && timer_level_end_fade < 0x40) {
-    HandlePaletteFades_00AFA3(timer_level_end_fade);
+    uint8 a = timer_level_end_fade;
+    timer_level_end_fade = a + 2;
+    uint8 r12 = (a >> 4) & 2;
+    uint16 r14 = kHandlePaletteFades_DATA_00AEF7[(a & 0x1E) >> 1];
+    uint16 r2w;
+
     palettes_copy_of_palette_mirror[0] = 510;
     for (uint16 i = 238; (i & 0x8000) == 0; i -= 18) {
-      R0_W = 7;
+      uint16 r0w = 7;
       do {
         int v1 = i >> 1;
-        R2_W = palettes_copy_of_palette_mirror[v1];
-        HandlePaletteFades_00AFC0(palettes_palette_mirror[v1]);
-        palettes_copy_of_palette_mirror[v1] = R4_W;
+        r2w = palettes_copy_of_palette_mirror[v1];
+        palettes_copy_of_palette_mirror[v1] = HandlePaletteFades_00AFC0(palettes_palette_mirror[v1], r2w, r12, r14);
         i -= 2;
-        --R0_W;
-      } while (R0_W);
+      } while (--r0w);
     }
     for (uint16 j = 4; (j & 0x8000) == 0; j -= 2) {
       int v3 = j >> 1;
-      R2_W = palettes_copy_of_palette_mirror[v3 + 13];
-      HandlePaletteFades_00AFC0(palettes_palette_mirror[v3 + 13]);
-      palettes_copy_of_palette_mirror[v3 + 13] = R4_W;
+      r2w = palettes_copy_of_palette_mirror[v3 + 13];
+      palettes_copy_of_palette_mirror[v3 + 13] = HandlePaletteFades_00AFC0(palettes_palette_mirror[v3 + 13], r2w, r12, r14);
     }
-    R2_W = palettes_background_color;
-    HandlePaletteFades_00AFC0(palettes_copy_of_background_color);
-    palettes_background_color = R4_W;
+    r2w = palettes_background_color;
+    palettes_background_color = HandlePaletteFades_00AFC0(palettes_copy_of_background_color, r2w, r12, r14);
     LOBYTE(palettes_copy_of_palette_mirror[128]) = 0;
     palettes_palette_upload_table_index = 3;
+
+    if (run_code_at_end) {
+      LongPtr p0 = { .bank = 0, .addr = pointer_player_palette };
+      for (uint16 i = 20; (i & 0x8000) == 0; i -= 2)
+        palettes_copy_of_palette_mirror[(i >> 1) + 134] = *(uint16 *)IndirPtr(&p0, i);
+      palettes_copy_of_palette_mirror[128] = 0x81ee;
+      for (uint16 j = 206; (j & 0x8000) == 0; j -= 18) {
+        uint16 r0w = 7;
+        do {
+          int v2 = j >> 1;
+          r2w = palettes_copy_of_palette_mirror[v2 + 144];
+          palettes_copy_of_palette_mirror[v2 + 144] = HandlePaletteFades_00AFC0(palettes_palette_mirror[v2 + 144], r2w, r12, r14);
+          j -= 2;
+        } while (--r0w);
+      }
+      unused_byte_7E0AF5 = 0;
+    }
   }
 }
 
-void HandlePaletteFades_00AFA3(uint8 a) {  // 00afa3
-  timer_level_end_fade = a + 2;
-  R12_W = (a >> 4) & 2;
-  R14_W = kHandlePaletteFades_DATA_00AEF7[(uint8)(a & 0x1E) >> 1];
-}
-
-void HandlePaletteFades_00AFC0(uint16 a) {  // 00afc0
-  R10_W = a;
-  R6_W = 4 * (a & 0x1F);
-  R8_W = (a & 0x3E0) >> 3;
-  R10_W = R11_ & 0x7C;
-  R4_W = 0;
+uint16 HandlePaletteFades_00AFC0(uint16 a, uint16 r2w, uint16 r12, uint16 r14) {  // 00afc0
+  uint16 arr[3] = {
+    4 * (a & 0x1F),
+    (a & 0x3E0) >> 3,
+    (a >> 8) & 0x7C
+  };
+  uint16 r4w = 0;
   for (uint16 i = 4; (i & 0x8000) == 0; i -= 2) {
-    uint16 t = R12_W | *(uint16 *)((uint8 *)&R6_W + i);
-    uint16 v2 = R14_W & kHandlePaletteFades_DATA_00AE77[t >> 1];
+    uint16 t = r12 | arr[i >> 1];
+    uint16 v2 = r14 & kHandlePaletteFades_DATA_00AE77[t >> 1];
     if (v2) {
       int v3 = i >> 1;
       v2 = kHandlePaletteFades_DATA_00AE6B[v3];
       if (*(int8 *)&palettes_level_end_color_fade_direction < 0)
         v2 = kHandlePaletteFades_DATA_00AE71[v3];
     }
-    R4_W |= kHandlePaletteFades_DATA_00AE65[i >> 1] & (uint16)(R2_W + v2);
+    r4w |= kHandlePaletteFades_DATA_00AE65[i >> 1] & (uint16)(r2w + v2);
   }
+  return r4w;
 }
 
 void OwEventProcess04_FadeInLayer2Tile_00B006(uint8 a) {  // 00b006
-  HandlePaletteFades_00AFA3(a);
+  timer_level_end_fade = a + 2;
+  uint8 r12 = (a >> 4) & 2;
+  uint16 r14 = kHandlePaletteFades_DATA_00AEF7[(a & 0x1E) >> 1];
+
   for (uint16 i = 110; (i & 0x8000) == 0; i -= 16) {
     int16 v2 = 8;
     int16 v4;
     do {
       int v3 = i >> 1;
-      R2_W = palettes_copy_of_palette_mirror[v3 + 1];
+      uint16 r2w = palettes_copy_of_palette_mirror[v3 + 1];
       v4 = v2;
-      HandlePaletteFades_00AFC0(palettes_palette_mirror[v3 + 64]);
-      palettes_copy_of_palette_mirror[v3 + 1] = R4_W;
-      palettes_copy_of_palette_mirror[v3 + 58] = palettes_palette_mirror[v3 + 64] - R4_W;
+      uint16 r4 = HandlePaletteFades_00AFC0(palettes_palette_mirror[v3 + 64], r2w, r12, r14);
+      palettes_copy_of_palette_mirror[v3 + 1] = r4;
+      palettes_copy_of_palette_mirror[v3 + 58] = palettes_palette_mirror[v3 + 64] - r4;
       i -= 2;
       --v2;
     } while (v4 != 1);
@@ -3194,209 +3071,180 @@ void OwEventProcess04_FadeInLayer2Tile_00B006(uint8 a) {  // 00b006
 }
 
 void PlayerState00_00B03E() {  // 00b03e
-  HandlePaletteFades_00AF35();
-  if (palettes_palette_upload_table_index == 3) {
-    R2_ = 0;
-    R0_W = pointer_player_palette;
-    for (uint16 i = 20; (i & 0x8000) == 0; i -= 2)
-      palettes_copy_of_palette_mirror[(i >> 1) + 134] = *(uint16 *)IndirPtr(&R0_W, i);
-    palettes_copy_of_palette_mirror[128] = 0x81ee;
-    for (uint16 j = 206; (j & 0x8000) == 0; j -= 18) {
-      R0_W = 7;
-      do {
-        int v2 = j >> 1;
-        R2_W = palettes_copy_of_palette_mirror[v2 + 144];
-        HandlePaletteFades_00AFC0(palettes_palette_mirror[v2 + 144]);
-        palettes_copy_of_palette_mirror[v2 + 144] = R4_W;
-        j -= 2;
-        --R0_W;
-      } while (R0_W);
-    }
-    unused_byte_7E0AF5 = 0;
-  }
+  HandlePaletteFades_00AF35(true);
 }
 
 void GraphicsDecompressionRoutines_DecompressGFX32And33() {  // 00b888
-  *(uint16 *)&temp8a = 0xbfc0;
-  temp8c = 8;
-  R0_W = 0x2000;
-  R2_ = 126;
-  GraphicsDecompressionRoutines_BeginDecompression();
-  temp8f = 126;
-  *(uint16 *)&temp8d = 0xacfe;
+  decomp_src = (LongPtr){ .bank = 8, .addr = 0xbfc0 };
+  GraphicsDecompressionRoutines_BeginDecompression((LongPtr) { .bank = 0x7e, .addr = 0x2000 });
+  LongPtr t8d = { .bank = 0x7e, .addr = 0xacfe };
   int16 v0 = 0x23ff;
 LABEL_2:;
   int16 v1 = 8;
   do {
-    IndirWriteWord(&temp8d, 0, graphics_decompressedgfx32[(uint16)v0--]);
-    --*(uint16 *)&temp8d;
-    --*(uint16 *)&temp8d;
-    --v1;
-  } while (v1);
+    IndirWriteWord(&t8d, 0, graphics_decompressedgfx32[(uint16)v0--]);
+    t8d.addr -= 2;
+  } while (--v1);
   int16 v2 = 8;
   while (1) {
     uint16 v3 = v0 - 1;
-    IndirWriteWord(&temp8d, 0, *(uint16 *)&graphics_decompressedgfx32[v3]);
+    IndirWriteWord(&t8d, 0, *(uint16 *)&graphics_decompressedgfx32[v3]);
     v0 = v3 - 1;
     if (v0 < 0)
       break;
-    --*(uint16 *)&temp8d;
-    --*(uint16 *)&temp8d;
+    t8d.addr -= 2;
     if (!--v2)
       goto LABEL_2;
   }
-  *(uint16 *)&temp8a = 0x8000;
-  GraphicsDecompressionRoutines_BeginDecompression();
+  decomp_src.addr = 0x8000;
+  GraphicsDecompressionRoutines_BeginDecompression((LongPtr) { .bank = 0x7e, .addr = 0x2000 });
 }
 
-void GraphicsDecompressionRoutines_BeginDecompression() {  // 00b8de
+void GraphicsDecompressionRoutines_BeginDecompression(LongPtr pdst) {  // 00b8de
   int16 v3;
   uint16 v17;
   int8 v20;
 
   uint16 v0 = 0;
   while (1) {
-    uint8 Byte = GraphicsDecompressionRoutines_ReadByte();
-    if (Byte == 0xFF)
+    uint8 tag = GraphicsDecompressionRoutines_ReadByte();
+    if (tag == 0xFF)
       break;
-    temp8f = Byte;
-    int8 v2 = Byte & 0xE0;
+    int8 v2 = tag & 0xE0;
     if (v2 == -32) {
-      v20 = (8 * temp8f) & 0xE0;
-      HIBYTE(v3) = temp8f & 3;
+      v20 = (8 * tag) & 0xE0;
+      HIBYTE(v3) = tag & 3;
       LOBYTE(v3) = GraphicsDecompressionRoutines_ReadByte();
     } else {
       v20 = v2;
-      v3 = temp8f & 0x1F;
+      v3 = tag & 0x1F;
     }
-    *(uint16 *)&temp8d = v3 + 1;
+    uint16 len = v3 + 1;
     if (v20) {
       if (v20 < 0) {
         HIBYTE(v17) = GraphicsDecompressionRoutines_ReadByte();
         LOBYTE(v17) = GraphicsDecompressionRoutines_ReadByte();
         uint16 v18 = v17;
         do {
-          uint8 *v19 = IndirPtr(&R0_, v18);
-          IndirWriteByte(&R0_, v0++, *v19);
+          uint8 *v19 = IndirPtr(&pdst, v18);
+          IndirWriteByte(&pdst, v0++, *v19);
           ++v18;
-          --*(uint16 *)&temp8d;
-        } while (*(uint16 *)&temp8d);
+          --len;
+        } while (len);
       } else if ((v20 & 0x40) != 0) {
         if (((2 * v20) & 0x40) != 0) {
           uint8 v4 = GraphicsDecompressionRoutines_ReadByte();
-          int16 v5 = *(uint16 *)&temp8d;
+          int16 v5 = len;
           do {
-            IndirWriteByte(&R0_, v0++, v4++);
+            IndirWriteByte(&pdst, v0++, v4++);
             --v5;
           } while (v5);
         } else {
           uint8 v9 = GraphicsDecompressionRoutines_ReadByte();
           uint8 v10 = GraphicsDecompressionRoutines_ReadByte();
-          int16 v11 = *(uint16 *)&temp8d;
+          int16 v11 = len;
           do {
             uint8 v14 = v10;
             uint8 v12 = v9;
             uint8 v13 = v14;
-            IndirWriteByte(&R0_, v0++, v12);
+            IndirWriteByte(&pdst, v0++, v12);
             int16 v15 = v11 - 1;
             if (!v15)
               break;
             uint8 v16 = v12;
             v10 = v13;
             v9 = v16;
-            IndirWriteByte(&R0_, v0++, v10);
+            IndirWriteByte(&pdst, v0++, v10);
             v11 = v15 - 1;
           } while (v11);
         }
       } else {
         uint8 v7 = GraphicsDecompressionRoutines_ReadByte();
-        int16 v8 = *(uint16 *)&temp8d;
+        int16 v8 = len;
         do {
-          IndirWriteByte(&R0_, v0++, v7);
+          IndirWriteByte(&pdst, v0++, v7);
           --v8;
         } while (v8);
       }
     } else {
       do {
         uint8 v6 = GraphicsDecompressionRoutines_ReadByte();
-        IndirWriteByte(&R0_, v0++, v6);
-        --*(uint16 *)&temp8d;
-      } while (*(uint16 *)&temp8d);
+        IndirWriteByte(&pdst, v0++, v6);
+        --len;
+      } while (len);
     }
   }
 }
 
 uint8 GraphicsDecompressionRoutines_ReadByte() {  // 00b983
-  uint8 result = *IndirPtr(&temp8a, 0);
-  int16 v1 = *(uint16 *)&temp8a + 1;
-  if (*(uint16 *)&temp8a == 0xFFFF) {
+  uint8 result = *IndirPtr(&decomp_src, 0);
+  int16 v1 = decomp_src.addr + 1;
+  if (decomp_src.addr == 0xFFFF) {
     v1 = 0x8000;
-    ++temp8c;
+    decomp_src.bank++;
   }
-  *(uint16 *)&temp8a = v1;
+  decomp_src.addr = v1;
   return result;
 }
 
-void GraphicsDecompressionRoutines(uint8 j) {  // 00ba28
-  temp8a = kGraphicsDecompressionRoutines_GraphicsPtrLo[j];
-  temp8b = kGraphicsDecompressionRoutines_GraphicsPtrHi[j];
-  temp8c = kGraphicsDecompressionRoutines_GraphicsPtrBank[j];
-  R0_ = 0;
-  R1_ = -83;
-  R2_ = 126;
-  GraphicsDecompressionRoutines_BeginDecompression();
+LongPtr GraphicsDecompressionRoutines(uint8 j) {  // 00ba28
+  decomp_src = (LongPtr) {
+    .bank = kGraphicsDecompressionRoutines_GraphicsPtrBank[j],
+    .addr = kGraphicsDecompressionRoutines_GraphicsPtrHi[j] << 8 | kGraphicsDecompressionRoutines_GraphicsPtrLo[j]
+  };
+  LongPtr p0 = { .bank = 0x7e, .addr = 0xad00 };
+  GraphicsDecompressionRoutines_BeginDecompression(p0);
+  return p0;
 }
 
 void GenerateTile() {  // 00beb0
   uint16 v0;
 
   if (blocks_map16_to_generate) {
-    R12_W = blocks_xpos;
-    R14_W = blocks_ypos;
+    GenTileArgs gta;
+
+    gta.r12 = blocks_xpos;
+    gta.r14 = blocks_ypos;
     HIBYTE(v0) = 0;
-    R9_ = misc_level_layout_flags;
+    uint8 r9 = misc_level_layout_flags;
     if ((uint8)misc_current_layer_being_processed)
-      R9_ >>= 1;
-    uint16 v1 = R14_W;
-    if ((R9_ & 1) != 0) {
-      R0_ = HIBYTE(blocks_xpos);
+      r9 >>= 1;
+    uint16 v1 = gta.r14;
+    if ((r9 & 1) != 0) {
+      uint8 r0 = HIBYTE(blocks_xpos);
       HIBYTE(blocks_xpos) = HIBYTE(blocks_ypos);
-      HIBYTE(blocks_ypos) = R0_;
-      v1 = R12_W;
+      HIBYTE(blocks_ypos) = r0;
+      v1 = gta.r12;
     }
     if (v1 < 0x200) {
       v0 = 2 * misc_current_layer_being_processed;
       uint16 v2 = v0;
-      WORD(temp65) = WORD(*((uint8 *)kLevelDataLayoutTables_LoTablePtrs + v0));
-      temp67 = 0;
+      LongPtr p0 = { .bank = 0, .addr = WORD(*((uint8 *)kLevelDataLayoutTables_LoTablePtrs + v0)) };
       v0 = 2 * misc_level_mode_setting;
-      R4_ = *IndirPtr(&temp65, v0);
-      R5_ = *IndirPtr(&temp65, v0 + 1);
-      R6_ = 0;
-      R7_ = HIBYTE(blocks_xpos);
-      ptr_hi_map16_data = ptr_lo_map16_data = *(uint16*)IndirPtr(&R4_, 3 * HIBYTE(blocks_xpos));
-      ptr_lo_map16_data_bank = 126;
-      ptr_hi_map16_data_bank = 127;
+      const uint8 *rp = RomPtr(WORD(*IndirPtr(&p0, v0)));
+      ptr_hi_map16_data.addr = ptr_lo_map16_data.addr = *(uint16*)(rp + 3 * HIBYTE(blocks_xpos));
+      ptr_lo_map16_data.bank = 126;
+      ptr_hi_map16_data.bank = 127;
       // @25: Write to 0x6 = 0x25: 0xbf67: r18=0x4100: r20=0xc19e: a = 0x25, x = 0x0, y = 0xd, c = 0, r4 = 24, r5 = 40, r6 = 25, r9=1, blocks_ypos = 482/15e
       uint8 v3, v4;
-      if ((R9_ & 1) != 0) {
+      if ((r9 & 1) != 0) {
         v3 = HIBYTE(blocks_ypos) & 1;
         v4 = HIBYTE(blocks_xpos) & 1;
       } else {
         v3 = HIBYTE(blocks_xpos) & 1;
         v4 = HIBYTE(blocks_ypos);
       }
-      R4_ = (4 * (2 * v4 + v3)) | 0x20;
+      uint8 r4 = (4 * (2 * v4 + v3)) | 0x20;
       if (v2)
-        R4_ += 16;
+        r4 += 16;
       bool v6 = __CFSHL__(blocks_ypos & 0xF0, 1);
-      R5_ = 4 * (blocks_ypos & 0xF0) + v6;
+      uint8 r5 = 4 * (blocks_ypos & 0xF0) + v6;
       // todo: understand this
-      R6_ = R4_ | (2 * (4 * (blocks_ypos & 0xF0) + v6) + __CFSHL__(2 * (blocks_ypos & 0xF0), 1)) & 3;
-      R4_ = (blocks_xpos & 0xF0) >> 3;
-      R7_ = R4_ | R5_ & 0xC0;
+      gta.r6 = r4 | (2 * (4 * (blocks_ypos & 0xF0) + v6) + __CFSHL__(2 * (blocks_ypos & 0xF0), 1)) & 3;
+      r4 = (blocks_xpos & 0xF0) >> 3;
+      gta.r7 = r4 | r5 & 0xC0;
       uint16 v7, v8;
-      if ((R9_ & 1) != 0) {
+      if ((r9 & 1) != 0) {
         v7 = mirror_current_layer1_xpos;
         v8 = mirror_current_layer1_ypos - 128;
         if (misc_current_layer_being_processed) {
@@ -3411,79 +3259,74 @@ void GenerateTile() {  // 00beb0
           v8 = mirror_current_layer2_ypos - 128;
         }
       }
-      R8_W = v7;
-      R10_W = v8;
-      GenerateTile_00BFBC();
+      gta.r8 = v7;
+//      r10w = v8;
+      gta.r10 = v8;
+      kGenerateTile_TileGenerationPtr[blocks_map16_to_generate - 1](&gta);
     }
   }
 }
 
-void GenerateTile_00BFBC() {  // 00bfbc
-  kGenerateTile_TileGenerationPtr[(uint8)(blocks_map16_to_generate - 1)]();
-}
-
 void SetItemMemoryBit() {  // 00c00d
-  R4_W = (uint16)(blocks_xpos & 0xFF00) >> 6;
-  R4_W |= (uint8)(blocks_xpos & 0x80) >> 7;
+  uint16 r4 = (uint16)(blocks_xpos & 0xFF00) >> 6;
+  r4 |= (uint8)(blocks_xpos & 0x80) >> 7;
   if ((blocks_ypos & 0x100) != 0)
-    R4_W |= 2;
-  R4_W += kSetItemMemoryBit_DATA_00BFFF[(uint16)(2 * (misc_item_memory_setting & 0xF)) >> 1];
-  misc_item_memory_bits[R4_W] |= kSetItemMemoryBit_DATA_00C005[(uint8)(blocks_xpos & 0x70) >> 4];
+    r4 |= 2;
+  r4 += kSetItemMemoryBit_DATA_00BFFF[(uint16)(2 * (misc_item_memory_setting & 0xF)) >> 1];
+  misc_item_memory_bits[r4] |= kSetItemMemoryBit_DATA_00C005[(uint8)(blocks_xpos & 0x70) >> 4];
 }
 
-void sub_C074() {  // 00c074
+void sub_C074(GenTileArgs *gta) {  // 00c074
   SetItemMemoryBit();
-  sub_C077();
+  sub_C077(gta);
 }
 
-void sub_C077() {  // 00c077
-  R4_W = blocks_ypos & 0x1F0;
+void sub_C077(GenTileArgs *gta) {  // 00c077
   uint16 v0 = blocks_ypos & 0x1F0 | ((uint8)blocks_xpos >> 4);
   uint16 v1 = blocks_map16_to_generate;
   uint8 *v2 = IndirPtr(&ptr_hi_map16_data, v0);
   IndirWriteByte(&ptr_hi_map16_data, v0, *v2 & 0xFE);
   uint8 v3 = kGenericPage00Tile_Map16Page00TileLo[v1];
   IndirWriteByte(&ptr_lo_map16_data, v0, v3);
-  GenericPage01Tile_00C0FB(2 * v3);
+  GenericPage01Tile_00C0FB(gta, 2 * v3);
 }
 
-void GenericPage01Tile_SetItemMemory() {  // 00c0c1
+void GenericPage01Tile_SetItemMemory(GenTileArgs *gta) {  // 00c0c1
   SetItemMemoryBit();
-  GenericPage01Tile();
+  GenericPage01Tile(gta);
 }
 
-void GenericPage01Tile() {  // 00c0c4
-  R4_W = blocks_ypos & 0x1F0;
+void GenericPage01Tile(GenTileArgs *gta) {  // 00c0c4
   uint16 v0 = blocks_ypos & 0x1F0 | ((uint8)blocks_xpos >> 4);
   uint16 v1 = (uint8)(blocks_map16_to_generate - 9);
   uint8 *v2 = IndirPtr(&ptr_hi_map16_data, v0);
   IndirWriteByte(&ptr_hi_map16_data, v0, *v2 | 1);
   uint8 v3 = kGenericPage01Tile_Map16Page01TileLo[v1];
   IndirWriteByte(&ptr_lo_map16_data, v0, v3);
-  GenericPage01Tile_00C0FB(2 * (v3 | 0x100));
+  GenericPage01Tile_00C0FB(gta, 2 * (v3 | 0x100));
 }
 
-void GenericPage01Tile_00C0FB(uint16 j) {  // 00c0fb
-  R0_W = *(uint16 *)&misc_level_layout_flags;
+void GenericPage01Tile_00C0FB(GenTileArgs *gta, uint16 j) {  // 00c0fb
+  uint16 r0w = *(uint16 *)&misc_level_layout_flags;
   if (misc_current_layer_being_processed)
-    R0_W >>= 1;
-  if ((R0_W & 1) == 0) {
-    uint16 v1 = R8_W & 0xFFF0;
-    if ((R8_W & 0x8000) == 0) {
-      if (v1 == R12_W)
+    r0w >>= 1;
+  if ((r0w & 1) == 0) {
+    uint16 v1 = gta->r8 & 0xFFF0;
+    if ((gta->r8 & 0x8000) == 0) {
+      if (v1 == gta->r12)
         goto LABEL_15;
-      if (v1 >= R12_W)
+      if (v1 >= gta->r12)
         return;
     }
     uint16 v2 = v1 + 512;
-    if (v2 == R12_W || v2 < R12_W)
+    if (v2 <= gta->r12)
       return;
 LABEL_15:;
     uint16 v5 = stripe_image_upload;
-    uint8 v6 = R6_;
+    uint8 v6 = gta->r6;
     stripe_image_upload_data[v5] = v6;
     stripe_image_upload_data[v5 + 8] = v6;
-    uint8 v8 = R7_;
+    uint8 v8 = gta->r7;
     stripe_image_upload_data[v5 + 1] = v8;
     stripe_image_upload_data[v5 + 9] = v8 + 32;
     stripe_image_upload_data[v5 + 2] = 0;
@@ -3491,130 +3334,117 @@ LABEL_15:;
     stripe_image_upload_data[v5 + 3] = 3;
     stripe_image_upload_data[v5 + 11] = 3;
     stripe_image_upload_data[v5 + 16] = -1;
-    R6_ = 13;
-    R4_W = pointer_map16_tiles[j >> 1];
-    *(uint16 *)&stripe_image_upload_data[v5 + 4] = *(uint16 *)IndirPtr(&R4_W, 0);
-    *(uint16 *)&stripe_image_upload_data[v5 + 12] = *(uint16 *)IndirPtr(&R4_W, 2);
-    *(uint16 *)&stripe_image_upload_data[v5 + 6] = *(uint16 *)IndirPtr(&R4_W, 4);
-    *(uint16 *)&stripe_image_upload_data[v5 + 14] = *(uint16 *)IndirPtr(&R4_W, 6);
+    const uint8 *rp = RomPtr(0xd0000 + pointer_map16_tiles[j >> 1]);
+    *(uint16 *)&stripe_image_upload_data[v5 + 4] = WORD(rp[0]);
+    *(uint16 *)&stripe_image_upload_data[v5 + 12] = WORD(rp[2]);
+    *(uint16 *)&stripe_image_upload_data[v5 + 6] = WORD(rp[4]);
+    *(uint16 *)&stripe_image_upload_data[v5 + 14] = WORD(rp[6]);
     stripe_image_upload = v5 + 16;
     return;
   }
-  uint16 v3 = R10_W & 0xFFF0;
-  if ((R10_W & 0x8000) == 0) {
-    if (v3 == R14_W)
+  uint16 v3 = gta->r10 & 0xFFF0;
+  if ((gta->r10 & 0x8000) == 0) {
+    if (v3 == gta->r14)
       goto LABEL_15;
-    if (v3 >= R14_W)
+    if (v3 >= gta->r14)
       return;
   }
   uint16 v4 = v3 + 512;
-  if (v4 != R14_W && v4 >= R14_W)
+  if (v4 > gta->r14)
     goto LABEL_15;
 }
 
-void GenericPage01Tile_Return00C1AB() {  // 00c1ab
-  ;
-}
-
-void EraseYoshiCoin() {  // 00c1ac
+void EraseYoshiCoin(GenTileArgs *gta) {  // 00c1ac
   SetItemMemoryBit();
-  R4_W = blocks_ypos & 0x1F0;
   uint16 v0 = blocks_ypos & 0x1F0 | ((uint8)blocks_xpos >> 4);
   IndirWriteByte(&ptr_lo_map16_data, v0, 0x25);
   IndirWriteByte(&ptr_lo_map16_data, v0 + 16, 0x25);
-  R0_W = *(uint16 *)&misc_level_layout_flags;
+  uint16 r0w = *(uint16 *)&misc_level_layout_flags;
   if (misc_current_layer_being_processed)
-    R0_W >>= 1;
-  if ((R0_W & 1) == 0) {
-    uint16 v1 = R8_W & 0xFFF0;
-    if ((R8_W & 0x8000) != 0)
+    r0w >>= 1;
+  if ((r0w & 1) == 0) {
+    uint16 v1 = gta->r8 & 0xFFF0;
+    if ((gta->r8 & 0x8000) != 0)
       goto LABEL_7;
-    if (v1 != R12_W) {
-      if (v1 >= R12_W)
+    if (v1 != gta->r12) {
+      if (v1 >= gta->r12)
         return;
 LABEL_7:
-      if ((uint16)(v1 + 512) <= R12_W)
+      if ((uint16)(v1 + 512) <= gta->r12)
         return;
     }
 LABEL_14:;
     uint16 v4 = stripe_image_upload;
-    uint8 v5 = R6_;
+    uint8 v5 = gta->r6;
     int v6 = stripe_image_upload;
-    stripe_image_upload_data[stripe_image_upload] = R6_;
+    stripe_image_upload_data[stripe_image_upload] = v5;
     stripe_image_upload_data[v6 + 12] = v5;
-    uint8 v7 = R7_;
-    stripe_image_upload_data[v4 + 1] = R7_;
+    uint8 v7 = gta->r7;
+    stripe_image_upload_data[v4 + 1] = v7;
     stripe_image_upload_data[v4 + 13] = v7 + 1;
     stripe_image_upload_data[v4 + 2] = 0x80;
     stripe_image_upload_data[v4 + 14] = 0x80;
     stripe_image_upload_data[v4 + 3] = 7;
     stripe_image_upload_data[v4 + 15] = 7;
     stripe_image_upload_data[v4 + 24] = -1;
-    R6_ = 13;
-    R4_W = pointer_map16_tiles[37];
-    uint8 *v8 = IndirPtr(&R4_W, 0);
-    int16 v9 = *(uint16 *)v8;
-    *(uint16 *)&stripe_image_upload_data[v4 + 4] = *(uint16 *)v8;
+    g_ram[6] = 13;
+    const uint8 *rp = RomPtr(0xd0000 + pointer_map16_tiles[37]);
+    int16 v9 = *(uint16 *)(rp + 0);
+    *(uint16 *)&stripe_image_upload_data[v4 + 4] = v9;
     *(uint16 *)&stripe_image_upload_data[v4 + 8] = v9;
-    uint8 *v10 = IndirPtr(&R4_W, 2);
-    int16 v11 = *(uint16 *)v10;
-    *(uint16 *)&stripe_image_upload_data[v4 + 16] = *(uint16 *)v10;
+    int16 v11 = *(uint16 *)(rp + 2);
+    *(uint16 *)&stripe_image_upload_data[v4 + 16] = v11;
     *(uint16 *)&stripe_image_upload_data[v4 + 20] = v11;
-    uint8 *v12 = IndirPtr(&R4_W, 4);
-    int16 v13 = *(uint16 *)v12;
-    *(uint16 *)&stripe_image_upload_data[v4 + 6] = *(uint16 *)v12;
+    int16 v13 = *(uint16 *)(rp + 4);
+    *(uint16 *)&stripe_image_upload_data[v4 + 6] = v13;
     *(uint16 *)&stripe_image_upload_data[v4 + 10] = v13;
-    uint8 *v14 = IndirPtr(&R4_W, 6);
-    int16 v15 = *(uint16 *)v14;
-    *(uint16 *)&stripe_image_upload_data[v4 + 18] = *(uint16 *)v14;
+    int16 v15 = *(uint16 *)(rp + 6);
+    *(uint16 *)&stripe_image_upload_data[v4 + 18] = v15;
     *(uint16 *)&stripe_image_upload_data[v4 + 22] = v15;
     stripe_image_upload = v4 + 24;
     return;
   }
-  uint16 v2 = R10_W & 0xFFF0;
-  if ((R10_W & 0x8000) == 0) {
-    if (v2 == R14_W)
+  uint16 v2 = gta->r10 & 0xFFF0;
+  if ((gta->r10 & 0x8000) == 0) {
+    if (v2 == gta->r14)
       goto LABEL_14;
-    if (v2 >= R14_W)
+    if (v2 >= gta->r14)
       return;
   }
   uint16 v3 = v2 + 512;
-  if (v3 != R14_W && v3 >= R14_W)
+  if (v3 > gta->r14)
     goto LABEL_14;
 }
 
-void ChangeNetDoorTiles() {  // 00c334
-  ++R7_;
-  AddHiLo(&R6_, &R7_, 32);
-  R0_ = blocks_map16_to_generate - 25;
-  R4_ = *(&kChangeNetDoorTiles_DATA_00C32E[0].bank + (3 * (blocks_map16_to_generate - 25)));
-  R2_W = *(uint16 *)((int8 *)&kChangeNetDoorTiles_DATA_00C32E[0].addr + (3 * (blocks_map16_to_generate - 25)));
+void ChangeNetDoorTiles(GenTileArgs *gta) {  // 00c334
+  ++gta->r7;
+  AddHiLo(&gta->r6, &gta->r7, 32);
+  LongPtr p2 = kChangeNetDoorTiles_DATA_00C32E[blocks_map16_to_generate - 25];
   uint16 v1 = stripe_image_upload;
   for (int16 i = 5; i >= 0; --i) {
-    stripe_image_upload_data[v1] = R6_;
-    stripe_image_upload_data[v1 + 1] = R7_;
+    stripe_image_upload_data[v1] = gta->r6;
+    stripe_image_upload_data[v1 + 1] = gta->r7;
     stripe_image_upload_data[v1 + 2] = 0;
     stripe_image_upload_data[v1 + 3] = 11;
-    AddHiLo(&R6_, &R7_, 32);
+    AddHiLo(&gta->r6, &gta->r7, 32);
     v1 += 16;
   }
   uint16 v3 = stripe_image_upload;
   uint16 v4 = 0;
   do {
-    R0_W = 5;
+    uint16 r0w = 5;
     do {
-      *(uint16 *)&stripe_image_upload_data[v3 + 4] = *(uint16 *)IndirPtr(&R2_W, v4);
+      *(uint16 *)&stripe_image_upload_data[v3 + 4] = *(uint16 *)IndirPtr(&p2, v4);
       v4 += 2;
       v3 += 2;
-    } while ((--R0_W & 0x8000) == 0);
+    } while ((--r0w & 0x8000) == 0);
     v3 += 4;
   } while (v4 != 72);
   *(uint16 *)&stripe_image_upload_data[v3] = 255;
   stripe_image_upload += 96;
 }
 
-void EraseLargeSwitch() {  // 00c3d1
-  R4_W = blocks_ypos & 0x1F0;
+void EraseLargeSwitch(GenTileArgs *gta) {  // 00c3d1
   uint16 v0 = blocks_ypos & 0x1F0 | ((uint8)blocks_xpos >> 4);
   uint16 v1 = stripe_image_upload;
   IndirWriteByte(&ptr_lo_map16_data, v0++, 0x25);
@@ -3623,13 +3453,13 @@ void EraseLargeSwitch() {  // 00c3d1
   IndirWriteByte(&ptr_lo_map16_data, v0, 0x25);
   IndirWriteByte(&ptr_lo_map16_data, v0 - 1, 0x25);
   for (int16 i = 3; i >= 0; --i) {
-    stripe_image_upload_data[v1] = R6_;
-    stripe_image_upload_data[v1 + 1] = R7_;
+    stripe_image_upload_data[v1] = gta->r6;
+    stripe_image_upload_data[v1 + 1] = gta->r7;
     stripe_image_upload_data[v1 + 2] = 64;
     stripe_image_upload_data[v1 + 3] = 6;
     *(uint16 *)&stripe_image_upload_data[v1 + 4] = 0x18f8;
     v1 += 6;
-    AddHiLo(&R6_, &R7_, 32);
+    AddHiLo(&gta->r6, &gta->r7, 32);
   }
   stripe_image_upload_data[v1] = -1;
   stripe_image_upload = v1;
@@ -3662,11 +3492,9 @@ void GameMode14_InLevel_00C47E() {  // 00c47e
       mirror_bg3_and4_window_mask_settings = 2;
       mirror_object_and_color_window_settings = kGameMode14_InLevel_DATA_00C478[flag_keyhole_anim_phase];
       mirror_color_math_initial_settings = 18;
-      R4_W = 0xCB93;
-      R6_W = 0;
-      R0_ = temp1436 - mirror_current_layer1_xpos + 4;
-      R1_ = temp1438 - mirror_current_layer1_ypos + 16;
-      UpdateHDMAWindowBuffer_KeyholeEntry(temp1438 - mirror_current_layer1_ypos + 16);
+      uint8 r0 = player_on_tilting_platform_xpos - mirror_current_layer1_xpos + 4;
+      uint8 r1 = player_on_tilting_platform_ypos - mirror_current_layer1_ypos + 16;
+      UpdateHDMAWindowBuffer_KeyholeEntry((HdmaPtrs) {.r4 = 0xcb93, .r6 = 0}, r0, r1);
     }
   }
 LABEL_11:
@@ -4056,8 +3884,7 @@ void PlayerState00_00CA3E() {  // 00ca3e
 
 void PlayerState00_00CA44() {  // 00ca44
   if (timer_hdmawindow_scaling_factor) {
-    UpdateHDMAWindowBuffer_SetCircleHDMAPointer();
-    UpdateHDMAWindowBuffer_IrisInOnPlayerEntry(0xFC);
+    UpdateHDMAWindowBuffer_IrisInOnPlayerEntry(0xFC, UpdateHDMAWindowBuffer_SetCircleHDMAPointer());
     mirror_bg1_and2_window_mask_settings = 51;
     mirror_object_and_color_window_settings = 51;
     mirror_bg3_and4_window_mask_settings = 3;
@@ -4065,25 +3892,24 @@ void PlayerState00_00CA44() {  // 00ca44
   }
 }
 
-void UpdateHDMAWindowBuffer_SetCircleHDMAPointer() {  // 00ca61
-  R4_W = 0xcb12;
-  R6_W = 0xcb12;
+HdmaPtrs UpdateHDMAWindowBuffer_SetCircleHDMAPointer() {  // 00ca61
+  return (HdmaPtrs) { .r4 = 0xcb12, .r6 = 0xcb12 };
 }
 
-void UpdateHDMAWindowBuffer_IrisInOnPlayerEntry(uint8 a) {  // 00ca6d
+void UpdateHDMAWindowBuffer_IrisInOnPlayerEntry(uint8 a, HdmaPtrs hptr) {  // 00ca6d
   timer_hdmawindow_scaling_factor += a;
-  R0_ = player_on_screen_pos_x + 8;
+  uint8 r0 = player_on_screen_pos_x + 8;
   uint8 v1 = player_current_power_up ? 16 : 24;
-  R1_ = player_on_screen_pos_y + v1;
-  if (R1_ == 255 || R1_ == 0)
-    R1_ = 1;
-  UpdateHDMAWindowBuffer_KeyholeEntry(R1_);
+  uint8 r1 = player_on_screen_pos_y + v1;
+  if (r1 == 255 || r1 == 0)
+    r1 = 1;
+  UpdateHDMAWindowBuffer_KeyholeEntry(hptr, r0, r1);
 }
 
-void UpdateHDMAWindowBuffer_KeyholeEntry(uint8 a) {  // 00ca88
-  uint16 v1 = 2 * (2 * a - 1);
+void UpdateHDMAWindowBuffer_KeyholeEntry(HdmaPtrs hptr, uint8 r0, uint8 r1) {  // 00ca88
+  uint16 v1 = 2 * (2 * r1 - 1);
   uint16 v2 = 0;
-  while (R1_ >= timer_hdmawindow_scaling_factor) {
+  while (r1 >= timer_hdmawindow_scaling_factor) {
     if (v2 < 0x1E0) {
       misc_hdmawindow_effect_table[v2] = 255;
       misc_hdmawindow_effect_table[v2 + 1] = 0;
@@ -4094,20 +3920,20 @@ void UpdateHDMAWindowBuffer_KeyholeEntry(uint8 a) {  // 00ca88
     }
     v2 += 2;
     v1 -= 2;
-    if (!R1_)
+    if (!r1)
       goto LABEL_21;
-    --R1_;
+    --r1;
   }
   do {
-    UpdateHDMAWindowBuffer_00CC14(v1);
+    PairU8 pair = UpdateHDMAWindowBuffer_00CC14(v1, hptr, r1);
     if (v2 < 0x1e0) {
-      misc_hdmawindow_effect_table[v2 + 1] = R0_ + R2_ < 255 ? R0_ + R2_ : 255;
-      misc_hdmawindow_effect_table[v2] = R0_ >= R2_ ? R0_ - R2_ : 0;
+      misc_hdmawindow_effect_table[v2 + 1] = r0 + pair.first < 255 ? r0 + pair.first : 255;
+      misc_hdmawindow_effect_table[v2] = r0 >= pair.first ? r0 - pair.first : 0;
     }
     if (v1 < 0x1E0) {
-      if (R7_) {
-        misc_hdmawindow_effect_table[v1 + 1] = R0_ + R3_ < 255 ? R0_ + R3_ : 255;
-        misc_hdmawindow_effect_table[v1] = R0_ >= R3_ ? R0_ - R3_ : 0;
+      if (hptr.r6 >= 256) {
+        misc_hdmawindow_effect_table[v1 + 1] = r0 + pair.second < 255 ? r0 + pair.second : 255;
+        misc_hdmawindow_effect_table[v1] = r0 >= pair.second ? r0 - pair.second : 0;
       } else {
         misc_hdmawindow_effect_table[v1 + 1] = 0;
         misc_hdmawindow_effect_table[v1] = 255;
@@ -4115,21 +3941,21 @@ void UpdateHDMAWindowBuffer_KeyholeEntry(uint8 a) {  // 00ca88
     }
     v2 += 2;
     v1 -= 2;
-    if (!R1_)
+    if (!r1)
       break;
-  } while (--R1_);
+  } while (--r1);
 LABEL_21:
   mirror_hdmaenable = 0x80;
 }
 
-uint8 UpdateHDMAWindowBuffer_00CC14(uint16 j) {  // 00cc14
-  uint16 v1 = SnesDivide(R1_ << 8, timer_hdmawindow_scaling_factor) >> 1;
-  uint8 t = R6_W ? RomPtr_00(R6_W)[v1] : 0;
-  R3_ = (t * timer_hdmawindow_scaling_factor) >> 8;
-  const uint8 *v3 = RomPtr_00(R4_W);
+PairU8 UpdateHDMAWindowBuffer_00CC14(uint16 j, HdmaPtrs hptr, uint8 r1) {  // 00cc14
+  uint16 v1 = SnesDivide(r1 << 8, timer_hdmawindow_scaling_factor) >> 1;
+  uint8 t = hptr.r6 ? RomPtr_00(hptr.r6)[v1] : 0;
+  uint8 r3 = (t * timer_hdmawindow_scaling_factor) >> 8;
+  const uint8 *v3 = RomPtr_00(hptr.r4);
   uint8 result = (v3[v1] * timer_hdmawindow_scaling_factor) >> 8;
-  R2_ = result;
-  return result;
+  uint8 r2 = result;
+  return (PairU8) { .first = r2, .second = r3 };
 }
 
 void PlayerState00() {  // 00cc68
@@ -4160,14 +3986,12 @@ void PlayerState00_00CCE0() {  // 00cce0
     if ((misc_nmito_use_flag & 0x40) != 0 || player_in_air_flag) {
       UpdatePlayerSpritePosition();
     } else {
-      player_xpos = *(uint16 *)&temp1436;
-      player_ypos = *(uint16 *)&temp1438;
+      player_xpos = player_on_tilting_platform_xpos;
+      player_ypos = player_on_tilting_platform_ypos;
       UpdatePlayerSpritePosition();
-      *(uint16 *)&temp1436 = player_xpos;
-      *(uint16 *)&temp14b4 = player_xpos;
-      *(uint16 *)&temp1438 = player_ypos & 0xFFF0;
-      *(uint16 *)&temp14b6 = player_ypos & 0xFFF0;
-      PlayerState00_00F9C9();
+      player_on_tilting_platform_xpos = player_xpos;
+      player_on_tilting_platform_ypos = player_ypos & 0xFFF0;
+      PlayerState00_00F9C9(player_on_tilting_platform_xpos, player_on_tilting_platform_ypos, (PointU16) {.x = 0, .y = 0});
     }
     PlayerState00_00F8F2();
     PlayerState00_00CD36();
@@ -4193,11 +4017,11 @@ void PlayerState00_00CD39() {  // 00cd39
     PlayerState00_00CD95(timer_inflate_from_pballoon);
   } else {
     if (flag_player_climb_on_air)
-      temp8b = 31;
-    if (player_climbing_flag || !(player_riding_yoshi_flag | player_carrying_something_flag2) && (temp8b & 0x1B) == 27 &&
+      player_collision_var8b = 31;
+    if (player_climbing_flag || !(player_riding_yoshi_flag | player_carrying_something_flag2) && (player_collision_var8b & 0x1B) == 27 &&
                                     (io_controller_hold1 & 0xC) != 0 &&
-                                    (player_in_air_flag || (io_controller_hold1 & 8) != 0 || (temp8b & 4) != 0)) {
-      player_climbing_flag = temp8b;
+                                    (player_in_air_flag || (io_controller_hold1 & 8) != 0 || (player_collision_var8b & 4) != 0)) {
+      player_climbing_flag = player_collision_var8b;
       HandlePlayerPhysics_Climbing();
     } else if (player_swimming_flag) {
       HandlePlayerPhysics_Swimming();
@@ -4686,6 +4510,7 @@ LABEL_6:
 
 void HandlePlayerPhysics() {  // 00d5f2
   uint8 v4;
+  uint8 r1 = 0;
   if (!player_in_air_flag) {
     player_ducking_flag = 0;
     if (!player_sliding_on_ground && (io_controller_hold1 & 4) != 0) {
@@ -4762,7 +4587,7 @@ LABEL_39:
       }
     }
 LABEL_40:
-    R1_ = io_controller_hold1 & 1;
+    r1 = io_controller_hold1 & 1;
     v4 = player_slope_player_is_on1 | (4 * v3);
     if (player_xspeed && ((*((uint8 *)kHandlePlayerPhysics_MarioAccel + v4 + 1) ^ player_xspeed) & 0x80) != 0 &&
         !timer_player_slides_when_turing) {
@@ -4777,7 +4602,7 @@ LABEL_40:
   if (v3 != player_facing_direction && (io_controller_press1 & 0x80) == 0)
     goto LABEL_27;
   player_slope_player_is_on1 = kHandlePlayerPhysics_DATA_00D5EE[player_facing_direction];
-  R1_ = io_controller_hold1 & 1;
+  r1 = io_controller_hold1 & 1;
   v4 = player_slope_player_is_on1 | (4 * v3);
 LABEL_46:;
   uint8 v5 = 0;
@@ -4800,7 +4625,7 @@ LABEL_53:
     goto LABEL_53;
 LABEL_54:
   v5 = HandlePlayerPhysics_UpdatePMeterEx(v5);
-  HandlePlayerPhysics_00D742(v4, R1_ | player_slope_player_is_on1 | (2 * v5));
+  HandlePlayerPhysics_00D742(v4, r1 | player_slope_player_is_on1 | (2 * v5));
 }
 
 void HandlePlayerPhysics_00D742(uint8 k, uint8 j) {  // 00d742
@@ -5038,7 +4863,6 @@ LABEL_7:;
 LABEL_33:
     v3 = 120;
 LABEL_34:
-    R0_ = v3;
     player_facing_direction = v4 & 1;
     uint8 v7 = 4 * (v4 & 1);
     uint8 v8 = v3 | v4 & 1;
@@ -5164,26 +4988,26 @@ LABEL_29:
   player_current_pose = kHandlePlayerPhysics_ClimbingPoses[v8];
   if ((io_controller_hold1 & 3) != 0) {
     int8 v10 = (uint8)(io_controller_hold1 & 3) >> 1;
-    if ((temp8b & 0x18) == 24)
+    if ((player_collision_var8b & 0x18) == 24)
       goto LABEL_25;
     if ((player_climbing_flag & 0x80) == 0)
       goto LABEL_29;
-    if (v10 != temp8c)
+    if (v10 != player_collision_var8c)
 LABEL_25:
       player_xspeed = kHandlePlayerPhysics_ClimbingSpeed[(uint8)(player_swimming_flag | (2 * v10))];
   }
   uint8 v11 = io_controller_hold1 & 0xC;
   if ((io_controller_hold1 & 0xC) != 0) {
     if ((io_controller_hold1 & 8) == 0) {
-      int8 v12 = temp8b & 1;
-      temp8b >>= 1;
+      int8 v12 = player_collision_var8b & 1;
+      player_collision_var8b >>= 1;
       if (!v12)
         goto LABEL_29;
       goto LABEL_31;
     }
     v9 += 2;
-    v11 = temp8b & 2;
-    if ((temp8b & 2) != 0) {
+    v11 = player_collision_var8b & 2;
+    if ((player_collision_var8b & 2) != 0) {
 LABEL_31:
       if ((player_climbing_flag & 0x80) == 0)
         player_xspeed = 0;
@@ -5199,7 +5023,7 @@ LABEL_31:
 }
 
 void UpdatePlayerSpritePosition() {  // 00dc2d
-  temp8a = player_yspeed;
+  uint8 tmp8a = player_yspeed;
   if (player_wall_walk_status) {
     uint8 v0 = player_xspeed;
     player_yspeed = (player_wall_walk_status & 1) ? -v0 : v0;
@@ -5211,7 +5035,7 @@ void UpdatePlayerSpritePosition() {  // 00dc2d
   uint16 ty = player_sub_ypos + (uint8)(player_yspeed * 16);
   player_sub_ypos = ty;
   player_ypos += ((int8)player_yspeed >> 4) + (ty >> 8);
-  player_yspeed = temp8a;
+  player_yspeed = tmp8a;
 }
 
 void PlayerDraw() {  // 00e2bd
@@ -5272,16 +5096,16 @@ LABEL_18:
     uint8 v12 = -56;
     if (v5 == 67)
       v12 = -24;
-    R4_ = v12;
+    uint8 r4 = v12;
     if (v5 == 41 && !player_current_power_up)
       v5 = 32;
-    R5_ = kPlayerGFXRt_PlayerXYDispIndex[player_facing_direction | kPlayerGFXRt_PlayerXYDispIndexIndex[v5]];
+    uint8 r5 = kPlayerGFXRt_PlayerXYDispIndex[player_facing_direction | kPlayerGFXRt_PlayerXYDispIndexIndex[v5]];
     uint8 v13 = player_current_pose;
     if (player_current_pose < 0x3D)
-      v13 = kPlayerGFXRt_PowerupTilesetIndex[player_current_power_up] + (player_current_pose >= 0x3D) + player_current_pose;
-    R6_ = kPlayerGFXRt_TilesIndex[v13];
-    R10_ = kPlayerGFXRt_HeadTilePointerIndex[v13];
-    R11_ = kPlayerGFXRt_BodyTilePointerIndex[v13];
+      v13 = kPlayerGFXRt_PowerupTilesetIndex[player_current_power_up] + player_current_pose;
+    uint8 r6 = kPlayerGFXRt_TilesIndex[v13];
+    uint8 r10 = kPlayerGFXRt_HeadTilePointerIndex[v13];
+    uint8 r11 = kPlayerGFXRt_BodyTilePointerIndex[v13];
     uint8 v14 = sprites_tile_priority;
     if (player_current_layer_priority)
       v14 = kPlayerGFXRt_TilePriority[player_current_layer_priority - 1];
@@ -5294,51 +5118,52 @@ LABEL_18:
     oam[68].flags = v16;
     oam[62].flags = v16;
     oam[63].flags = v16;
-    if (R4_ == 0xE8)
+    if (r4 == 0xE8)
       v16 ^= 0x40;
     oam[66].flags = v16;
-    uint8 v18 = PlayerGFXRt_00E45D(v15);
-    uint8 v19 = PlayerGFXRt_00E45D(v18);
-    uint8 v20 = PlayerGFXRt_00E45D(v19);
-    uint8 v21 = PlayerGFXRt_00E45D(v20);
+    uint8 v18 = PlayerGFXRt_00E45D(v15, r4 & 0x80, r5 + 0, r6 + 0);
+    uint8 v19 = PlayerGFXRt_00E45D(v18, r4 & 0x40, r5 + 2, r6 + 1);
+    uint8 v20 = PlayerGFXRt_00E45D(v19, r4 & 0x20, r5 + 4, r6 + 2);
+    uint8 v21 = PlayerGFXRt_00E45D(v20, r4 & 0x10, r5 + 6, r6 + 3);
+    
+    uint8 r12 = 0, r13 = 0;
     if (player_current_power_up == 2) {
       uint8 j = v21;
-      R6_ = 44;
       uint8 v22 = kPlayerGFXRt_DATA_00E18E[player_current_pose];
-      R13_ = kPlayerGFXRt_DATA_00E1D4[v22 + 3];
-      R14_ = kPlayerGFXRt_DATA_00E1D4[v22 + 4];
-      R12_ = kPlayerGFXRt_DATA_00E1D4[v22 + 1];
+      r13 = kPlayerGFXRt_DATA_00E1D4[v22 + 3];
+      uint8 r14 = kPlayerGFXRt_DATA_00E1D4[v22 + 4];
+      r12 = kPlayerGFXRt_DATA_00E1D4[v22 + 1];
       uint8 v24;
-      if (R12_ >= 4) {
+      if (r12 >= 4) {
         v24 = kPlayerGFXRt_DATA_00E1D4[v22 + 2];
       } else {
-        uint8 v23 = R12_ | (4 * player_cape_image);
-        R12_ = kPlayerGFXRt_CapeTilePointerIndex[v23];
+        uint8 v23 = r12 | (4 * player_cape_image);
+        r12 = kPlayerGFXRt_CapeTilePointerIndex[v23];
         v24 = kPlayerGFXRt_DATA_00E266[v23];
       }
-      R5_ = kPlayerGFXRt_CapeXYDispIndex[player_facing_direction | v24];
+      r5 = kPlayerGFXRt_CapeXYDispIndex[player_facing_direction | v24];
       player_hide_player_tile_flags |= kPlayerGFXRt_DATA_00E1D4[v22];
+      uint8 r6 = 44;
       if (!(kPlayerGFXRt_DATA_00E1D4[v22] & 0x80))
-        PlayerGFXRt_00E45D(j);
-      uint8 v25 = PlayerGFXRt_00E45D(kPlayerGFXRt_CapeStartingOAMIndex[player_current_layer_priority]);
-      R6_ = R14_;
-      PlayerGFXRt_00E45D(v25);
+        PlayerGFXRt_00E45D(j, r4 & 0x08, r5, r6++), r5 += 2, r4 <<= 1;
+      uint8 v25 = PlayerGFXRt_00E45D(kPlayerGFXRt_CapeStartingOAMIndex[player_current_layer_priority], r4 & 0x08, r5, r6++);
+      PlayerGFXRt_00E45D(v25, r4 & 0x04, r5 + 2, r14);
     }
-    PlayerGFXRt_00F636();
+    PlayerGFXRt_00F636(r10, r11, r12, r13);
   }
 }
 
-uint8 PlayerGFXRt_00E45D(uint8 j) {  // 00e45d
+uint8 PlayerGFXRt_00E45D(uint8 j, uint8 r4, uint8 r5, uint8 r6) {  // 00e45d
   bool xflag = true;
 
   bool v1 = player_hide_player_tile_flags & 1;
   player_hide_player_tile_flags >>= 1;
   if (!v1) {
-    int8 v2 = kPlayerGFXRt_Tiles[R6_];
+    int8 v2 = kPlayerGFXRt_Tiles[r6];
     if (v2 >= 0) {
       OamEnt *oam = get_OamEnt(oam_buf, j);
       oam[64].charnum = v2;
-      int v4 = R5_ >> 1;
+      int v4 = r5 >> 1;
       uint16 v5 = kPlayerGFXRt_YDisp[v4] + player_on_screen_pos_y;
       if ((uint16)(v5 + 0x10) < 0x100) {
         oam[64].ypos = v5;
@@ -5352,11 +5177,7 @@ uint8 PlayerGFXRt_00E45D(uint8 j) {  // 00e45d
       xflag = false;
     }
   }
-  bool v7 = __CFSHL__(R4_, 1);
-  R4_ *= 2;
-  sprites_oamtile_size_buffer[(j >> 2) + 64] = (2 * v7 + xflag) & 3;
-  R5_ += 2;
-  ++R6_;
+  sprites_oamtile_size_buffer[(j >> 2) + 64] = (2 * (r4 != 0) + xflag) & 3;
   return j + 4;
 }
 
@@ -5413,9 +5234,9 @@ void HandlePlayerLevelColl_00E9C8(uint8 j, uint8 sign) {  // 00e9c8
   if (sign) {
     if (!flag_layer1_horiz_scroll_level_setting) {
       player_blocked_flags |= 0x80;
-      R0_ = get_PointU16(l1_l2_scroll_spr_speed, 0)->x >> 4;
-      if (((kHandlePlayerLevelColl_DATA_00E90D[j + 1] ^ (R0_ - player_xspeed)) & 0x80) == 0) {
-        player_xspeed = R0_;
+      uint8 r0 = get_PointU16(l1_l2_scroll_spr_speed, 0)->x >> 4;
+      if (((kHandlePlayerLevelColl_DATA_00E90D[j + 1] ^ (r0 - player_xspeed)) & 0x80) == 0) {
+        player_xspeed = r0;
         player_sub_xpos = get_PointU16(l1_l2_scroll_spr_sub_pos, 0)->x;
       }
     }
@@ -5448,7 +5269,7 @@ void HandlePlayerLevelColl_00EA0D() {  // 00ea0d
 }
 
 void HandlePlayerLevelColl_00EA34() {  // 00ea34
-  if (player_current_layer_priority == 1 && !temp8b)
+  if (player_current_layer_priority == 1 && !player_collision_var8b)
     player_current_layer_priority = 0;
   player_can_jump_out_of_water = 0;
   if (flag_underwater_level) {
@@ -5456,15 +5277,15 @@ void HandlePlayerLevelColl_00EA34() {  // 00ea34
     SpawnPlayerBreathBubble();
     return;
   }
-  int8 v0 = temp8a & 1;
-  temp8a >>= 1;
+  int8 v0 = player_collision_var8a & 1;
+  player_collision_var8a >>= 1;
   if (!v0) {
     player_swimming_flag = 0;
     return;
   }
   if (!player_swimming_flag && (player_yspeed & 0x80) == 0) {
-    v0 = temp8a & 1;
-    temp8a >>= 1;
+    v0 = player_collision_var8a & 1;
+    player_collision_var8a >>= 1;
     if (!v0)
       return;
     SpawnPlayerWaterSplashAndBubbles();
@@ -5473,8 +5294,8 @@ void HandlePlayerLevelColl_00EA34() {  // 00ea34
     SpawnPlayerBreathBubble();
     return;
   }
-  v0 = temp8a & 1;
-  temp8a >>= 1;
+  v0 = player_collision_var8a & 1;
+  player_collision_var8a >>= 1;
   if (v0) {
     player_swimming_flag = 1;
     SpawnPlayerBreathBubble();
@@ -5508,8 +5329,8 @@ void ResetPlayerLevelCollisionRAM() {  // 00eaa6
   player_blocked_flags = 0;
   player_slope_player_is_on1 = 0;
   player_slope_player_is_on2 = 0;
-  temp8a = 0;
-  temp8b = 0;
+  player_collision_var8a = 0;
+  player_collision_var8b = 0;
   sprites_layer2_is_touched_flag = 0;
 }
 
@@ -5627,7 +5448,7 @@ LABEL_25:
       goto LABEL_42;
     }
     if (CheckWaterSlope(v3) & 1)
-      temp8a |= 1;
+      player_collision_var8a |= 1;
   }
 LABEL_30:;
   PairU16 v5 = GetPlayerLevelCollisionMap16ID_WallRun(v0 += 2);
@@ -6025,14 +5846,15 @@ void CheckIfBlockWasHit(uint8 a, uint8 j) {  // 00f160
 }
 
 void CheckIfBlockWasHit_Entry3(uint8 a, uint8 j) {  // 00f17f
+  uint8 r4, r5;
   uint8 v3;
   int8 v5;
 
   if ((kCheckIfBlockWasHit_DATA_00F0A4[a] & kCheckIfBlockWasHit_DATA_00F0EC[j]) == 0)
-    goto LABEL_20;
-  R6_ = j;
-  R7_ = kCheckIfBlockWasHit_DATA_00F0C8[a];
-  R4_ = kCheckIfBlockWasHit_DATA_00F05C[a];
+    return;
+  uint8 r6 = j;
+  uint8 r7 = kCheckIfBlockWasHit_DATA_00F0C8[a];
+  r4 = kCheckIfBlockWasHit_DATA_00F05C[a];
   int8 v2 = kCheckIfBlockWasHit_DATA_00F080[a];
   if (v2 >= 0)
     goto LABEL_9;
@@ -6058,10 +5880,10 @@ LABEL_9:
 LABEL_14:
     v3 = 6;
 LABEL_15:
-  R5_ = v3;
+  r5 = v3;
   if (v3 == 5) {
     v3 = 22;
-    R7_ = 22;
+    r7 = 22;
   }
   blocks_xpos &= ~0xf;
   blocks_ypos &= ~0xf;
@@ -6072,11 +5894,11 @@ LABEL_15:
   int8 v8 = *(&timer_inflate_from_pballoon + v6);
   *(&timer_inflate_from_pballoon + v6) = v7;
   if (v7 == 0xFF) {
-    R5_ = 5;
+    r5 = 5;
 LABEL_23:
-    R7_ = 23;
+    r7 = 23;
 LABEL_19:
-    SpawnBounceSprite();
+    SpawnBounceSprite(r4, r5, r6, r7);
     goto LABEL_20;
   }
   if (!flag_prevent_coin_bonus_game_replay) {
@@ -6085,8 +5907,8 @@ LABEL_19:
       goto LABEL_23;
   }
   io_sound_ch3 = 42;
-  R5_ = 0;
-  SpawnBounceSprite();
+  r5 = 0;
+  SpawnBounceSprite(r4, r5, r6, r7);
   int8 v10 = 7;
   uint8 v11 = *(&timer_inflate_from_pballoon + v6);
   do {
@@ -6132,7 +5954,7 @@ LABEL_6:
 
 void RunPlayerBlockCode_00F2C2(uint8 j, uint8 a) {  // 00f2c2
   if (j < 6)
-    temp8a |= a;
+    player_collision_var8a |= a;
   else
     RunPlayerBlockCode_00F2C9(j, a);
 }
@@ -6157,8 +5979,8 @@ void RunPlayerBlockCode_00F2C9(uint8 j, uint8 a) {  // 00f2c9
     }
     if (a == 1)
       a = 25;
-    temp8b |= a;
-    temp8c = player_hdir_block_touched;
+    player_collision_var8b |= a;
+    player_collision_var8c = player_hdir_block_touched;
   }
 }
 
@@ -6273,17 +6095,18 @@ PairU16 GetPlayerLevelCollisionMap16ID_WallRun(uint8 k) {  // 00f44d
 }
 
 PairU16 GetPlayerLevelCollisionMap16ID_Entry2(uint8 k) {  // 00f465
+  uint16 r0w;
   misc_color_of_palace_switch_pressed2 = 0;
   if ((temp8e & 0x80) != 0) {
     if (temp8e & 0x7f) {
       if (HIBYTE(blocks_xpos) >= 2 || HIBYTE(blocks_ypos) >= 0xE)
         return MakePairU16_AY(0, 0x25);
-      R0_W = PAIR16(kLevelDataLayoutTables_EightBitHi_Vertical_L2[HIBYTE(blocks_ypos)], kLevelDataLayoutTables_EightBitLo_Vertical_L2[HIBYTE(blocks_ypos)]) +
+      r0w = PAIR16(kLevelDataLayoutTables_EightBitHi_Vertical_L2[HIBYTE(blocks_ypos)], kLevelDataLayoutTables_EightBitLo_Vertical_L2[HIBYTE(blocks_ypos)]) +
           (blocks_ypos & 0xF0 | ((uint8)blocks_xpos >> 4) | HIBYTE(blocks_xpos) << 8);
     } else if (blocks_ypos < 0x1B0) {
       if (HIBYTE(blocks_xpos) >= 0x10)
         return MakePairU16_AY(0, 0x25);
-      R0_W = PAIR16(kLevelDataLayoutTables_EightBitHi_Horizontal_L2[HIBYTE(blocks_xpos)], kLevelDataLayoutTables_EightBitLo_Horizontal_L2[HIBYTE(blocks_xpos)]) +
+      r0w = PAIR16(kLevelDataLayoutTables_EightBitHi_Horizontal_L2[HIBYTE(blocks_xpos)], kLevelDataLayoutTables_EightBitLo_Horizontal_L2[HIBYTE(blocks_xpos)]) +
           (blocks_ypos & 0xF0 | ((uint8)blocks_xpos >> 4) | HIBYTE(blocks_ypos) << 8);
     } else {
       return MakePairU16_AY(0, 0x25);
@@ -6292,20 +6115,17 @@ PairU16 GetPlayerLevelCollisionMap16ID_Entry2(uint8 k) {  // 00f465
     if (temp8e) {
       if (HIBYTE(blocks_xpos) >= 2 || HIBYTE(blocks_ypos) >= misc_screens_in_lvl)
         return MakePairU16_AY(0, 0x25);
-      R0_W = PAIR16(kLevelDataLayoutTables_EightBitHi_Vertical[HIBYTE(blocks_ypos)], kLevelDataLayoutTables_EightBitLo_Vertical[HIBYTE(blocks_ypos)]) +
+      r0w = PAIR16(kLevelDataLayoutTables_EightBitHi_Vertical[HIBYTE(blocks_ypos)], kLevelDataLayoutTables_EightBitLo_Vertical[HIBYTE(blocks_ypos)]) +
         (blocks_ypos & 0xF0 | ((uint8)blocks_xpos >> 4) | HIBYTE(blocks_xpos) << 8);
     } else {
       if (blocks_ypos >= 0x1B0 || HIBYTE(blocks_xpos) >= misc_screens_in_lvl)
         return MakePairU16_AY(0, 0x25);
-      R0_W = PAIR16(kLevelDataLayoutTables_EightBitHi[HIBYTE(blocks_xpos)], kLevelDataLayoutTables_EightBitLo[HIBYTE(blocks_xpos)]) +
+      r0w = PAIR16(kLevelDataLayoutTables_EightBitHi[HIBYTE(blocks_xpos)], kLevelDataLayoutTables_EightBitLo[HIBYTE(blocks_xpos)]) +
         (blocks_ypos & 0xF0 | ((uint8)blocks_xpos >> 4) | HIBYTE(blocks_ypos) << 8);
     }
   }
-  R2_ = 126;
-  blocks_currently_processed_map16_tile_lo = *IndirPtr(&R0_, 0);
-  ++R2_;
-  uint8 *v6 = IndirPtr(&R0_, 0);
-  uint8 v7 = ModifyMap16IDForSpecialBlocks(*v6);
+  blocks_currently_processed_map16_tile_lo = g_ram[r0w];
+  uint8 v7 = ModifyMap16IDForSpecialBlocks(g_ram[0x10000 + r0w]);
   return MakePairU16_AY(v7, blocks_currently_processed_map16_tile_lo);
 }
 
@@ -6407,20 +6227,20 @@ void DamagePlayer_DisableButtons() {  // 00f62d
   io_controller_press2 = 0;
 }
 
-void PlayerGFXRt_00F636() {  // 00f636
-  uint16 t = (R10_ & 0xf7) << 6 | ((R10_ & 0x8) ? 0x4000 : 0);
+void PlayerGFXRt_00F636(uint8 r10, uint8 r11, uint8 r12, uint8 r13) {  // 00f636
+  uint16 t = (r10 & 0xf7) << 6 | ((r10 & 0x8) ? 0x4000 : 0);
   *(uint16 *)graphics_dynamic_sprite_pointers_top_lo = t + 0x2000;
   *(uint16 *)graphics_dynamic_sprite_pointers_bottom_lo = t + 0x2200;
 
-  t = (R11_ & 0xf7) << 6 | ((R11_ & 0x8) ? 0x4000 : 0);
+  t = (r11 & 0xf7) << 6 | ((r11 & 0x8) ? 0x4000 : 0);
   *(uint16 *)&graphics_dynamic_sprite_pointers_top_lo[2] = t + 0x2000;
   *(uint16 *)&graphics_dynamic_sprite_pointers_bottom_lo[2] = t + 0x2200;
 
-  t = 32 * R12_;
+  t = 32 * r12;
   *(uint16 *)&graphics_dynamic_sprite_pointers_top_lo[4] = t + 0x2000;
   *(uint16 *)&graphics_dynamic_sprite_pointers_bottom_lo[4] = t + 0x2200;
 
-  graphics_dynamic_sprite_tile7 = 32 * R13_ + 0x2000;
+  graphics_dynamic_sprite_tile7 = 32 * r13 + 0x2000;
   player_number_of_tiles_to_update = 10;
 }
 
@@ -6436,13 +6256,13 @@ void HandleStandardLevelCameraScroll() {  // 00f6db
     HandleStandardLevelCameraScroll_00F7F4((camera_last_screen_vert - 1) << 8);
     if (flag_layer1_horiz_scroll_level_setting) {
       uint8 v7 = 0;
-      R0_W = player_xpos - mirror_current_layer1_xpos;
-      if ((int16)(player_xpos - mirror_current_layer1_xpos - player_relative_position_needed_to_scroll_screen) >= 0)
+      uint16 r0w = player_xpos - mirror_current_layer1_xpos;
+      if ((int16)(r0w - player_relative_position_needed_to_scroll_screen) >= 0)
         v7 = 2;
-      R2_W = player_xpos - mirror_current_layer1_xpos - camera_pos_for_scroll[v7 >> 1];
-      if (((kHandleStandardLevelCameraScroll_DATA_00F6A3[v7 >> 1] ^ R2_W) & 0x8000) != 0) {
-        HandleStandardLevelCameraScroll_00F8AB();
-        uint16 v8 = mirror_current_layer1_xpos + R2_W;
+      uint16 r2w = player_xpos - mirror_current_layer1_xpos - camera_pos_for_scroll[v7 >> 1];
+      if (((kHandleStandardLevelCameraScroll_DATA_00F6A3[v7 >> 1] ^ r2w) & 0x8000) != 0) {
+        r2w = HandleStandardLevelCameraScroll_00F8AB(r2w);
+        uint16 v8 = mirror_current_layer1_xpos + r2w;
         if ((int16)v8 < 0)
           v8 = 0;
         if (!sign16(v8 - 257))
@@ -6453,17 +6273,17 @@ void HandleStandardLevelCameraScroll() {  // 00f6db
   } else {
     HandleStandardLevelCameraScroll_00F7F4(0xC0);
     if (flag_layer1_horiz_scroll_level_setting) {
-      R0_W = player_xpos - mirror_current_layer1_xpos;
-      uint8 v1 = ((int16)(R0_W - player_relative_position_needed_to_scroll_screen) < 0) ? 0 : 2;
+      uint16 r0w = player_xpos - mirror_current_layer1_xpos;
+      uint8 v1 = ((int16)(r0w - player_relative_position_needed_to_scroll_screen) < 0) ? 0 : 2;
       camera_layer1_scrolling_direction = v1;
       camera_layer2_scrolling_direction = v1;
-      int16 v2 = R0_W - camera_pos_for_scroll[v1 >> 1];
+      int16 v2 = r0w - camera_pos_for_scroll[v1 >> 1];
       if (v2) {
-        R2_W = player_xpos - mirror_current_layer1_xpos - camera_pos_for_scroll[v1 >> 1];
+        uint16 r2w = player_xpos - mirror_current_layer1_xpos - camera_pos_for_scroll[v1 >> 1];
         if (((kHandleStandardLevelCameraScroll_DATA_00F6A3[v1 >> 1] ^ v2) & 0x8000) != 0) {
-          HandleStandardLevelCameraScroll_00F8AB();
-          uint16 v3 = mirror_current_layer1_xpos + R2_W;
-          if ((int16)(mirror_current_layer1_xpos + R2_W) < 0)
+          r2w = HandleStandardLevelCameraScroll_00F8AB(r2w);
+          uint16 v3 = mirror_current_layer1_xpos + r2w;
+          if ((int16)(mirror_current_layer1_xpos + r2w) < 0)
             v3 = 0;
           mirror_current_layer1_xpos = v3;
           int16 v5 = (camera_last_screen_horiz - 1) << 8;
@@ -6497,20 +6317,20 @@ void HandleStandardLevelCameraScroll() {  // 00f6db
 
 void HandleStandardLevelCameraScroll_00F7F4(uint16 a) {  // 00f7f4
   if (flag_layer1_vert_scroll_level_setting) {
-    R4_W = a;
+    uint16 r4w = a;
     uint8 v1 = 0;
-    R0_W = player_ypos - mirror_current_layer1_ypos;
+    uint16 r0w = player_ypos - mirror_current_layer1_ypos;
     if (!sign16(player_ypos - mirror_current_layer1_ypos - 112))
       v1 = 2;
     camera_layer1_scrolling_direction = v1;
     camera_layer2_scrolling_direction = v1;
     int v2 = v1 >> 1;
-    R2_W = player_ypos - mirror_current_layer1_ypos - kHandleStandardLevelCameraScroll_DATA_00F69F[v2];
-    if (((kHandleStandardLevelCameraScroll_DATA_00F6A3[v2] ^ R2_W) & 0x8000) == 0) {
+    uint16 r2w = player_ypos - mirror_current_layer1_ypos - kHandleStandardLevelCameraScroll_DATA_00F69F[v2];
+    if (((kHandleStandardLevelCameraScroll_DATA_00F6A3[v2] ^ r2w) & 0x8000) == 0) {
       v1 = 2;
-      R2_W = 0;
+      r2w = 0;
     }
-    if ((R2_W & 0x8000) != 0) {
+    if ((r2w & 0x8000) != 0) {
       uint8 v3 = player_wall_walk_status;
       if (player_wall_walk_status < 6)
         v3 = camera_bounce_off_spring_flag | flag_player_in_lakitus_cloud | timer_inflate_from_pballoon | player_climbing_flag |
@@ -6531,7 +6351,7 @@ void HandleStandardLevelCameraScroll_00F7F4(uint16 a) {  // 00f7f4
       flag_scroll_up_to_player = 0;
     }
     int v5 = v1 >> 1;
-    uint16 v6 = R2_W;
+    uint16 v6 = r2w;
     uint16 t = (v6 - kHandleStandardLevelCameraScroll_DATA_00F6A7[v5]) ^ kHandleStandardLevelCameraScroll_DATA_00F6A7[v5];
     if (!sign16(t))
       v6 = kHandleStandardLevelCameraScroll_DATA_00F6A7[v5];
@@ -6539,28 +6359,29 @@ void HandleStandardLevelCameraScroll_00F7F4(uint16 a) {  // 00f7f4
     if ((int16)(v7 - kHandleStandardLevelCameraScroll_DATA_00F6AD[v5]) < 0)
       v7 = kHandleStandardLevelCameraScroll_DATA_00F6AD[v5];
     mirror_current_layer1_ypos = v7;
-    if (sign16(R4_W - v7)) {
-      mirror_current_layer1_ypos = R4_W;
+    if (sign16(r4w - v7)) {
+      mirror_current_layer1_ypos = r4w;
       *(uint16 *)&flag_enable_vert_scroll = 0;
     }
   }
 }
 
-void HandleStandardLevelCameraScroll_00F8AB() {  // 00f8ab
+uint16 HandleStandardLevelCameraScroll_00F8AB(uint16 r2w) {  // 00f8ab
   if (!flag_lrscroll_flag) {
     uint8 v0 = 8;
     int v1 = player_facing_directionx2 >> 1;
     if ((int16)(player_relative_position_needed_to_scroll_screen - kHandleStandardLevelCameraScroll_DATA_00F6B3[v1]) < 0)
       v0 = 10;
     int v2 = v0 >> 1;
-    if (((R2_W ^ kHandleStandardLevelCameraScroll_DATA_00F6BF[v2]) & 0x8000) != 0 &&
-        ((R2_W ^ kHandleStandardLevelCameraScroll_DATA_00F6BF[v1]) & 0x8000) != 0) {
-      if (kHandleStandardLevelCameraScroll_DATA_00F6CF[v2] + R2_W) {
-        R2_W += kHandleStandardLevelCameraScroll_DATA_00F6CF[v2];
+    if (((r2w ^ kHandleStandardLevelCameraScroll_DATA_00F6BF[v2]) & 0x8000) != 0 &&
+        ((r2w ^ kHandleStandardLevelCameraScroll_DATA_00F6BF[v1]) & 0x8000) != 0) {
+      if (kHandleStandardLevelCameraScroll_DATA_00F6CF[v2] + r2w) {
+        r2w += kHandleStandardLevelCameraScroll_DATA_00F6CF[v2];
         camera_lrscroll_move_flag = v0;
       }
     }
   }
+  return r2w;
 }
 
 void PlayerState00_00F8F2() {  // 00f8f2
@@ -6577,21 +6398,19 @@ void PlayerState00_00F8F2() {  // 00f8f2
       uint8 v1 = 0;
       int16 t = spr_table160e[9] + 1 - player_xpos;
       if (t > 0) {
-        R0_W = spr_table1534[9];
-        t = player_xpos + 15 - R0_W;
+        t = player_xpos + 15 - spr_table1534[9];
         v1 = 1;
       }
       HandlePlayerLevelColl_00E9C8(v1, t < 0);
     }
   } else {
     if (!(player_yspeed & 0x80)) {
-      if (PlayerState00_00F9A8()) {
+      CheckPlatformCollRet cpcr = CheckTiltingPlatformCollision(player_xpos + 8, player_ypos + 32);
+      if (cpcr.retval) {
         if (player_in_air_flag) {
-          *(uint16 *)&temp14b4 = temp14b8;
-          *(uint16 *)&temp1436 = temp14b8;
-          *(uint16 *)&temp14b6 = temp14ba & 0xF0;
-          *(uint16 *)&temp1438 = temp14ba & 0xF0;
-          PlayerState00_00F9C9();
+          player_on_tilting_platform_xpos = cpcr.pt.x & 0xff;
+          player_on_tilting_platform_ypos = cpcr.pt.y & 0xf0;
+          PlayerState00_00F9C9(player_on_tilting_platform_xpos, player_on_tilting_platform_ypos, cpcr.pt);
         }
         uint8 v2 = kPlayerState00_DATA_00F8DF[(uint8)(misc_m7_rotation + 72) >> 4];
         temp8e = 0x80;
@@ -6606,35 +6425,27 @@ void PlayerState00_00F8F2() {  // 00f8f2
   }
 }
 
-uint8 PlayerState00_00F9A8() {  // 00f9a8
-  *(uint16 *)&temp14b4 = player_xpos + 8;
-  *(uint16 *)&temp14b6 = player_ypos + 32;
-  return PlayerState00_00F9BC();
-}
-
-uint8 PlayerState00_00F9BC() {  // 00f9bc
-  return CheckTiltingPlatformCollision();
-}
-
-void PlayerState00_00F9C9() {  // 00f9c9
+void PlayerState00_00F9C9(uint16 temp14b4, uint16 temp14b6, PointU16 pt) {  // 00f9c9
   uint16 v0 = misc_m7_rotation;
   misc_m7_rotation = -misc_m7_rotation;
-  PlayerState00_00F9BC();
+  CheckPlatformCollRet ret = CheckTiltingPlatformCollision(temp14b4, temp14b6);
+  if (ret.out_of_bounds)
+    ret.pt = pt;
   misc_m7_rotation = v0;
-  player_xpos = temp14b8 - 8;
-  player_ypos = temp14ba - 32;
+  player_xpos = (uint8)ret.pt.x - 8;
+  player_ypos = (uint8)ret.pt.y - 32;
 }
 
-uint8 CheckWhatSlopeSpriteIsOn(uint8 a) {  // 00fa19
-  R5_ = 50;
-  R6_ = -26;
-  R7_ = 0;
-  R8_ = *IndirPtr(&ptr_slope_steepness, (uint8)(a - 110));
-  R1_ = 16 * R8_;
-  if (__CFSHL__(8 * R8_, 1))
-    ++R6_;
-  R0_ = R12_ & 0xF;
-  return R1_ | R10_ & 0xF;
+uint8 CheckWhatSlopeSpriteIsOn(uint8 a, uint8 r10, uint8 r12, uint8 *slope_type) {  // 00fa19
+  g_ram[5] = 50;
+  g_ram[6] = -26;
+  g_ram[7] = 0;
+  uint8 r8 = *IndirPtr(&ptr_slope_steepness, (uint8)(a - 110));
+  *slope_type = r8;
+  uint8 r1 = 16 * r8;
+  if (__CFSHL__(8 * r8, 1))
+    ++g_ram[6];
+  return r1 | r10 & 0xF;
 }
 
 void RunPlayerBlockCode_SpawnFlatPalaceSwitch() {  // 00fa45
@@ -6691,16 +6502,16 @@ LABEL_11:
   uint8 v3 = kSpr07B_GoalTape_DATA_00FADF[v1];
   if (v3 == kSpr07B_GoalTape_DATA_00FAFB[player_current_item_box])
     v3 = 120;
-  R15_ = 0;
+  uint8 r15 = 0;
   if (v3 >= 0xE0) {
-    R15_ = v3 & 0xF;
+    r15 = v3 & 0xF;
     v3 = 120;
   }
   spr_spriteid[j] = v3;
   if (v3 == 118)
     ++unusedram_got_invincible_star_from_goal;
   InitializeNormalSpriteRAMTables(j);
-  spr_table1594[j] = R15_;
+  spr_table1594[j] = r15;
   spr_current_status[j] = 12;
   spr_yspeed[j] = -48;
   spr_xspeed[j] = 5;

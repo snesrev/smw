@@ -42,3 +42,10 @@ typedef struct LevelTileAnimations {
 } LevelTileAnimations;
 
 #pragma pack (pop)
+
+typedef struct GenTileArgs {
+  uint8 r6, r7;
+  uint16 r8;
+  uint16 r12, r14;
+  uint16 r10;
+} GenTileArgs;

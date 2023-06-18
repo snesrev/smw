@@ -1456,7 +1456,7 @@
 #define kSpecifySublevelToLoad_DATA_05D758 ((uint8*)RomFixedPtr(0x5D758))
 #define kSpecifySublevelToLoad_LevelEntranceTileset ((uint8*)RomFixedPtr(0x5D760))
 #define kSpecifySublevelToLoad_LevelEntranceLayer1 ((LongPtr*)RomFixedPtr(0x5D766))
-#define kSpecifySublevelToLoad_LevelEntranceLayer2 (*(LongPtr*)RomFixedPtr(0x5D778))
+#define kSpecifySublevelToLoad_LevelEntranceLayer2 ((LongPtr*)RomFixedPtr(0x5D778))
 #define kSpecifySublevelToLoad_LevelEntranceLayer3 ((uint8*)RomFixedPtr(0x5D78A))
 #define kSpecifySublevelToLoad_LevelEntranceYPos ((uint8*)RomFixedPtr(0x5D790))
 #define kSpecifySublevelToLoad_Layer1Ptrs ((uint16*)RomFixedPtr(0x5DB08))

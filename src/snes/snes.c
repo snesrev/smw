@@ -208,7 +208,7 @@ void snes_runCycle(Snes* snes) {
 
   snes_handle_pos_stuff(snes);
  }
-#define IS_ADR(x) (x == 0xffffffff)
+#define IS_ADR(x) (x == 0xffffff)
 
 void snes_runCpu(Snes *snes) {
   uint32_t pc = snes->cpu->k << 16 | snes->cpu->pc;
