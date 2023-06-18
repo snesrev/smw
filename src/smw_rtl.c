@@ -1,6 +1,8 @@
 #include "smw_rtl.h"
 #include "variables.h"
 #include <time.h>
+#include "common_cpu_infra.h"
+#include "snes/snes.h"
 
 void AddSprXPos(uint8 k, uint16 x) {
   AddHiLo(&spr_xpos_hi[k], &spr_xpos_lo[k], x);
@@ -42,4 +44,10 @@ void SmwSavePlaythroughSnapshot() {
   char buf[128];
   snprintf(buf, sizeof(buf), "playthrough/%d_%d_%d.sav", ow_level_number_lo, misc_exit_level_action, (int)time(NULL));
   RtlSaveSnapshot(buf, false);
+}
+
+void UploadOAMBuffer() {  // 008449
+  memcpy(g_snes->ppu->oam, g_ram + 0x200, 0x220);
+  RtlPpuWrite(OAMADDH, 0x80);
+  RtlPpuWrite(OAMADDL, mirror_oamaddress_lo);
 }

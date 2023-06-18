@@ -14,6 +14,7 @@ typedef struct SpcPlayer {
   Dsp *dsp;
   uint8 *ram;
   uint8 input_ports[4];
+  uint8 port_to_snes[4];
 
   SpcPlayer_Initialize_Func *initialize;
   SpcPlayer_GenerateSamples_Func *gen_samples;

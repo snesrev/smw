@@ -10,7 +10,7 @@
 #include "../types.h"
 //#include "../variables.h"
 #include "../smw_rtl.h"
-#include "../../smb1/smb1_variables.h"
+#include "../variables.h"
 
 static const int cyclesPerOpcode[256] = {
   7, 6, 7, 4, 5, 3, 5, 6, 3, 2, 2, 4, 6, 4, 6, 5,
@@ -746,21 +746,23 @@ static void cpu_doOpcode(Cpu* cpu, uint8_t opcode) {
   pc_hist_ctr = (pc_hist_ctr + 1) & 15;
   
   if (cur_pc == pc_bp) {
-    printf("Rseached BP 0x%x. A=0x%.2x, X=0x%.2x, Y=0x%.2x. C=%d. 0x%x\n", 
+    printf("Reached BP 0x%x. A=0x%.2x, X=0x%.2x, Y=0x%.2x. C=%d. 0x%x\n", 
       cur_pc, (uint8)cpu->a, cpu->x, cpu->y, cpu->c,
-      WORD(tempE4));
+      0);
     bp_cnt += 1;
-    g_snes->debug_cycles = 0;
+    //g_snes->debug_cycles = 1;
   }
-  if (cur_pc == 0x29186&&0)
-    printf("curpc=0x%x 0x%x\n", g_cpu->a, g_cpu->x);
-  if (cur_pc == 0x29197 && g_cpu->x == 0x800&&0) {
-    printf("x=0x%x, y=0x%x, t4=0x%x\n", g_cpu->x, g_cpu->y, WORD(tempE4));
+  if (cur_pc == 0x85d2) {
+//    printf("T: upl stripe %d\n", graphics_stripe_image_to_upload);
+//  if (cur_pc == 0x29197 && g_cpu->x == 0x800&&0) {
+//    printf("x=0x%x, y=0x%x, t4=0x%x\n", g_cpu->x, g_cpu->y, WORD(tempE4));
     //g_snes->debug_cycles = 1;
     uint16 t = g_ram[0xf3] | g_ram[0xf4] << 8;
 //    printf("wr 0x%x = 0x%x\n", t + g_cpu->y, g_cpu->a & 0xff);
 
   }
+//  if (cur_pc == 0x2A82E)
+//    printf("T: Load sprites offs %d: 0x%x\n", g_cpu->y, WORD(g_ram[0]));
 
 restart:
   switch(opcode) {
@@ -1478,7 +1480,6 @@ restart:
       break;
     }
     case 0x6b: { // rtl imp
-      g_snes->debug_cycles = false;
       if (cpu->sp >= cpu->spBreakpoint && cpu->spBreakpoint) {
         assert(cpu->sp == cpu->spBreakpoint);
         cpu->spBreakpoint = 0;

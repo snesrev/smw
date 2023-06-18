@@ -155,6 +155,9 @@ RESET_GAME:
   }
 }
 
+static void Smb1DrawPpuFrame(void) {
+
+}
 
 const RtlGameInfo kSmb1GameInfo = {
   "smb1",
@@ -164,5 +167,6 @@ const RtlGameInfo kSmb1GameInfo = {
   &Smb1CpuInitialize,
   &Smb1RunOneFrameOfGame,
   &Smb1RunOneFrameOfGame_Emulated,
+  &Smb1DrawPpuFrame,
   &Smb1FixSnapshotForCompare,
 };

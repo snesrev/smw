@@ -30,6 +30,7 @@ typedef struct RtlGameInfo {
   CpuInfraInitializeFunc *initialize;
   RunOneFrameOfGameFunc *run_frame;
   RunOneFrameOfGameFunc *run_frame_emulated;
+  RunOneFrameOfGameFunc *draw_ppu_frame;
   FixSnapshotForCompareFunc *fix_snapshot_for_compare;
 } RtlGameInfo;
 
@@ -44,6 +45,7 @@ typedef struct Snapshot {
   uint8 sram[0x2000];
 
   uint16 oam[0x120];
+  uint16 cgram[0x100];
 } Snapshot;
 
 extern const RtlGameInfo kSmwGameInfo;

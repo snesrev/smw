@@ -11,6 +11,11 @@ void SmwVectorNMI();
 void SmwVectorIRQ();
 void SmwSavePlaythroughSnapshot();
 
+void SmwCopyToVram(uint16 vram_addr, const uint8 *src, int n);
+void SmwClearVram(uint16 vram_addr, uint16 value, int n);
+void SmwCopyToVramPitch32(uint16 vram_addr, const uint8 *src, int n);
+void SmwCopyToVramLow(uint16 vram_addr, const uint8 *src, int n);
+
 extern bool g_did_finish_level_hook;
 
 void AddSprXPos(uint8 k, uint16 x);
@@ -42,3 +47,10 @@ typedef struct LevelTileAnimations {
 } LevelTileAnimations;
 
 #pragma pack (pop)
+
+typedef struct GenTileArgs {
+  uint8 r6, r7;
+  uint16 r8;
+  uint16 r12, r14;
+  uint16 r10;
+} GenTileArgs;

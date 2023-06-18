@@ -9,7 +9,10 @@ struct StateRecorder;
 
 static void RtlSaveMusicStateToRam_Locked();
 static void RtlRestoreMusicAfterLoad_Locked(bool is_reset);
+static uint8 RtlApuReadReg(int reg);
+
 void SmwSavePlaythroughSnapshot();
+void SmwLoadNextPlaybackSnapshot();
 
 uint8 g_ram[0x20000];
 uint8 *g_sram;
@@ -18,6 +21,7 @@ const uint8 *g_rom;
 bool g_is_uploading_apu;
 bool g_did_finish_level_hook;
 uint8 game_id;
+bool g_playback_mode;
 
 static uint8 *g_rtl_memory_ptr;
 static RunFrameFunc *g_rtl_runframe;
@@ -392,11 +396,6 @@ void RtlStopReplay(void) {
   StateRecorder_StopReplay(&state_recorder);
 }
 
-enum {
-  // Version was bumped to 1 after I fixed bug #1
-  kCurrentBugFixCounter = 1,
-};
-
 bool RtlRunFrame(int inputs) {
   if (g_did_finish_level_hook) {
     if (game_id == kGameID_SMW && !state_recorder.replay_mode && g_config.save_playthrough) {
@@ -404,6 +403,8 @@ bool RtlRunFrame(int inputs) {
       RtlClearKeyLog();
     }
     g_did_finish_level_hook = false;
+    if (g_playback_mode)
+      SmwLoadNextPlaybackSnapshot();
   }
 
   // Avoid up/down and left/right from being pressed at the same time
@@ -422,6 +423,17 @@ bool RtlRunFrame(int inputs) {
       inputs = state_recorder.last_inputs;
     }
     StateRecorder_Record(&state_recorder, inputs);
+
+    if (game_id == kGameID_SMW) {
+      // This is whether APUI02 is true or false, this is used by the ancilla code.
+      uint8 apui02 = RtlApuReadReg(2);
+      if (apui02 != g_ram[kSmwRam_APUI02]) {
+        g_ram[kSmwRam_APUI02] = apui02;
+        StateRecorder_RecordPatchByte(&state_recorder, kSmwRam_APUI02, &apui02, 1);
+      }
+    }
+
+
   }
 
   g_rtl_runframe(inputs, 0);
@@ -441,12 +453,48 @@ void RtlSaveSnapshot(const char *filename, bool saving_with_bug) {
   fclose(f);
 }
 
+static void RtlLoadFromFile(FILE *f, bool replay) {
+  RtlApuLock();
+
+  Ppu *ppu = g_snes->ppu;
+  g_snes->ppu = g_snes->snes_ppu;
+
+  StateRecorder_Load(&state_recorder, f, replay);
+  ppu_copy(g_snes->my_ppu, g_snes->ppu);
+
+  g_snes->ppu = ppu;
+  RtlApuUnlock();
+  RtlSynchronizeWholeState();
+}
+
 static const char *const kBugSaves[] = {
-"smb1-bug-1685653215",
+  "playthrough/1_1",
 };
+
+
+static int g_playback_ctr = ( 89 - 1) * 2; // 49
+void SmwLoadNextPlaybackSnapshot() {
+  char name[128];
+  for (int i = 0; i < 100; i++) {
+    g_playback_ctr++;
+    sprintf(name, "saves/playthrough/%d_%d.sav", g_playback_ctr >> 1, (g_playback_ctr & 1) + 1);
+    FILE *f = fopen(name, "rb");
+    if (f) {
+      printf("Playthrough %s\n", name);
+      RtlLoadFromFile(f, true);
+      fclose(f);
+      return;
+    }
+  }
+}
 
 void RtlSaveLoad(int cmd, int slot) {
   char name[128];
+  if (cmd == kSaveLoad_Replay && slot == 256) {
+    g_playback_mode = 1;
+    SmwLoadNextPlaybackSnapshot();
+    return;
+  }
   if (slot >= 256) {
     int i = slot - 256;
     if (cmd == kSaveLoad_Save || i >= sizeof(kBugSaves) / sizeof(kBugSaves[0]))
@@ -461,22 +509,18 @@ void RtlSaveLoad(int cmd, int slot) {
   printf("*** %s slot %d: %s\n",
     cmd == kSaveLoad_Save ? "Saving" : cmd == kSaveLoad_Load ? "Loading" : "Replaying", slot, name);
   if (cmd != kSaveLoad_Save) {
-
     FILE *f = fopen(name, "rb");
     if (f == NULL) {
       printf("Failed fopen: %s\n", name);
       return;
     }
-    RtlApuLock();
-    StateRecorder_Load(&state_recorder, f, cmd == kSaveLoad_Replay);
-    ppu_copy(g_snes->my_ppu, g_snes->ppu);
-    RtlApuUnlock();
-    RtlSynchronizeWholeState();
+    RtlLoadFromFile(f, cmd == kSaveLoad_Replay);
     fclose(f);
   } else {
     RtlSaveSnapshot(name, false);
   }
 }
+
 
 void MemCpy(void *dst, const void *src, int size) {
   memcpy(dst, src, size);
@@ -548,7 +592,7 @@ void WriteRegWord(uint16 reg, uint16 value) {
   WriteReg(reg + 1, value >> 8);
 }
 
-uint8 *IndirPtr(void *ptr, uint16 offs) {
+uint8 *IndirPtr(LongPtr *ptr, uint16 offs) {
   uint32 a = (*(uint32 *)ptr & 0xffffff) + offs;
   if ((a >> 16) >= 0x7e && (a >> 16) <= 0x7f || (a & 0xffff) < 0x2000) {
     return &g_ram[a & 0x1ffff];
@@ -557,12 +601,12 @@ uint8 *IndirPtr(void *ptr, uint16 offs) {
   }
 }
 
-void IndirWriteWord(void *ptr, uint16 offs, uint16 value) {
+void IndirWriteWord(LongPtr *ptr, uint16 offs, uint16 value) {
   uint8 *p = IndirPtr(ptr, offs);
   WORD(*p) = value;
 }
 
-void IndirWriteByte(void *ptr, uint16 offs, uint8 value) {
+void IndirWriteByte(LongPtr *ptr, uint16 offs, uint8 value) {
   uint8 *p = IndirPtr(ptr, offs);
   p[0] = value;
 }
@@ -604,7 +648,7 @@ void RtlSetUploadingApu(bool uploading) {
   RtlApuUnlock();
 }
 
-void RtlApuWrite(uint32 adr, uint8 val) {
+void RtlApuWrite(uint16 adr, uint8 val) {
   assert(adr >= APUI00 && adr <= APUI03);
 
   if (g_is_uploading_apu) {
@@ -683,6 +727,12 @@ void RtlApuReset() {
   apu_reset(g_snes->apu);
   RtlResetApuQueue_Locked();
   RtlApuUnlock();
+}
+
+static uint8 RtlApuReadReg(int reg) {
+  if (g_use_my_apu_code)
+    return g_spc_player->port_to_snes[reg];
+  return g_snes->apu->outPorts[reg];
 }
 
 void RtlRestoreMusicAfterLoad_Locked(bool is_reset) {
@@ -764,3 +814,164 @@ void RtlWriteSram(void) {
   }
 }
 
+
+
+void SmwCopyToVram(uint16 vram_addr, const uint8 *src, int n) {
+  for (size_t i = 0; i < (n >> 1); i++)
+    g_snes->ppu->vram[vram_addr + i] = WORD(src[i * 2]);
+}
+
+void SmwCopyToVramPitch32(uint16 vram_addr, const uint8 *src, int n) {
+  for (size_t i = 0; i < (n >> 1); i++)
+    g_snes->ppu->vram[vram_addr + i * 32] = WORD(src[i * 2]);
+}
+
+void SmwCopyToVramLow(uint16 vram_addr, const uint8 *src, int n) {
+  for (size_t i = 0; i < n; i++)
+    g_snes->ppu->vram[vram_addr + i] = (g_snes->ppu->vram[vram_addr + i] & 0xff00) | src[i];
+}
+
+void RtlUpdatePalette(const uint16 *src, int dst, int n) {
+  for(int i = 0; i < n; i++)
+    g_snes->ppu->cgram[dst + i] = src[i];
+}
+
+void SmwClearVram(uint16 vram_addr, uint16 value, int n) {
+  for (int i = 0; i < n; i++)
+    g_snes->ppu->vram[vram_addr + i] = value;
+}
+
+uint16 *RtlGetVramAddr() {
+  return g_snes->ppu->vram;
+}
+
+void RtlPpuWrite(uint16 addr, uint8 value) {
+  assert((addr & 0xff00) == 0x2100);
+  ppu_write(g_snes->ppu, addr, value);
+}
+
+void RtlPpuWriteTwice(uint16 addr, uint16 value) {
+  RtlPpuWrite(addr, value);
+  RtlPpuWrite(addr, value >> 8);
+}
+
+void RtlHdmaSetup(uint8 which, uint8 transfer_unit, uint8 reg, uint32 addr, uint8 indirect_bank) {
+  Dma *dma = g_snes->dma;
+  dma_write(dma, DMAP0 + which * 16, transfer_unit);
+  dma_write(dma, BBAD0 + which * 16, reg);
+  dma_write(dma, A1T0L + which * 16, addr);
+  dma_write(dma, A1T0H + which * 16, addr >> 8);
+  dma_write(dma, A1B0 + which * 16, addr >> 16);
+  dma_write(dma, DAS00 + which * 16, indirect_bank);
+}
+
+void RtlEnableVirq(int line) {
+  g_snes->vIrqEnabled = line >= 0;
+  if (line >= 0)
+    g_snes->vTimer = line;
+}
+
+static const uint8 kSetupHDMAWindowingEffects_DATA_00927C[] = { 0xF0,0xA0,   4,0xF0,0x80,   5,   0 };
+static const uint8 *SimpleHdma_GetPtr(uint32 p) {
+  if (game_id == kGameID_SMW) {
+    switch (p) {
+    case 0x927c: return kSetupHDMAWindowingEffects_DATA_00927C;
+    }
+    if (p < 0x2000)
+      return g_ram + p;
+  }
+  printf("SimpleHdma_GetPtr: bad addr 0x%x\n", p);
+  return NULL;
+}
+
+void SimpleHdma_Init(SimpleHdma *c, DmaChannel *dc) {
+  if (!dc->hdmaActive) {
+    c->table = 0;
+    return;
+  }
+  c->table = SimpleHdma_GetPtr(dc->aAdr | dc->aBank << 16);
+  c->rep_count = 0;
+  c->mode = dc->mode | dc->indirect << 6;
+  c->ppu_addr = dc->bAdr;
+  c->indir_bank = dc->indBank;
+}
+
+void SimpleHdma_DoLine(SimpleHdma *c) {
+  static const uint8 bAdrOffsets[8][4] = {
+    {0, 0, 0, 0},
+    {0, 1, 0, 1},
+    {0, 0, 0, 0},
+    {0, 0, 1, 1},
+    {0, 1, 2, 3},
+    {0, 1, 0, 1},
+    {0, 0, 0, 0},
+    {0, 0, 1, 1}
+  };
+  static const uint8 transferLength[8] = {
+    1, 2, 2, 4, 4, 4, 2, 4
+  };
+
+  if (c->table == NULL)
+    return;
+  bool do_transfer = false;
+  if ((c->rep_count & 0x7f) == 0) {
+    c->rep_count = *c->table++;
+    if (c->rep_count == 0) {
+      c->table = NULL;
+      return;
+    }
+    if(c->mode & 0x40) {
+      c->indir_ptr = SimpleHdma_GetPtr(c->indir_bank << 16 | c->table[0] | c->table[1] * 256);
+      c->table += 2;
+    }
+    do_transfer = true;
+  }
+  if(do_transfer || c->rep_count & 0x80) {
+    for(int j = 0, j_end = transferLength[c->mode & 7]; j < j_end; j++) {
+      uint8 v = c->mode & 0x40 ? *c->indir_ptr++ : *c->table++;
+      RtlPpuWrite(0x2100 + c->ppu_addr + bAdrOffsets[c->mode & 7][j], v);
+    }
+  }
+  c->rep_count--;
+}
+
+
+void LoadStripeImage_UploadToVRAM(const uint8 *pp) {  // 00871e
+  while (1) {
+    if ((*pp & 0x80) != 0)
+      break;
+    uint16 vram_addr = pp[0] << 8 | pp[1];
+    uint8 vmain = __CFSHL__(pp[2], 1);
+    uint8 fixed_addr = (uint8)(pp[2] & 0x40) >> 3;
+    uint16 num = (swap16(WORD(pp[2])) & 0x3FFF) + 1;
+    uint16 *dst = g_snes->ppu->vram + vram_addr;
+    pp += 4;
+    
+    if (fixed_addr) {
+      uint16 src_data = WORD(*pp);
+      int ctr = (num + 1) >> 1;
+      if (vmain) {
+        for (int i = 0; i < ctr; i++)
+          dst[i * 32] = src_data;
+      } else {
+        // uhm...?
+        uint8 *dst_b = (uint8 *)dst;
+        for (int i = 0; i < num; i++)
+          dst_b[i + ((i & 1) << 1)] = src_data;
+        for (int i = 0; i < num; i += 2)
+          dst_b[i + 1] = src_data >> 8;
+      }
+      pp += 2;
+    } else {
+      uint16 *src = (uint16 *)pp;
+      if (vmain) {
+        for (int i = 0; i < (num >> 1); i++)
+          dst[i * 32] = src[i];
+      } else {
+        for (int i = 0; i < (num >> 1); i++)
+          dst[i] = src[i];
+      }
+      pp += num;
+    }
+  }
+}

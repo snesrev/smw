@@ -69,7 +69,6 @@ typedef struct SmasSpcPlayer {
   SpcPlayer base;
   DspRegWriteHistory *reg_write_history;
   uint8 new_value_from_snes[4];
-  uint8 port_to_snes_a[4];
   uint8 last_value_from_snes[4];
   uint8 var_c;
   uint8 last_written_edl; // TODO:persist
@@ -202,7 +201,7 @@ static const MemMap kChannel_Maps[] = {
 };
 static const MemMapSized kSpcPlayer_Maps[] = {
 {offsetof(SmasSpcPlayer, new_value_from_snes), 0x0, 4},
-{offsetof(SmasSpcPlayer, port_to_snes_a), 0x4, 4},
+{offsetof(SmasSpcPlayer, base.port_to_snes), 0x4, 4},
 {offsetof(SmasSpcPlayer, last_value_from_snes), 0x8, 4},
 {offsetof(SmasSpcPlayer, var_c), 0xc, 1},
 {offsetof(SmasSpcPlayer, counter_sf0d), 0xd, 1},
@@ -431,7 +430,7 @@ static void Spc_Loop_Part2(SmasSpcPlayer *p, uint8 ticks) {
     ReadPortFromSnes(p, 2);
     return;
   }
-  if (p->port_to_snes_a[2]) {
+  if (p->base.port_to_snes[2]) {
     Channel *c = p->channel;
     for (p->cur_chan_bit = 1; p->cur_chan_bit != 0; p->cur_chan_bit <<= 1, c++) {
       if (HIBYTE(c->pattern_cur_ptr))
@@ -574,7 +573,7 @@ static void Port2_HandleMusic(SmasSpcPlayer *p) {
 
   if (a == 0) {
 handle_cmd_00:
-    if (p->var_3F8 != 0 || p->port_to_snes_a[2] == 0)
+    if (p->var_3F8 != 0 || p->base.port_to_snes[2] == 0)
       return;
     if (p->pause_music_ctr != 0 && --p->pause_music_ctr == 0)
       goto HandleCmd_0xf0_PauseMusic;
@@ -696,7 +695,7 @@ label_a:
     goto handle_cmd_00;
   } else if (a == 0xf0) HandleCmd_0xf0_PauseMusic: {
     p->key_OFF = p->is_chan_on ^ 0xff;
-    p->port_to_snes_a[2] = 0;
+    p->base.port_to_snes[2] = 0;
     p->port_to_snes_b[2] = 0;
     p->cur_chan_bit = 0;
   } else if (a == 0xf3) {
@@ -720,10 +719,10 @@ less_0xf3:
     }
     p->pause_music_ctr = 0;
     p->some_volume_flag = 0;
-    p->port_to_snes_a[2] = a;
+    p->base.port_to_snes[2] = a;
     t = WORD(p->ram[0xc000 + (a - 1) * 2]);
     if ((t >> 8) == 0) {
-      p->port_to_snes_a[2] = 0;
+      p->base.port_to_snes[2] = 0;
       return;
     }
     p->music_ptr_toplevel = t;
@@ -925,14 +924,14 @@ static void SmasSpcPlayer_Upload(SpcPlayer *p_in, const uint8_t *data) {
     } while (--numbytes);
   }
   p->pause_music_ctr = 0;
-  p->port_to_snes_a[0] = 0;
-  p->port_to_snes_a[1] = 0;
-  p->port_to_snes_a[3] = 0;
+  p->base.port_to_snes[0] = 0;
+  p->base.port_to_snes[1] = 0;
+  p->base.port_to_snes[3] = 0;
   p->enable_some_randomstuff = 0;
   p->is_chan_on = 0;
   p->extra_tempo = 0;
   if (!p->var_3F8)
-    p->port_to_snes_a[2] = 0;
+    p->base.port_to_snes[2] = 0;
   memset(p->base.input_ports, 0, sizeof(p->base.input_ports));
   memset(p->last_value_from_snes, 0, sizeof(p->last_value_from_snes));
   memset(p->new_value_from_snes, 0, sizeof(p->new_value_from_snes));
@@ -1131,11 +1130,11 @@ static void HandleEffect(SmasSpcPlayer *p, Channel *c, uint8 effect) {
 }
 
 static void Sfx_TerminateSfx4(SmasSpcPlayer *p) {
-  if (p->port_to_snes_a[0] == 17) {
+  if (p->base.port_to_snes[0] == 17) {
     p->var_3F8 = 0xff;
     Dsp_Write(p, KOF, 0xff);
   }
-  p->port_to_snes_a[0] = 0;
+  p->base.port_to_snes[0] = 0;
   p->port_to_snes_b[0] = 0;
   p->is_chan_on &= ~0x10;
   if (p->echo_channels & 0x10) {
@@ -1158,7 +1157,7 @@ static void Port0_HandleCmd(SmasSpcPlayer *p) {
   }
   if (p->new_value_from_snes[0] == 0x43 || p->new_value_from_snes[0] == 0x12 ||
       p->new_value_from_snes[0] == 0x11 || 
-      p->port_to_snes_a[0] != 0x11 && p->port_to_snes_a[0] != 0x1d) {
+      p->base.port_to_snes[0] != 0x11 && p->base.port_to_snes[0] != 0x1d) {
 
     if (p->new_value_from_snes[0] == 0x7f) {
       p->extra_tempo = 10;
@@ -1172,13 +1171,13 @@ static void Port0_HandleCmd(SmasSpcPlayer *p) {
   }
   if (p->var_c)
     goto label_b;
-  if (!p->port_to_snes_a[0])
+  if (!p->base.port_to_snes[0])
     return;
   goto label_c;
 
 label_a:
-  p->port_to_snes_a[0] = cmd;
-  if (p->var_3F8 && p->port_to_snes_a[0] == 18)
+  p->base.port_to_snes[0] = cmd;
+  if (p->var_3F8 && p->base.port_to_snes[0] == 18)
     p->var_3F8 = 0;
   p->var_c = 2;
   Dsp_Write(p, KOF, 0x10);
@@ -1188,7 +1187,7 @@ label_a:
   p->channel[4].pitch_slide_length = 0;
   p->channel[4].fine_tunea = 0;
   p->channel[4].channel_transpositionb = 0;
-  if (p->port_to_snes_a[0] == 0x3b || p->port_to_snes_a[0] == 0x43) {
+  if (p->base.port_to_snes[0] == 0x3b || p->base.port_to_snes[0] == 0x43) {
     p->reg_EON &= ~0x10;
     Dsp_Write(p, EON, p->reg_EON);
   }
@@ -1251,7 +1250,7 @@ label_c:
       goto note_continue;
     } else if (cmd == 0xff) {
 is_ff:
-      p->sfx_sound_ptr_cur = WORD(p->ram[0x17D8 + (p->port_to_snes_a[0] - 1) * 2]);
+      p->sfx_sound_ptr_cur = WORD(p->ram[0x17D8 + (p->base.port_to_snes[0] - 1) * 2]);
     } else {
       PlayNote(p, &p->channel[4], cmd);
       Write_KeyOn(p, 0x10);
@@ -1273,7 +1272,7 @@ note_continue:
 }
 
 static void Sfx_TerminateSfx6(SmasSpcPlayer *p) {
-  p->port_to_snes_a[3] = 0;
+  p->base.port_to_snes[3] = 0;
   p->port_to_snes_b[3] = 0;
   p->is_chan_on &= ~0x40;
   p->reg_NON = 0;
@@ -1293,18 +1292,18 @@ static void Port3_HandleCmd(SmasSpcPlayer *p) {
     p->new_value_from_snes[3] &= 0x7f;
   }
 
-  if (p->port_to_snes_a[3] == 29 ||
-      (p->new_value_from_snes[3] != 5 && p->port_to_snes_a[3] == 5) ||
+  if (p->base.port_to_snes[3] == 29 ||
+      (p->new_value_from_snes[3] != 5 && p->base.port_to_snes[3] == 5) ||
       p->new_value_from_snes[3] == 0) {
 
     if (p->port3_timeout)
       goto label_b;
-    if (p->port_to_snes_a[3])
+    if (p->base.port_to_snes[3])
       goto label_c; 
     return;
   }
 
-  p->port_to_snes_a[3] = p->new_value_from_snes[3];
+  p->base.port_to_snes[3] = p->new_value_from_snes[3];
   p->port3_timeout = 2;
   Dsp_Write(p, KOF, 0x40);
   p->is_chan_on |= 0x40;
@@ -1317,7 +1316,7 @@ static void Port3_HandleCmd(SmasSpcPlayer *p) {
 label_b:
   if (--p->port3_timeout)
     return;
-  p->port3_cur_ptr = WORD(p->ram[0x173c + (p->port_to_snes_a[3] - 1) * 2]);
+  p->port3_cur_ptr = WORD(p->ram[0x173c + (p->base.port_to_snes[3] - 1) * 2]);
   goto lbl_begin;
 
 
@@ -1490,7 +1489,7 @@ static void Port1_HandleCmd(SmasSpcPlayer *p) {
   p->new_value_from_snes[1] &= 0xf;
 
   if (p->new_value_from_snes[1] == 1) {
-    p->port_to_snes_a[1] = 1;
+    p->base.port_to_snes[1] = 1;
     p->chan7_timer = 4;
     Dsp_Write(p, KOF, 0x80);
     p->is_chan_on |= 0x80;
@@ -1498,8 +1497,8 @@ static void Port1_HandleCmd(SmasSpcPlayer *p) {
     p->channel[7].pitch_slide_length = 0;
     p->channel[7].fine_tunea = 0;
     p->channel[7].channel_transpositionb = 0;
-  } else if (p->port_to_snes_a[1] != 1 && p->new_value_from_snes[1] == 4) {
-    p->port_to_snes_a[1] = 4;
+  } else if (p->base.port_to_snes[1] != 1 && p->new_value_from_snes[1] == 4) {
+    p->base.port_to_snes[1] = 4;
     p->chan7_timer = 2;
     Dsp_Write(p, KOF, 0x80);
     p->is_chan_on |= 0x80;
@@ -1507,7 +1506,7 @@ static void Port1_HandleCmd(SmasSpcPlayer *p) {
     p->channel[7].pitch_slide_length = 0;
     p->channel[7].channel_transpositionb = 0;
     p->channel[7].fine_tunea = 0;
-  } else if (p->port_to_snes_a[1] == 1) {
+  } else if (p->base.port_to_snes[1] == 1) {
     if (p->chan7_timer) {
       if (--p->chan7_timer)
         return;
@@ -1527,7 +1526,7 @@ static void Port1_HandleCmd(SmasSpcPlayer *p) {
         ComputePitchAdd(&p->channel[7], 0xb9);
       }
     } else {
-      p->port_to_snes_a[1] = 0;
+      p->base.port_to_snes[1] = 0;
       p->is_chan_on &= ~0x80;
       p->channel[7].pitch_slide_length = 0;
       p->channel[7].channel_transpositionb = p->channel[7].channel_transpositiona;
@@ -1545,7 +1544,7 @@ static void Port1_HandleCmd(SmasSpcPlayer *p) {
       p->cur_chan_bit = 0;
       WritePitch(p, &p->channel[7], p->channel[7].pitch);
     }
-  } else if (p->port_to_snes_a[1] == 4) {
+  } else if (p->base.port_to_snes[1] == 4) {
     Chan7_Func1605(p);
   }
 }
@@ -1569,7 +1568,7 @@ static void Chan7_Func1605(SmasSpcPlayer *p) {
       Dsp_Write(p, V7VOLR, 20);
       Write_KeyOn(p, 0x80);
     } else {
-      p->port_to_snes_a[1] = 0;
+      p->base.port_to_snes[1] = 0;
       p->is_chan_on &= ~0x80;
       p->channel[7].pitch_slide_length = 0;
       p->channel[7].channel_transpositionb = p->channel[7].channel_transpositiona;

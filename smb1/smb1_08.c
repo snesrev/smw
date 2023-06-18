@@ -59,10 +59,10 @@ void HandleSPCUploads_Main() {
   LOBYTE(v1) = -52;
   while (1) {
     v13 = v1;
-    v9 = IndirPtr(&R0_, v0);
+    v9 = IndirPtr((LongPtr *)&R0_, v0);
     v10 = v0 + 2;
     v4 = *(uint16 *)v9;
-    v11 = *(uint16 *)IndirPtr(&R0_, v10);
+    v11 = *(uint16 *)IndirPtr((LongPtr *)&R0_, v10);
     v12 = v10 + 2;
     WriteRegWord(APUI02, v11);
     WriteReg(APUI01, v4 != 0);
@@ -71,14 +71,14 @@ void HandleSPCUploads_Main() {
       ;
     if (Unreachable())
       break;
-    v2 = IndirPtr(&R0_, v12);
+    v2 = IndirPtr((LongPtr *)&R0_, v12);
     v0 = v12 + 1;
     HIBYTE(v1) = *v2;
     for (LOBYTE(v1) = 0;; LOBYTE(v1) = v1 + 1) {
       WriteRegWord(APUI00, v1);
       if (!--v4)
         break;
-      v3 = IndirPtr(&R0_, v0++);
+      v3 = IndirPtr((LongPtr *)&R0_, v0++);
       HIBYTE(v1) = *v3;
       while ((uint8)v1 != ReadReg(APUI00))
         ;

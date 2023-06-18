@@ -41,7 +41,7 @@ void OpenGLRenderer_Create(struct RendererFuncs *funcs);
 bool g_debug_flag;
 bool g_want_dump_memmap_flags;
 bool g_new_ppu = true;
-bool g_other_image;
+bool g_other_image = false;
 struct SpcPlayer *g_spc_player;
 static uint32_t button_state;
 
@@ -157,6 +157,8 @@ static SDL_HitTestResult HitTestCallback(SDL_Window *win, const SDL_Point *pt, v
 }
 
 void RtlDrawPpuFrame(uint8 *pixel_buffer, size_t pitch, uint32 render_flags) {
+  g_rtl_game_info->draw_ppu_frame();
+  
   uint8 *ppu_pixels = g_other_image ? g_my_pixels : g_pixels;
   for (size_t y = 0, y_end = g_snes_height; y < y_end; y++)
     memcpy((uint8 *)pixel_buffer + y * pitch, ppu_pixels + y * 256 * 4, 256 * 4);

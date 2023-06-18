@@ -10,6 +10,29 @@ enum {
   kGameID_SMBLL = 3,
 };
 
+enum {
+  // Version was bumped to 1 after I fixed bug #1
+  kCurrentBugFixCounter = 1,
+
+  kSmwRam_APUI02 = 0x18c5,
+};
+
+typedef struct SimpleHdma {
+  const uint8 *table;
+  const uint8 *indir_ptr;
+  uint8 rep_count;
+  uint8 mode;
+  uint8 ppu_addr;
+  uint8 indir_bank;
+} SimpleHdma;
+
+typedef struct DmaChannel DmaChannel;
+
+void SimpleHdma_Init(SimpleHdma *c, DmaChannel *dc);
+void SimpleHdma_DoLine(SimpleHdma *c);
+void RtlHdmaSetup(uint8 which, uint8 transfer_unit, uint8 reg, uint32 addr, uint8 indirect_bank);
+
+
 extern uint8 g_ram[0x20000];
 extern uint8 *g_sram;
 extern int g_sram_size;
@@ -61,7 +84,6 @@ static inline const uint8 *RomPtr_0E(uint16_t addr) { return RomPtr(0x0e0000 | a
 static inline const uint8 *RomPtr_0F(uint16_t addr) { return RomPtr(0x0f0000 | addr); }
 static inline const uint8 *RomPtrWithBank(uint8 bank, uint16_t addr) { return RomPtr((bank << 16) | addr); }
 
-extern void RtlApuWrite(uint32 adr, uint8 val);
 uint16 Mult8x8(uint8 a, uint8 b);
 uint16 SnesDivide(uint16 a, uint8 b);
 uint16 SnesModulus(uint16 a, uint8 b);
@@ -71,9 +93,9 @@ void WriteReg(uint16 reg, uint8 value);
 void WriteRegWord(uint16 reg, uint16 value);
 uint16 ReadRegWord(uint16 reg);
 uint8 ReadReg(uint16 reg);
-uint8_t *IndirPtr(void *ptr, uint16 offs);
-void IndirWriteWord(void *ptr, uint16 offs, uint16 value);
-void IndirWriteByte(void *ptr, uint16 offs, uint8 value);
+uint8_t *IndirPtr(LongPtr *ptr, uint16 offs);
+void IndirWriteWord(LongPtr *ptr, uint16 offs, uint16 value);
+void IndirWriteByte(LongPtr *ptr, uint16 offs, uint8 value);
 
 
 typedef void RunFrameFunc(uint16 input, int run_what);
@@ -103,6 +125,14 @@ bool RtlRunFrame(int inputs);
 void RtlReadSram();
 void RtlWriteSram();
 void RtlSaveSnapshot(const char *filename, bool saving_with_bug);
+
+void RtlUpdatePalette(const uint16 *src, int dst, int n);
+uint16 *RtlGetVramAddr();
+void RtlPpuWrite(uint16 addr, uint8 value);
+void RtlPpuWriteTwice(uint16 addr, uint16 value);
+void RtlApuWrite(uint16 adr, uint8 val);
+void RtlEnableVirq(int line);
+
 
 enum {
   kJoypadL_A = 0x80,

@@ -186,6 +186,19 @@ static void VerifySnapshotsEq(Snapshot *b, Snapshot *a, Snapshot *prev) {
     }
   }
 
+  if (memcmp(b->cgram, a->cgram, sizeof(uint16) * 0x100)) {
+    fprintf(stderr, "@%d: VRAM cgram compare failed (mine != theirs, prev):\n", snes_frame_counter);
+    for (size_t i = 0, j = 0; i < 0x100; i++) {
+      if (a->cgram[i] != b->cgram[i]) {
+        fprintf(stderr, "0x%.6X: %.4X != %.4X (%.4X)\n", (int)i, b->cgram[i], a->cgram[i], prev->cgram[i]);
+        g_fail = true;
+        if (++j >= 16)
+          break;
+      }
+    }
+  }
+
+
 #endif
 }
 
@@ -200,6 +213,7 @@ static void MakeSnapshot(Snapshot *s) {
   memcpy(s->sram, g_snes->cart->ram, g_snes->cart->ramSize);
   memcpy(s->vram, g_snes->ppu->vram, sizeof(uint16) * 0x8000);
   memcpy(s->oam, g_snes->ppu->oam, sizeof(uint16) * 0x120);
+  memcpy(s->cgram, g_snes->ppu->cgram, sizeof(uint16) * 0x100);
 }
 
 static void MakeMySnapshot(Snapshot *s) {
@@ -207,6 +221,7 @@ static void MakeMySnapshot(Snapshot *s) {
   memcpy(s->sram, g_snes->cart->ram, g_snes->cart->ramSize);
   memcpy(s->vram, g_snes->ppu->vram, sizeof(uint16) * 0x8000);
   memcpy(s->oam, g_snes->ppu->oam, sizeof(uint16) * 0x120);
+  memcpy(s->cgram, g_snes->ppu->cgram, sizeof(uint16) * 0x100);
 }
 
 static void RestoreSnapshot(Snapshot *s) {
@@ -220,6 +235,7 @@ static void RestoreSnapshot(Snapshot *s) {
   memcpy(g_snes->cart->ram, s->sram, g_snes->cart->ramSize);
   memcpy(g_snes->ppu->vram, s->vram, sizeof(uint16) * 0x8000);
   memcpy(g_snes->ppu->oam, s->oam, sizeof(uint16) * 0x120);
+  memcpy(g_snes->ppu->cgram, s->cgram, sizeof(uint16) * 0x100);
 }
 
 static bool loadRom(const char *name, Snes *snes) {
@@ -344,11 +360,13 @@ static void RtlRunFrameCompare(uint16 input, int run_what) {
 
   if (g_runmode == RM_THEIRS) {
     g_use_my_apu_code = false;
+    g_snes->ppu = g_snes->snes_ppu;
     g_snes->runningWhichVersion = 1;
     g_rtl_game_info->run_frame_emulated();
     g_snes->runningWhichVersion = 0;
   } else if (g_runmode == RM_MINE) {
     g_use_my_apu_code = true;
+    g_snes->ppu = g_snes->snes_ppu;
     g_snes->runningWhichVersion = 2;
     g_rtl_game_info->run_frame();
     g_snes->runningWhichVersion = 0;

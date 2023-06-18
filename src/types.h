@@ -102,6 +102,10 @@ typedef struct PointU16 {
   uint16 x, y;
 } PointU16;
 
+typedef struct PointU8 {
+  uint8 x, y;
+} PointU8;
+
 typedef struct OamEnt {
   uint8 xpos;
   uint8 ypos;
@@ -109,7 +113,7 @@ typedef struct OamEnt {
   uint8 flags;
 } OamEnt;
 
-typedef void FuncU8(uint8 k);
+typedef void FuncU8(uint8 kk);
 typedef void FuncV(void);
 
 // Some convenience macros to make partial accesses nicer
@@ -122,7 +126,7 @@ typedef void FuncV(void);
 
 #define LOBYTE(x)  BYTEn(x,LOW_IND(x,uint8))
 #define LOWORD(x)  WORDn(x,LOW_IND(x,uint16))
-#define HIBYTE(x)  BYTEn(x,HIGH_IND(x,uint8))
+#define HIBYTE(x)  BYTEn(x,1)
 #define HIWORD(x)  WORDn(x,HIGH_IND(x,uint16))
 
 #define GET_HIBYTE(x) (((x) & 0xff00) >> 8)

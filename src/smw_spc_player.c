@@ -64,7 +64,7 @@ typedef struct SmwSpcPlayer {
   SpcPlayer base;
   DspRegWriteHistory *reg_write_history;
   uint8 new_value_from_snes[4];
-  uint8 port_to_snes[4];
+  
   uint8 last_value_from_snes[4];
   uint8 timer_cycles;
   uint8 counter_sf0c;
@@ -174,7 +174,7 @@ static const MemMap kChannel_Maps[] = {
 };
 static const MemMapSized kSpcPlayer_Maps[] = {
 {offsetof(SmwSpcPlayer, new_value_from_snes), 0x0, 4},
-{offsetof(SmwSpcPlayer, port_to_snes), 0x4, 4},
+{offsetof(SmwSpcPlayer, base.port_to_snes), 0x4, 4},
 {offsetof(SmwSpcPlayer, last_value_from_snes), 0x8, 4},
 {offsetof(SmwSpcPlayer, counter_sf0c), 0xc, 1},
 {offsetof(SmwSpcPlayer, sfx3_timer), 0xd, 1},
@@ -345,7 +345,7 @@ static void Spc_Loop_Part2(SmwSpcPlayer *p, uint8 ticks) {
     if (!p->smw_pause_music)
       Music_Process(p);
     ReadPortFromSnes(p, 2);
-  } else if (p->port_to_snes[2]) {
+  } else if (p->base.port_to_snes[2]) {
     Channel *c = p->channel + 7;
     for (p->cur_chan_bit = 0x80; p->cur_chan_bit != 0; p->cur_chan_bit >>= 1, c--) {
       if (HIBYTE(c->pattern_cur_ptr))
@@ -424,11 +424,11 @@ static void WritePitch(SmwSpcPlayer *p, Channel *c, uint16 pitch) {
 }
 
 static void Sfx0_TurnOffChannel(SmwSpcPlayer *p) {
-  if (p->port_to_snes[0] == 0x11) {
+  if (p->base.port_to_snes[0] == 0x11) {
     p->smw_pause_music = 0x60;
     Dsp_Write(p, FLG, 0x60);
   }
-  p->port_to_snes[0] = 0;
+  p->base.port_to_snes[0] = 0;
   p->is_chan_on &= ~0x10;
   if (p->channel[4].instrument_id)
     Channel_SetInstrument(p, &p->channel[4], p->channel[4].instrument_id);
@@ -450,16 +450,16 @@ static void Sfx0_Process(SmwSpcPlayer *p) {
   uint8 cmd;
 
   if (p->new_value_from_snes[0] == 0x12 || p->new_value_from_snes[0] == 0x11 ||
-      p->port_to_snes[0] != 0x11 && p->port_to_snes[0] != 0x1d) {
+      p->base.port_to_snes[0] != 0x11 && p->base.port_to_snes[0] != 0x1d) {
 
     if (p->new_value_from_snes[0] & 0x80) {
       p->smw_tempo_increase = 10;
       p->tempo = (p->tempo + (p->smw_tempo_increase << 8)) & ~0xff;
       p->new_value_from_snes[3] = 0x1d;
-      p->port_to_snes[0] = 0x1d;
+      p->base.port_to_snes[0] = 0x1d;
       goto play_it;
     } else if (p->new_value_from_snes[0] != 0) {
-      p->port_to_snes[0] = p->new_value_from_snes[0];
+      p->base.port_to_snes[0] = p->new_value_from_snes[0];
       goto play_it;
     }
   }
@@ -468,7 +468,7 @@ static void Sfx0_Process(SmwSpcPlayer *p) {
     if (--p->sfx0_countdown)
       return;
     goto restart_sfx;
-  } else if (p->port_to_snes[0]) {
+  } else if (p->base.port_to_snes[0]) {
     goto keep_playing;
   } else {
     return;
@@ -488,7 +488,7 @@ play_it:
   }
 
   p->sfx0_countdown = 2;
-  if (p->port_to_snes[0] == 0x11 && p->echo_channels) {
+  if (p->base.port_to_snes[0] == 0x11 && p->echo_channels) {
     SetEchoOff(p);
   }
 
@@ -546,7 +546,7 @@ note_pitch_envelope_to:
       goto note_continue;
     } else if (cmd == 0xff) {
 restart_sfx:
-      p->sfx0_sound_ptr_cur = WORD(p->ram[0x5681 + (uint8)(p->port_to_snes[0] * 2)]);
+      p->sfx0_sound_ptr_cur = WORD(p->ram[0x5681 + (uint8)(p->base.port_to_snes[0] * 2)]);
       goto start_sfx;
     } else {
       PlayNote(p, &p->channel[4], cmd);
@@ -565,7 +565,7 @@ note_continue:
 }
 
 static void Sfx3_TurnOffChannel(SmwSpcPlayer *p) {
-  p->port_to_snes[3] = 0;
+  p->base.port_to_snes[3] = 0;
   p->is_chan_on &= ~0x40;
   p->chan_bit_flags = 0;
   Dsp_Write(p, NON, 0);
@@ -576,9 +576,9 @@ static void Sfx3_TurnOffChannel(SmwSpcPlayer *p) {
 static void Sfx3_Process(SmwSpcPlayer *p) {
   uint8 cmd;
 
-  if (p->port_to_snes[3] != 0x24 && (p->new_value_from_snes[3] == 0x24 || p->port_to_snes[3] != 0x1d && p->port_to_snes[3] != 5)) {
+  if (p->base.port_to_snes[3] != 0x24 && (p->new_value_from_snes[3] == 0x24 || p->base.port_to_snes[3] != 0x1d && p->base.port_to_snes[3] != 5)) {
     if (p->new_value_from_snes[3] != 0) {
-      p->port_to_snes[3] = p->new_value_from_snes[3];
+      p->base.port_to_snes[3] = p->new_value_from_snes[3];
       p->sfx3_timer = 2;
       Dsp_Write(p, KOF, 0x40);
       p->is_chan_on |= 0x40;
@@ -590,9 +590,9 @@ static void Sfx3_Process(SmwSpcPlayer *p) {
   if (p->sfx3_timer) {
     if (--p->sfx3_timer)
       return;
-    p->sfx3_sound_ptr_cur = WORD(p->ram[0x5619 + (uint8)(p->port_to_snes[3] * 2)]);
+    p->sfx3_sound_ptr_cur = WORD(p->ram[0x5619 + (uint8)(p->base.port_to_snes[3] * 2)]);
     goto start_sfx;
-  } else if (!p->port_to_snes[3]) {
+  } else if (!p->base.port_to_snes[3]) {
     return;
   }
 
@@ -706,7 +706,7 @@ static void Sfx1_Process(SmwSpcPlayer *p) {
 
   if (p->new_value_from_snes[1] == 2) {
     // enable yoshi drums
-    if ((p->port_to_snes[2] == 6 || !(p->port_to_snes[2] & ~3)) && !p->smw_player_on_yoshi) {
+    if ((p->base.port_to_snes[2] == 6 || !(p->base.port_to_snes[2] & ~3)) && !p->smw_player_on_yoshi) {
       Port1_WriteInstrument(p, 9);
       p->smw_player_on_yoshi = 1;
     }
@@ -714,9 +714,9 @@ static void Sfx1_Process(SmwSpcPlayer *p) {
     // disable yoshi drums
     p->smw_player_on_yoshi = 0;
   } else if (p->new_value_from_snes[1] == 1 ||
-             p->port_to_snes[1] != 1 && p->new_value_from_snes[1] == 4) {
+             p->base.port_to_snes[1] != 1 && p->new_value_from_snes[1] == 4) {
     // jump & two note sfx
-    p->port_to_snes[1] = p->new_value_from_snes[1];
+    p->base.port_to_snes[1] = p->new_value_from_snes[1];
     p->sfx1_countdown = 4;
     Dsp_Write(p, KOF, 0x80);
     p->is_chan_on |= 0x80;
@@ -727,7 +727,7 @@ static void Sfx1_Process(SmwSpcPlayer *p) {
     return;
   } 
   
-  if (p->port_to_snes[1] == 1) {
+  if (p->base.port_to_snes[1] == 1) {
     if (p->sfx1_countdown) {
       if (--p->sfx1_countdown)
         return;
@@ -741,7 +741,7 @@ static void Sfx1_Process(SmwSpcPlayer *p) {
       Dsp_Write(p, V7VOLR, 0x38);
       Write_KeyOn(p, 0x80);
     } else if (--p->chan7_countdown_2 == 0) {
-      p->port_to_snes[1] = 0;
+      p->base.port_to_snes[1] = 0;
       p->is_chan_on &= ~0x80;
       if (p->channel[7].instrument_id)
         Channel_SetInstrument(p, &p->channel[7], p->channel[7].instrument_id);
@@ -756,14 +756,14 @@ static void Sfx1_Process(SmwSpcPlayer *p) {
     p->did_affect_volumepitch_flag = 0;
     if (p->channel[7].pitch_slide_length)
       Sfx_WritePitchSweep(p, &p->channel[7]);
-  } else if (p->port_to_snes[1] == 4) {
+  } else if (p->base.port_to_snes[1] == 4) {
     if (p->sfx1_countdown) {
       if (--p->sfx1_countdown)
         return;
       p->chan7_countdown_2 = 0x18;
       goto write_it;
     } else if (--p->chan7_countdown_2 == 0) {
-      p->port_to_snes[1] = 0;
+      p->base.port_to_snes[1] = 0;
       p->is_chan_on &= ~0x80;
       if (p->channel[7].instrument_id)
         Channel_SetInstrument(p, &p->channel[7], p->channel[7].instrument_id);
@@ -785,8 +785,8 @@ static void Music_Process(SmwSpcPlayer *p) {
   uint8 cmd;
   int t;
 
-  if (p->port_to_snes[2] != 0) {
-    if ((p->port_to_snes[2] == 6 || !(p->port_to_snes[2] & ~3)) && !p->smw_player_on_yoshi) {
+  if (p->base.port_to_snes[2] != 0) {
+    if ((p->base.port_to_snes[2] == 6 || !(p->base.port_to_snes[2] & ~3)) && !p->smw_player_on_yoshi) {
       Dsp_Write(p, KOF, 0x20);
       p->is_chan_on |= 0x20;
     } else {
@@ -802,7 +802,7 @@ static void Music_Process(SmwSpcPlayer *p) {
     }
     if (p->counter_sf0c)
       goto music_keep_running;
-    if (p->port_to_snes[2])
+    if (p->base.port_to_snes[2])
       goto label_a;
     return;
   }
@@ -810,7 +810,7 @@ static void Music_Process(SmwSpcPlayer *p) {
   if (cmd == 0x16 || cmd == 0x10 || cmd == 0xf || cmd >= 9 && cmd < 13)
     p->smw_tempo_increase = 0;
 
-  p->port_to_snes[2] = cmd;
+  p->base.port_to_snes[2] = cmd;
   p->counter_sf0c = 2;
   p->music_ptr_toplevel = WORD(p->ram[0x1360 + (cmd - 1) * 2]);
 
@@ -848,7 +848,7 @@ Music_loop_1:
     if ((t >> 8) != 0)
       break;
     if (t == 0) {
-      p->port_to_snes[2] = 0;
+      p->base.port_to_snes[2] = 0;
       Dsp_Write(p, KOF, ~p->is_chan_on);
       return;
     }
@@ -1320,7 +1320,7 @@ static void SmwSpcPlayer_Upload(SpcPlayer *p_in, const uint8_t *data) {
       p->ram[target++ & 0xffff] = *data++;
     } while (--numbytes);
   }
-  p->port_to_snes[0] = p->port_to_snes[1] = p->port_to_snes[2] = p->port_to_snes[3] = 0;
+  p->base.port_to_snes[0] = p->base.port_to_snes[1] = p->base.port_to_snes[2] = p->base.port_to_snes[3] = 0;
   p->is_chan_on = 0;
   p->smw_tempo_increase = 0;
   p->smw_pause_music = 0;

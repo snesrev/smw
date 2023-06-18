@@ -196,6 +196,7 @@ typedef enum SnesRegs {
   NTRL6 = 0x436A,
   UNUSED6 = 0x436B,
   MIRR6 = 0x436F,
+
   DMAP7 = 0x4370,
   BBAD7 = 0x4371,
   A1T7L = 0x4372,
@@ -203,6 +204,8 @@ typedef enum SnesRegs {
   A1B7 = 0x4374,
   DAS7L = 0x4375,
   DAS7H = 0x4376,
+
+
   DAS70 = 0x4377,
   A2A7L = 0x4378,
   A2A7H = 0x4379,

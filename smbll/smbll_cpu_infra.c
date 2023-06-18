@@ -154,7 +154,9 @@ RESET_GAME:
   }
 }
 
+static void SmbllDrawPpuFrame(void) {
 
+}
 const RtlGameInfo kSmbllGameInfo = {
   "smbll",
   kGameID_SMBLL,
@@ -163,5 +165,6 @@ const RtlGameInfo kSmbllGameInfo = {
   &SmbllCpuInitialize,
   &SmbllRunOneFrameOfGame,
   &SmbllRunOneFrameOfGame_Emulated,
+  &SmbllDrawPpuFrame,
   &SmbllFixSnapshotForCompare,
 };
