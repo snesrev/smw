@@ -1,7 +1,10 @@
-# Requirements
+# Welcome to the building instructions for the project! Please make sure to prepeare the required files and install the necessary dependencies for your current OS.
+
+# Requirements:
   * A Super Mario World rom (Make sure to rename it to `smw.sfc`)
-  * libsdl2-dev
+  * `libsdl2-dev` (The installation for this will be different for each compiler.)
   * Super Mario World repo `git clone --recursive https://github.com/snesrev/smw`
+  * [Python](https://www.python.org/) (During installation, make sure to check the "Add to PATH")
   
  For Linux/MacOS you must install these for your desired OS:
  * Ubuntu/Debian: `sudo apt install libsdl2-dev`
@@ -10,6 +13,18 @@
  * macOS: `brew install sdl2`
 
 # Windows
+
+## Building with Tiny C Compiler
+
+ Dependencies and requirements:
+ * You'll need [TCC](https://github.com/FitzRoyX/tinycc/releases/download/tcc_20230519/tcc_20230519.zip) and [SDL2](https://github.com/libsdl-org/SDL/releases/download/release-2.26.5/SDL2-devel-2.26.5-VC.zip) in order to compile using TCC.
+
+1. Rename your obtaind Super Mario World rom to `smw.sfc` and place it in the root folder.
+2. Unzip both TCC and SDL2 and place them in `third_party` folder.
+3. Double click `run_with_tcc.bat`
+4. Wait for it to compile and the game will automatically boot-up.
+
+# More advanced methods
 
 ## Building with MSYS2
 
@@ -22,7 +37,7 @@ Note: *Make sure you're using MINGW64 and you're in `smw` folder in the terminal
 
 1. Install MSYS2 on your machine.
 2. Place the copy of your rom in the main directory.
-3. Install the necessary dependencies by inputting this command in the terminal.
+3. Install the necessary dependencies and SDL2 by inputting this command in MSYS2 terminal:
 
 ```sh
 pacman -S mingw-w64-x86_64-SDL2 && pacman -S make && pacman -S mingw-w64-x86_64-gcc
@@ -35,12 +50,8 @@ pacman -S mingw-w64-x86_64-SDL2 && pacman -S make && pacman -S mingw-w64-x86_64-
 ```sh
 -LC:/msys64/mingw64/lib -lmingw32 -mwindows -lSDL2main -lSDL2
 ```
-Also you need pkg-config
-```sh
-pacman -S pkg-config
-```
 
-After you've done installing everything, cd to `smw` folder. Type `make`
+After you've done installing everything, in the terminal, type `make`
 In order to speed up the compilation, type `make -j16`
 
 ## Building with Visual Studio
@@ -55,9 +66,26 @@ Download VS installer. On installer prompt, make sure you're on "Workloads" and 
 2. Change the build target from `Debug` to `Release`
 3. Build the solution.
 
+
+# Running SMB1 and SMBLL
+
+Dependencies and requirements:
+
+  * Super Mario All-Stars rom (US version and not + Mario World)
+  * `zstandard`
+
+1. In MSYS2 terminal, type `git checkout smb1` or `git checkout devel` to change the branches.
+2. Rename your obtained rom to `smas.sfc` and place it inside the `other` folder.
+3. To install `zstandard` make sure you've installed Python and added to PATH. Open up CMD and type `pip install zstandard` to install the required dep.
+4. In the `other` folder drag and drop your renamed rom into `extract.py` or by typing `extract.py` in the command line to extract the necessary files.
+5. Move `smb1.sfc` and `smbll.sfc` to root folder.
+6. Before running the games, make sure to recompile or else they won't boot up.
+7. Drag your desired game to `smw.exe` in order to run.
+
+ 
 # Linux/MacOS
 
-CD to your SM root folder and open the terminal and type:
+Open the terminal and CD to your SM root folder:
 ```sh
 make
 ```
@@ -76,6 +104,7 @@ Dependencies and requirements:
   * The `switch-sdl2` library
   * [DevKitPro](https://github.com/devkitPro/installer)
   * [Atmosphere](https://github.com/Atmosphere-NX/Atmosphere)
+  * `pk-config`
   
 1. Make sure you've installed Atmosphere on your Switch.
 2. Please download the DevKitPro version of MSYS2 through their installer, as the default MSYS2 causes issues with windows compiling.
