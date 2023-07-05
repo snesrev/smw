@@ -646,7 +646,7 @@ void SpawnCastleTilesWithPriority() {
   v0 = *(uint16 *)&vram_buffer1_offset;
   v1 = 0;
   do {
-    v2 = IndirPtr(&tempF3, v1);
+    v2 = IndirPtr((LongPtr *)&tempF3, v1);
     v3 = *(uint16 *)v2;
     *(uint16 *)&vram_buffer1[v0 + 1] = *(uint16 *)v2;
     v1 += 2;
@@ -765,7 +765,7 @@ void DecodeAreaData_Sub2_New(uint16 j) {
   tempF3 = area_data_ptr.addr;
   tempF4 = area_data_ptr.addr >> 8;
   tempF5 = area_data_ptr.bank;
-  v1 = *IndirPtr(&tempF3, (j + 2)) & 0x7F;
+  v1 = *IndirPtr((LongPtr *)&tempF3, (j + 2)) & 0x7F;
   R0_ = *((uint8 *)kDATA_048E43 + v1);
   R1_ = *((uint8 *)kDATA_048E43 + v1 + 1);
   v2 = object_index;
@@ -1014,8 +1014,8 @@ uint8 CODE_0491C0(uint8 k) {
   uint16 v1;  // di
 
   v1 = area_obj_offset_buffer[(uint16)(2 * k) >> 1] + 1;
-  R7_ = *IndirPtr(&tempF3, v1) >> 4;
-  return *IndirPtr(&tempF3, v1) & 0xF;
+  R7_ = *IndirPtr((LongPtr *)&tempF3, v1) >> 4;
+  return *IndirPtr((LongPtr *)&tempF3, v1) & 0xF;
 }
 
 uint8 CODE_0491DD() {
@@ -1385,7 +1385,7 @@ PairU16 CODE_049724(uint8 k, uint8 j) {
   *(uint16 *)&R4_ = 1;
   *(uint16 *)&R0_ = 16;
   do {
-    palette_mirror[k >> 1] = *(uint16 *)IndirPtr(&R2_, j);
+    palette_mirror[k >> 1] = *(uint16 *)IndirPtr((LongPtr *)&R2_, j);
     j += 2;
     k += 2;
     --*(uint16 *)&R0_;
@@ -1429,7 +1429,7 @@ void CODE_04973C() {
     tempF7 = *((uint8 *)kDATA_04B683 + (uint16)(*(uint16 *)&tempF8 + 1)) & 0x3F;
     while (1) {
       uint16 t = g_ram[0xf3] | g_ram[0xf4] << 8;
-      IndirWriteByte(&tempF3, v2, tempF7);
+      IndirWriteByte((LongPtr *)&tempF3, v2, tempF7);
       if (!tempF6 || (v2 & 0xF0) == 0xD0)
         break;
       LOBYTE(v1) = v2 + 16;

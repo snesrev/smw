@@ -180,19 +180,17 @@ void BufferCreditsBackgrounds_0C94C0(uint16 mask) {  // 0c94c0
 
 void UpdateCreditsBackground() {  // 0c9567
   WriteReg(VMAIN, 0x80);
-  WriteReg(VMADDL, 0xC0);
-  WriteReg(VMADDH, 0x30);
+  WriteRegWord(VMADDL, 0x30C0);
   for (uint8 i = 6; (i & 0x80) == 0; --i)
-    WriteReg((SnesRegs)(i + 0x4310), kUpdateCreditsBackground_PARAMS_0C9559[i]);
+    WriteReg((SnesRegs)(i + DMAP1), kUpdateCreditsBackground_PARAMS_0C9559[i]);
   int8 v1 = 8 * blocks_screen_to_place_current_object;
   uint8 Reg = ReadReg(A1T1H);
   WriteReg(A1T1H, Reg | v1);
   WriteReg(MDMAEN, 2);
   WriteReg(VMAIN, 0x80);
-  WriteReg(VMADDL, 0xC0);
-  WriteReg(VMADDH, 0x34);
+  WriteRegWord(VMADDL, 0x34C0);
   for (uint8 j = 6; (j & 0x80) == 0; --j)
-    WriteReg((SnesRegs)(j + 0x4310), kUpdateCreditsBackground_PARAMS_0C9560[j]);
+    WriteReg((SnesRegs)(j + DMAP1), kUpdateCreditsBackground_PARAMS_0C9560[j]);
   int8 v4 = 8 * blocks_screen_to_place_current_object;
   uint8 v5 = ReadReg(A1T1H);
   WriteReg(A1T1H, v5 | v4);
@@ -913,8 +911,7 @@ void CreditsFadeOut_0CABB2() {  // 0cabb2
   palettes_dynamic_palette_colors[12] = 12;
   palettes_dynamic_palette_cgramaddress = 2;
   palettes_dynamic_palette_colors[13] = 18;
-  palettes_background_color = *(uint16 *)((int8 *)&kGlobalPalettes_Sky +
-                                          (uint16)(2 * (kCreditsFadeOut_SkyColorSetting[blocks_screen_to_place_current_object] & 0xF)));
+  palettes_background_color = kGlobalPalettes_Sky[kCreditsFadeOut_SkyColorSetting[blocks_screen_to_place_current_object] & 0xF];
   uint16 r0w = kCreditsFadeOut_BGPaletteIndex[kCreditsFadeOut_BGPaletteSetting[blocks_screen_to_place_current_object] & 0xF] + 0xb0b0;
   LongPtr p0 = { .bank = 0, .addr = r0w };
   uint16 r4w = 0;
@@ -1274,8 +1271,7 @@ void HandleTNTExplosion() {  // 0ccc51
     HandleTNTExplosion_TNTExplosionDraw();
   } else {
     ClearCutsceneSpritesSubpixelPosition();
-    palettes_background_color = *(uint16 *)((int8 *)&kGlobalPalettes_Sky +
-                                            (uint8)(2 * kGameMode19_Cutscene_SkyColorSetting[misc_currently_active_boss_end_cutscene - 1]));
+    palettes_background_color = kGlobalPalettes_Sky[kGameMode19_Cutscene_SkyColorSetting[misc_currently_active_boss_end_cutscene - 1]];
     ++l1_l2_scroll_spr_current_state[0];
   }
   sub_CCBFC(0x1C);

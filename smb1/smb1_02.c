@@ -1112,12 +1112,12 @@ void GenerateLayer2Map16() {
     v3 = *(uint16 *)&tempE4;
     v4 = 8 * (uint8)v2;
     v5 = *(uint16 *)&tempE4 >> 1;
-    layer2_map16_table[v5] = *(uint16 *)IndirPtr(&R0_, v4);
+    layer2_map16_table[v5] = *(uint16 *)IndirPtr((LongPtr *)&R0_, v4);
     v4 += 2;
-    layer2_map16_table[v5 + 1] = *(uint16 *)IndirPtr(&R0_, v4);
+    layer2_map16_table[v5 + 1] = *(uint16 *)IndirPtr((LongPtr *)&R0_, v4);
     v4 += 2;
-    layer2_map16_table[v5 + 32] = *(uint16 *)IndirPtr(&R0_, v4);
-    layer2_map16_table[v5 + 33] = *(uint16 *)IndirPtr(&R0_, v4 + 2);
+    layer2_map16_table[v5 + 32] = *(uint16 *)IndirPtr((LongPtr *)&R0_, v4);
+    layer2_map16_table[v5 + 33] = *(uint16 *)IndirPtr((LongPtr *)&R0_, v4 + 2);
     v1 = v6 + 1;
     if ((v1 & 0xF) == 0) v3 += 64;
     v0 = v3 + 4;

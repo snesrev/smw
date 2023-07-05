@@ -4058,8 +4058,7 @@ void Spr0A9_Reznor_03D77F() {  // 03d77f
 
 void GameMode12_PrepareLevel_UploadTiltingPlatformTilemap() {  // 03d958
   WriteReg(VMAIN, 0);
-  WriteReg(VMADDL, 0);
-  WriteReg(VMADDH, 0);
+  WriteRegWord(VMADDL, 0);
   int16 v0 = 0x4000;
   do {
     WriteReg(VMDATAL, 0xFF);
@@ -4078,8 +4077,7 @@ void GameMode12_PrepareLevel_03D991(const uint8 *p5, uint16 r0w) {  // 03d991
     uint8 v1 = 0;
     do {
       r3 = v1;
-      WriteReg(VMADDL, r0w);
-      WriteReg(VMADDH, r0w >> 8);
+      WriteRegWord(VMADDL, r0w);
       v0 = r2;
       uint8 n = 16;
       do {
@@ -4113,8 +4111,7 @@ void InitializeMode7TilemapsAndPalettes(uint8 k) {  // 03dd7d
   for (uint8 i = 11; (i & 0x80) == 0; --i)
     *((uint8 *)&palettes_palette_mirror[2] + i) = *IndirPtr(&p0, i);
   WriteReg(VMAIN, 0x80);
-  WriteReg(VMADDL, 0);
-  WriteReg(VMADDH, 0);
+  WriteRegWord(VMADDL, 0);
   if (v1) {
     LongPtr pp = GraphicsDecompressionRoutines(v1);
     uint8 r3 = 0x80;

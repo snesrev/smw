@@ -573,7 +573,7 @@ void WriteRegWord(uint16 reg, uint16 value) {
   WriteReg(reg + 1, value >> 8);
 }
 
-uint8 *IndirPtr(void *ptr, uint16 offs) {
+uint8 *IndirPtr(LongPtr *ptr, uint16 offs) {
   uint32 a = (*(uint32 *)ptr & 0xffffff) + offs;
   if ((a >> 16) >= 0x7e && (a >> 16) <= 0x7f || (a & 0xffff) < 0x2000) {
     return &g_ram[a & 0x1ffff];
@@ -582,12 +582,12 @@ uint8 *IndirPtr(void *ptr, uint16 offs) {
   }
 }
 
-void IndirWriteWord(void *ptr, uint16 offs, uint16 value) {
+void IndirWriteWord(LongPtr *ptr, uint16 offs, uint16 value) {
   uint8 *p = IndirPtr(ptr, offs);
   WORD(*p) = value;
 }
 
-void IndirWriteByte(void *ptr, uint16 offs, uint8 value) {
+void IndirWriteByte(LongPtr *ptr, uint16 offs, uint8 value) {
   uint8 *p = IndirPtr(ptr, offs);
   p[0] = value;
 }

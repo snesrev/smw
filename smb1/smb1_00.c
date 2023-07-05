@@ -1623,17 +1623,17 @@ void UploadStripeImage() {
   WriteReg(A1B1, 0);
   R6_ = 0;
   v0 = 0;
-  for (i = *IndirPtr(&R0_, 0); i >= 0; i = *IndirPtr(&R0_, v0)) {
+  for (i = *IndirPtr((LongPtr *)&R0_, 0); i >= 0; i = *IndirPtr((LongPtr *)&R0_, v0)) {
     R4_ = i;
     v2 = v0 + 1;
-    R3_ = *IndirPtr(&R0_, v2++);
-    v3 = *IndirPtr(&R0_, v2) & 0x80;
+    R3_ = *IndirPtr((LongPtr *)&R0_, v2++);
+    v3 = *IndirPtr((LongPtr *)&R0_, v2) & 0x80;
     R7_ = 4 * v3 + __CFSHL__(v3, 1);
-    R5_ = *IndirPtr(&R0_, v2) & 0x40;
+    R5_ = *IndirPtr((LongPtr *)&R0_, v2) & 0x40;
     WriteReg(DMAP1, (R5_ >> 3) | 1);
     WriteReg(BBAD1, 0x18u);
     WriteRegWord(VMADDL, *(uint16 *)&R3_);
-    v4 = IndirPtr(&R0_, v2);
+    v4 = IndirPtr((LongPtr *)&R0_, v2);
     LOBYTE(v5) = HIBYTE(*(uint16 *)v4);
     HIBYTE(v5) = *(uint16 *)v4;
     v6 = (v5 & 0x3FFF) + 1;

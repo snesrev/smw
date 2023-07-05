@@ -418,17 +418,16 @@ void ClearLayer3Tilemap() {  // 0085fa
   TurnOffIO();
   g_ram[0] = 0xfc;
   WriteReg(VMAIN, 0);
-  WriteReg(VMADDL, 0);
-  WriteReg(VMADDH, 0x50);
+  WriteRegWord(VMADDL, 0x5000);
   for (uint8 i = 6; (i & 0x80) == 0; --i)
-    WriteReg((SnesRegs)(i + 0x4310), kClearLayer3Tilemap_PARAMS_008649[i]);
+    WriteReg((SnesRegs)(i + DMAP1), kClearLayer3Tilemap_PARAMS_008649[i]);
   WriteReg(MDMAEN, 2);
+
   g_ram[0] = 56;
   WriteReg(VMAIN, 0x80);
-  WriteReg(VMADDL, 0);
-  WriteReg(VMADDH, 0x50);
+  WriteRegWord(VMADDL, 0x5000);
   for (uint8 j = 6; (j & 0x80) == 0; --j)
-    WriteReg((SnesRegs)(j + 0x4310), kClearLayer3Tilemap_PARAMS_008649[j]);
+    WriteReg((SnesRegs)(j + DMAP1), kClearLayer3Tilemap_PARAMS_008649[j]);
   WriteReg(BBAD1, 0x19);
   WriteReg(MDMAEN, 2);
   mirror_oamaddress_lo = 0;
@@ -508,55 +507,47 @@ void UploadLevelLayer1And2Tilemaps() {  // 0087ad
   if ((uint8)blocks_layer1_vramupload_address) {
     if ((misc_level_layout_flags & 1) != 0) {
       WriteReg(VMAIN, 0x80);
-      WriteReg(VMADDL, HIBYTE(blocks_layer1_vramupload_address));
-      WriteReg(VMADDH, blocks_layer1_vramupload_address);
+      WriteRegWord(VMADDL, swap16(blocks_layer1_vramupload_address));
       for (uint8 i = 6; (i & 0x80) == 0; --i)
-        WriteReg((SnesRegs)(i + 0x4310), kUploadLevelLayer1And2Tilemaps_PARAMS_008A16[i]);
+        WriteReg((SnesRegs)(i + DMAP1), kUploadLevelLayer1And2Tilemaps_PARAMS_008A16[i]);
       WriteReg(MDMAEN, 2);
       WriteReg(VMAIN, 0x80);
-      WriteReg(VMADDL, HIBYTE(blocks_layer1_vramupload_address));
-      WriteReg(VMADDH, blocks_layer1_vramupload_address + 4);
+      WriteRegWord(VMADDL, swap16(blocks_layer1_vramupload_address) + 0x400);
       for (uint8 j = 6; (j & 0x80) == 0; --j)
-        WriteReg((SnesRegs)(j + 0x4310), kUploadLevelLayer1And2Tilemaps_PARAMS_008A1D[j]);
+        WriteReg((SnesRegs)(j + DMAP1), kUploadLevelLayer1And2Tilemaps_PARAMS_008A1D[j]);
       WriteReg(DAS1L, 0x40);
       WriteReg(MDMAEN, 2);
       WriteReg(VMAIN, 0x80);
-      WriteReg(VMADDL, HIBYTE(blocks_layer1_vramupload_address) + 32);
-      WriteReg(VMADDH, blocks_layer1_vramupload_address);
+      WriteRegWord(VMADDL, swap16(blocks_layer1_vramupload_address) + 0x20);
       for (uint8 k = 6; (k & 0x80) == 0; --k)
-        WriteReg((SnesRegs)(k + 0x4310), kUploadLevelLayer1And2Tilemaps_PARAMS_008A24[k]);
+        WriteReg((SnesRegs)(k + DMAP1), kUploadLevelLayer1And2Tilemaps_PARAMS_008A24[k]);
       WriteReg(MDMAEN, 2);
       WriteReg(VMAIN, 0x80);
-      WriteReg(VMADDL, HIBYTE(blocks_layer1_vramupload_address) + 32);
-      WriteReg(VMADDH, blocks_layer1_vramupload_address + 4);
+      WriteRegWord(VMADDL, swap16(blocks_layer1_vramupload_address) + 0x420);
       for (uint8 m = 6; (m & 0x80) == 0; --m)
-        WriteReg((SnesRegs)(m + 0x4310), kUploadLevelLayer1And2Tilemaps_PARAMS_008A2B[m]);
+        WriteReg((SnesRegs)(m + DMAP1), kUploadLevelLayer1And2Tilemaps_PARAMS_008A2B[m]);
       WriteReg(DAS1L, 0x40);
       WriteReg(MDMAEN, 2);
     } else {
       WriteReg(VMAIN, 0x81);
-      WriteReg(VMADDL, HIBYTE(blocks_layer1_vramupload_address));
-      WriteReg(VMADDH, blocks_layer1_vramupload_address);
+      WriteRegWord(VMADDL, swap16(blocks_layer1_vramupload_address));
       for (uint8 n = 6; (n & 0x80) == 0; --n)
-        WriteReg((SnesRegs)(n + 0x4310), kUploadLevelLayer1And2Tilemaps_PARAMS_008A16[n]);
+        WriteReg((SnesRegs)(n + DMAP1), kUploadLevelLayer1And2Tilemaps_PARAMS_008A16[n]);
       WriteReg(MDMAEN, 2);
       WriteReg(VMAIN, 0x81);
-      WriteReg(VMADDL, HIBYTE(blocks_layer1_vramupload_address));
-      WriteReg(VMADDH, blocks_layer1_vramupload_address + 8);
+      WriteRegWord(VMADDL, swap16(blocks_layer1_vramupload_address) + 0x800);
       for (uint8 ii = 6; (ii & 0x80) == 0; --ii)
-        WriteReg((SnesRegs)(ii + 0x4310), kUploadLevelLayer1And2Tilemaps_PARAMS_008A1D[ii]);
+        WriteReg((SnesRegs)(ii + DMAP1), kUploadLevelLayer1And2Tilemaps_PARAMS_008A1D[ii]);
       WriteReg(MDMAEN, 2);
       WriteReg(VMAIN, 0x81);
-      WriteReg(VMADDL, HIBYTE(blocks_layer1_vramupload_address) + 1);
-      WriteReg(VMADDH, blocks_layer1_vramupload_address);
+      WriteRegWord(VMADDL, swap16(blocks_layer1_vramupload_address) + 1);
       for (uint8 jj = 6; (jj & 0x80) == 0; --jj)
-        WriteReg((SnesRegs)(jj + 0x4310), kUploadLevelLayer1And2Tilemaps_PARAMS_008A24[jj]);
+        WriteReg((SnesRegs)(jj + DMAP1), kUploadLevelLayer1And2Tilemaps_PARAMS_008A24[jj]);
       WriteReg(MDMAEN, 2);
       WriteReg(VMAIN, 0x81);
-      WriteReg(VMADDL, HIBYTE(blocks_layer1_vramupload_address) + 1);
-      WriteReg(VMADDH, blocks_layer1_vramupload_address + 8);
+      WriteRegWord(VMADDL, swap16(blocks_layer1_vramupload_address) + 0x801);
       for (uint8 kk = 6; (kk & 0x80) == 0; --kk)
-        WriteReg((SnesRegs)(kk + 0x4310), kUploadLevelLayer1And2Tilemaps_PARAMS_008A2B[kk]);
+        WriteReg((SnesRegs)(kk + DMAP1), kUploadLevelLayer1And2Tilemaps_PARAMS_008A2B[kk]);
       WriteReg(MDMAEN, 2);
     }
   }
@@ -564,55 +555,47 @@ void UploadLevelLayer1And2Tilemaps() {  // 0087ad
   if ((uint8)blocks_layer2_vramupload_address) {
     if ((misc_level_layout_flags & 2) != 0) {
       WriteReg(VMAIN, 0x80);
-      WriteReg(VMADDL, HIBYTE(blocks_layer2_vramupload_address));
-      WriteReg(VMADDH, blocks_layer2_vramupload_address);
+      WriteRegWord(VMADDL, swap16(blocks_layer2_vramupload_address));
       for (uint8 mm = 6; (mm & 0x80) == 0; --mm)
-        WriteReg((SnesRegs)(mm + 0x4310), kUploadLevelLayer1And2Tilemaps_PARAMS_008A32[mm]);
+        WriteReg((SnesRegs)(mm + DMAP1), kUploadLevelLayer1And2Tilemaps_PARAMS_008A32[mm]);
       WriteReg(MDMAEN, 2);
       WriteReg(VMAIN, 0x80);
-      WriteReg(VMADDL, HIBYTE(blocks_layer2_vramupload_address));
-      WriteReg(VMADDH, blocks_layer2_vramupload_address + 4);
+      WriteRegWord(VMADDL, swap16(blocks_layer2_vramupload_address) + 0x400);
       for (uint8 nn = 6; (nn & 0x80) == 0; --nn)
-        WriteReg((SnesRegs)(nn + 0x4310), kUploadLevelLayer1And2Tilemaps_PARAMS_008A39[nn]);
+        WriteReg((SnesRegs)(nn + DMAP1), kUploadLevelLayer1And2Tilemaps_PARAMS_008A39[nn]);
       WriteReg(DAS1L, 0x40);
       WriteReg(MDMAEN, 2);
       WriteReg(VMAIN, 0x80);
-      WriteReg(VMADDL, HIBYTE(blocks_layer2_vramupload_address) + 32);
-      WriteReg(VMADDH, blocks_layer2_vramupload_address);
+      WriteRegWord(VMADDL, swap16(blocks_layer2_vramupload_address) + 0x20);
       for (uint8 i1 = 6; (i1 & 0x80) == 0; --i1)
-        WriteReg((SnesRegs)(i1 + 0x4310), kUploadLevelLayer1And2Tilemaps_PARAMS_008A40[i1]);
+        WriteReg((SnesRegs)(i1 + DMAP1), kUploadLevelLayer1And2Tilemaps_PARAMS_008A40[i1]);
       WriteReg(MDMAEN, 2);
       WriteReg(VMAIN, 0x80);
-      WriteReg(VMADDL, HIBYTE(blocks_layer2_vramupload_address) + 32);
-      WriteReg(VMADDH, blocks_layer2_vramupload_address + 4);
+      WriteRegWord(VMADDL, swap16(blocks_layer2_vramupload_address) + 0x420);
       for (uint8 i2 = 6; (i2 & 0x80) == 0; --i2)
-        WriteReg((SnesRegs)(i2 + 0x4310), kUploadLevelLayer1And2Tilemaps_PARAMS_008A47[i2]);
+        WriteReg((SnesRegs)(i2 + DMAP1), kUploadLevelLayer1And2Tilemaps_PARAMS_008A47[i2]);
       WriteReg(DAS1L, 0x40);
       WriteReg(MDMAEN, 2);
     } else {
       WriteReg(VMAIN, 0x81);
-      WriteReg(VMADDL, HIBYTE(blocks_layer2_vramupload_address));
-      WriteReg(VMADDH, blocks_layer2_vramupload_address);
+      WriteRegWord(VMADDL, swap16(blocks_layer2_vramupload_address));
       for (uint8 i3 = 6; (i3 & 0x80) == 0; --i3)
-        WriteReg((SnesRegs)(i3 + 0x4310), kUploadLevelLayer1And2Tilemaps_PARAMS_008A32[i3]);
+        WriteReg((SnesRegs)(i3 + DMAP1), kUploadLevelLayer1And2Tilemaps_PARAMS_008A32[i3]);
       WriteReg(MDMAEN, 2);
       WriteReg(VMAIN, 0x81);
-      WriteReg(VMADDL, HIBYTE(blocks_layer2_vramupload_address));
-      WriteReg(VMADDH, blocks_layer2_vramupload_address + 8);
+      WriteRegWord(VMADDL, swap16(blocks_layer2_vramupload_address) + 0x800);
       for (uint8 i4 = 6; (i4 & 0x80) == 0; --i4)
-        WriteReg((SnesRegs)(i4 + 0x4310), kUploadLevelLayer1And2Tilemaps_PARAMS_008A39[i4]);
+        WriteReg((SnesRegs)(i4 + DMAP1), kUploadLevelLayer1And2Tilemaps_PARAMS_008A39[i4]);
       WriteReg(MDMAEN, 2);
       WriteReg(VMAIN, 0x81);
-      WriteReg(VMADDL, HIBYTE(blocks_layer2_vramupload_address) + 1);
-      WriteReg(VMADDH, blocks_layer2_vramupload_address);
+      WriteRegWord(VMADDL, swap16(blocks_layer2_vramupload_address) + 1);
       for (uint8 i5 = 6; (i5 & 0x80) == 0; --i5)
-        WriteReg((SnesRegs)(i5 + 0x4310), kUploadLevelLayer1And2Tilemaps_PARAMS_008A40[i5]);
+        WriteReg((SnesRegs)(i5 + DMAP1), kUploadLevelLayer1And2Tilemaps_PARAMS_008A40[i5]);
       WriteReg(MDMAEN, 2);
       WriteReg(VMAIN, 0x81);
-      WriteReg(VMADDL, HIBYTE(blocks_layer2_vramupload_address) + 1);
-      WriteReg(VMADDH, blocks_layer2_vramupload_address + 8);
+      WriteRegWord(VMADDL, swap16(blocks_layer2_vramupload_address) + 0x801);
       for (uint8 i6 = 6; (i6 & 0x80) == 0; --i6)
-        WriteReg((SnesRegs)(i6 + 0x4310), kUploadLevelLayer1And2Tilemaps_PARAMS_008A47[i6]);
+        WriteReg((SnesRegs)(i6 + DMAP1), kUploadLevelLayer1And2Tilemaps_PARAMS_008A47[i6]);
       WriteReg(MDMAEN, 2);
     }
   }
@@ -691,28 +674,24 @@ uint16 ManipulateMode7Image_008B2B(uint16 k, uint8 r0) {  // 008b2b
 
 void InitializeStatusBarTilemap() {  // 008cff
   WriteReg(VMAIN, 0x80);
-  WriteReg(VMADDL, 0x2E);
-  WriteReg(VMADDH, 0x50);
+  WriteRegWord(VMADDL, 0x502E);
   for (uint8 i = 6; (i & 0x80) == 0; --i)
-    WriteReg((SnesRegs)(i + 0x4310), kInitializeStatusBarTilemap_PARAMS_008D90[i]);
+    WriteReg((SnesRegs)(i + DMAP1), kInitializeStatusBarTilemap_PARAMS_008D90[i]);
   WriteReg(MDMAEN, 2);
   WriteReg(VMAIN, 0x80);
-  WriteReg(VMADDL, 0x42);
-  WriteReg(VMADDH, 0x50);
+  WriteRegWord(VMADDL, 0x5042);
   for (uint8 j = 6; (j & 0x80) == 0; --j)
-    WriteReg((SnesRegs)(j + 0x4310), kInitializeStatusBarTilemap_PARAMS_008D97[j]);
+    WriteReg((SnesRegs)(j + DMAP1), kInitializeStatusBarTilemap_PARAMS_008D97[j]);
   WriteReg(MDMAEN, 2);
   WriteReg(VMAIN, 0x80);
-  WriteReg(VMADDL, 0x63);
-  WriteReg(VMADDH, 0x50);
+  WriteRegWord(VMADDL, 0x5063);
   for (uint8 k = 6; (k & 0x80) == 0; --k)
-    WriteReg((SnesRegs)(k + 0x4310), kInitializeStatusBarTilemap_PARAMS_008D9E[k]);
+    WriteReg((SnesRegs)(k + DMAP1), kInitializeStatusBarTilemap_PARAMS_008D9E[k]);
   WriteReg(MDMAEN, 2);
   WriteReg(VMAIN, 0x80);
-  WriteReg(VMADDL, 0x8E);
-  WriteReg(VMADDH, 0x50);
+  WriteRegWord(VMADDL, 0x508E);
   for (uint8 m = 6; (m & 0x80) == 0; --m)
-    WriteReg((SnesRegs)(m + 0x4310), kInitializeStatusBarTilemap_PARAMS_008DA5[m]);
+    WriteReg((SnesRegs)(m + DMAP1), kInitializeStatusBarTilemap_PARAMS_008DA5[m]);
   WriteReg(MDMAEN, 2);
   int8 v4 = 54;
   uint8 v5 = 108;
@@ -726,16 +705,14 @@ void InitializeStatusBarTilemap() {  // 008cff
 
 void UploadStatusBarTilemap() {  // 008dac
   WriteReg(VMAIN, 0);
-  WriteReg(VMADDL, 0x42);
-  WriteReg(VMADDH, 0x50);
+  WriteRegWord(VMADDL, 0x5042);
   for (uint8 i = 6; (i & 0x80) == 0; --i)
-    WriteReg((SnesRegs)(i + 0x4310), kUploadStatusBarTilemap_PARAMS_StBr1[i]);
+    WriteReg((SnesRegs)(i + DMAP1), kUploadStatusBarTilemap_PARAMS_StBr1[i]);
   WriteReg(MDMAEN, 2);
   WriteReg(VMAIN, 0);
-  WriteReg(VMADDL, 0x63);
-  WriteReg(VMADDH, 0x50);
+  WriteRegWord(VMADDL, 0x5063);
   for (uint8 j = 6; (j & 0x80) == 0; --j)
-    WriteReg((SnesRegs)(j + 0x4310), kUploadStatusBarTilemap_PARAMS_StBr2[j]);
+    WriteReg((SnesRegs)(j + DMAP1), kUploadStatusBarTilemap_PARAMS_StBr2[j]);
   WriteReg(MDMAEN, 2);
 }
 
@@ -1205,15 +1182,14 @@ void GameMode19_Cutscene_GameMode1BEntry() {  // 0094fd
 
 void UploadBigLayer3LettersToVRAM() {  // 00955e
   LongPtr p0 = GraphicsDecompressionRoutines(0x2F);
+  uint8 *v1 = IndirPtr(&p0, 0);
   WriteReg(VMAIN, 0x80);
   WriteRegWord(VMADDL, 0x4600);
   int16 v0 = 512;
   do {
-    uint8 *v1 = IndirPtr(&p0, 0);
     WriteRegWord(VMDATAL, *(uint16 *)v1);
-    p0.addr += 2;
-    --v0;
-  } while (v0);
+    v1 += 2;
+  } while (--v0);
 }
 
 void GameMode1D_LoadYoshisHouse() {  // 009583
@@ -2487,20 +2463,18 @@ void UploadOverworldExAnimationData() {  // 00a4e3
 
 void UploadOverworldLayer1And2Tilemaps(uint8 j) {  // 00a529
   WriteReg(VMAIN, 0x80);
-  WriteReg(VMADDL, 0);
-  WriteReg(VMADDH, kUploadOverworldLayer1And2Tilemaps_DATA_00A521[j] + 48);
+  WriteRegWord(VMADDL, (kUploadOverworldLayer1And2Tilemaps_DATA_00A521[j] + 48) << 8);
   for (uint8 i = 6; (i & 0x80) == 0; --i)
-    WriteReg((SnesRegs)(i + 0x4310), kUploadOverworldLayer1And2Tilemaps_PARAMS_00A586[i]);
+    WriteReg((SnesRegs)(i + DMAP1), kUploadOverworldLayer1And2Tilemaps_PARAMS_00A586[i]);
   if (ow_players_map[(uint8)player_current_characterx4 >> 2])
     WriteReg(A1T1H, 0x60);
   uint8 Reg = ReadReg(A1T1H);
   WriteReg(A1T1H, kUploadOverworldLayer1And2Tilemaps_DATA_00A525[j] + Reg);
   WriteReg(MDMAEN, 2);
   WriteReg(VMAIN, 0x80);
-  WriteReg(VMADDL, 0);
-  WriteReg(VMADDH, kUploadOverworldLayer1And2Tilemaps_DATA_00A521[j] + 32);
+  WriteRegWord(VMADDL, (kUploadOverworldLayer1And2Tilemaps_DATA_00A521[j] + 32) << 8);
   for (uint8 k = 6; (k & 0x80) == 0; --k)
-    WriteReg((SnesRegs)(k + 0x4310), kUploadOverworldLayer1And2Tilemaps_PARAMS_00A58D[k]);
+    WriteReg((SnesRegs)(k + DMAP1), kUploadOverworldLayer1And2Tilemaps_PARAMS_00A58D[k]);
   WriteReg(MDMAEN, 2);
 }
 
@@ -2747,25 +2721,23 @@ void BufferLoadingLetterTiles() {  // 00a82d
 }
 
 void UploadGraphicsFiles_Layer3() {  // 00a993
-  WriteReg(VMADDL, 0);
-  WriteReg(VMADDH, 0x40);
+  WriteRegWord(VMADDL, 0x4000);
   uint8 r15 = 3;
   uint8 r14 = 40;
   do {
     LongPtr p0 = GraphicsDecompressionRoutines(r14);
+    uint8 *v2 = IndirPtr(&p0, 0);
     int16 v0 = 0x3ff;
     uint16 v1 = 0;
     do {
-      uint8 *v2 = IndirPtr(&p0, v1);
       WriteRegWord(VMDATAL, *(uint16 *)v2);
-      v1 += 2;
+      v2 += 2;
       --v0;
     } while (v0 >= 0);
     ++r14;
     --r15;
   } while ((r15 & 0x80) == 0);
-  WriteReg(VMADDL, 0);
-  WriteReg(VMADDH, 0x60);
+  WriteRegWord(VMADDL, 0x6000);
   UploadGraphicsFiles_UploadGFXFile(0);
 }
 
@@ -2780,8 +2752,7 @@ void UploadGraphicsFiles() {  // 00a9da
   uint8 r15 = 3;
   do {
     uint8 v2 = r15;
-    WriteReg(VMADDL, 0);
-    WriteReg(VMADDH, kUploadGraphicsFiles_DATA_00A9D2[v2]);
+    WriteRegWord(VMADDL, kUploadGraphicsFiles_DATA_00A9D2[v2] << 8);
     if (misc_currently_loaded_sprite_graphics_files[v2] != arr[v2])
       UploadGraphicsFiles_UploadGFXFile(arr[v2]);
     --r15;
@@ -2802,8 +2773,7 @@ void UploadGraphicsFiles() {  // 00a9da
     r15 = 3;
     do {
       uint8 v6 = r15;
-      WriteReg(VMADDL, 0);
-      WriteReg(VMADDH, kUploadGraphicsFiles_DATA_00A9D6[v6]);
+      WriteRegWord(VMADDL, kUploadGraphicsFiles_DATA_00A9D6[v6] << 8);
       if (misc_currently_loaded_sprite_graphics_files[v6 + 4] != arr[v6])
         UploadGraphicsFiles_UploadGFXFile(arr[v6]);
       --r15;
@@ -2893,7 +2863,7 @@ void BufferPalettesRoutines_Levels() {  // 00abed
   BufferPalettesRoutines_LoadColorInVerticalStrip(0x102, 0x7FFF);
   BufferPalettesRoutines_LoadColors(0xb170, 16, 7, 1);
   BufferPalettesRoutines_LoadColors(0xb250, 132, 5, 9);
-  palettes_background_color = *(uint16 *)((int8 *)&kGlobalPalettes_Sky + (uint16)(2 * (misc_background_color_setting & 0xF)));
+  palettes_background_color = kGlobalPalettes_Sky[misc_background_color_setting & 0xF];
   uint16 r0w = kBufferPalettesRoutines_DATA_00ABD3[misc_fgpalette_setting & 0xF] + 0xb190;
   BufferPalettesRoutines_LoadColors(r0w, 68, 5, 1);
   r0w = kBufferPalettesRoutines_DATA_00ABD3[misc_sprite_palette_setting & 0xF] + 0xb318;
@@ -3076,7 +3046,8 @@ void PlayerState00_00B03E() {  // 00b03e
 
 void GraphicsDecompressionRoutines_DecompressGFX32And33() {  // 00b888
   decomp_src = (LongPtr){ .bank = 8, .addr = 0xbfc0 };
-  GraphicsDecompressionRoutines_BeginDecompression((LongPtr) { .bank = 0x7e, .addr = 0x2000 });
+  LongPtr p0 = (LongPtr){ .bank = 0x7e, .addr = 0x2000 };
+  GraphicsDecompressionRoutines_BeginDecompression(IndirPtr(&p0, 0));
   LongPtr t8d = { .bank = 0x7e, .addr = 0xacfe };
   int16 v0 = 0x23ff;
 LABEL_2:;
@@ -3097,10 +3068,11 @@ LABEL_2:;
       goto LABEL_2;
   }
   decomp_src.addr = 0x8000;
-  GraphicsDecompressionRoutines_BeginDecompression((LongPtr) { .bank = 0x7e, .addr = 0x2000 });
+  LongPtr pp0 = (LongPtr){ .bank = 0x7e, .addr = 0x2000 };
+  GraphicsDecompressionRoutines_BeginDecompression(IndirPtr(&pp0, 0));
 }
 
-void GraphicsDecompressionRoutines_BeginDecompression(LongPtr pdst) {  // 00b8de
+void GraphicsDecompressionRoutines_BeginDecompression(uint8 *pdst) {  // 00b8de
   int16 v3;
   uint16 v17;
   int8 v20;
@@ -3126,8 +3098,7 @@ void GraphicsDecompressionRoutines_BeginDecompression(LongPtr pdst) {  // 00b8de
         LOBYTE(v17) = GraphicsDecompressionRoutines_ReadByte();
         uint16 v18 = v17;
         do {
-          uint8 *v19 = IndirPtr(&pdst, v18);
-          IndirWriteByte(&pdst, v0++, *v19);
+          pdst[v0++] = pdst[v18];
           ++v18;
           --len;
         } while (len);
@@ -3136,7 +3107,7 @@ void GraphicsDecompressionRoutines_BeginDecompression(LongPtr pdst) {  // 00b8de
           uint8 v4 = GraphicsDecompressionRoutines_ReadByte();
           int16 v5 = len;
           do {
-            IndirWriteByte(&pdst, v0++, v4++);
+            pdst[v0++] = v4++;
             --v5;
           } while (v5);
         } else {
@@ -3147,14 +3118,14 @@ void GraphicsDecompressionRoutines_BeginDecompression(LongPtr pdst) {  // 00b8de
             uint8 v14 = v10;
             uint8 v12 = v9;
             uint8 v13 = v14;
-            IndirWriteByte(&pdst, v0++, v12);
+            pdst[v0++] = v12;
             int16 v15 = v11 - 1;
             if (!v15)
               break;
             uint8 v16 = v12;
             v10 = v13;
             v9 = v16;
-            IndirWriteByte(&pdst, v0++, v10);
+            pdst[v0++] = v10;
             v11 = v15 - 1;
           } while (v11);
         }
@@ -3162,14 +3133,14 @@ void GraphicsDecompressionRoutines_BeginDecompression(LongPtr pdst) {  // 00b8de
         uint8 v7 = GraphicsDecompressionRoutines_ReadByte();
         int16 v8 = len;
         do {
-          IndirWriteByte(&pdst, v0++, v7);
+          pdst[v0++] = v7;
           --v8;
         } while (v8);
       }
     } else {
       do {
         uint8 v6 = GraphicsDecompressionRoutines_ReadByte();
-        IndirWriteByte(&pdst, v0++, v6);
+        pdst[v0++] = v6;
         --len;
       } while (len);
     }
@@ -3193,7 +3164,7 @@ LongPtr GraphicsDecompressionRoutines(uint8 j) {  // 00ba28
     .addr = kGraphicsDecompressionRoutines_GraphicsPtrHi[j] << 8 | kGraphicsDecompressionRoutines_GraphicsPtrLo[j]
   };
   LongPtr p0 = { .bank = 0x7e, .addr = 0xad00 };
-  GraphicsDecompressionRoutines_BeginDecompression(p0);
+  GraphicsDecompressionRoutines_BeginDecompression(IndirPtr(&p0, 0));
   return p0;
 }
 
@@ -6437,9 +6408,8 @@ void PlayerState00_00F9C9(uint16 temp14b4, uint16 temp14b6, PointU16 pt) {  // 0
 }
 
 uint8 CheckWhatSlopeSpriteIsOn(uint8 a, uint8 r10, uint8 r12, uint8 *slope_type) {  // 00fa19
-  g_ram[5] = 50;
-  g_ram[6] = -26;
-  g_ram[7] = 0;
+  R5_slopeptr.addr = 0xe632;
+  R5_slopeptr.bank = 0;
   uint8 r8 = *IndirPtr(&ptr_slope_steepness, (uint8)(a - 110));
   *slope_type = r8;
   uint8 r1 = 16 * r8;

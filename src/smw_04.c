@@ -53,23 +53,24 @@ void OwTileAnimations_ShiftWaterTiles() {  // 048086
   uint16 r3 = 0;
   uint16 r5 = 0;
   do {
-    OwTileAnimations_0480B9(r5, (LongPtr) { .bank = 0x7e, .addr = kOwTileAnimations_WaterTileNumbers[r3 >> 1] });
+    LongPtr p0 = (LongPtr){ .bank = 0x7e, .addr = kOwTileAnimations_WaterTileNumbers[r3 >> 1] };
+    OwTileAnimations_0480B9(r5, IndirPtr(&p0, 0));
     r5 += 32;
     r3 += 2;
   } while (r3 != 6);
 }
 
-void OwTileAnimations_0480B9(uint16 k, LongPtr p0) {  // 0480b9
+void OwTileAnimations_0480B9(uint16 k, const uint8 *p0) {  // 0480b9
   uint16 v1 = 0;
   uint16 r7 = 8;
   uint16 r9 = 8;
   do {
-    *(uint16 *)&sprites_cutscene_sprite_table_0AF6[k] = *(uint16 *)IndirPtr(&p0, v1);
+    *(uint16 *)&sprites_cutscene_sprite_table_0AF6[k] = p0[v1];
     v1 += 2;
     k += 2;
   } while (--r7);
   do {
-    *(uint16 *)&sprites_cutscene_sprite_table_0AF6[k] = *IndirPtr(&p0, v1++);
+    *(uint16 *)&sprites_cutscene_sprite_table_0AF6[k] = p0[v1++];
     k += 2;
   } while (--r9);
 }
@@ -108,7 +109,7 @@ void OwTileAnimations() {  // 0480e0
     if (v4 != 56)
       v5 = (uint16)(counter_global_frames & v4) >> 3;
     LongPtr p0 = { .bank = 0x7e, .addr = kOwTileAnimations_TileNumbers[(uint16)(r11w + v5) >> 1] };
-    OwTileAnimations_0480B9(r13w, p0);
+    OwTileAnimations_0480B9(r13w, IndirPtr(&p0, 0));
     r13w += 32;
     r11w += 16;
   } while (r11w != 128);
@@ -1293,10 +1294,9 @@ void InitializeOverworldTilemaps() {  // 04d6e9
   camera_xy_layer1_vramupd_left_up = -1;
   camera_xy_layer1_vramupd_right_down = -1;
   WriteReg(VMAIN, 0x80);
-  WriteReg(VMADDL, 0);
-  WriteReg(VMADDH, 0x30);
+  WriteRegWord(VMADDL, 0x3000);
   for (uint8 i = 6; (i & 0x80) == 0; --i)
-    WriteReg((SnesRegs)(i + 0x4310), kInitializeOverworldTilemaps_PARAMS_04DAB3[i]);
+    WriteReg((SnesRegs)(i + DMAP1), kInitializeOverworldTilemaps_PARAMS_04DAB3[i]);
   if (ow_players_map[(uint8)player_current_characterx4 >> 2])
     WriteReg(A1T1H, 0x60);
   WriteReg(MDMAEN, 2);
@@ -1389,19 +1389,19 @@ void LoadOverworldLayer2AndEventsTilemaps() {  // 04daad
   LoadOverworldLayer2AndEventsTilemaps_Sub();
 }
 
-void BufferOverworldLayer2Tilemap(uint16 k, uint16 j, uint16 r14w, LongPtr p0) {  // 04daba
+void BufferOverworldLayer2Tilemap(uint16 k, uint16 j, uint16 r14w, const uint8 *p0) {  // 04daba
   do {
-    uint8 r3 = *IndirPtr(&p0, j);
+    uint8 r3 = p0[j];
     if ((r3 & 0x80) != 0) {
       r3 &= ~0x80;
-      uint8 v2 = *IndirPtr(&p0, ++j);
+      uint8 v2 = p0[++j];
       do {
         ow_layer2_tiles[k] = v2;
         k += 2;
       } while ((--r3 & 0x80) == 0);
     } else {
       do {
-        ow_layer2_tiles[k] = *IndirPtr(&p0, ++j);
+        ow_layer2_tiles[k] = p0[++j];
         k += 2;
       } while ((--r3 & 0x80) == 0);
     }
@@ -1494,8 +1494,8 @@ void LoadOverworldLayer1AndEvents() {  // 04dc09
 
 void LoadOverworldLayer2AndEventsTilemaps_Sub() {  // 04dc6a
   LoadOverworldLayer2AndEventsTilemaps_04DD40();
-  BufferOverworldLayer2Tilemap(0, 0, 0x4000, (LongPtr) { .bank = 4, .addr = 0xa533 });
-  BufferOverworldLayer2Tilemap(1, 0, 0x4000, (LongPtr) { .bank = 4, .addr = 0xc02b });
+  BufferOverworldLayer2Tilemap(0, 0, 0x4000, IndirPtr(& (LongPtr) { .bank = 4, .addr = 0xa533 }, 0));
+  BufferOverworldLayer2Tilemap(1, 0, 0x4000, IndirPtr(& (LongPtr) { .bank = 4, .addr = 0xc02b }, 0));
   uint8 r15 = 0;
   do {
     LoadOverworldLayer2AndEventsTilemaps_04E453(r15);

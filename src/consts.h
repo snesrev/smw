@@ -81,7 +81,7 @@
 #define kHandlePaletteFades_DATA_00AE71 ((uint16*)RomFixedPtr(0xAE71))
 #define kHandlePaletteFades_DATA_00AE77 ((uint16*)RomFixedPtr(0xAE77))
 #define kHandlePaletteFades_DATA_00AEF7 ((uint16*)RomFixedPtr(0xAEF7))
-#define kGlobalPalettes_Sky (*(uint16*)RomFixedPtr(0xB0A0))
+#define kGlobalPalettes_Sky ((uint16*)RomFixedPtr(0xB0A0))
 #define kGlobalPalettes_BowserEnd ((uint16*)RomFixedPtr(0xB3C0))
 #define kGlobalPalettes_B3CC ((uint16*)RomFixedPtr(0xB3CC))
 #define kGlobalPalettes_BowserLightningFlash ((uint16*)RomFixedPtr(0xB5DE))

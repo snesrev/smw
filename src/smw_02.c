@@ -2597,22 +2597,23 @@ void ParseLevelSpriteList_Entry2() {  // 02a802
 }
 
 void ParseLevelSpriteList_LoadSpriteLoopStrt(uint8 k, uint8 j, uint16 r0w) {  // 02a82e
+  uint8 *psld = IndirPtr(&ptr_sprite_list_data, 0);
   uint8 r2, r3;
   while (1) {
 //    printf("M: Load sprites offs %d: 0x%x\n", j, r0w);
-    uint8 *v2 = IndirPtr(&ptr_sprite_list_data, j);
+    uint8 *v2 = &psld[j];
     if (*v2 == 0xFF)
       break;
     r2 = (8 * *v2) & 0x10;
     uint8 v3 = j + 1;
-    uint8 v4 = r2 | *IndirPtr(&ptr_sprite_list_data, v3) & 0xF;
+    uint8 v4 = r2 | psld[v3] & 0xF;
     bool v5 = v4 < (r0w >> 8);
     int8 v6 = v4 - (r0w >> 8);
     if (v5)
       goto LABEL_3;
     if (v6)
       return;
-    if ((*IndirPtr(&ptr_sprite_list_data, v3) & 0xF0) != (uint8)r0w || sprites_load_status[k]) {
+    if ((psld[v3] & 0xF0) != (uint8)r0w || sprites_load_status[k]) {
 LABEL_3:
       j = v3 + 2;
       ++k;
@@ -2620,14 +2621,14 @@ LABEL_3:
       r2 = k;
       ++sprites_load_status[k];
       uint8 v7 = v3 + 1;
-      uint8 v8 = *IndirPtr(&ptr_sprite_list_data, v7);
+      uint8 v8 = psld[v7];
       uint8 v9;
       uint8 r5 = v8;
       v3 = v7 - 1;
       if (v8 >= 0xE7) {
         if (!*(uint16 *)l1_l2_scroll_spr_spriteid) {
           l1_l2_scroll_spr_spriteid[0] = r5 + 25;
-          l1_l2_scroll_spr_scroll_type_index[0] = *IndirPtr(&ptr_sprite_list_data, (uint8)(v3 - 1)) >> 2;
+          l1_l2_scroll_spr_scroll_type_index[0] = psld[(uint8)(v3 - 1)] >> 2;
           InitializeScrollSprites();
         }
         goto LABEL_3;
@@ -2690,7 +2691,7 @@ LABEL_38:
         }
       }
       uint8 v11 = r3;
-      uint8 *v12 = IndirPtr(&ptr_sprite_list_data, r3);
+      uint8 *v12 = &psld[r3];
       if (misc_level_layout_flags & 1) {
         SetSprXYPos(v10, *v12 & 0xF0 | (*v12 & 0xD) << 8, r0w);
       } else {
@@ -2698,7 +2699,7 @@ LABEL_38:
       }
       uint8 v14 = v11 + 2;
       spr_current_status[v10] = r4;
-      uint8 v15 = *IndirPtr(&ptr_sprite_list_data, v14);
+      uint8 v15 = psld[v14];
       if (r4 >= 9)
         v15 += 42;
       if ((ow_level_tile_settings[73] & 0x80) != 0) {
@@ -2846,16 +2847,16 @@ void SprXXX_LoadShooter(uint8 k, uint8 j, uint8 a, uint16 r0w) {  // 02ab78
   }
   uint8 v4 = r3;
   shooter_spr_spriteid[v3] = r4 + 56;
-  if (misc_level_layout_flags & 1) {
-    uint8 *v5 = IndirPtr(&ptr_sprite_list_data, v4);
+  uint8 *v5 = IndirPtr(&ptr_sprite_list_data, v4);
+
+  if (misc_level_layout_flags & 1) {  
     uint8 v7 = *v5;
     shooter_spr_xpos_lo[v3] = *v5 & 0xF0;
     shooter_spr_xpos_hi[v3] = v7 & 1;
     SetHiLo(&shooter_spr_ypos_hi[v3], &shooter_spr_ypos_lo[v3], r0w);
   } else {
-    uint8 *v6 = IndirPtr(&ptr_sprite_list_data, v4);
-    uint8 v8 = *v6;
-    shooter_spr_ypos_lo[v3] = *v6 & 0xF0;
+    uint8 v8 = *v5;
+    shooter_spr_ypos_lo[v3] = *v5 & 0xF0;
     shooter_spr_ypos_hi[v3] = v8 & 1;
     SetHiLo(&shooter_spr_xpos_hi[v3], &shooter_spr_xpos_lo[v3], r0w);
   }
@@ -6907,8 +6908,8 @@ void Spr086_Wiggler_Init(uint8 k) {  // 02eff2
 }
 
 void Spr086_Wiggler_Init_GetWigglerSegmentPosIndex(uint8 k) {  // 02f011
-  spr86_wiggler_segment_pos_ptr = PAIR16(kSpr086_Wiggler_Init_WigglerSegmentTablePointerHi[k & 3], kSpr086_Wiggler_Init_WigglerSegmentTablePointerLo[k & 3]) + 0x9a7b;
-  spr86_wiggler_segment_pos_ptr_bank = 127;
+  spr86_wiggler_segment_pos_ptr.addr = PAIR16(kSpr086_Wiggler_Init_WigglerSegmentTablePointerHi[k & 3], kSpr086_Wiggler_Init_WigglerSegmentTablePointerLo[k & 3]) + 0x9a7b;
+  spr86_wiggler_segment_pos_ptr.bank = 127;
 }
 
 void Spr086_Wiggler(uint8 k) {  // 02f035
@@ -7060,7 +7061,7 @@ void Spr086_Wiggler(uint8 k) {  // 02f035
 }
 
 void Spr086_Wiggler_02F0DB(uint8 k) {  // 02f0db
-  uint8 *v2 = g_ram + 0x10000 + spr86_wiggler_segment_pos_ptr;
+  uint8 *v2 = g_ram + 0x10000 + spr86_wiggler_segment_pos_ptr.addr;
   memmove(v2 + 2, v2, 0x7E);
   IndirWriteByte(&spr86_wiggler_segment_pos_ptr, 0, spr_xpos_lo[k]);
   IndirWriteByte(&spr86_wiggler_segment_pos_ptr, 1, spr_ypos_lo[k]);

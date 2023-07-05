@@ -71,9 +71,9 @@ void WriteReg(uint16 reg, uint8 value);
 void WriteRegWord(uint16 reg, uint16 value);
 uint16 ReadRegWord(uint16 reg);
 uint8 ReadReg(uint16 reg);
-uint8_t *IndirPtr(void *ptr, uint16 offs);
-void IndirWriteWord(void *ptr, uint16 offs, uint16 value);
-void IndirWriteByte(void *ptr, uint16 offs, uint8 value);
+uint8_t *IndirPtr(LongPtr *ptr, uint16 offs);
+void IndirWriteWord(LongPtr *ptr, uint16 offs, uint16 value);
+void IndirWriteByte(LongPtr *ptr, uint16 offs, uint8 value);
 
 
 typedef void RunFrameFunc(uint16 input, int run_what);

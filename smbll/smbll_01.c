@@ -401,7 +401,7 @@ void Smbll_SpawnCastleTilesWithPriority() {
   v0 = *(uint16 *)vram_buffer1;
   v1 = 0;
   do {
-    v2 = IndirPtr(&tempF3, v1);
+    v2 = IndirPtr((LongPtr *)&tempF3, v1);
     v3 = *(uint16 *)v2;
     *(uint16 *)&vram_buffer1[v0 + 2] = *(uint16 *)v2;
     v1 += 2;
@@ -544,7 +544,7 @@ void Smbll_DecodeAreaData_Sub2_New(uint16 j) {
   tempF4 = HIBYTE(addr);
   tempF3 = addr;
   tempF5 = area_data_ptr.bank;
-  v3 = IndirPtr(&tempF3, j + 2);
+  v3 = IndirPtr((LongPtr *)&tempF3, j + 2);
   v4 = *v3 & 0x7F;
   v5 = (int)(uint8)v4 >> 1;
   R0_ = *((uint8 *)koff_188C1 + (*v3 & 0x7F));
@@ -848,8 +848,8 @@ uint8 Smbll_CODE_0491C0(uint8 k) {
   uint16 v1;  // di
 
   v1 = area_obj_offset_buffer[(uint16)(2 * k) >> 1] + 1;
-  R7_ = *IndirPtr(&tempF3, v1) >> 4;
-  return *IndirPtr(&tempF3, v1) & 0xF;
+  R7_ = *IndirPtr((LongPtr *)&tempF3, v1) >> 4;
+  return *IndirPtr((LongPtr *)&tempF3, v1) & 0xF;
 }
 
 uint8 Smbll_CODE_0491DD() {
@@ -1199,7 +1199,7 @@ PairU16 Smbll_CODE_049724(uint8 k, uint8 j) {
   *(uint16 *)&R4_ = 1;
   *(uint16 *)&R0_ = 16;
   do {
-    palette_mirror[k >> 1] = *(uint16 *)IndirPtr(&R2_, j);
+    palette_mirror[k >> 1] = *(uint16 *)IndirPtr((LongPtr *)&R2_, j);
     j += 2;
     k += 2;
     --*(uint16 *)&R0_;
@@ -1242,7 +1242,7 @@ void Smbll_CODE_04973C() {
     *(uint16 *)&tempF6 = v3;
     tempF7 = *((uint8 *)kword_1B4BA + (uint16)(*(uint16 *)&tempF8 + 1)) & 0x3F;
     while (1) {
-      IndirWriteByte(&tempF3, v2, tempF7);
+      IndirWriteByte((LongPtr *)&tempF3, v2, tempF7);
       if (!tempF6 || (v2 & 0xF0) == 0xD0)
         break;
       LOBYTE(v1) = v2 + 16;

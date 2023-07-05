@@ -28,7 +28,7 @@
 //#define r14 (*(uint8*)(g_ram+0xE))
 //#define r15 (*(uint8*)(g_ram+0xF))
 
-#define R5_slopeptr (*(uint8*)(g_ram+0x5))
+#define R5_slopeptr (*(LongPtr*)(g_ram+0x5))
 
 #define lvlload_R4W (*(uint16*)(g_ram+0x4))
 
@@ -116,8 +116,7 @@
 #define player_yspeed (*(uint8*)(g_ram+0x7D))
 #define player_on_screen_pos_x (*(uint16*)(g_ram+0x7E))
 #define player_on_screen_pos_y (*(uint16*)(g_ram+0x80))
-#define ptr_slope_steepness (*(uint16*)(g_ram+0x82))
-#define ptr_slope_steepness_bank (*(uint8*)(g_ram+0x84))
+#define ptr_slope_steepness (*(LongPtr*)(g_ram+0x82))
 #define flag_underwater_level (*(uint8*)(g_ram+0x85))
 #define flag_ice_level (*(uint8*)(g_ram+0x86))
 #define player_timer_pipe_warping (*(uint8*)(g_ram+0x88))
@@ -145,12 +144,10 @@
 #define spr_yspeed ((uint8*)(g_ram+0xAA))
 #define spr_xspeed ((uint8*)(g_ram+0xB6))
 #define spr_table00c2 ((uint8*)(g_ram+0xC2))
-#define ptr_sprite_list_data (*(uint16*)(g_ram+0xCE))
-#define ptr_sprite_list_data_bank (*(uint8*)(g_ram+0xD0))
+#define ptr_sprite_list_data (*(LongPtr*)(g_ram+0xCE))
 #define player_current_xpos (*(uint16*)(g_ram+0xD1))
 #define player_current_ypos (*(uint16*)(g_ram+0xD3))
-#define spr86_wiggler_segment_pos_ptr (*(uint16*)(g_ram+0xD5))
-#define spr86_wiggler_segment_pos_ptr_bank (*(uint8*)(g_ram+0xD7))
+#define spr86_wiggler_segment_pos_ptr (*(LongPtr*)(g_ram+0xD5))
 #define spr_ypos_lo ((uint8*)(g_ram+0xD8))
 #define spr_xpos_lo ((uint8*)(g_ram+0xE4))
 #define misc_game_mode (*(uint8*)(g_ram+0x100))
