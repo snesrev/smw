@@ -511,16 +511,17 @@ void LoadLevelDataObject() {  // 0585ff
     int v2 = misc_current_layer_being_processed;
     uint8 v3 = 2 * (misc_level_mode_setting & 0x1F);
 
-    LongPtr r3 = { .addr = kLevelDataLayoutTables_LoTablePtrs[v2] };
-    LongPtr r6 = { .addr = kLevelDataLayoutTables_HiTablePtrs[v2] };
-    LongPtr r0 = { .addr = WORD(*IndirPtr(&r3, v3)) };
-    LongPtr r13 = { .addr = WORD(*IndirPtr(&r6, v3)) };
+    const uint8 *r3 = RomPtr_00(kLevelDataLayoutTables_LoTablePtrs[v2]);
+    const uint8 *r6 = RomPtr_00(kLevelDataLayoutTables_HiTablePtrs[v2]);
+
+    const uint8 *r0 = RomPtr_00(WORD(r3[v3]));
+    const uint8 *r13 = RomPtr_00(WORD(r6[v3]));
 
     blocks_screen_to_place_current_object += __CFSHL__(r10 & 0x80, 1);
     blocks_screen_to_place_next_object = blocks_screen_to_place_current_object;
     uint8 v4 = 3 * blocks_screen_to_place_current_object;
-    ptr_lo_map16_data = *(LongPtr *)IndirPtr(&r0, v4);
-    ptr_hi_map16_data = *(LongPtr *)IndirPtr(&r13, v4);
+    ptr_lo_map16_data = *(LongPtr *)(r0 + v4);
+    ptr_hi_map16_data = *(LongPtr *)(r13 + v4);
     if ((r10 & 0x10) != 0) {
       ++HIBYTE(ptr_lo_map16_data);
       ++HIBYTE(ptr_hi_map16_data);
@@ -616,8 +617,8 @@ void BufferScrollingTiles_Layer2_Init() {  // 058955
 }
 
 void BufferScrollingTiles_Layer1() {  // 0589ce
-  LongPtr r10 = { .addr = kLevelDataLayoutTables_Layer1LoPtrs[misc_level_mode_setting] };
-  LongPtr r13 = { .addr = kLevelDataLayoutTables_Layer1HiPtrs[misc_level_mode_setting] };
+  const uint8 *r10 = RomPtr_00(kLevelDataLayoutTables_Layer1LoPtrs[misc_level_mode_setting]);
+  const uint8 *r13 = RomPtr_00(kLevelDataLayoutTables_Layer1HiPtrs[misc_level_mode_setting]);
   
   uint16 v0 = camera_layer1_scrolling_direction;
   HIBYTE(blocks_layer1_vramupload_address) = 2 * (*((uint8 *)&camera_layer1_row_column_to_update_left_up + v0) & 0xF);
@@ -626,23 +627,20 @@ void BufferScrollingTiles_Layer1() {  // 0589ce
     v1 = 36;
   LOBYTE(blocks_layer1_vramupload_address) = v1;
   uint16 R0_W = (uint16)(*(uint16 *)((int8 *)&camera_layer1_row_column_to_update_left_up + v0) & 0x1F0) >> 4;
-  ptr_lo_map16_data = *(LongPtr *)IndirPtr(&r10, 3 * R0_W);
-  ptr_hi_map16_data = *(LongPtr *)IndirPtr(&r13, 3 * R0_W);
-  uint8 v3 = 13;
-  if (!sign8(misc_level_tileset_setting - 16))
-    v3 = 5;
-  r10.bank = v3;
+  const uint8 *plo = IndirPtr((LongPtr *)(r10 + 3 * R0_W), 0);
+  const uint8 *phi = IndirPtr((LongPtr *)(r13 + 3 * R0_W), 0);
+  uint8 bank = sign8(misc_level_tileset_setting - 16) ? 13 : 5;
   uint16 r8 = *((uint8 *)&camera_layer1_row_column_to_update_left_up + v0) & 0xF;
   uint16 v4 = 0;
   do {
     uint16 v5 = r8;
-    R0_W = *IndirPtr(&ptr_lo_map16_data, v5) | *IndirPtr(&ptr_hi_map16_data, v5) << 8;
-    r10.addr = pointer_map16_tiles[R0_W];
+    R0_W = plo[v5] | phi[v5] << 8;
+    r10 = RomPtrWithBank(bank, pointer_map16_tiles[R0_W]);
     int v6 = v4 >> 1;
-    blocks_layer1_tiles_to_upload_buffer[v6] = *(uint16 *)IndirPtr(&r10, 0);
-    blocks_layer1_tiles_to_upload_buffer[v6 + 1] = *(uint16 *)IndirPtr(&r10, 2);
-    blocks_layer1_tiles_to_upload_buffer[v6 + 64] = *(uint16 *)IndirPtr(&r10, 4);
-    blocks_layer1_tiles_to_upload_buffer[v6 + 65] = *(uint16 *)IndirPtr(&r10, 6);
+    blocks_layer1_tiles_to_upload_buffer[v6] = *(uint16 *)(r10);
+    blocks_layer1_tiles_to_upload_buffer[v6 + 1] = *(uint16 *)(r10 + 2);
+    blocks_layer1_tiles_to_upload_buffer[v6 + 64] = *(uint16 *)(r10 + 4);
+    blocks_layer1_tiles_to_upload_buffer[v6 + 65] = *(uint16 *)(r10 + 6);
     v4 += 4;
     r8 += 16;
   } while (r8 < 0x1B0);
@@ -656,8 +654,8 @@ void BufferScrollingTiles_Layer1_VerticalLevel() {  // 058a9b
   int lvl_setting = misc_level_mode_setting;
   int max_n = (lvl_setting == 7 || lvl_setting == 8 || lvl_setting == 10 || lvl_setting == 13) ? 28 : 16;
 
-  LongPtr r10 = { .addr = kLevelDataLayoutTables_Layer1LoPtrs[lvl_setting] };
-  LongPtr r13 = { .addr = kLevelDataLayoutTables_Layer1HiPtrs[lvl_setting] };
+  const uint8 *r10 = RomPtr_00(kLevelDataLayoutTables_Layer1LoPtrs[lvl_setting]);
+  const uint8 *r13 = RomPtr_00(kLevelDataLayoutTables_Layer1HiPtrs[lvl_setting]);
 
   uint16 v0 = camera_layer1_scrolling_direction;
   uint8 v1 = 32;
@@ -667,22 +665,23 @@ void BufferScrollingTiles_Layer1_VerticalLevel() {  // 058a9b
   HIBYTE(blocks_layer1_vramupload_address) = (*((uint8 *)&camera_layer1_row_column_to_update_left_up + v0) & 3) << 6;
   uint16 R0_W = (uint16)(*(uint16 *)((int8 *)&camera_layer1_row_column_to_update_left_up + v0) & 0x1F0) >> 4;
   uint16 v2 = (R0_W < max_n) ? 3 * R0_W : 0;
-  ptr_lo_map16_data = *(LongPtr *)IndirPtr(&r10, v2);
-  ptr_hi_map16_data = *(LongPtr *)IndirPtr(&r13, v2);
-  r10.bank = sign8(misc_level_tileset_setting - 16) ? 13 : 5;
+  const uint8 *plo = IndirPtr((LongPtr *)(r10 + v2), 0);
+  const uint8 *phi = IndirPtr((LongPtr *)(r13 + v2), 0);
+  uint8 bank = sign8(misc_level_tileset_setting - 16) ? 13 : 5;
   uint16 r8 = 16 * (*((uint8 *)&camera_layer1_row_column_to_update_left_up + v0) & 0xF);
   uint16 v4 = 0;
   do {
     uint16 v5 = r8;
-    R0_W = *IndirPtr(&ptr_lo_map16_data, r8) | *IndirPtr(&ptr_hi_map16_data, v5) << 8;
-    r10.addr = pointer_map16_tiles[R0_W];
+    R0_W = plo[r8] | phi[v5] << 8;
+    
+    r10 = RomPtrWithBank(bank, pointer_map16_tiles[R0_W]);
     int v6 = v4 >> 1;
-    blocks_layer1_tiles_to_upload_buffer[v6] = *(uint16 *)IndirPtr(&r10, 0);
-    blocks_layer1_tiles_to_upload_buffer[v6 + 64] = *(uint16 *)IndirPtr(&r10, 2);
+    blocks_layer1_tiles_to_upload_buffer[v6] = WORD(r10[0]);
+    blocks_layer1_tiles_to_upload_buffer[v6 + 64] = WORD(r10[2]);
     uint16 v7 = v4 + 2;
     int v8 = v7 >> 1;
-    blocks_layer1_tiles_to_upload_buffer[v8] = *(uint16 *)IndirPtr(&r10, 4);
-    blocks_layer1_tiles_to_upload_buffer[v8 + 64] = *(uint16 *)IndirPtr(&r10, 6);
+    blocks_layer1_tiles_to_upload_buffer[v8] = WORD(r10[4]);
+    blocks_layer1_tiles_to_upload_buffer[v8 + 64] = WORD(r10[6]);
     v4 = v7 + 2;
     uint16 v9 = r8++;
     if ((r8 & 0xF) == 0)
@@ -696,8 +695,8 @@ void BufferScrollingTiles_Layer2() {  // 058b8d
     v1 = 0x1000;
   uint16 R3_W = v1;
 
-  LongPtr r10 = { .addr = kLevelDataLayoutTables_Layer2LoPtrs[misc_level_mode_setting] };
-  LongPtr r13 = { .addr = kLevelDataLayoutTables_Layer2HiPtrs[misc_level_mode_setting] };
+  const uint8 *r10 = RomPtr_00(kLevelDataLayoutTables_Layer2LoPtrs[misc_level_mode_setting]);
+  const uint8 *r13 = RomPtr_00(kLevelDataLayoutTables_Layer2HiPtrs[misc_level_mode_setting]);
   
   uint16 v0 = camera_layer2_scrolling_direction;
   HIBYTE(blocks_layer2_vramupload_address) = 2 * (*((uint8 *)&camera_layer2_row_column_to_update_left_up + v0) & 0xF);
@@ -707,20 +706,21 @@ void BufferScrollingTiles_Layer2() {  // 058b8d
   LOBYTE(blocks_layer2_vramupload_address) = v2;
   uint16 R0_W = (uint16)(*(uint16 *)((int8 *)&camera_layer2_row_column_to_update_left_up + v0) & 0x1F0) >> 4;
   uint16 v3 = 3 * R0_W;
-  ptr_lo_map16_data = *(LongPtr *)IndirPtr(&r10, v3);
-  ptr_hi_map16_data = *(LongPtr *)IndirPtr(&r13, v3);
-  r10.bank = sign8(misc_level_tileset_setting - 16) ? 13 : 5;
+  const uint8 *plo = IndirPtr((LongPtr *)(r10 + v3), 0);
+  const uint8 *phi = IndirPtr((LongPtr *)(r13 + v3), 0);
+
+  uint8 bank = sign8(misc_level_tileset_setting - 16) ? 13 : 5;
   uint16 r8 = *((uint8 *)&camera_layer2_row_column_to_update_left_up + v0) & 0xF;
   uint16 v5 = 0;
   do {
     uint16 v6 = r8;
-    R0_W = *IndirPtr(&ptr_lo_map16_data, r8) | *IndirPtr(&ptr_hi_map16_data, v6) << 8;
-    r10.addr = pointer_map16_tiles[R0_W];
+    R0_W = plo[r8] | phi[v6] << 8;
+    r10 = RomPtrWithBank(bank, pointer_map16_tiles[R0_W]);
     int v7 = v5 >> 1;
-    blocks_layer2_tiles_to_upload_buffer[v7] = R3_W | *(uint16 *)IndirPtr(&r10, 0);
-    blocks_layer2_tiles_to_upload_buffer[v7 + 1] = R3_W | *(uint16 *)IndirPtr(&r10, 2);
-    blocks_layer2_tiles_to_upload_buffer[v7 + 64] = R3_W | *(uint16 *)IndirPtr(&r10, 4);
-    blocks_layer2_tiles_to_upload_buffer[v7 + 65] = R3_W | *(uint16 *)IndirPtr(&r10, 6);
+    blocks_layer2_tiles_to_upload_buffer[v7] = R3_W | WORD(r10[0]);
+    blocks_layer2_tiles_to_upload_buffer[v7 + 1] = R3_W | WORD(r10[2]);
+    blocks_layer2_tiles_to_upload_buffer[v7 + 64] = R3_W | WORD(r10[4]);
+    blocks_layer2_tiles_to_upload_buffer[v7 + 65] = R3_W | WORD(r10[6]);
     v5 += 4;
     r8 += 16;
   } while (r8 < 0x1B0);
@@ -739,8 +739,8 @@ void BufferScrollingTiles_Layer2_VerticalLevel() {  // 058c71
     v2 = 0x1000;
   uint16 R3_W = v2;
 
-  LongPtr r10 = { .addr = kLevelDataLayoutTables_Layer2LoPtrs[misc_level_mode_setting] };
-  LongPtr r13 = { .addr = kLevelDataLayoutTables_Layer2HiPtrs[misc_level_mode_setting] };
+  const uint8 *r10 = RomPtr_00(kLevelDataLayoutTables_Layer2LoPtrs[misc_level_mode_setting]);
+  const uint8 *r13 = RomPtr_00(kLevelDataLayoutTables_Layer2HiPtrs[misc_level_mode_setting]);
 
   uint16 v1 = camera_layer2_scrolling_direction;
   uint8 v3 = 48;
@@ -750,22 +750,22 @@ void BufferScrollingTiles_Layer2_VerticalLevel() {  // 058c71
   HIBYTE(blocks_layer2_vramupload_address) = (*((uint8 *)&camera_layer2_row_column_to_update_left_up + v1) & 3) << 6;
   uint16 R0_W = (uint16)(*(uint16 *)((int8 *)&camera_layer2_row_column_to_update_left_up + v1) & 0x1F0) >> 4;
   uint16 v4 = (R0_W < max_n) ? 3 * R0_W : 0;
-  ptr_lo_map16_data = *(LongPtr *)IndirPtr(&r10, v4);
-  ptr_hi_map16_data = *(LongPtr *)IndirPtr(&r13, v4);
-  r10.bank = sign8(misc_level_tileset_setting - 16) ? 13 : 5;
+  const uint8 *plo = IndirPtr((LongPtr *)(r10 + v4), 0);
+  const uint8 *phi = IndirPtr((LongPtr *)(r13 + v4), 0);
+  uint8 bank = sign8(misc_level_tileset_setting - 16) ? 13 : 5;
   uint16 r8 = 16 * (*((uint8 *)&camera_layer2_row_column_to_update_left_up + v1) & 0xF);
   uint16 v6 = 0;
   do {
     uint16 v7 = r8;
-    R0_W = *IndirPtr(&ptr_lo_map16_data, r8) | *IndirPtr(&ptr_hi_map16_data, v7) << 8;
-    r10.addr = pointer_map16_tiles[R0_W];
+    R0_W = plo[r8] | phi[v7] << 8;
+    r10 = RomPtrWithBank(bank, pointer_map16_tiles[R0_W]);
     int v8 = v6 >> 1;
-    blocks_layer2_tiles_to_upload_buffer[v8] = R3_W | *(uint16 *)IndirPtr(&r10, 0);
-    blocks_layer2_tiles_to_upload_buffer[v8 + 64] = R3_W | *(uint16 *)IndirPtr(&r10, 2);
+    blocks_layer2_tiles_to_upload_buffer[v8] = R3_W | *(uint16 *)(r10);
+    blocks_layer2_tiles_to_upload_buffer[v8 + 64] = R3_W | *(uint16 *)(r10 + 2);
     uint16 v9 = v6 + 2;
     int v10 = v9 >> 1;
-    blocks_layer2_tiles_to_upload_buffer[v10] = R3_W | *(uint16 *)IndirPtr(&r10, 4);
-    blocks_layer2_tiles_to_upload_buffer[v10 + 64] = R3_W | *(uint16 *)IndirPtr(&r10, 6);
+    blocks_layer2_tiles_to_upload_buffer[v10] = R3_W | *(uint16 *)(r10 + 4);
+    blocks_layer2_tiles_to_upload_buffer[v10 + 64] = R3_W | *(uint16 *)(r10 + 6);
     v6 = v9 + 2;
     uint16 v11 = r8++;
     if ((r8 & 0xF) == 0)
@@ -779,30 +779,26 @@ void BufferScrollingTiles_Layer2_Background() {  // 058d7a
   if ((blocks_screen_to_place_current_object & 0x10) != 0)
     v0 = 52;
   LOBYTE(blocks_layer2_vramupload_address) = v0;
-  LongPtr phi, plo;
+  const uint8 *phi = g_ram + 0xbd00, *plo = g_ram + 0xb900;
 
-  plo.addr = 0xb900;
-  phi.addr = 0xbd00;
   if ((blocks_screen_to_place_current_object & 0xF0) != 0) {
-    plo.addr += 432;
-    phi.addr += 432;
+    plo += 432;
+    phi += 432;
   }
-  plo.bank = 126;
-  phi.bank = 126;
-  LongPtr r10 = LONGPTR(0xd9100);
+  const uint8 *r10 = RomPtr(0xd9100);
   uint16 r8 = blocks_screen_to_place_current_object & 0xF;
   uint16 v1 = 0;
   do {
     uint16 v2 = r8;
-    uint16 R0_W = *IndirPtr(&plo, r8) | *IndirPtr(&phi, v2) << 8;
+    uint16 R0_W = plo[r8] | phi[v2] << 8;
     uint16 v3 = 8 * R0_W;
     int v4 = v1 >> 1;
-    blocks_layer2_tiles_to_upload_buffer[v4] = *(uint16 *)IndirPtr(&r10, v3);
+    blocks_layer2_tiles_to_upload_buffer[v4] = *(uint16 *)(r10 + v3);
     v3 += 2;
-    blocks_layer2_tiles_to_upload_buffer[v4 + 1] = *(uint16 *)IndirPtr(&r10, v3);
+    blocks_layer2_tiles_to_upload_buffer[v4 + 1] = *(uint16 *)(r10 + v3);
     v3 += 2;
-    blocks_layer2_tiles_to_upload_buffer[v4 + 64] = *(uint16 *)IndirPtr(&r10, v3);
-    blocks_layer2_tiles_to_upload_buffer[v4 + 65] = *(uint16 *)IndirPtr(&r10, v3 + 2);
+    blocks_layer2_tiles_to_upload_buffer[v4 + 64] = *(uint16 *)(r10 + v3);
+    blocks_layer2_tiles_to_upload_buffer[v4 + 65] = *(uint16 *)(r10 + v3 + 2);
     v1 += 4;
     r8 += 16;
   } while (r8 < 0x1B0);
@@ -2161,11 +2157,11 @@ void SpecifySublevelToLoad() {  // 05d796
   ptr_layer1_data = kSpecifySublevelToLoad_Layer1DataPtrs[r14w];
   ptr_layer2_data = kSpecifySublevelToLoad_Layer2DataPtrs[r14w];
   HIBYTE(v5) = 0;
-  LOBYTE(ptr_sprite_list_data) = *((uint8 *)kSpecifySublevelToLoad_SpriteDataPtrs + (uint16)(2 * r14w));
-  HIBYTE(ptr_sprite_list_data) = *((uint8 *)kSpecifySublevelToLoad_SpriteDataPtrs + (uint16)(2 * r14w) + 1);
+  ptr_sprite_list_data.addr = kSpecifySublevelToLoad_SpriteDataPtrs[r14w];
   ptr_sprite_list_data.bank = 7;
-  sprites_sprite_memory_setting = *IndirPtr(&ptr_sprite_list_data, 0) & 0x3F;
-  sprites_sprite_buoyancy_settings = *IndirPtr(&ptr_sprite_list_data, 0) & 0xC0;
+  uint8 sprite_hdr = *IndirPtr(&ptr_sprite_list_data, 0);
+  sprites_sprite_memory_setting = sprite_hdr & 0x3F;
+  sprites_sprite_buoyancy_settings = sprite_hdr & 0xC0;
   uint8 v6 = kSpecifySublevelToLoad_DATA_05F000[r14w] >> 4;
   flag_layer2_horiz_scroll_level_setting = kSpecifySublevelToLoad_L2HorzScrollSettings[v6];
   flag_layer2_vert_scroll_level_setting = kSpecifySublevelToLoad_L2VertScrollSettings[v6];
@@ -2215,7 +2211,7 @@ void SpecifySublevelToLoad() {  // 05d796
   uint8 v11;
   if (ow_level_number_lo < 0x52) {
     v11 = 4;
-    int8 v12 = *IndirPtr(&ptr_layer1_data, 4) & 0xF;
+    uint8 v12 = *IndirPtr(&ptr_layer1_data, 4) & 0xF;
     while (v12 != kSpecifySublevelToLoad_LevelEntranceTileset[v11]) {
       if ((--v11 & 0x80) != 0)
         goto LABEL_47;
@@ -2237,8 +2233,9 @@ void SpecifySublevelToLoad() {  // 05d796
       misc_level_header_entrance_settings = 0;
       ptr_sprite_list_data.addr = 0xc3ee;
       ptr_sprite_list_data.bank = 7;
-      sprites_sprite_memory_setting = *IndirPtr(&ptr_sprite_list_data, 0) & 0x3F;
-      sprites_sprite_buoyancy_settings = *IndirPtr(&ptr_sprite_list_data, 0) & 0xC0;
+      uint8 sprite_hdr = *IndirPtr(&ptr_sprite_list_data, 0);
+      sprites_sprite_memory_setting = sprite_hdr & 0x3F;
+      sprites_sprite_buoyancy_settings = sprite_hdr & 0xC0;
       flag_layer2_horiz_scroll_level_setting = 0;
       flag_layer2_vert_scroll_level_setting = 0;
       flag_layer1_horiz_scroll_level_setting = 0;
@@ -2286,8 +2283,11 @@ void SpecifySublevelToLoad_HandleChocolateIsland2Gimmick() {  // 05daef
   ptr_layer1_data.addr = kSpecifySublevelToLoad_Layer1Ptrs[v3];
   ptr_sprite_list_data.addr = kSpecifySublevelToLoad_SpritePtrs[v3];
   ptr_layer2_data.addr = kSpecifySublevelToLoad_Layer2Ptrs[v3];
-  sprites_sprite_memory_setting = *IndirPtr(&ptr_sprite_list_data, 0) & 0x7F;
-  sprites_sprite_buoyancy_settings = *IndirPtr(&ptr_sprite_list_data, 0) & 0x80;
+
+  uint8 sprite_hdr = *IndirPtr(&ptr_sprite_list_data, 0);
+
+  sprites_sprite_memory_setting = sprite_hdr & 0x7F;
+  sprites_sprite_buoyancy_settings = sprite_hdr & 0x80;
 }
 
 void SpecifySublevelToLoad_05DBAC() {  // 05dbac

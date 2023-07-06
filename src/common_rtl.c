@@ -533,6 +533,15 @@ uint8 *RomPtr(uint32_t addr) {
   return (uint8 *)&g_rom[(((addr >> 16) << 15) | (addr & 0x7fff)) & 0x3fffff];
 }
 
+const uint8 *RomPtrWithBank2(uint8 bank, uint16_t addr) {
+  if (bank >= 0x7e)
+    return g_ram + ((bank - 0x7e) << 16) + addr;
+  else if (addr & 0x8000)
+    return RomPtr(bank << 16 | addr);
+  assert(addr < 0x2000);
+  return &g_ram[addr];
+}
+
 void WriteReg(uint16 reg, uint8 value) {
   snes_write(g_snes, reg, value);
 }

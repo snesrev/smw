@@ -4107,13 +4107,13 @@ void InitializeMode7TilemapsAndPalettes(uint8 k) {  // 03dd7d
   uint8 v1 = kInitializeMode7TilemapsAndPalettes_GFXFile[misc_currently_active_boss];
   uint16 r0w = kInitializeMode7TilemapsAndPalettes_PalPtrLo[misc_currently_active_boss] |
       kInitializeMode7TilemapsAndPalettes_PalPtrHi[misc_currently_active_boss] << 8;
-  LongPtr p0 = { .bank = 0, .addr = r0w };
+  const uint8 *p0 = RomPtr_00(r0w);
   for (uint8 i = 11; (i & 0x80) == 0; --i)
-    *((uint8 *)&palettes_palette_mirror[2] + i) = *IndirPtr(&p0, i);
+    *((uint8 *)&palettes_palette_mirror[2] + i) = p0[i];
   WriteReg(VMAIN, 0x80);
   WriteRegWord(VMADDL, 0);
   if (v1) {
-    LongPtr pp = GraphicsDecompressionRoutines(v1);
+    const uint8 *pp = GraphicsDecompressionRoutines(v1);
     uint8 r3 = 0x80;
     do {
       pp = InitializeMode7TilemapsAndPalettes_BufferTilemap(pp);
@@ -4124,7 +4124,7 @@ void InitializeMode7TilemapsAndPalettes(uint8 k) {  // 03dd7d
     misc_mode7_boss_tilemap[(uint8)j] = -1;
 }
 
-LongPtr InitializeMode7TilemapsAndPalettes_BufferTilemap(LongPtr p0) {  // 03dde5
+const uint8 *InitializeMode7TilemapsAndPalettes_BufferTilemap(const uint8 *p0) {  // 03dde5
   uint8 v3;
   uint8 v8;
   uint8 v9;
@@ -4179,17 +4179,17 @@ LongPtr InitializeMode7TilemapsAndPalettes_BufferTilemap(LongPtr p0) {  // 03dde
       --n;
     } while (n);
   }
-  p0.addr += 24;
+  p0 += 24;
   return p0;
 }
 
-uint8 InitializeMode7TilemapsAndPalettes_03DE39(uint8 k, uint8 j, LongPtr p0) {  // 03de39
+uint8 InitializeMode7TilemapsAndPalettes_03DE39(uint8 k, uint8 j, const uint8 *p0) {  // 03de39
   uint8 v2 = InitializeMode7TilemapsAndPalettes_03DE3C(k, j, p0);
   return InitializeMode7TilemapsAndPalettes_03DE3C(k, v2, p0);
 }
 
-uint8 InitializeMode7TilemapsAndPalettes_03DE3C(uint8 k, uint8 j, LongPtr p0) {  // 03de3c
-  uint8 v2 = *IndirPtr(&p0, j);
+uint8 InitializeMode7TilemapsAndPalettes_03DE3C(uint8 k, uint8 j, const uint8 *p0) {  // 03de3c
+  uint8 v2 = p0[j];
   int8 v3 = 8;
   do {
     bool v4 = __CFSHL__(v2, 1);

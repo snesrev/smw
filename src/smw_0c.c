@@ -94,16 +94,15 @@ void GameMode21_DelayEnemyRollcall_Bank03() {  // 0c93ad
 void BufferCreditsBackgrounds() {  // 0c93dd
   *(uint16 *)&blocks_screen_to_place_current_object = 0;
   do {
-    int v0 = (uint16)(2 * blocks_screen_to_place_current_object) >> 1;
-    ptr_layer2_data.addr = kBufferCreditsBackgrounds_Layer2Pointers[v0];
+    int v0 = blocks_screen_to_place_current_object;
+    uint16 ptr_layer2_data_addr = kBufferCreditsBackgrounds_Layer2Pointers[v0];
     uint16 modifier = kBufferCreditsBackgrounds_TilePageModifier[v0];
-    bool v1 = ptr_layer2_data.addr >= 0xE8FE;
+    bool v1 = ptr_layer2_data_addr >= 0xE8FE;
     for (uint16 i = 0; i != 512; ++i) {
       blocks_layer2_tiles_hi[i] = v1;
       blocks_layer2_tiles_hi[i + 512] = v1;
     }
-    ptr_layer2_data.bank = 12;
-    BufferCreditsBackgrounds_0C944C(0xb900);
+    BufferCreditsBackgrounds_0C944C(0xb900, RomPtr_0C(ptr_layer2_data_addr));
     BufferCreditsBackgrounds_0C94C0(modifier);
     ++*(uint16 *)&blocks_screen_to_place_current_object;
   } while (*(uint16 *)&blocks_screen_to_place_current_object != 7);
@@ -115,19 +114,19 @@ void BufferCreditsBackgrounds() {  // 0c93dd
   io_music_ch1 = 9;
 }
 
-void BufferCreditsBackgrounds_0C944C(uint16 r13w) {  // 0c944c
+void BufferCreditsBackgrounds_0C944C(uint16 r13w, const uint8 *src) {  // 0c944c
   uint16 R3 = 0;
   uint16 R5 = 0;
   uint8 *wp = g_ram + r13w;
   do {
     int16 v0 = R3;
-    uint8 r7 = *IndirPtr(&ptr_layer2_data, R3);
+    uint8 r7 = src[R3];
     uint16 v1 = v0 + 1;
     R3 = v1;
     if ((r7 & 0x80) == 0) {
       do {
         int16 v4 = R3;
-        uint8 v5 = *IndirPtr(&ptr_layer2_data, R3);
+        uint8 v5 = src[R3];
         R3 = v4 + 1;
         int16 v6 = R5;
         wp[R5] = v5;
@@ -135,7 +134,7 @@ void BufferCreditsBackgrounds_0C944C(uint16 r13w) {  // 0c944c
       } while ((--r7 & 0x80) == 0);
     } else {
       r7 &= ~0x80;
-      uint8 v2 = *IndirPtr(&ptr_layer2_data, v1);
+      uint8 v2 = src[v1];
       R3 = v1 + 1;
       uint16 v3 = R5;
       do {
@@ -143,7 +142,7 @@ void BufferCreditsBackgrounds_0C944C(uint16 r13w) {  // 0c944c
       } while ((--r7 & 0x80) == 0);
       R5 = v3;
     }
-  } while (*IndirPtr(&ptr_layer2_data, R3) != 0xFF || *IndirPtr(&ptr_layer2_data, R3 + 1) != 0xFF);
+  } while (src[R3] != 0xFF || src[R3 + 1] != 0xFF);
   uint16 r0w = 0x9100;
   for (uint16 i = 0; i != 0x400; i += 2) {
     pointer_map16_tiles[i >> 1] = r0w;
@@ -152,21 +151,21 @@ void BufferCreditsBackgrounds_0C944C(uint16 r13w) {  // 0c944c
 }
 
 void BufferCreditsBackgrounds_0C94C0(uint16 mask) {  // 0c94c0
-  LongPtr p_lo = { .addr = 0x7e, .addr = 0xb900 };
-  LongPtr p_hi = { .addr = 0x7e, .addr = 0xbd00 };
+  const uint8 *p_lo = g_ram + 0xb900;
+  const uint8 *p_hi = g_ram + 0xbd00;
 
   uint16 r4w = 240;
   uint16 r0w = blocks_screen_to_place_current_object << 8;
   uint16 r8w = 127;
   while (1) {
     do {
-      uint16 r2w = *IndirPtr(&p_lo, r4w) | *IndirPtr(&p_hi, r4w) << 8;
-      LongPtr p2 = { .bank = 13, .addr = pointer_map16_tiles[(uint16)(2 * r2w) >> 1] };
+      uint16 r2w = p_lo[r4w] | p_hi[r4w] << 8;
+      const uint8 *p2 = RomPtr_0D(pointer_map16_tiles[r2w]);
       uint16 v2 = (4 * r0w) & 0x3F | (2 * ((4 * r0w) & 0xFFC0));
-      *(uint16 *)&ow_layer2_tiles[v2] = mask & *(uint16 *)IndirPtr(&p2, 0);
-      *(uint16 *)&ow_layer2_tiles[v2 + 64] = mask & *(uint16 *)IndirPtr(&p2, 2);
-      *(uint16 *)&ow_layer2_tiles[v2 + 2] = mask & *(uint16 *)IndirPtr(&p2, 4);
-      *(uint16 *)&ow_layer2_tiles[v2 + 66] = mask & *(uint16 *)IndirPtr(&p2, 6);
+      *(uint16 *)&ow_layer2_tiles[v2] = mask & WORD(p2[0]);
+      *(uint16 *)&ow_layer2_tiles[v2 + 64] = mask & WORD(p2[2]);
+      *(uint16 *)&ow_layer2_tiles[v2 + 2] = mask & WORD(p2[4]);
+      *(uint16 *)&ow_layer2_tiles[v2 + 66] = mask & WORD(p2[6]);
       ++r0w;
       ++r4w;
       --r8w;
@@ -913,15 +912,15 @@ void CreditsFadeOut_0CABB2() {  // 0cabb2
   palettes_dynamic_palette_colors[13] = 18;
   palettes_background_color = kGlobalPalettes_Sky[kCreditsFadeOut_SkyColorSetting[blocks_screen_to_place_current_object] & 0xF];
   uint16 r0w = kCreditsFadeOut_BGPaletteIndex[kCreditsFadeOut_BGPaletteSetting[blocks_screen_to_place_current_object] & 0xF] + 0xb0b0;
-  LongPtr p0 = { .bank = 0, .addr = r0w };
+  const uint8 *p0 = RomPtr_00(r0w);
   uint16 r4w = 0;
   uint16 n = 1;
   uint16 v0;
   do {
     v0 = r4w;
     for (int16 i = 5; i >= 0; --i) {
-      *(uint16 *)&palettes_dynamic_palette_colors[v0] = *(uint16 *)IndirPtr(&p0, 0);
-      p0.addr += 2;
+      *(uint16 *)&palettes_dynamic_palette_colors[v0] = WORD(p0[0]);
+      p0 += 2;
       v0 += 2;
     }
     r4w += 14;
@@ -945,12 +944,12 @@ void InitializeEnemyRollcallLayerPositions() {  // 0cadf6
   LoadStripeImage();
   if ((ow_level_tile_settings[73] & 0x80) != 0) {
     uint16 r0w = kInitializeEnemyRollcallLayerPositions_SpecialWorldEnemyNamePtrs[counter_enemy_rollcall_screen];
-    LongPtr p0 = { .bank = 0xd, .addr = r0w };
+    const uint8 *p0 = RomPtr_0D(r0w);
     uint8 v0 = 0;
     uint8 v1 = stripe_image_upload;
     uint16 v3;
     do {
-      uint8 *v2 = IndirPtr(&p0, v0);
+      const uint8 *v2 = &p0[v0];
       v3 = *(uint16 *)v2;
       *(uint16 *)&stripe_image_upload_data[v1] = *(uint16 *)v2;
       v0 += 2;

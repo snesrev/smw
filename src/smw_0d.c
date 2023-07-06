@@ -692,7 +692,7 @@ void ExtObjXX_Generic1TileObject_0DA57F(uint8 k, uint8 a) {  // 0da57f
       r12 = 50;
     }
   }
-  IndirWriteByte(&ptr_lo_map16_data, v4, r12);
+  SetMap16LowByte(v4, r12);
 }
 
 void ExtObjXX_Generic1TileObject_GreenStarBlockEntry(uint8 k) {  // 0da64d
@@ -704,16 +704,16 @@ void ExtObj42_TopLeftSlope(uint8 k) {  // 0da656
   uint8 v2 = k - 66;
   SetMap16HighByteForCurrentObject_Page01(blocks_sub_scr_pos);
   uint8 v3 = HandleHorizontalSubScreenCrossingForCurrentObject(v1, kExtObj42_TopLeftSlope_LeftTiles[v2]);
-  IndirWriteByte(&ptr_lo_map16_data, v3, kExtObj42_TopLeftSlope_RightTiles[v2]);
+  SetMap16LowByte(v3, kExtObj42_TopLeftSlope_RightTiles[v2]);
   SetMap16HighByteForCurrentObject_Page01(v3);
 }
 
 void ExtObjXX_PurpleTriangle(uint8 k) {  // 0da673
   uint8 v1 = blocks_sub_scr_pos;
-  IndirWriteByte(&ptr_lo_map16_data, blocks_sub_scr_pos, kExtObjXX_PurpleTriangle_TriangleTiles[(uint8)(k - 68)]);
+  SetMap16LowByte(blocks_sub_scr_pos, kExtObjXX_PurpleTriangle_TriangleTiles[(uint8)(k - 68)]);
   SetMap16HighByteForCurrentObject_Page01(v1);
   uint8 v2 = HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel();
-  IndirWriteByte(&ptr_lo_map16_data, v2, 0xEB);
+  SetMap16LowByte(v2, 0xEB);
   SetMap16HighByteForCurrentObject_Page01(v2);
 }
 
@@ -723,7 +723,7 @@ void ExtObj46_MidwayBar(uint8 k) {  // 0da68e
     SetMap16HighByteForCurrentObject_Page00(blocks_sub_scr_pos - 1);
     uint8 v2 = HandleHorizontalSubScreenCrossingForCurrentObject(v1, 0x35);
     SetMap16HighByteForCurrentObject_Page00(v2);
-    IndirWriteByte(&ptr_lo_map16_data, v2, 0x38);
+    SetMap16LowByte(v2, 0x38);
   }
 }
 
@@ -740,10 +740,10 @@ void ExtObj47_Door(uint8 k) {  // 0da6d1
   uint8 v1 = blocks_sub_scr_pos;
   uint8 v2 = k - 71;
   SetMap16HighByteForCurrentObject_Page00(blocks_sub_scr_pos);
-  IndirWriteByte(&ptr_lo_map16_data, v1, kExtObj47_Door_TopTiles[v2]);
+  SetMap16LowByte(v1, kExtObj47_Door_TopTiles[v2]);
   uint8 v3 = HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel();
   SetMap16HighByteForCurrentObject_Page00(v3);
-  IndirWriteByte(&ptr_lo_map16_data, v3, kExtObj47_Door_BottomTiles[v2]);
+  SetMap16LowByte(v3, kExtObj47_Door_BottomTiles[v2]);
 }
 
 void ExtObjXX_LargeBush_BigBushEntry(uint8 k) {  // 0da71b
@@ -833,10 +833,10 @@ void ExtObj91_VerticalLevelSteepLeftSlope(uint8 k) {  // 0da80d
   uint8 v1 = blocks_sub_scr_pos;
   uint8 v2 = k + 111;
   SetMap16HighByteForCurrentObject_Page01(blocks_sub_scr_pos);
-  IndirWriteByte(&ptr_lo_map16_data, v1, kExtObj91_VerticalLevelSteepLeftSlope_TopTiles[v2]);
+  SetMap16LowByte(v1, kExtObj91_VerticalLevelSteepLeftSlope_TopTiles[v2]);
   uint8 v3 = HandleVerticalSubScreenCrossingForCurrentObject_VerticalLevel();
   SetMap16HighByteForCurrentObject_Page01(v3);
-  IndirWriteByte(&ptr_lo_map16_data, v3, kExtObj91_VerticalLevelSteepLeftSlope_BottomTiles[v2]);
+  SetMap16LowByte(v3, kExtObj91_VerticalLevelSteepLeftSlope_BottomTiles[v2]);
 }
 
 uint8 HandleVerticalSubScreenCrossingForCurrentObject_VerticalLevel() {  // 0da82a
@@ -853,25 +853,25 @@ void ExtObj93_VerticalLevelNormalLeftSlope(uint8 k) {  // 0da846
   SetMap16HighByteForCurrentObject_Page01(blocks_sub_scr_pos);
   uint8 v3 = HandleHorizontalSubScreenCrossingForCurrentObject(v1, kExtObj93_VerticalLevelNormalLeftSlope_TopLeftTiles[v2]);
   SetMap16HighByteForCurrentObject_Page01(v3);
-  IndirWriteByte(&ptr_lo_map16_data, v3, kExtObj93_VerticalLevelNormalLeftSlope_TopRightTiles[v2]);
+  SetMap16LowByte(v3, kExtObj93_VerticalLevelNormalLeftSlope_TopRightTiles[v2]);
   uint8 v4 = HandleVerticalSubScreenCrossingForCurrentObject_VerticalLevel();
   SetMap16HighByteForCurrentObject_Page01(v4);
   uint8 v5 = HandleHorizontalSubScreenCrossingForCurrentObject(v4, kExtObj93_VerticalLevelNormalLeftSlope_BottomLeftTiles[v2]);
   SetMap16HighByteForCurrentObject_Page01(v5);
-  IndirWriteByte(&ptr_lo_map16_data, v5, kExtObj93_VerticalLevelNormalLeftSlope_BottomRightTiles[v2]);
+  SetMap16LowByte(v5, kExtObj93_VerticalLevelNormalLeftSlope_BottomRightTiles[v2]);
 }
 
 void ExtObj95_VerticalLevelVerySteepLeftSlope(uint8 k) {  // 0da87d
   uint8 v1 = blocks_sub_scr_pos;
   uint8 v2 = k + 107;
   SetMap16HighByteForCurrentObject_Page01(blocks_sub_scr_pos);
-  IndirWriteByte(&ptr_lo_map16_data, v1, kExtObj95_VerticalLevelVerySteepLeftSlope_TopTiles[v2]);
+  SetMap16LowByte(v1, kExtObj95_VerticalLevelVerySteepLeftSlope_TopTiles[v2]);
   uint8 v3 = HandleVerticalSubScreenCrossingForCurrentObject_VerticalLevel();
   SetMap16HighByteForCurrentObject_Page01(v3);
-  IndirWriteByte(&ptr_lo_map16_data, v3, kExtObj95_VerticalLevelVerySteepLeftSlope_MiddleTiles[v2]);
+  SetMap16LowByte(v3, kExtObj95_VerticalLevelVerySteepLeftSlope_MiddleTiles[v2]);
   uint8 v4 = HandleVerticalSubScreenCrossingForCurrentObject_VerticalLevel();
   SetMap16HighByteForCurrentObject_Page01(v4);
-  IndirWriteByte(&ptr_lo_map16_data, v4, kExtObj95_VerticalLevelVerySteepLeftSlope_BottomTiles[v2]);
+  SetMap16LowByte(v4, kExtObj95_VerticalLevelVerySteepLeftSlope_BottomTiles[v2]);
 }
 
 void StdObj05_Coins(uint8 k) {  // 0da8c3
@@ -912,7 +912,7 @@ LABEL_9:;
 }
 
 uint8 HandleHorizontalSubScreenCrossingForCurrentObject(uint8 j, uint8 a) {  // 0da95b
-  IndirWriteByte(&ptr_lo_map16_data, j, a);
+  SetMap16LowByte(j, a);
   return HandleHorizontalSubScreenCrossingForCurrentObject_Entry2(j);
 }
 
@@ -991,6 +991,10 @@ void SetMap16HighByteForCurrentObject_Page00(uint8 j) {  // 0daa0d
   IndirWriteByte(&ptr_hi_map16_data, j, 0);
 }
 
+void SetMap16LowByte(uint16 j, uint8 a) {
+  IndirWriteByte(&ptr_lo_map16_data, j, a);
+}
+
 void StdObj0F_VerticalPipes(uint8 k) {  // 0daa26
   uint8 v1 = blocks_sub_scr_pos;
   uint8 r0 = blocks_size_or_type >> 4;
@@ -1001,7 +1005,7 @@ void StdObj0F_VerticalPipes(uint8 k) {  // 0daa26
   SetMap16HighByteForCurrentObject_Page01(v1);
   uint8 v3 = HandleHorizontalSubScreenCrossingForCurrentObject(v1, kStdObj0F_VerticalPipes_TopLeftPipeEndTiles[v2]);
   SetMap16HighByteForCurrentObject_Page01(v3);
-  IndirWriteByte(&ptr_lo_map16_data, v3, kStdObj0F_VerticalPipes_TopRightPipeEndTiles[v2]);
+  SetMap16LowByte(v3, kStdObj0F_VerticalPipes_TopRightPipeEndTiles[v2]);
   while (1) {
     RestoreLevelDataPointerInObjects();
     v1 = HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel();
@@ -1014,13 +1018,13 @@ LABEL_3:
       SetMap16HighByteForCurrentObject_Page01(v1);
       uint8 v4 = HandleHorizontalSubScreenCrossingForCurrentObject(v1, 0x68);
       SetMap16HighByteForCurrentObject_Page01(v4);
-      IndirWriteByte(&ptr_lo_map16_data, v4, 0x69);
+      SetMap16LowByte(v4, 0x69);
     } else {
 LABEL_5:
       SetMap16HighByteForCurrentObject_Page01(v1);
       uint8 v5 = HandleHorizontalSubScreenCrossingForCurrentObject(v1, 0x35);
       SetMap16HighByteForCurrentObject_Page01(v5);
-      IndirWriteByte(&ptr_lo_map16_data, v5, 0x36);
+      SetMap16LowByte(v5, 0x36);
     }
   }
   if (--r0)
@@ -1028,7 +1032,7 @@ LABEL_5:
   SetMap16HighByteForCurrentObject_Page01(v1);
   uint8 v6 = HandleHorizontalSubScreenCrossingForCurrentObject(v1, kStdObj0F_VerticalPipes_BottomLeftPipeEndTiles[v2]);
   SetMap16HighByteForCurrentObject_Page01(v6);
-  IndirWriteByte(&ptr_lo_map16_data, v6, kStdObj0F_VerticalPipes_BottomRightPipeEndTiles[v2]);
+  SetMap16LowByte(v6, kStdObj0F_VerticalPipes_BottomRightPipeEndTiles[v2]);
 }
 
 void StdObj10_HorizontalPipes(uint8 k) {  // 0daab4
@@ -1054,7 +1058,7 @@ LABEL_5:
     }
     if (!--r1) {
       SetMap16HighByteForCurrentObject_Page01(v1);
-      IndirWriteByte(&ptr_lo_map16_data, v1, kStdObj10_HorizontalPipes_EndTiles[v2]);
+      SetMap16LowByte(v1, kStdObj10_HorizontalPipes_EndTiles[v2]);
 LABEL_10:
       r1 = r0;
       RestoreLevelDataPointerInObjects();
@@ -1069,16 +1073,16 @@ void StdObj11_BulletShooter(uint8 k) {  // 0dab0d
   uint8 v1 = blocks_sub_scr_pos;
   int8 v2 = blocks_size_or_type >> 4;
   SetMap16HighByteForCurrentObject_Page01(blocks_sub_scr_pos);
-  IndirWriteByte(&ptr_lo_map16_data, v1, 0x41);
+  SetMap16LowByte(v1, 0x41);
   uint8 v3 = HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel();
   int8 v4 = v2 - 1;
   if (v4 >= 0) {
     SetMap16HighByteForCurrentObject_Page01(v3);
-    IndirWriteByte(&ptr_lo_map16_data, v3, 0x42);
+    SetMap16LowByte(v3, 0x42);
     uint8 v5 = HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel();
     for (int8 i = v4 - 1; i >= 0; --i) {
       SetMap16HighByteForCurrentObject_Page01(v5);
-      IndirWriteByte(&ptr_lo_map16_data, v5, 0x43);
+      SetMap16LowByte(v5, 0x43);
       v5 = HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel();
     }
   }
@@ -1504,14 +1508,14 @@ void StdObj13_GroundEdgesAndVine(uint8 k) {  // 0db075
   if ((int8)(v2 - 3) >= 0)
     SetMap16HighByteForCurrentObject_Page01(v1);
   uint8 v3 = StdObj13_GroundEdgesAndVine_0DB114(v2, v1, kStdObj13_GroundEdgesAndVine_TopTiles[v2]);
-  IndirWriteByte(&ptr_lo_map16_data, v1, v3);
+  SetMap16LowByte(v1, v3);
   uint8 v4 = HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel();
   if ((--r0 & 0x80) == 0) {
     SetMap16HighByteForCurrentObject_Page00(v4);
     if ((int8)(v2 - 9) >= 0 || (int8)(v2 - 7) < 0 && (int8)(v2 - 3) >= 0)
       SetMap16HighByteForCurrentObject_Page01(v4);
     uint8 v5 = StdObj13_GroundEdgesAndVine_0DB198(v2, v4, kStdObj13_GroundEdgesAndVine_MiddleTiles1[v2]);
-    IndirWriteByte(&ptr_lo_map16_data, v4, v5);
+    SetMap16LowByte(v4, v5);
     v4 = HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel();
     if ((--r0 & 0x80) == 0) {
       do {
@@ -1519,7 +1523,7 @@ void StdObj13_GroundEdgesAndVine(uint8 k) {  // 0db075
         if ((int8)(v2 - 9) >= 0 || (int8)(v2 - 7) < 0 && (int8)(v2 - 3) >= 0)
           SetMap16HighByteForCurrentObject_Page01(v4);
         uint8 v6 = StdObj13_GroundEdgesAndVine_0DB198(v2, v4, kStdObj13_GroundEdgesAndVine_MiddleTiles2[v2]);
-        IndirWriteByte(&ptr_lo_map16_data, v4, v6);
+        SetMap16LowByte(v4, v6);
         v4 = HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel();
         --r0;
       } while ((r0 & 0x80) == 0);
@@ -1527,7 +1531,7 @@ void StdObj13_GroundEdgesAndVine(uint8 k) {  // 0db075
   }
   if ((int8)(v2 - 11) >= 0) {
     SetMap16HighByteForCurrentObject_Page01(v4);
-    IndirWriteByte(&ptr_lo_map16_data, v4, kStdObj13_GroundEdgesAndVine_BottomTiles[v2]);
+    SetMap16LowByte(v4, kStdObj13_GroundEdgesAndVine_BottomTiles[v2]);
   }
 }
 
@@ -1607,7 +1611,7 @@ void StdObj15_MidwayAndGoalPoint(uint8 k) {  // 0db224
     if (r2)
       r3 = kStdObj15_MidwayAndGoalPoint_TopGoalTiles[i];
     SetMap16HighByteForCurrentObject_Page00(v1);
-    IndirWriteByte(&ptr_lo_map16_data, v1, r3);
+    SetMap16LowByte(v1, r3);
     if (v1 + 16 >= 256) {
       ptr_lo_map16_data.addr += 256;
       HIBYTE(ptr_hi_map16_data) = HIBYTE(ptr_lo_map16_data);
@@ -1619,7 +1623,7 @@ void StdObj15_MidwayAndGoalPoint(uint8 k) {  // 0db224
         if (r2)
           r3 = kStdObj15_MidwayAndGoalPoint_MiddleGoalTiles[i];
         SetMap16HighByteForCurrentObject_Page00(v4);
-        IndirWriteByte(&ptr_lo_map16_data, v4, r3);
+        SetMap16LowByte(v4, r3);
         if (v4 + 16 >= 256) {
           ptr_lo_map16_data.addr += 256;
           HIBYTE(ptr_hi_map16_data) = HIBYTE(ptr_lo_map16_data);
@@ -1631,7 +1635,7 @@ void StdObj15_MidwayAndGoalPoint(uint8 k) {  // 0db224
     if (r2)
       r3 = kStdObj15_MidwayAndGoalPoint_BottomGoalTiles[i];
     SetMap16HighByteForCurrentObject_Page00(v4);
-    IndirWriteByte(&ptr_lo_map16_data, v4, r3);
+    SetMap16LowByte(v4, r3);
     RestoreLevelDataPointerInObjects();
     v1 = blocks_sub_scr_pos + 1;
     if (((blocks_sub_scr_pos + 1) & 0xF) == 0) {
@@ -1654,10 +1658,10 @@ void ExtObj41_YoshiCoin(uint8 k) {  // 0db2ca
     if ((kBitTable_Bank0D[blocks_sub_scr_pos & 7] & RomPtr_RAM(r8)[r14]) == 0) {
       uint8 v2 = blocks_sub_scr_pos;
       SetMap16HighByteForCurrentObject_Page00(blocks_sub_scr_pos);
-      IndirWriteByte(&ptr_lo_map16_data, v2, 0x2D);
+      SetMap16LowByte(v2, 0x2D);
       uint8 v3 = HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel();
       SetMap16HighByteForCurrentObject_Page00(v3);
-      IndirWriteByte(&ptr_lo_map16_data, v3, 0x2E);
+      SetMap16LowByte(v3, 0x2E);
     }
   }
 }
@@ -1782,7 +1786,7 @@ void StdObj1E_ClimbingNetWithSideEdge(uint8 k) {  // 0db49e
     if (!--r0)
       break;
     SetMap16HighByteForCurrentObject_Page00(v1);
-    IndirWriteByte(&ptr_lo_map16_data, v1, kStdObj1E_ClimbingNetWithSideEdge_SideTiles[v2]);
+    SetMap16LowByte(v1, kStdObj1E_ClimbingNetWithSideEdge_SideTiles[v2]);
   }
   StdObj1E_ClimbingNetWithSideEdge_0DB4FE(v2, v1, kStdObj1E_ClimbingNetWithSideEdge_SideTiles[v2]);
 }
@@ -1795,7 +1799,7 @@ void StdObj1E_ClimbingNetWithSideEdge_0DB4D9(uint8 k, uint8 j, uint8 a) {  // 0d
     a = kStdObj1E_ClimbingNetWithSideEdge_TopInnerCornerTiles[k];
   }
   SetMap16HighByteForCurrentObject_Page00(j);
-  IndirWriteByte(&ptr_lo_map16_data, j, a);
+  SetMap16LowByte(j, a);
 }
 
 void StdObj1E_ClimbingNetWithSideEdge_0DB4FE(uint8 k, uint8 j, uint8 a) {  // 0db4fe
@@ -1806,7 +1810,7 @@ void StdObj1E_ClimbingNetWithSideEdge_0DB4FE(uint8 k, uint8 j, uint8 a) {  // 0d
     a = kStdObj1E_ClimbingNetWithSideEdge_BottomInnerCornerTiles[k];
   }
   SetMap16HighByteForCurrentObject_Page00(j);
-  IndirWriteByte(&ptr_lo_map16_data, j, a);
+  SetMap16LowByte(j, a);
 }
 
 void StdObj1F_SkinnyVerticalPipeBoneLog(uint8 k) {  // 0db51f
@@ -1814,14 +1818,14 @@ void StdObj1F_SkinnyVerticalPipeBoneLog(uint8 k) {  // 0db51f
   int8 v2 = (uint8)(blocks_size_or_type & 0xF0) >> 4;
   SetMap16HighByteForCurrentObject_Page01(blocks_sub_scr_pos);
   for (uint8 i = 83;; i = 84) {
-    IndirWriteByte(&ptr_lo_map16_data, v1, i);
+    SetMap16LowByte(v1, i);
     v1 = HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel();
     if (!--v2)
       break;
     SetMap16HighByteForCurrentObject_Page01(v1);
   }
   SetMap16HighByteForCurrentObject_Page01(v1);
-  IndirWriteByte(&ptr_lo_map16_data, v1, 0x55);
+  SetMap16LowByte(v1, 0x55);
 }
 
 void StdObj20_SkinnyHorizontalPipeBoneLog(uint8 k) {  // 0db547
@@ -1835,14 +1839,14 @@ void StdObj20_SkinnyHorizontalPipeBoneLog(uint8 k) {  // 0db547
     SetMap16HighByteForCurrentObject_Page01(v1);
   }
   SetMap16HighByteForCurrentObject_Page01(v1);
-  IndirWriteByte(&ptr_lo_map16_data, v1, 0x58);
+  SetMap16LowByte(v1, 0x58);
 }
 
 void ExtObj6B_CloudFringeBottomLeft(uint8 k) {  // 0db571
   uint8 v0 = blocks_sub_scr_pos;
   uint8 v1 = blocks_size_or_type - 104;
   SetMap16HighByteForCurrentObject_Page00(blocks_sub_scr_pos);
-  IndirWriteByte(&ptr_lo_map16_data, v0, kExtObj68_CloudFringeBottomAndRightEdge_Tiles[v1]);
+  SetMap16LowByte(v0, kExtObj68_CloudFringeBottomAndRightEdge_Tiles[v1]);
 }
 
 void ExtObj8E_YellowSwitchBlock(uint8 k) {  // 0db583
@@ -1857,10 +1861,10 @@ void ExtObj8E_YellowSwitchBlock_0DB58D(uint8 k) {  // 0db58d
   uint8 v1 = blocks_sub_scr_pos;
   if (flag_activated_switches[k]) {
     SetMap16HighByteForCurrentObject_Page01(blocks_sub_scr_pos);
-    IndirWriteByte(&ptr_lo_map16_data, v1, kExtObj8E_YellowSwitchBlock_ActiveTiles[k]);
+    SetMap16LowByte(v1, kExtObj8E_YellowSwitchBlock_ActiveTiles[k]);
   } else {
     SetMap16HighByteForCurrentObject_Page00(blocks_sub_scr_pos);
-    IndirWriteByte(&ptr_lo_map16_data, v1, kExtObj8E_YellowSwitchBlock_InactiveTiles[k]);
+    SetMap16LowByte(v1, kExtObj8E_YellowSwitchBlock_InactiveTiles[k]);
   }
 }
 
@@ -1876,7 +1880,7 @@ void GrassObj3F_SmallBushes(uint8 k) {  // 0db5b7
     SetMap16HighByteForCurrentObject_Page00(v1);
   }
   SetMap16HighByteForCurrentObject_Page00(v1);
-  IndirWriteByte(&ptr_lo_map16_data, v1, kGrassObj3F_SmallBushes_RightTiles[v2]);
+  SetMap16LowByte(v1, kGrassObj3F_SmallBushes_RightTiles[v2]);
 }
 
 void GrassObj3C_ArchLedge(uint8 k) {  // 0db604
@@ -1952,7 +1956,7 @@ void ExtObj89_LeftTreeBranch(uint8 k) {  // 0db6e3
   uint8 v0 = blocks_sub_scr_pos;
   uint8 v1 = blocks_size_or_type + 120;
   SetMap16HighByteForCurrentObject_Page00(blocks_sub_scr_pos);
-  IndirWriteByte(&ptr_lo_map16_data, v0, kExtObj88_RightTreeBranch_Tiles[v1]);
+  SetMap16LowByte(v0, kExtObj88_RightTreeBranch_Tiles[v1]);
 }
 
 void GrassObj3E_SideCloudFridges(uint8 k) {  // 0db705
@@ -1961,7 +1965,7 @@ void GrassObj3E_SideCloudFridges(uint8 k) {  // 0db705
   uint8 v2 = blocks_size_or_type & 0xF;
   SetMap16HighByteForCurrentObject_Page00(blocks_sub_scr_pos);
   for (uint8 i = kGrassObj3E_SideCloudFridges_TopTiles[v2];; i = kGrassObj3E_SideCloudFridges_BottomTiles[v2]) {
-    IndirWriteByte(&ptr_lo_map16_data, v1, i);
+    SetMap16LowByte(v1, i);
     v1 = HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel();
     if ((--r0 & 0x80) != 0)
       break;
@@ -2008,7 +2012,7 @@ void GrassObj39_RightFacingDiagonalPipe(uint8 k) {  // 0db73f
   }
   uint8 v3 = HandleHorizontalSubScreenCrossingForCurrentObject_Entry2(updated);
   SetMap16HighByteForCurrentObject_Page01(v3);
-  IndirWriteByte(&ptr_lo_map16_data, v3, 0xEB);
+  SetMap16LowByte(v3, 0xEB);
 }
 
 void GrassObjXX_DiagonalLedge_LeftFacingDiagonalLedgeEntry(uint8 k) {  // 0db7aa
@@ -2170,21 +2174,22 @@ void GrassObj37_SmallTreeTrunk(uint8 k) {  // 0db966
     if ((--r0 & 0x80) != 0)
       break;
     SetMap16HighByteForCurrentObject_Page00(v3);
-    IndirWriteByte(&ptr_lo_map16_data, v3, kGrassObj37_SmallTreeTrunk_BottomTiles[v2]);
+    SetMap16LowByte(v3, kGrassObj37_SmallTreeTrunk_BottomTiles[v2]);
     v1 = HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel();
   } while ((--r0 & 0x80) == 0);
 }
 
 void GrassObj37_SmallTreeTrunk_0DB997(uint8 k, uint8 j, uint8 a) {  // 0db997
+  uint8 *v3 = IndirPtr(&ptr_lo_map16_data, j);
+
   if (k == 1) {
-    uint8 v3 = *IndirPtr(&ptr_lo_map16_data, j);
-    if (v3 == 0xB1 || v3 == 0xB6)
-      a = v3 + 1;
-  } else if (*IndirPtr(&ptr_lo_map16_data, j) == 14) {
+    if (*v3 == 0xB1 || *v3 == 0xB6)
+      a = *v3 + 1;
+  } else if (*v3== 14) {
     SetMap16HighByteForCurrentObject_Page01(j);
     a = 13;
   }
-  IndirWriteByte(&ptr_lo_map16_data, j, a);
+  *v3 = a;
 }
 
 void GrassObj36_LargeTreeTrunk(uint8 k) {  // 0db9c0
@@ -2200,7 +2205,7 @@ void GrassObj36_LargeTreeTrunk(uint8 k) {  // 0db9c0
     SetMap16HighByteForCurrentObject_Page00(v2);
     uint8 v3 = HandleHorizontalSubScreenCrossingForCurrentObject(v2, 0xBB);
     SetMap16HighByteForCurrentObject_Page00(v3);
-    IndirWriteByte(&ptr_lo_map16_data, v3, 0xBC);
+    SetMap16LowByte(v3, 0xBC);
     RestoreLevelDataPointerInObjects();
     v1 = HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel();
     --r0;
@@ -2213,7 +2218,7 @@ void GrassObj36_LargeTreeTrunk_0DB9F6(uint8 k, uint8 j) {  // 0db9f6
     k = 11;
   }
   uint8 v2 = HandleHorizontalSubScreenCrossingForCurrentObject(j, k);
-  IndirWriteByte(&ptr_lo_map16_data, v2, k + 1);
+  SetMap16LowByte(v2, k + 1);
 }
 
 void GrassObj35_ForestGround(uint8 k) {  // 0dba0a
@@ -2246,14 +2251,14 @@ void GrassObj34_ForestGroundEdges(uint8 k) {  // 0dba4c
   uint8 v2 = blocks_size_or_type & 0xF;
   uint8 r0 = blocks_size_or_type >> 4;
   SetMap16HighByteForCurrentObject_Page01(blocks_sub_scr_pos);
-  IndirWriteByte(&ptr_lo_map16_data, v1, kGrassObj34_ForestGroundEdges_TopTiles[v2]);
+  SetMap16LowByte(v1, kGrassObj34_ForestGroundEdges_TopTiles[v2]);
   while (1) {
     uint8 v3 = HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel();
     if ((--r0 & 0x80) != 0)
       break;
     if ((int8)(v2 - 2) < 0)
       SetMap16HighByteForCurrentObject_Page01(v3);
-    IndirWriteByte(&ptr_lo_map16_data, v3, kGrassObj34_ForestGroundEdges_BottomTiles[v2]);
+    SetMap16LowByte(v3, kGrassObj34_ForestGroundEdges_BottomTiles[v2]);
   }
 }
 
@@ -2289,7 +2294,7 @@ void GrassObj30_IcyVerticalPipe(uint8 k) {  // 0dbb2c
   SetMap16HighByteForCurrentObject_Page01(v1);
   uint8 v3 = HandleHorizontalSubScreenCrossingForCurrentObject(v1, 0x61);
   SetMap16HighByteForCurrentObject_Page01(v3);
-  IndirWriteByte(&ptr_lo_map16_data, v3, 0x62);
+  SetMap16LowByte(v3, 0x62);
   while (1) {
     RestoreLevelDataPointerInObjects();
     uint8 v5 = HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel();
@@ -2298,7 +2303,7 @@ void GrassObj30_IcyVerticalPipe(uint8 k) {  // 0dbb2c
     SetMap16HighByteForCurrentObject_Page01(v5);
     uint8 v4 = HandleHorizontalSubScreenCrossingForCurrentObject(v5, 0x63);
     SetMap16HighByteForCurrentObject_Page01(v4);
-    IndirWriteByte(&ptr_lo_map16_data, v4, 0x64);
+    SetMap16LowByte(v4, 0x64);
   }
 }
 
@@ -2314,7 +2319,7 @@ void ExtObj4B_ConveyorEndTile1(uint8 k) {  // 0dc259
   uint8 v0 = blocks_sub_scr_pos;
   uint8 v1 = blocks_size_or_type - 75;
   SetMap16HighByteForCurrentObject_Page01(blocks_sub_scr_pos);
-  IndirWriteByte(&ptr_lo_map16_data, v0, kExtObj4B_ConveyorEndTile1_Tiles[v1]);
+  SetMap16LowByte(v0, kExtObj4B_ConveyorEndTile1_Tiles[v1]);
 }
 
 void ExtObj84_CastleEntrance(uint8 k) {  // 0dc2e9
@@ -2324,13 +2329,13 @@ void ExtObj84_CastleEntrance(uint8 k) {  // 0dc2e9
     do {
       SetMap16HighByteForCurrentObject_Page00(v0);
       if (kExtObj84_CastleEntrance_Tiles[i] != 37)
-        IndirWriteByte(&ptr_lo_map16_data, v0, kExtObj84_CastleEntrance_Tiles[i]);
+        SetMap16LowByte(v0, kExtObj84_CastleEntrance_Tiles[i]);
       v0 = HandleHorizontalSubScreenCrossingForCurrentObject_Entry2(v0);
       ++i;
       --r0;
     } while (r0);
     SetMap16HighByteForCurrentObject_Page00(v0);
-    IndirWriteByte(&ptr_lo_map16_data, v0, kExtObj84_CastleEntrance_Tiles[i]);
+    SetMap16LowByte(v0, kExtObj84_CastleEntrance_Tiles[i]);
     v0 = HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel();
   }
 }
@@ -2436,7 +2441,7 @@ void CastleObj3F_VerticalLineOfSpikes(uint8 k) {  // 0dc44f
   uint8 v2 = blocks_size_or_type & 0xF;
   do {
     SetMap16HighByteForCurrentObject_Page01(v1);
-    IndirWriteByte(&ptr_lo_map16_data, v1, kCastleObj3F_VerticalLineOfSpikes_Tiles[v2]);
+    SetMap16LowByte(v1, kCastleObj3F_VerticalLineOfSpikes_Tiles[v2]);
     v1 = HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel();
     --r0;
   } while ((r0 & 0x80) == 0);
@@ -2457,7 +2462,7 @@ void CastleObj3C_StoneBlock(uint8 k) {  // 0dc478
       SetMap16HighByteForCurrentObject_Page01(i);
     }
     SetMap16HighByteForCurrentObject_Page01(i);
-    IndirWriteByte(&ptr_lo_map16_data, i, kCastleObj3C_StoneBlock_RightTiles[v2]);
+    SetMap16LowByte(i, kCastleObj3C_StoneBlock_RightTiles[v2]);
     RestoreLevelDataPointerInObjects();
     v1 = HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel();
     v2 = 1;
@@ -2570,7 +2575,7 @@ void CastleObj34_VerticalDoubleEndedPipe(uint8 k) {  // 0dc5d8
   SetMap16HighByteForCurrentObject_Page01(v1);
   uint8 v2 = HandleHorizontalSubScreenCrossingForCurrentObject(v1, 0x33);
   SetMap16HighByteForCurrentObject_Page01(v2);
-  IndirWriteByte(&ptr_lo_map16_data, v2, 0x34);
+  SetMap16LowByte(v2, 0x34);
   uint8 v4;
   while (1) {
     RestoreLevelDataPointerInObjects();
@@ -2580,12 +2585,12 @@ void CastleObj34_VerticalDoubleEndedPipe(uint8 k) {  // 0dc5d8
     SetMap16HighByteForCurrentObject_Page00(v4);
     uint8 v3 = HandleHorizontalSubScreenCrossingForCurrentObject(v4, 0x9D);
     SetMap16HighByteForCurrentObject_Page00(v3);
-    IndirWriteByte(&ptr_lo_map16_data, v3, 0x9E);
+    SetMap16LowByte(v3, 0x9E);
   }
   SetMap16HighByteForCurrentObject_Page01(v4);
   uint8 v5 = HandleHorizontalSubScreenCrossingForCurrentObject(v4, 0x33);
   SetMap16HighByteForCurrentObject_Page01(v5);
-  IndirWriteByte(&ptr_lo_map16_data, v5, 0x34);
+  SetMap16LowByte(v5, 0x34);
 }
 
 void ProcessRopeObjects() {  // 0dcd90
@@ -2610,7 +2615,7 @@ void ExtObjXX_LineGuideQuarterSmallCircle(uint8 k) {  // 0dce94
   uint8 v0 = blocks_sub_scr_pos;
   uint8 v1 = blocks_size_or_type - 81;
   SetMap16HighByteForCurrentObject_Page00(blocks_sub_scr_pos);
-  IndirWriteByte(&ptr_lo_map16_data, v0, kExtObjXX_LineGuideQuarterSmallCircle_Tiles[v1]);
+  SetMap16LowByte(v0, kExtObjXX_LineGuideQuarterSmallCircle_Tiles[v1]);
 }
 
 void ExtObj70_BitOfCanvas1(uint8 k) {  // 0dcea6
@@ -2618,14 +2623,14 @@ void ExtObj70_BitOfCanvas1(uint8 k) {  // 0dcea6
   SetMap16HighByteForCurrentObject_Page00(blocks_sub_scr_pos);
   uint8 v1 = HandleHorizontalSubScreenCrossingForCurrentObject(v0, 0x84);
   SetMap16HighByteForCurrentObject_Page00(v1);
-  IndirWriteByte(&ptr_lo_map16_data, v1, 0x85);
+  SetMap16LowByte(v1, 0x85);
 }
 
 void ExtObj55_HorizontalLineGuideEnd(uint8 k) {  // 0dcec0
   uint8 v0 = blocks_sub_scr_pos;
   for (uint8 i = 0; i != 2; ++i) {
     SetMap16HighByteForCurrentObject_Page00(v0);
-    IndirWriteByte(&ptr_lo_map16_data, v0, kExtObj55_HorizontalLineGuideEnd_Tiles[i]);
+    SetMap16LowByte(v0, kExtObj55_HorizontalLineGuideEnd_Tiles[i]);
     v0 = HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel();
   }
 }
@@ -2666,7 +2671,7 @@ void CastleObj38_VerticalLineGuide(uint8 k) {  // 0dcf33
   uint8 r0 = blocks_size_or_type >> 4;
   do {
     SetMap16HighByteForCurrentObject_Page00(v1);
-    IndirWriteByte(&ptr_lo_map16_data, v1, kCastleObj38_VerticalLineGuide_Tiles[v2]);
+    SetMap16LowByte(v1, kCastleObj38_VerticalLineGuide_Tiles[v2]);
     v1 = HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel();
     --r0;
   } while ((r0 & 0x80) == 0);
@@ -2684,7 +2689,7 @@ void RopeObj3A_SlopedLineGuideLeftSlope(uint8 k) {  // 0dcf6e
     SetMap16HighByteForCurrentObject_Page00(v1);
     uint8 v3 = HandleHorizontalSubScreenCrossingForCurrentObject(v1, 0x8C);
     SetMap16HighByteForCurrentObject_Page00(v3);
-    IndirWriteByte(&ptr_lo_map16_data, v3, 0x8D);
+    SetMap16LowByte(v3, 0x8D);
     RestoreLevelDataPointerInObjects();
     v1 = blocks_sub_scr_pos + 14;
     if (blocks_sub_scr_pos + 14 >= 256)
@@ -2709,7 +2714,7 @@ void RopeObj3A_SlopedLineGuide_ONOFFLeftSlope(uint8 k) {  // 0dcfb1
   int8 v3 = blocks_size_or_type >> 4;
   do {
     SetMap16HighByteForCurrentObject_Page00(v2);
-    IndirWriteByte(&ptr_lo_map16_data, v2, r0);
+    SetMap16LowByte(v2, r0);
     v2 = blocks_sub_scr_pos + 15;
     if (blocks_sub_scr_pos + 15 >= 256)
       HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel_Entry2(1);
@@ -2732,7 +2737,7 @@ void RopeObj3A_SlopedLineGuideRightSlope(uint8 k) {  // 0dcff0
     SetMap16HighByteForCurrentObject_Page00(v1);
     uint8 v3 = HandleHorizontalSubScreenCrossingForCurrentObject(v1, 0x8E);
     SetMap16HighByteForCurrentObject_Page00(v3);
-    IndirWriteByte(&ptr_lo_map16_data, v3, 0x8F);
+    SetMap16LowByte(v3, 0x8F);
     RestoreLevelDataPointerInObjects();
     uint8 v4 = blocks_sub_scr_pos + 16;
     if (blocks_sub_scr_pos + 16 >= 256)
@@ -2756,7 +2761,7 @@ void RopeObj3A_SlopedLineGuide_ONOFFRightSlope(uint8 k) {  // 0dd034
   int8 v3 = blocks_size_or_type >> 4;
   do {
     SetMap16HighByteForCurrentObject_Page00(v2);
-    IndirWriteByte(&ptr_lo_map16_data, v2, r0);
+    SetMap16LowByte(v2, r0);
     uint8 v4 = blocks_sub_scr_pos + 16;
     if (blocks_sub_scr_pos + 16 >= 256)
       HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel_Entry2(1);
@@ -2778,12 +2783,12 @@ void RopeObj3B_VerySteepSlopedLineGuide_VerySteepLeftSlope() {  // 0dd080
   uint8 v0 = blocks_sub_scr_pos;
   for (int8 i = blocks_size_or_type & 0xF; i >= 0; --i) {
     SetMap16HighByteForCurrentObject_Page00(v0);
-    IndirWriteByte(&ptr_lo_map16_data, v0, 0x88);
+    SetMap16LowByte(v0, 0x88);
     if (v0 + 16 >= 256)
       HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel_Entry2(1);
     v0 += 16;
     SetMap16HighByteForCurrentObject_Page00(v0);
-    IndirWriteByte(&ptr_lo_map16_data, v0, 0x8A);
+    SetMap16LowByte(v0, 0x8A);
     if (v0 + 15 >= 256)
       HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel_Entry2(1);
     v0 = v0 + 15;
@@ -2801,12 +2806,12 @@ void RopeObj3B_VerySteepSlopedLineGuide_VerySteepRightSlope() {  // 0dd0c3
   uint8 v0 = blocks_sub_scr_pos;
   for (int8 i = blocks_size_or_type & 0xF; i >= 0; --i) {
     SetMap16HighByteForCurrentObject_Page00(v0);
-    IndirWriteByte(&ptr_lo_map16_data, v0, 0x89);
+    SetMap16LowByte(v0, 0x89);
     if (v0 + 16 >= 256)
       HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel_Entry2(1);
     v0 = v0 + 16;
     SetMap16HighByteForCurrentObject_Page00(v0);
-    IndirWriteByte(&ptr_lo_map16_data, v0, 0x8B);
+    SetMap16LowByte(v0, 0x8B);
     if (v0 + 16 >= 256)
       HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel_Entry2(1);
     v0 = v0 + 16;
@@ -2881,14 +2886,14 @@ void RopeObj3F_VerticalLog(uint8 k) {  // 0dd1a5
   int8 v2 = blocks_size_or_type >> 4;
   SetMap16HighByteForCurrentObject_Page01(blocks_sub_scr_pos);
   for (uint8 i = 92;; i = 93) {
-    IndirWriteByte(&ptr_lo_map16_data, v1, i);
+    SetMap16LowByte(v1, i);
     v1 = HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel();
     if (!--v2)
       break;
     SetMap16HighByteForCurrentObject_Page01(v1);
   }
   SetMap16HighByteForCurrentObject_Page01(v1);
-  IndirWriteByte(&ptr_lo_map16_data, v1, 0x5E);
+  SetMap16LowByte(v1, 0x5E);
 }
 
 void RopeObj35_ColumnWithPlantOnTop(uint8 k) {  // 0dd1d9
@@ -2899,14 +2904,14 @@ void RopeObj35_ColumnWithPlantOnTop(uint8 k) {  // 0dd1d9
   SetMap16HighByteForCurrentObject_Page00(v1);
   uint8 v3 = HandleHorizontalSubScreenCrossingForCurrentObject(v1, kRopeObj35_ColumnWithPlantOnTop_LeftPlantTiles[v2]);
   SetMap16HighByteForCurrentObject_Page00(v3);
-  IndirWriteByte(&ptr_lo_map16_data, v3, kRopeObj35_ColumnWithPlantOnTop_RightPlantTiles[v2]);
+  SetMap16LowByte(v3, kRopeObj35_ColumnWithPlantOnTop_RightPlantTiles[v2]);
   if ((--r0 & 0x80) == 0) {
     RestoreLevelDataPointerInObjects();
     uint8 v4 = HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel();
     SetMap16HighByteForCurrentObject_Page01(v4);
     uint8 v5 = HandleHorizontalSubScreenCrossingForCurrentObject(v4, 0x5F);
     SetMap16HighByteForCurrentObject_Page01(v5);
-    IndirWriteByte(&ptr_lo_map16_data, v5, 0x60);
+    SetMap16LowByte(v5, 0x60);
     if ((--r0 & 0x80) == 0) {
       RestoreLevelDataPointerInObjects();
       uint8 v6 = HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel();
@@ -2916,7 +2921,7 @@ void RopeObj35_ColumnWithPlantOnTop(uint8 k) {  // 0dd1d9
         uint8 v8 = HandleHorizontalSubScreenCrossingForCurrentObject(v6, kRopeObj35_ColumnWithPlantOnTop_ColumnTiles[v7]);
         uint8 v9 = v7 + 1;
         SetMap16HighByteForCurrentObject_Page01(v8);
-        IndirWriteByte(&ptr_lo_map16_data, v8, kRopeObj35_ColumnWithPlantOnTop_ColumnTiles[v9]);
+        SetMap16LowByte(v8, kRopeObj35_ColumnWithPlantOnTop_ColumnTiles[v9]);
         v7 = v9 + 1;
         RestoreLevelDataPointerInObjects();
         v6 = HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel();
@@ -2956,24 +2961,24 @@ void ProcessUndergroundObjects() {  // 0dd990
 void ExtObj60_CaveLavaInnerCorner(uint8 k) {  // 0dda57
   uint8 v0 = blocks_sub_scr_pos;
   SetMap16HighByteForCurrentObject_Page01(blocks_sub_scr_pos);
-  IndirWriteByte(&ptr_lo_map16_data, v0, 0xFE);
+  SetMap16LowByte(v0, 0xFE);
 }
 
 void ExtObj75_CanvasTile1(uint8 k) {  // 0dda68
   uint8 v0 = blocks_sub_scr_pos;
   uint8 v1 = blocks_size_or_type - 117;
   SetMap16HighByteForCurrentObject_Page00(blocks_sub_scr_pos);
-  IndirWriteByte(&ptr_lo_map16_data, v0, kExtObj75_CanvasTile1_Tiles[v1]);
+  SetMap16LowByte(v0, kExtObj75_CanvasTile1_Tiles[v1]);
 }
 
 void ExtObj7C_BitOfCanvas1(uint8 k) {  // 0dda80
   uint8 v0 = blocks_sub_scr_pos;
   uint8 v1 = blocks_size_or_type - 124;
   SetMap16HighByteForCurrentObject_Page00(blocks_sub_scr_pos);
-  IndirWriteByte(&ptr_lo_map16_data, v0, kExtObj7C_BitOfCanvas1_TopTiles[v1]);
+  SetMap16LowByte(v0, kExtObj7C_BitOfCanvas1_TopTiles[v1]);
   uint8 v2 = HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel();
   SetMap16HighByteForCurrentObject_Page00(v2);
-  IndirWriteByte(&ptr_lo_map16_data, v2, kExtObj7C_BitOfCanvas1_BottomTiles[v1]);
+  SetMap16LowByte(v2, kExtObj7C_BitOfCanvas1_BottomTiles[v1]);
 }
 
 void ExtObj7F_TorpedoLauncher(uint8 k) {  // 0ddaa2
@@ -3000,7 +3005,7 @@ void UndergroundObj38_RightLavaEdge(uint8 k) {  // 0ddac8
 
 void UndergroundObj38_RightLavaEdge_0DDAE8(uint8 k, uint8 j, uint8 a, uint8 r0) {  // 0ddae8
   while (1) {
-    IndirWriteByte(&ptr_lo_map16_data, j, a);
+    SetMap16LowByte(j, a);
     j = HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel();
     if ((--r0 & 0x80) != 0)
       break;
@@ -3217,7 +3222,7 @@ void UndergroundObj3E_CeilingEdges(uint8 k) {  // 0ddd2e
   if (blocks_size_or_type >> 4) {
     do {
       SetMap16HighByteForCurrentObject_Page01(v1);
-      IndirWriteByte(&ptr_lo_map16_data, v1, kUndergroundObj3E_CeilingEdges_TopTiles[v2]);
+      SetMap16LowByte(v1, kUndergroundObj3E_CeilingEdges_TopTiles[v2]);
       v1 = HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel();
       --r0;
     } while (r0);
@@ -3256,21 +3261,21 @@ void UndergroundObj3C_VerySteepSlope_VerySteepLeftSlope() {  // 0ddd99
     PreserveLevelDataPointerInObjects();
     uint8 v1 = r1;
     SetMap16HighByteForCurrentObject_Page01(v0);
-    IndirWriteByte(&ptr_lo_map16_data, v0, 0xCA);
+    SetMap16LowByte(v0, 0xCA);
     if (v0 + 16 >= 256) {
       ptr_lo_map16_data.addr += 256;
       HIBYTE(ptr_hi_map16_data) = HIBYTE(ptr_lo_map16_data);
     }
     v0 += 16;
     SetMap16HighByteForCurrentObject_Page01(v0);
-    IndirWriteByte(&ptr_lo_map16_data, v0, 0xCB);
+    SetMap16LowByte(v0, 0xCB);
     if (v0 + 16 >= 256) {
       ptr_lo_map16_data.addr += 256;
       HIBYTE(ptr_hi_map16_data) = HIBYTE(ptr_lo_map16_data);
     }
     v0 += 16;
     SetMap16HighByteForCurrentObject_Page01(v0);
-    IndirWriteByte(&ptr_lo_map16_data, v0, 0xF1);
+    SetMap16LowByte(v0, 0xF1);
     if (v0 + 16 >= 256) {
       ptr_lo_map16_data.addr += 256;
       HIBYTE(ptr_hi_map16_data) = HIBYTE(ptr_lo_map16_data);
@@ -3279,7 +3284,7 @@ void UndergroundObj3C_VerySteepSlope_VerySteepLeftSlope() {  // 0ddd99
     int8 v8 = v1 - 2;
     while (--v8 >= 0) {
       SetMap16HighByteForCurrentObject_Page00(v0);
-      IndirWriteByte(&ptr_lo_map16_data, v0, 0x3F);
+      SetMap16LowByte(v0, 0x3F);
       if (v0 + 16 >= 256) {
         ptr_lo_map16_data.addr += 256;
         HIBYTE(ptr_hi_map16_data) = HIBYTE(ptr_lo_map16_data);
@@ -3309,21 +3314,21 @@ void UndergroundObj3C_VerySteepSlope_VerySteepRightSlope() {  // 0dde3c
     PreserveLevelDataPointerInObjects();
     uint8 v1 = r1;
     SetMap16HighByteForCurrentObject_Page01(v0);
-    IndirWriteByte(&ptr_lo_map16_data, v0, 0xCC);
+    SetMap16LowByte(v0, 0xCC);
     if (v0 + 16 >= 256) {
       ptr_lo_map16_data.addr += 256;
       HIBYTE(ptr_hi_map16_data) = HIBYTE(ptr_lo_map16_data);
     }
     v0 += 16;
     SetMap16HighByteForCurrentObject_Page01(v0);
-    IndirWriteByte(&ptr_lo_map16_data, v0, 0xCD);
+    SetMap16LowByte(v0, 0xCD);
     if (v0 + 16 >= 256) {
       ptr_lo_map16_data.addr += 256;
       HIBYTE(ptr_hi_map16_data) = HIBYTE(ptr_lo_map16_data);
     }
     v0 += 16;
     SetMap16HighByteForCurrentObject_Page01(v0);
-    IndirWriteByte(&ptr_lo_map16_data, v0, 0xF2);
+    SetMap16LowByte(v0, 0xF2);
     if (v0 + 16 >= 256) {
       ptr_lo_map16_data.addr += 256;
       HIBYTE(ptr_hi_map16_data) = HIBYTE(ptr_lo_map16_data);
@@ -3332,7 +3337,7 @@ void UndergroundObj3C_VerySteepSlope_VerySteepRightSlope() {  // 0dde3c
     int8 v8 = v1 - 2;
     while (--v8 >= 0) {
       SetMap16HighByteForCurrentObject_Page00(v0);
-      IndirWriteByte(&ptr_lo_map16_data, v0, 0x3F);
+      SetMap16LowByte(v0, 0x3F);
       if (v0 + 16 >= 256) {
         ptr_lo_map16_data.addr += 256;
         HIBYTE(ptr_hi_map16_data) = HIBYTE(ptr_lo_map16_data);
@@ -3400,7 +3405,7 @@ void UndergroundObj37_LargeCanvas(uint8 k) {  // 0ddf3a
       SetMap16HighByteForCurrentObject_Page00(v7);
       uint8 v8 = HandleHorizontalSubScreenCrossingForCurrentObject(v7, kUndergroundObj37_LargeCanvas_CanvasTiles[v5 + 1]);
       SetMap16HighByteForCurrentObject_Page00(v8);
-      IndirWriteByte(&ptr_lo_map16_data, v8, kUndergroundObj37_LargeCanvas_CanvasTiles[v5 + 2]);
+      SetMap16LowByte(v8, kUndergroundObj37_LargeCanvas_CanvasTiles[v5 + 2]);
       v6 = HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel();
     } while ((--r1 & 0x80) == 0);
     uint8 v9 = v5 + 3;
@@ -3464,7 +3469,7 @@ void ExtObj71_Canvas1(uint8 k) {  // 0de0ae
     v2 = HandleHorizontalSubScreenCrossingForCurrentObject(v2, kExtObj71_Canvas1_Tiles[v1++]);
   } while ((--r2 & 0x80) == 0);
   SetMap16HighByteForCurrentObject_Page01(v2);
-  IndirWriteByte(&ptr_lo_map16_data, v2, 0x5F);
+  SetMap16LowByte(v2, 0x5F);
   RestoreLevelDataPointerInObjects();
   r2 = 2;
   uint8 v3 = HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel();
@@ -3489,7 +3494,7 @@ void UndergroundObj36_4SidedGround(uint8 k) {  // 0de135
       SetMap16HighByteForCurrentObject_Page01(i);
     }
     SetMap16HighByteForCurrentObject_Page01(i);
-    IndirWriteByte(&ptr_lo_map16_data, i, kUndergroundObj36_4SidedGround_RightTiles[v2]);
+    SetMap16LowByte(i, kUndergroundObj36_4SidedGround_RightTiles[v2]);
     RestoreLevelDataPointerInObjects();
     v1 = HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel();
     v2 = 1;
@@ -3509,7 +3514,7 @@ void ExtObj5B_BitOfBrickBackground1(uint8 k) {  // 0de95f
   uint8 v0 = blocks_sub_scr_pos;
   uint8 v1 = blocks_size_or_type - 87;
   SetMap16HighByteForCurrentObject_Page00(blocks_sub_scr_pos);
-  IndirWriteByte(&ptr_lo_map16_data, v0, kExtObj57_SwitchPalaceBottomRightInnerCorner_Tiles[v1]);
+  SetMap16LowByte(v0, kExtObj57_SwitchPalaceBottomRightInnerCorner_Tiles[v1]);
 }
 
 void ExtObj5F_LargeBackgroundArea(uint8 k) {  // 0de971
@@ -3518,7 +3523,7 @@ void ExtObj5F_LargeBackgroundArea(uint8 k) {  // 0de971
   do {
     do {
       SetMap16HighByteForCurrentObject_Page00(v0);
-      IndirWriteByte(&ptr_lo_map16_data, v0++, 0x77);
+      SetMap16LowByte(v0++, 0x77);
     } while (v0);
     HIBYTE(ptr_hi_map16_data) = ++HIBYTE(ptr_lo_map16_data);
   } while ((--r0 & 0x80) == 0);
@@ -3601,7 +3606,7 @@ void ExtObj80_GhostHouseEntrance(uint8 k) {  // 0deb6a
       v0 = HandleHorizontalSubScreenCrossingForCurrentObject(v0, *((uint8 *)kExtObj80_GhostHouseEntrance_Tiles + i++));
     } while (--r0);
     SetMap16HighByteForCurrentObject_Page00(v0);
-    IndirWriteByte(&ptr_lo_map16_data, v0, *((uint8 *)kExtObj80_GhostHouseEntrance_Tiles + i));
+    SetMap16LowByte(v0, *((uint8 *)kExtObj80_GhostHouseEntrance_Tiles + i));
     v0 = HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel();
   }
 }
@@ -3615,7 +3620,7 @@ void ExtObj85_YoshisHouse(uint8 k) {  // 0dec33
       v0 = HandleHorizontalSubScreenCrossingForCurrentObject(v0, *((uint8 *)kExtObj85_YoshisHouse_Tiles + i++));
     } while (--r0);
     SetMap16HighByteForCurrentObject_Page00(v0);
-    IndirWriteByte(&ptr_lo_map16_data, v0, *((uint8 *)kExtObj85_YoshisHouse_Tiles + i));
+    SetMap16LowByte(v0, *((uint8 *)kExtObj85_YoshisHouse_Tiles + i));
     v0 = HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel();
   }
 }
@@ -3623,14 +3628,14 @@ void ExtObj85_YoshisHouse(uint8 k) {  // 0dec33
 void ExtObj97_SwitchPalaceRightAndBottomEdgeTile(uint8 k) {  // 0dec5c
   uint8 v0 = blocks_sub_scr_pos;
   SetMap16HighByteForCurrentObject_Page01(blocks_sub_scr_pos);
-  IndirWriteByte(&ptr_lo_map16_data, v0, 0x10);
+  SetMap16LowByte(v0, 0x10);
 }
 
 void ExtObj81_Seaweed(uint8 k) {  // 0dec68
   uint8 v0 = blocks_sub_scr_pos;
   for (uint8 i = 0; i != 2; ++i) {
     SetMap16HighByteForCurrentObject_Page00(v0);
-    IndirWriteByte(&ptr_lo_map16_data, v0, kExtObj81_Seaweed_Tiles[i]);
+    SetMap16LowByte(v0, kExtObj81_Seaweed_Tiles[i]);
     v0 = HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel();
   }
 }
@@ -3694,7 +3699,7 @@ void GhostHouseObj37_HorizontalBackgroundLogAndRailing(uint8 k) {  // 0ded12
     SetMap16HighByteForCurrentObject_Page00(v1);
   }
   SetMap16HighByteForCurrentObject_Page00(v1);
-  IndirWriteByte(&ptr_lo_map16_data, v1, kGhostObj37_HorizontalBackgroundLogAndRailing_RightTiles[v2]);
+  SetMap16LowByte(v1, kGhostObj37_HorizontalBackgroundLogAndRailing_RightTiles[v2]);
 }
 
 void GhostHouseObj38_WoodenLedge(uint8 k) {  // 0ded43
@@ -3710,7 +3715,7 @@ void GhostHouseObj38_WoodenLedge_WoodLedgeOnColumnEntry(uint8 k, uint8 j) {  // 
     SetMap16HighByteForCurrentObject_Page01(j);
   }
   SetMap16HighByteForCurrentObject_Page01(j);
-  IndirWriteByte(&ptr_lo_map16_data, j, 0xC);
+  SetMap16LowByte(j, 0xC);
 }
 
 void GhostHouseObj39_VerticalBackgroundLog(uint8 k) {  // 0ded6b
@@ -3719,7 +3724,7 @@ void GhostHouseObj39_VerticalBackgroundLog(uint8 k) {  // 0ded6b
   uint8 v2 = blocks_size_or_type & 0xF;
   SetMap16HighByteForCurrentObject_Page00(blocks_sub_scr_pos);
   for (uint8 i = kGhostObj39_VerticalBackgroundLog_TopTiles[v2];; i = kGhostObj39_VerticalBackgroundLog_BottomTiles[v2]) {
-    IndirWriteByte(&ptr_lo_map16_data, v1, i);
+    SetMap16LowByte(v1, i);
     v1 = HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel();
     if ((--r0 & 0x80) != 0)
       break;
@@ -3733,7 +3738,7 @@ void GhostHouseObj3A_SolidBrickWallAndVerticalLineOfSpikes(uint8 k) {  // 0ded99
   uint8 r0 = blocks_size_or_type >> 4;
   do {
     SetMap16HighByteForCurrentObject_Page01(v2);
-    IndirWriteByte(&ptr_lo_map16_data, v2, kGhostObj3A_SolidBrickWallAndVerticalLineOfSpikes_Tiles[v1]);
+    SetMap16LowByte(v2, kGhostObj3A_SolidBrickWallAndVerticalLineOfSpikes_Tiles[v1]);
     v2 = HandleVerticalSubScreenCrossingForCurrentObject_HorizontalLevel();
     --r0;
   } while ((r0 & 0x80) == 0);
@@ -3750,7 +3755,7 @@ void GhostHouseObj3B_BonusGameLedge(uint8 k) {  // 0dedb9
     SetMap16HighByteForCurrentObject_Page01(v1);
   }
   SetMap16HighByteForCurrentObject_Page01(v1);
-  IndirWriteByte(&ptr_lo_map16_data, v1, 9);
+  SetMap16LowByte(v1, 9);
 }
 
 void GhostHouseObj3C_SwitchPalaceCeiling(uint8 k) {  // 0deddb
@@ -3861,7 +3866,7 @@ void GhostHouseObj34_WoodLedgeOnColumn(uint8 k) {  // 0deec0
     uint8 v6 = r1;
     SetMap16HighByteForCurrentObject_Page00(v5);
     for (uint8 i = 120;; i = 121) {
-      IndirWriteByte(&ptr_lo_map16_data, v5, i);
+      SetMap16LowByte(v5, i);
       if (v5 + 16 >= 256)
         HIBYTE(ptr_hi_map16_data) = ++HIBYTE(ptr_lo_map16_data);
       v5 += 16;
@@ -3890,7 +3895,7 @@ void GhostHouseObj33_Cloud(uint8 k) {  // 0def45
     SetMap16HighByteForCurrentObject_Page00(v1);
   }
   SetMap16HighByteForCurrentObject_Page00(v1);
-  IndirWriteByte(&ptr_lo_map16_data, v1, 0xA2);
+  SetMap16LowByte(v1, 0xA2);
 }
 
 void GhostHouseObj32_GrassLedge2(uint8 k) {  // 0def67
@@ -3928,7 +3933,7 @@ void GhostHouseObj31_WoodCrate(uint8 k) {  // 0defa8
     SetMap16HighByteForCurrentObject_Page01(v1);
   }
   SetMap16HighByteForCurrentObject_Page01(v1);
-  IndirWriteByte(&ptr_lo_map16_data, v1, 0x62);
+  SetMap16LowByte(v1, 0x62);
   uint8 v5;
   for (uint8 j = 1;;) {
     RestoreLevelDataPointerInObjects();
@@ -3948,7 +3953,7 @@ LABEL_7:
       v5 = HandleHorizontalSubScreenCrossingForCurrentObject(v5, v4);
     } while (--r2);
     SetMap16HighByteForCurrentObject_Page01(v5);
-    IndirWriteByte(&ptr_lo_map16_data, v5, kGhostObj31_WoodCrate_RightEdgeTiles[j]);
+    SetMap16LowByte(v5, kGhostObj31_WoodCrate_RightEdgeTiles[j]);
   }
   SetMap16HighByteForCurrentObject_Page01(v5);
   for (uint8 m = 107;; m = 108) {
@@ -3958,7 +3963,7 @@ LABEL_7:
     SetMap16HighByteForCurrentObject_Page01(v5);
   }
   SetMap16HighByteForCurrentObject_Page01(v5);
-  IndirWriteByte(&ptr_lo_map16_data, v5, 0x6D);
+  SetMap16LowByte(v5, 0x6D);
 }
 
 void GhostHouseObj30_GrassLedge1(uint8 k) {  // 0df02b

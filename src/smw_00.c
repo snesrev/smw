@@ -472,19 +472,16 @@ void LoadStripeImage_UploadToVRAM(LongPtr p0) {  // 00871e
     uint8 *v2 = IndirPtr(&p0, v1);
     if ((*v2 & 0x80) != 0)
       break;
-    uint8 r4 = *v2;
-    v1 = v1 + 1;
-    uint16 R3 = r4 << 8 | *IndirPtr(&p0, v1++);
-    uint8 r7 = __CFSHL__(*IndirPtr(&p0, v1), 1);
+    uint16 R3 = v2[0] << 8 | v2[1];
+    v1 += 2;
+    uint8 r7 = __CFSHL__(v2[2], 1);
     WriteReg(BBAD1, 0x18);
-    uint8 r5 = (uint8)(*IndirPtr(&p0, v1) & 0x40) >> 3;
+    uint8 r5 = (uint8)(v2[2] & 0x40) >> 3;
     WriteReg(DMAP1, r5 | 1);
     WriteRegWord(VMADDL, R3);
-    uint8 *v4 = IndirPtr(&p0, v1);
-    LOBYTE(v5) = HIBYTE(*(uint16 *)v4);
-    HIBYTE(v5) = *(uint16 *)v4;
+    v5 = swap16(WORD(v2[2]));
     uint16 v6 = (v5 & 0x3FFF) + 1;
-    v1 = v1 + 2;
+    v1 += 2;
     WriteRegWord(A1T1L, p0.addr + v1);
     WriteRegWord(DAS1L, v6);
     if (r5) {
@@ -496,8 +493,7 @@ void LoadStripeImage_UploadToVRAM(LongPtr p0) {  // 00871e
       WriteRegWord(DAS1L, v6);
       v6 = 2;
     }
-    R3 = v6;
-    v1 = v6 + v1;
+    v1 += v6;
     WriteReg(VMAIN, r7 | 0x80);
     WriteReg(MDMAEN, 2);
   }
@@ -1181,8 +1177,8 @@ void GameMode19_Cutscene_GameMode1BEntry() {  // 0094fd
 }
 
 void UploadBigLayer3LettersToVRAM() {  // 00955e
-  LongPtr p0 = GraphicsDecompressionRoutines(0x2F);
-  uint8 *v1 = IndirPtr(&p0, 0);
+  const uint8 *p0 = GraphicsDecompressionRoutines(0x2F);
+  const uint8 *v1 = &p0[0];
   WriteReg(VMAIN, 0x80);
   WriteRegWord(VMADDL, 0x4600);
   int16 v0 = 512;
@@ -2424,19 +2420,17 @@ void UpdatePaletteFromIndexedTable() {  // 00a488
   v1 = WORD(kUpdatePaletteFromIndexedTable_DATA_00A47F[palettes_palette_upload_table_index]);
   uint16 v2 = v1;
   while (1) {
-    uint8 v3 = *IndirPtr(&p0, v2);
+    uint8 v3 = *IndirPtr(&p0, v2++);
     if (!v3)
       break;
     WriteRegWord(A1B2, v0);
     WriteReg(DAS2L, v3);
-    uint8 r3 = v3;
     WriteReg(DAS2H, 0);
-    uint16 v4 = v2 + 1;
-    uint8 *v5 = IndirPtr(&p0, v4);
+    uint8 *v5 = IndirPtr(&p0, v2++);
     WriteReg(CGADD, *v5);
     WriteRegWord(DMAP2, 0x2200);
-    WriteRegWord(A1T2L, ++v4);
-    v2 = r3 + v4;
+    WriteRegWord(A1T2L, v2);
+    v2 += v3;
     WriteReg(MDMAEN, 4);
   }
   UpdatePaletteFromIndexedTable_00AE47();
@@ -2675,46 +2669,46 @@ void UploadLoadingLettersTiles() {  // 00a7c2
 }
 
 void BufferLoadingLetterTiles() {  // 00a82d
-  LongPtr p0 = GraphicsDecompressionRoutines(0xF);
+  const uint8 *p0 = GraphicsDecompressionRoutines(0xF);
   if (flag_active_bonus_game)
-    p0.addr += 48;
+    p0 += 48;
   uint16 v0 = 0;
   do {
     int16 v1 = 8;
     do {
-      *(uint16 *)&graphics_decompressed_loading_letters[v0] = *(uint16 *)IndirPtr(&p0, 0);
+      *(uint16 *)&graphics_decompressed_loading_letters[v0] = WORD(*p0);
       v0 += 2;
-      p0.addr += 2;
+      p0 += 2;
       --v1;
     } while (v1);
     int16 v2 = 8;
     do {
-      *(uint16 *)&graphics_decompressed_loading_letters[v0] = *IndirPtr(&p0, 0);
+      *(uint16 *)&graphics_decompressed_loading_letters[v0] = p0[0];
       v0 += 2;
-      p0.addr += 1;
+      p0 += 1;
       --v2;
     } while (v2);
   } while (v0 < 0x300);
   GraphicsDecompressionRoutines(0);
-  p0 = (LongPtr){ .bank = 0x7e, .addr = 0xb3f0 };
+  p0 = g_ram + 0xb3f0;
   uint16 v3 = 0;
   do {
     int16 v4 = 8;
     do {
-      decompressed_gfx_plus_256[v3 >> 1] = *(uint16 *)IndirPtr(&p0, 0);
+      decompressed_gfx_plus_256[v3 >> 1] = WORD(p0[0]);
       v3 += 2;
-      p0.addr += 2;
+      p0 += 2;
       --v4;
     } while (v4);
     int16 v5 = 8;
     do {
-      decompressed_gfx_plus_256[v3 >> 1] = *IndirPtr(&p0, 0);
+      decompressed_gfx_plus_256[v3 >> 1] = p0[0];
       v3 += 2;
-      p0.addr += 1;
+      p0 += 1;
       --v5;
     } while (v5);
     if (v3 == 192)
-      p0.addr = 0xb570;
+      p0 = &g_ram[0xb570];
   } while (v3 < 0x180);
   flag_upload_load_screen_letters_tovram = 1;
   flag_restoresp1_tiles_after_mario_start = 1;
@@ -2725,8 +2719,8 @@ void UploadGraphicsFiles_Layer3() {  // 00a993
   uint8 r15 = 3;
   uint8 r14 = 40;
   do {
-    LongPtr p0 = GraphicsDecompressionRoutines(r14);
-    uint8 *v2 = IndirPtr(&p0, 0);
+    const uint8 *p0 = GraphicsDecompressionRoutines(r14);
+    const uint8 *v2 = &p0[0];
     int16 v0 = 0x3ff;
     uint16 v1 = 0;
     do {
@@ -2787,25 +2781,27 @@ void UploadGraphicsFiles_UploadGFXFile(uint8 j) {  // 00aa6b
   uint16 v4;
   uint16 v11;
 
-  LongPtr p0 = GraphicsDecompressionRoutines(j);
+  const uint8 *p0 = GraphicsDecompressionRoutines(j);
   if (j == 1 && (ow_level_tile_settings[73] & 0x80) != 0) {
     p0 = GraphicsDecompressionRoutines(0x31);
     j = 1;
   }
+
+
   if (misc_level_tileset_setting >= 0x11 && j == 8 || j == 30) {
     uint16 r10w = -256;
     for (int8 i = 127; i >= 0; --i) {
       for (int8 k = 7; k >= 0; --k) {
-        v11 = *(uint16 *)IndirPtr(&p0, 0);
+        v11 = WORD(*p0);
         WriteRegWord(VMDATAL, v11);
-        *(uint16 *)&graphics_3_bppto4_bppbuffer[(uint8)k] = *(uint16 *)IndirPtr(&p0, 0) | swap16(v11);
-        p0.addr += 2;
+        *(uint16 *)&graphics_3_bppto4_bppbuffer[(uint8)k] = WORD(p0[0]) | swap16(v11);
+        p0 += 2;
       }
       for (int8 m = 7; m >= 0; --m) {
-        uint16 r12w = *IndirPtr(&p0, 0);
-        uint8 *v14 = IndirPtr(&p0, 0);
+        const uint8 *v14 = p0;
+        uint16 r12w = *v14;
         WriteRegWord(VMDATAL, r12w | r10w & (*(uint16 *)&graphics_3_bppto4_bppbuffer[(uint8)m] | swap16(*(uint16 *)v14)));
-        ++p0.addr;
+        p0 += 1;
       }
     }
   } else {
@@ -2822,24 +2818,23 @@ void UploadGraphicsFiles_UploadGFXFile(uint8 j) {  // 00aa6b
           r10w = 0;
       }
       for (int8 ii = 7; ii >= 0; --ii) {
-        v4 = *(uint16 *)IndirPtr(&p0, 0);
+        v4 = WORD(*p0);
         WriteRegWord(VMDATAL, v4);
-        *(uint16 *)&graphics_3_bppto4_bppbuffer[(uint8)ii] = *(uint16 *)IndirPtr(&p0, 0) | swap16(v4);
-        p0.addr += 2;
+        *(uint16 *)&graphics_3_bppto4_bppbuffer[(uint8)ii] = WORD(p0[0]) | swap16(v4);
+        p0 += 2;
       }
       for (int8 jj = 7; jj >= 0; --jj) {
-        uint16 r12w = *IndirPtr(&p0, 0);
-        uint8 *v7 = IndirPtr(&p0, 0);
+        uint16 r12w = p0[0];
+        const uint8 *v7 = p0;
         WriteRegWord(VMDATAL, r12w | r10w & (*(uint16 *)&graphics_3_bppto4_bppbuffer[(uint8)jj] | swap16(*(uint16 *)v7)));
-        ++p0.addr;
+        ++p0;
       }
     }
   }
 }
 
 void ConvertGFX27IntoNormallFormat() {  // 00ab42
-  LongPtr p0 = GraphicsDecompressionRoutines(0x27);
-  uint8 *p = IndirPtr(&p0, 0);
+  const uint8 *p = GraphicsDecompressionRoutines(0x27);
   for (int i = 0x3ff; i >= 0; --i) {
     uint32 d = p[0] << 16 | p[1] << 8 | p[2];
     WriteReg(VMDATAH, (d >> 21) & 7);
@@ -2980,9 +2975,9 @@ void HandlePaletteFades_00AF35(bool run_code_at_end) {  // 00af35
     palettes_palette_upload_table_index = 3;
 
     if (run_code_at_end) {
-      LongPtr p0 = { .bank = 0, .addr = pointer_player_palette };
+      const uint8 *p0 = RomPtr_00(pointer_player_palette);
       for (uint16 i = 20; (i & 0x8000) == 0; i -= 2)
-        palettes_copy_of_palette_mirror[(i >> 1) + 134] = *(uint16 *)IndirPtr(&p0, i);
+        palettes_copy_of_palette_mirror[(i >> 1) + 134] = p0[i];
       palettes_copy_of_palette_mirror[128] = 0x81ee;
       for (uint16 j = 206; (j & 0x8000) == 0; j -= 18) {
         uint16 r0w = 7;
@@ -3046,30 +3041,28 @@ void PlayerState00_00B03E() {  // 00b03e
 
 void GraphicsDecompressionRoutines_DecompressGFX32And33() {  // 00b888
   decomp_src = (LongPtr){ .bank = 8, .addr = 0xbfc0 };
-  LongPtr p0 = (LongPtr){ .bank = 0x7e, .addr = 0x2000 };
-  GraphicsDecompressionRoutines_BeginDecompression(IndirPtr(&p0, 0));
-  LongPtr t8d = { .bank = 0x7e, .addr = 0xacfe };
+  GraphicsDecompressionRoutines_BeginDecompression(g_ram + 0x2000);
+  uint8 *t8d = g_ram + 0xacfe;
   int16 v0 = 0x23ff;
 LABEL_2:;
   int16 v1 = 8;
   do {
-    IndirWriteWord(&t8d, 0, graphics_decompressedgfx32[(uint16)v0--]);
-    t8d.addr -= 2;
+    WORD(t8d[0]) = graphics_decompressedgfx32[(uint16)v0--];
+    t8d -= 2;
   } while (--v1);
   int16 v2 = 8;
   while (1) {
     uint16 v3 = v0 - 1;
-    IndirWriteWord(&t8d, 0, *(uint16 *)&graphics_decompressedgfx32[v3]);
+    WORD(t8d[0]) = *(uint16 *)&graphics_decompressedgfx32[v3];
     v0 = v3 - 1;
     if (v0 < 0)
       break;
-    t8d.addr -= 2;
+    t8d -= 2;
     if (!--v2)
       goto LABEL_2;
   }
   decomp_src.addr = 0x8000;
-  LongPtr pp0 = (LongPtr){ .bank = 0x7e, .addr = 0x2000 };
-  GraphicsDecompressionRoutines_BeginDecompression(IndirPtr(&pp0, 0));
+  GraphicsDecompressionRoutines_BeginDecompression(g_ram + 0x2000);
 }
 
 void GraphicsDecompressionRoutines_BeginDecompression(uint8 *pdst) {  // 00b8de
@@ -3158,14 +3151,13 @@ uint8 GraphicsDecompressionRoutines_ReadByte() {  // 00b983
   return result;
 }
 
-LongPtr GraphicsDecompressionRoutines(uint8 j) {  // 00ba28
+const uint8 *GraphicsDecompressionRoutines(uint8 j) {  // 00ba28
   decomp_src = (LongPtr) {
     .bank = kGraphicsDecompressionRoutines_GraphicsPtrBank[j],
     .addr = kGraphicsDecompressionRoutines_GraphicsPtrHi[j] << 8 | kGraphicsDecompressionRoutines_GraphicsPtrLo[j]
   };
-  LongPtr p0 = { .bank = 0x7e, .addr = 0xad00 };
-  GraphicsDecompressionRoutines_BeginDecompression(IndirPtr(&p0, 0));
-  return p0;
+  GraphicsDecompressionRoutines_BeginDecompression(g_ram + 0xad00);
+  return g_ram + 0xad00;
 }
 
 void GenerateTile() {  // 00beb0
@@ -3188,11 +3180,8 @@ void GenerateTile() {  // 00beb0
       v1 = gta.r12;
     }
     if (v1 < 0x200) {
-      v0 = 2 * misc_current_layer_being_processed;
-      uint16 v2 = v0;
-      LongPtr p0 = { .bank = 0, .addr = WORD(*((uint8 *)kLevelDataLayoutTables_LoTablePtrs + v0)) };
-      v0 = 2 * misc_level_mode_setting;
-      const uint8 *rp = RomPtr(WORD(*IndirPtr(&p0, v0)));
+      uint16 *p0 = (uint16 *)RomPtr(kLevelDataLayoutTables_LoTablePtrs[misc_current_layer_being_processed]);
+      const uint8 *rp = RomPtr(p0[misc_level_mode_setting]);
       ptr_hi_map16_data.addr = ptr_lo_map16_data.addr = *(uint16*)(rp + 3 * HIBYTE(blocks_xpos));
       ptr_lo_map16_data.bank = 126;
       ptr_hi_map16_data.bank = 127;
@@ -3206,7 +3195,7 @@ void GenerateTile() {  // 00beb0
         v4 = HIBYTE(blocks_ypos);
       }
       uint8 r4 = (4 * (2 * v4 + v3)) | 0x20;
-      if (v2)
+      if (misc_current_layer_being_processed)
         r4 += 16;
       bool v6 = __CFSHL__(blocks_ypos & 0xF0, 1);
       uint8 r5 = 4 * (blocks_ypos & 0xF0) + v6;
@@ -3256,9 +3245,9 @@ void sub_C077(GenTileArgs *gta) {  // 00c077
   uint16 v0 = blocks_ypos & 0x1F0 | ((uint8)blocks_xpos >> 4);
   uint16 v1 = blocks_map16_to_generate;
   uint8 *v2 = IndirPtr(&ptr_hi_map16_data, v0);
-  IndirWriteByte(&ptr_hi_map16_data, v0, *v2 & 0xFE);
+  *v2 &= 0xFE;
   uint8 v3 = kGenericPage00Tile_Map16Page00TileLo[v1];
-  IndirWriteByte(&ptr_lo_map16_data, v0, v3);
+  SetMap16LowByte(v0, v3);
   GenericPage01Tile_00C0FB(gta, 2 * v3);
 }
 
@@ -3271,9 +3260,9 @@ void GenericPage01Tile(GenTileArgs *gta) {  // 00c0c4
   uint16 v0 = blocks_ypos & 0x1F0 | ((uint8)blocks_xpos >> 4);
   uint16 v1 = (uint8)(blocks_map16_to_generate - 9);
   uint8 *v2 = IndirPtr(&ptr_hi_map16_data, v0);
-  IndirWriteByte(&ptr_hi_map16_data, v0, *v2 | 1);
+  *v2 |= 1;
   uint8 v3 = kGenericPage01Tile_Map16Page01TileLo[v1];
-  IndirWriteByte(&ptr_lo_map16_data, v0, v3);
+  SetMap16LowByte(v0, v3);
   GenericPage01Tile_00C0FB(gta, 2 * (v3 | 0x100));
 }
 
@@ -3328,8 +3317,8 @@ LABEL_15:;
 void EraseYoshiCoin(GenTileArgs *gta) {  // 00c1ac
   SetItemMemoryBit();
   uint16 v0 = blocks_ypos & 0x1F0 | ((uint8)blocks_xpos >> 4);
-  IndirWriteByte(&ptr_lo_map16_data, v0, 0x25);
-  IndirWriteByte(&ptr_lo_map16_data, v0 + 16, 0x25);
+  SetMap16LowByte(v0, 0x25);
+  SetMap16LowByte(v0 + 16, 0x25);
   uint16 r0w = *(uint16 *)&misc_level_layout_flags;
   if (misc_current_layer_being_processed)
     r0w >>= 1;
@@ -3390,7 +3379,7 @@ LABEL_14:;
 void ChangeNetDoorTiles(GenTileArgs *gta) {  // 00c334
   ++gta->r7;
   AddHiLo(&gta->r6, &gta->r7, 32);
-  LongPtr p2 = kChangeNetDoorTiles_DATA_00C32E[blocks_map16_to_generate - 25];
+  const uint8 *p2 = IndirPtr(&kChangeNetDoorTiles_DATA_00C32E[blocks_map16_to_generate - 25], 0);
   uint16 v1 = stripe_image_upload;
   for (int16 i = 5; i >= 0; --i) {
     stripe_image_upload_data[v1] = gta->r6;
@@ -3405,7 +3394,7 @@ void ChangeNetDoorTiles(GenTileArgs *gta) {  // 00c334
   do {
     uint16 r0w = 5;
     do {
-      *(uint16 *)&stripe_image_upload_data[v3 + 4] = *(uint16 *)IndirPtr(&p2, v4);
+      *(uint16 *)&stripe_image_upload_data[v3 + 4] = WORD(p2[v4]);
       v4 += 2;
       v3 += 2;
     } while ((--r0w & 0x8000) == 0);
@@ -3418,11 +3407,11 @@ void ChangeNetDoorTiles(GenTileArgs *gta) {  // 00c334
 void EraseLargeSwitch(GenTileArgs *gta) {  // 00c3d1
   uint16 v0 = blocks_ypos & 0x1F0 | ((uint8)blocks_xpos >> 4);
   uint16 v1 = stripe_image_upload;
-  IndirWriteByte(&ptr_lo_map16_data, v0++, 0x25);
-  IndirWriteByte(&ptr_lo_map16_data, v0, 0x25);
+  SetMap16LowByte(v0++, 0x25);
+  SetMap16LowByte(v0, 0x25);
   v0 += 16;
-  IndirWriteByte(&ptr_lo_map16_data, v0, 0x25);
-  IndirWriteByte(&ptr_lo_map16_data, v0 - 1, 0x25);
+  SetMap16LowByte(v0, 0x25);
+  SetMap16LowByte(v0 - 1, 0x25);
   for (int16 i = 3; i >= 0; --i) {
     stripe_image_upload_data[v1] = gta->r6;
     stripe_image_upload_data[v1 + 1] = gta->r7;

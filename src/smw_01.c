@@ -1715,9 +1715,9 @@ LABEL_18:
       return;
     }
     uint8 v4 = r12 & 0xf;
-    if (v4 < 0xC && v4 < *IndirPtr(&R5_slopeptr, v2))
+    if (v4 < 0xC && v4 < *v3)
       return;
-    sprites_distance_to_snap_down_to_nearest_tile = *IndirPtr(&R5_slopeptr, v2);
+    sprites_distance_to_snap_down_to_nearest_tile = *v3;
     uint8 v5 = kSlopeDataTables_SlopeType[r8_slope_type];
     spr_slope_surface_its_on[k] = v5;
     if (v5 == 4 || v5 == 0xFC) {

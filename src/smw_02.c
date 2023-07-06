@@ -2554,9 +2554,10 @@ uint8 HandleExtendedSpriteLevelColl_02A611(uint8 k, uint8 r15, ExtCollOut *out) 
   uint8 r8_slope_type;
   uint8 v13 = CheckWhatSlopeSpriteIsOn(blocks_currently_processed_map16_tile_lo, blocks_xpos, blocks_ypos, &r8_slope_type);
   uint8 v14 = blocks_ypos & 0xf;
-  if (v14 < 0xC && v14 < *IndirPtr(&R5_slopeptr, v13))
+  uint8 *rr = IndirPtr(&R5_slopeptr, v13);
+  if (v14 < 0xC && v14 < *rr)
     return 0;
-  sprites_distance_to_snap_down_to_nearest_tile = *IndirPtr(&R5_slopeptr, v13);
+  sprites_distance_to_snap_down_to_nearest_tile = *rr;
   out->r11 = kSlopeDataTables_SlopeType[r8_slope_type];
   return 1;
 }
@@ -2801,8 +2802,8 @@ void Spr0E1_LoadBooCeiling(uint8 k, uint8 a, uint16 r0w, uint8 r2, uint8 r3) {  
               uint8 *v10 = IndirPtr(&ptr_sprite_list_data, r3);
               uint8 v11 = cluster_spr04_boo_ring_index;
               uint8 v18 = *v10;
-              *(&cluster_spr04_boo_ring1_center_ypos_lo + cluster_spr04_boo_ring_index) = v18 & 0xF0;
-              *(&cluster_spr04_boo_ring1_center_ypos_hi + cluster_spr04_boo_ring_index) = v18 & 1;
+              *(&cluster_spr04_boo_ring1_center_ypos_lo + v11) = v18 & 0xF0;
+              *(&cluster_spr04_boo_ring1_center_ypos_hi + v11) = v18 & 1;
               *(&cluster_spr04_boo_ring1_center_xpos_lo + v11) = r0w;
               *(&cluster_spr04_boo_ring1_center_xpos_hi + v11) = r0w >> 8;
               *(&cluster_spr04_boo_ring1_offscreen_flag + v11) = 0;

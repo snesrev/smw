@@ -53,8 +53,7 @@ void OwTileAnimations_ShiftWaterTiles() {  // 048086
   uint16 r3 = 0;
   uint16 r5 = 0;
   do {
-    LongPtr p0 = (LongPtr){ .bank = 0x7e, .addr = kOwTileAnimations_WaterTileNumbers[r3 >> 1] };
-    OwTileAnimations_0480B9(r5, IndirPtr(&p0, 0));
+    OwTileAnimations_0480B9(r5, g_ram + kOwTileAnimations_WaterTileNumbers[r3 >> 1]);
     r5 += 32;
     r3 += 2;
   } while (r3 != 6);
@@ -108,8 +107,8 @@ void OwTileAnimations() {  // 0480e0
     int16 v5 = (uint16)(counter_global_frames & v4) >> 2;
     if (v4 != 56)
       v5 = (uint16)(counter_global_frames & v4) >> 3;
-    LongPtr p0 = { .bank = 0x7e, .addr = kOwTileAnimations_TileNumbers[(uint16)(r11w + v5) >> 1] };
-    OwTileAnimations_0480B9(r13w, IndirPtr(&p0, 0));
+    const uint8 *p0 = g_ram + kOwTileAnimations_TileNumbers[(uint16)(r11w + v5) >> 1];
+    OwTileAnimations_0480B9(r13w, p0);
     r13w += 32;
     r11w += 16;
   } while (r11w != 128);
@@ -1366,18 +1365,18 @@ void LoadOverworldLayer1AndEvents_04D7F2() {  // 04d7f2
 
 void LoadOverworldLayer1AndEvents_04DA49(uint8 r15) {  // 04da49
   if ((kBitTable_DATA_04E44B[r15 & 7] & ow_event_flags[(uint8)(r15 & 0xF8) >> 3]) != 0) {
-    LongPtr p4 = { .addr = 0xc800, .bank = 0x7e };
-    uint16 v0 = kChangingLayer1OverworldTiles_Layer1TileLocation[(uint16)(2 * r15) >> 1];
+    uint8 *p4 = g_ram + 0xc800;
+    uint16 v0 = kChangingLayer1OverworldTiles_Layer1TileLocation[r15];
     uint16 v1 = 21;
-    uint8 v2 = *IndirPtr(&p4, v0);
+    uint8 v2 = p4[v0];
     while (v2 != kChangingLayer1OverworldTiles_TilesThatChange[v1]) {
       if ((--v1 & 0x8000) != 0)
         goto LABEL_8;
     }
     uint8 v3 = kChangingLayer1OverworldTiles_TilesToBecome[v1];
-    IndirWriteByte(&p4, v0, v3);
+    p4[v0] = v3;
     if (v1 == 21)
-      IndirWriteByte(&p4, v0 + 1, v3);
+      p4[v0 + 1] = v3;
 LABEL_8:
     CheckIfDestroyTileEventIsActive(r15);
     pointer_overworld_event_process = 0;
@@ -1494,8 +1493,8 @@ void LoadOverworldLayer1AndEvents() {  // 04dc09
 
 void LoadOverworldLayer2AndEventsTilemaps_Sub() {  // 04dc6a
   LoadOverworldLayer2AndEventsTilemaps_04DD40();
-  BufferOverworldLayer2Tilemap(0, 0, 0x4000, IndirPtr(& (LongPtr) { .bank = 4, .addr = 0xa533 }, 0));
-  BufferOverworldLayer2Tilemap(1, 0, 0x4000, IndirPtr(& (LongPtr) { .bank = 4, .addr = 0xc02b }, 0));
+  BufferOverworldLayer2Tilemap(0, 0, 0x4000, RomPtr_04(0xa533));
+  BufferOverworldLayer2Tilemap(1, 0, 0x4000, RomPtr_04(0xc02b));
   uint8 r15 = 0;
   do {
     LoadOverworldLayer2AndEventsTilemaps_04E453(r15);
@@ -1504,7 +1503,7 @@ void LoadOverworldLayer2AndEventsTilemaps_Sub() {  // 04dc6a
 }
 
 void SubmapSwitchProcess01_UpdateLayer1() {  // 04dcb6
-  LongPtr p0 = { .bank = 5, .addr = 0xd000 };
+  const uint8 *p0 = RomPtr(0x05d000);
   uint16 r0w = (ow_submap_switch_process - 1) << 8;
   if (ow_players_map[(uint8)(player_current_characterx4 >> 2)])
     r0w += 4 << 8;
@@ -1513,28 +1512,29 @@ void SubmapSwitchProcess01_UpdateLayer1() {  // 04dcb6
     uint16 v0 = 8 * r2w;
     r2w = (4 * (uint8)r0w) & 0x3F;
     uint16 v1 = r2w | (8 * (uint8)r0w) & 0xF80;
-    *(uint16 *)&ow_byte_7EE000[v1 + 0x400] = *(uint16 *)IndirPtr(&p0, v0);
+    *(uint16 *)&ow_byte_7EE000[v1 + 0x400] = WORD(p0[v0]);
     v0 += 2;
-    *(uint16 *)&ow_byte_7EE000[v1 + 0x440] = *(uint16 *)IndirPtr(&p0, v0);
+    *(uint16 *)&ow_byte_7EE000[v1 + 0x440] = WORD(p0[v0]);
     v0 += 2;
-    *(uint16 *)&ow_byte_7EE000[v1 + 0x402] = *(uint16 *)IndirPtr(&p0, v0);
-    *(uint16 *)&ow_byte_7EE000[v1 + 0x442] = *(uint16 *)IndirPtr(&p0, v0 + 2);
+    *(uint16 *)&ow_byte_7EE000[v1 + 0x402] = WORD(p0[v0]);
+    v0 += 2;
+    *(uint16 *)&ow_byte_7EE000[v1 + 0x442] = WORD(p0[v0]);
     ++r0w;
   } while (r0w&0xff);
   ++ow_submap_switch_process;
 }
 
 void LoadOverworldLayer2AndEventsTilemaps_04DD40() {  // 04dd40
-  LoadOverworldLayer2AndEventsTilemaps_04DD57(0, 0, (LongPtr) {.addr = 0x8d00, .bank = 0xc});
+  LoadOverworldLayer2AndEventsTilemaps_04DD57(0, 0, RomPtr(0xc8d00));
 }
 
-void LoadOverworldLayer2AndEventsTilemaps_04DD57(uint16 k, uint16 j, LongPtr p2) {  // 04dd57
+void LoadOverworldLayer2AndEventsTilemaps_04DD57(uint16 k, uint16 j, const uint8 *p2) {  // 04dd57
   do {
-    uint8 *v2 = IndirPtr(&p2, j++);
+    const uint8 *v2 = &p2[j++];
     uint8 r5 = *v2;
     if ((r5 & 0x80) != 0) {
       r5 &= ~0x80;
-      uint8 v3 = *IndirPtr(&p2, j);
+      uint8 v3 = p2[j];
       do {
         ow_layer2_event_tiles[k++] = v3;
         --r5;
@@ -1542,11 +1542,11 @@ void LoadOverworldLayer2AndEventsTilemaps_04DD57(uint16 k, uint16 j, LongPtr p2)
       ++j;
     } else {
       do {
-        ow_layer2_event_tiles[k++] = *IndirPtr(&p2, j++);
+        ow_layer2_event_tiles[k++] = p2[j++];
         --r5;
       } while ((r5 & 0x80) == 0);
     }
-  } while (*(uint16 *)IndirPtr(&p2, j) != 0xFFFF);
+  } while (WORD(p2[j]) != 0xFFFF);
 }
 
 void LoadOverworldLayer2AndEventsTilemaps_04E453(uint8 r15) {  // 04e453
@@ -1566,24 +1566,22 @@ void BufferEventTileToLayer2Tilemap() {  // 04e496
 }
 
 void BufferEventTileToLayer2Tilemap_Entry2(uint16 k, uint16 j, uint16 r4) {  // 04e4a9
-  LongPtr r6 = LONGPTR(0x7f0000);
-  LongPtr r9 = LONGPTR(0xc8000);
+  const uint8 *r6 = g_ram + 0x10000;
+  const uint8 *r9 = RomPtr(0xc8000);
   if (j < 0x900)
     BufferEventTileToLayer2Tilemap_Buffer6x6Tile(k, j, r4, r6, r9);
   else
     BufferEventTileToLayer2Tilemap_Buffer2x2Tile(k, j, r4, r6, r9);
 }
 
-void BufferEventTileToLayer2Tilemap_Buffer2x2Tile(uint16 k, uint16 j, uint16 r4, LongPtr r6, LongPtr r9) {  // 04e4d0
+void BufferEventTileToLayer2Tilemap_Buffer2x2Tile(uint16 k, uint16 j, uint16 r4, const uint8 *r6, const uint8 *r9) {  // 04e4d0
   uint16 r0w = 1;
   do {
     uint16 v2 = r4;
     uint8 r12 = 1;
     do {
-      ow_layer2_tiles[v2] = *IndirPtr(&r9, j);
-      uint16 v3 = v2 + 1;
-      ow_layer2_tiles[v3] = *IndirPtr(&r6, j++);
-      v2 = v3 + 1;
+      ow_layer2_tiles[v2++] = r9[j];
+      ow_layer2_tiles[v2++] = r6[j++];
       if ((v2 & 0x3F) == 0)
         v2 = ((v2 - 1) & 0xFFC0) + 0x800;
     } while ((--r12 & 0x80) == 0);
@@ -1594,16 +1592,14 @@ void BufferEventTileToLayer2Tilemap_Buffer2x2Tile(uint16 k, uint16 j, uint16 r4,
   } while ((--r0w & 0x8000) == 0);
 }
 
-void BufferEventTileToLayer2Tilemap_Buffer6x6Tile(uint16 k, uint16 j, uint16 r4, LongPtr r6, LongPtr r9) {  // 04e520
+void BufferEventTileToLayer2Tilemap_Buffer6x6Tile(uint16 k, uint16 j, uint16 r4, const uint8 *r6, const uint8 *r9) {  // 04e520
   uint16 r0w = 5;
   do {
     uint16 v2 = r4;
     uint8 r12 = 5;
     do {
-      ow_layer2_tiles[v2] = *IndirPtr(&r9, j);
-      uint16 v3 = v2 + 1;
-      ow_layer2_tiles[v3] = *IndirPtr(&r6, j++);
-      v2 = v3 + 1;
+      ow_layer2_tiles[v2++] = r9[j];
+      ow_layer2_tiles[v2++] = r6[j++];
       if ((v2 & 0x3F) == 0)
         v2 = ((v2 - 1) & 0xFFC0) + 0x800;
     } while ((--r12 & 0x80) == 0);
@@ -1697,7 +1693,7 @@ void OwEventProcess03_GetLayer2Tile() {  // 04e6f9
   uint16 r2w = v2;
   ow_on_screen_ypos_of_current_event_tile = (r0w >> 3) & 0xF8;
   ow_on_screen_xpos_of_current_event_tile = 4 * (r0w & 0x3E);
-  LongPtr r12 = LONGPTR(0x7f4000);
+  const uint8 *r12 = g_ram + 0x14000;
   if (*(uint16 *)&timer_destroy_tile_event_unknown < 0x900)
     v0 = BufferEventTileToStripeImageTable_Buffer6x6Tile(r0w, r2w, 0xefff, r12);
   else
@@ -1709,7 +1705,7 @@ void OwEventProcess03_GetLayer2Tile() {  // 04e6f9
   ++pointer_overworld_event_process;
 }
 
-uint16 BufferEventTileToStripeImageTable_Buffer2x2Tile(uint16 r0w, uint16 r2w, uint16 r10, LongPtr r12) {  // 04e76c
+uint16 BufferEventTileToStripeImageTable_Buffer2x2Tile(uint16 r0w, uint16 r2w, uint16 r10, const uint8 *r12) {  // 04e76c
   int16 v3;
   int16 v5;
   int16 v6;
@@ -1736,7 +1732,7 @@ uint16 BufferEventTileToStripeImageTable_Buffer2x2Tile(uint16 r0w, uint16 r2w, u
     uint16 r4 = 1;
     uint16 v4 = r0w;
     do {
-      *(uint16 *)&stripe_image_upload_data[v0] = r10 & *(uint16 *)IndirPtr(&r12, v4);
+      *(uint16 *)&stripe_image_upload_data[v0] = r10 & WORD(r12[v4]);
       v0 += 2;
       v4 += 2;
       if ((v4 & 0x3F) == 0 && r4) {
@@ -1780,7 +1776,7 @@ uint16 BufferEventTileToStripeImageTable_Buffer2x2Tile(uint16 r0w, uint16 r2w, u
   return v0;
 }
 
-uint16 BufferEventTileToStripeImageTable_Buffer6x6Tile(uint16 r0w, uint16 r2w, uint16 r10, LongPtr r12) {  // 04e824
+uint16 BufferEventTileToStripeImageTable_Buffer6x6Tile(uint16 r0w, uint16 r2w, uint16 r10, const uint8 *r12) {  // 04e824
   int16 v3;
   int16 v5;
   int16 v6;
@@ -1808,7 +1804,7 @@ uint16 BufferEventTileToStripeImageTable_Buffer6x6Tile(uint16 r0w, uint16 r2w, u
     uint16 r4 = 5;
     uint16 v4 = r0w;
     do {
-      *(uint16 *)&stripe_image_upload_data[v0] = r10 & *(uint16 *)IndirPtr(&r12, v4);
+      *(uint16 *)&stripe_image_upload_data[v0] = r10 & WORD(r12[v4]);
       v0 += 2;
       v4 += 2;
       if ((v4 & 0x3F) == 0 && r4) {
@@ -2008,7 +2004,7 @@ void OwEventProcess05_GetLayer1Tile() {  // 04ec78
   LongPtr r13 = LONGPTR(0x7ec800);
 
   uint16 v0 = 21;
-  uint8 v1 = *IndirPtr(&r13, kChangingLayer1OverworldTiles_Layer1TileLocation[(uint16)(2 * ow_current_event_number) >> 1]);
+  uint8 v1 = *IndirPtr(&r13, kChangingLayer1OverworldTiles_Layer1TileLocation[ow_current_event_number]);
   while (v1 != kChangingLayer1OverworldTiles_TilesThatChange[v0]) {
     if ((--v0 & 0x8000) != 0) {
       pointer_overworld_event_process = 7;
@@ -2025,16 +2021,15 @@ void OwEventProcess05_GetLayer1Tile() {  // 04ec78
 }
 
 void OwEventProcess01_DestroyTileAnimation_04ED83() {  // 04ed83
-  LongPtr r13 = LONGPTR(0x7ec800);
   uint16 v0 = 21;
-  uint8 v1 = *IndirPtr(&r13, kChangingLayer1OverworldTiles_Layer1TileLocation[(uint16)(2 * ow_current_event_number) >> 1]);
+  uint8 v1 = g_ram[0xc800 + kChangingLayer1OverworldTiles_Layer1TileLocation[ow_current_event_number]];
   do {
     if (v1 == kChangingLayer1OverworldTiles_TilesThatChange[v0])
       break;
     --v0;
   } while (v0);
 //  r14w = v0;
-  int v2 = (uint16)(2 * ow_current_event_number) >> 1;
+  int v2 = ow_current_event_number;
   uint16 r0w = kOwEventProcess01_DestroyTileAnimation_DATA_04D93D[v2];
   blocks_map16_table_lo[kChangingLayer1OverworldTiles_Layer1TileLocation[v2]] = kChangingLayer1OverworldTiles_TilesToBecome[v0];
   OwEventProcess01_DestroyTileAnimation_04EDE6(stripe_image_upload, 8 * v0, r0w, RomPtr(0x4ecd3));
@@ -2063,7 +2058,7 @@ void OwEventProcess04_FadeInLayer2Tile_04EE30() {  // 04ee30
   LOBYTE(v2) = (uint16)(((uint16)(r0w & 0x1FFF) >> 1) + 0x3000) >> 8;
   HIBYTE(v2) = (uint16)(r0w & 0x1FFF) >> 1;
   uint16 r2w = v2;
-  LongPtr r12 = LONGPTR(0x7f4000);
+  const uint8 *r12 = g_ram + 0x14000;
   if (kLayer2EventData_TileEntries[v1] < 0x900)
     v0 = BufferEventTileToStripeImageTable_Buffer6x6Tile(r0w, r2w, 0xffff, r12);
   else
