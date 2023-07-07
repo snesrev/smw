@@ -64,7 +64,7 @@ void OwTileAnimations_0480B9(uint16 k, const uint8 *p0) {  // 0480b9
   uint16 r7 = 8;
   uint16 r9 = 8;
   do {
-    *(uint16 *)&sprites_cutscene_sprite_table_0AF6[k] = p0[v1];
+    *(uint16 *)&sprites_cutscene_sprite_table_0AF6[k] = WORD(p0[v1]);
     v1 += 2;
     k += 2;
   } while (--r7);
@@ -1292,13 +1292,11 @@ void InitializeOverworldTilemaps() {  // 04d6e9
   *(uint16 *)&misc_level_layout_flags = 0;
   camera_xy_layer1_vramupd_left_up = -1;
   camera_xy_layer1_vramupd_right_down = -1;
-  WriteReg(VMAIN, 0x80);
-  WriteRegWord(VMADDL, 0x3000);
-  for (uint8 i = 6; (i & 0x80) == 0; --i)
-    WriteReg((SnesRegs)(i + DMAP1), kInitializeOverworldTilemaps_PARAMS_04DAB3[i]);
+
+  uint32 addr = 0x14000;
   if (ow_players_map[(uint8)player_current_characterx4 >> 2])
-    WriteReg(A1T1H, 0x60);
-  WriteReg(MDMAEN, 2);
+    addr = 0x16000;
+  SmwCopyToVram(0x3000, g_ram + addr, 0x2000);
 }
 
 uint16 LoadOverworldLayer1AndEvents_InitializedOverworldLayer1Tilemap(uint16 k, uint8 a) {  // 04d770

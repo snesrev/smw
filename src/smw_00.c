@@ -98,7 +98,6 @@ static FuncV *const kGameMode14_InLevel_PlayerStatePtrs[14] = {
 void SmwVectorReset() {
   WriteReg(NMITIMEN, 0);
   WriteReg(HDMAEN, 0);
-  WriteReg(MDMAEN, 0);
   WriteReg(APUI00, 0);
   WriteReg(APUI01, 0);
   WriteReg(APUI02, 0);
@@ -379,17 +378,6 @@ void SetMode7PPUPointersAndLayer1Scroll() {  // 008416
   WriteReg(BG1VOFS, HIBYTE(mirror_current_layer1_ypos));
 }
 
-void UploadOAMBuffer() {  // 008449
-  WriteReg(DMAP0, 0);
-  WriteRegWord(OAMADDL, 0);
-  WriteRegWord(BBAD0, 4);
-  WriteRegWord(A1T0H, 2);
-  WriteRegWord(DAS0L, 0x220);
-  WriteReg(MDMAEN, 1);
-  WriteReg(OAMADDH, 0x80);
-  WriteReg(OAMADDL, mirror_oamaddress_lo);
-}
-
 void CompressOamEntExt() {  // 008494
   for (uint8 i = 30; (i & 0x80) == 0; i -= 2) {
     uint8 v1 = kCompressOAMTileSizeBuffer_DATA_008475[i];
@@ -416,20 +404,9 @@ void LoadStripeImage() {  // 0085d2
 
 void ClearLayer3Tilemap() {  // 0085fa
   TurnOffIO();
-  g_ram[0] = 0xfc;
-  WriteReg(VMAIN, 0);
-  WriteRegWord(VMADDL, 0x5000);
-  for (uint8 i = 6; (i & 0x80) == 0; --i)
-    WriteReg((SnesRegs)(i + DMAP1), kClearLayer3Tilemap_PARAMS_008649[i]);
-  WriteReg(MDMAEN, 2);
 
-  g_ram[0] = 56;
-  WriteReg(VMAIN, 0x80);
-  WriteRegWord(VMADDL, 0x5000);
-  for (uint8 j = 6; (j & 0x80) == 0; --j)
-    WriteReg((SnesRegs)(j + DMAP1), kClearLayer3Tilemap_PARAMS_008649[j]);
-  WriteReg(BBAD1, 0x19);
-  WriteReg(MDMAEN, 2);
+  SmwClearVram(0x5000, 0x38fc, 0x1000);
+
   mirror_oamaddress_lo = 0;
   ResetSpritesFunc(0);
   UploadOAMBuffer();
@@ -463,136 +440,33 @@ void GameMode14_InLevel_0086C7() {  // 0086c7
   ResetSpritesFunc(100);
 }
 
-void LoadStripeImage_UploadToVRAM(LongPtr p0) {  // 00871e
-  int16 v5;
-
-  WriteReg(A1B1, p0.bank);
-  uint16 v1 = 0;
-  while (1) {
-    uint8 *v2 = IndirPtr(&p0, v1);
-    if ((*v2 & 0x80) != 0)
-      break;
-    uint16 R3 = v2[0] << 8 | v2[1];
-    v1 += 2;
-    uint8 r7 = __CFSHL__(v2[2], 1);
-    WriteReg(BBAD1, 0x18);
-    uint8 r5 = (uint8)(v2[2] & 0x40) >> 3;
-    WriteReg(DMAP1, r5 | 1);
-    WriteRegWord(VMADDL, R3);
-    v5 = swap16(WORD(v2[2]));
-    uint16 v6 = (v5 & 0x3FFF) + 1;
-    v1 += 2;
-    WriteRegWord(A1T1L, p0.addr + v1);
-    WriteRegWord(DAS1L, v6);
-    if (r5) {
-      WriteReg(VMAIN, r7);
-      WriteReg(MDMAEN, 2);
-      WriteReg(BBAD1, 0x19);
-      WriteRegWord(VMADDL, R3);
-      WriteRegWord(A1T1L, p0.addr + v1 + 1);
-      WriteRegWord(DAS1L, v6);
-      v6 = 2;
-    }
-    v1 += v6;
-    WriteReg(VMAIN, r7 | 0x80);
-    WriteReg(MDMAEN, 2);
-  }
-}
 
 void UploadLevelLayer1And2Tilemaps() {  // 0087ad
   if ((uint8)blocks_layer1_vramupload_address) {
     if ((misc_level_layout_flags & 1) != 0) {
-      WriteReg(VMAIN, 0x80);
-      WriteRegWord(VMADDL, swap16(blocks_layer1_vramupload_address));
-      for (uint8 i = 6; (i & 0x80) == 0; --i)
-        WriteReg((SnesRegs)(i + DMAP1), kUploadLevelLayer1And2Tilemaps_PARAMS_008A16[i]);
-      WriteReg(MDMAEN, 2);
-      WriteReg(VMAIN, 0x80);
-      WriteRegWord(VMADDL, swap16(blocks_layer1_vramupload_address) + 0x400);
-      for (uint8 j = 6; (j & 0x80) == 0; --j)
-        WriteReg((SnesRegs)(j + DMAP1), kUploadLevelLayer1And2Tilemaps_PARAMS_008A1D[j]);
-      WriteReg(DAS1L, 0x40);
-      WriteReg(MDMAEN, 2);
-      WriteReg(VMAIN, 0x80);
-      WriteRegWord(VMADDL, swap16(blocks_layer1_vramupload_address) + 0x20);
-      for (uint8 k = 6; (k & 0x80) == 0; --k)
-        WriteReg((SnesRegs)(k + DMAP1), kUploadLevelLayer1And2Tilemaps_PARAMS_008A24[k]);
-      WriteReg(MDMAEN, 2);
-      WriteReg(VMAIN, 0x80);
-      WriteRegWord(VMADDL, swap16(blocks_layer1_vramupload_address) + 0x420);
-      for (uint8 m = 6; (m & 0x80) == 0; --m)
-        WriteReg((SnesRegs)(m + DMAP1), kUploadLevelLayer1And2Tilemaps_PARAMS_008A2B[m]);
-      WriteReg(DAS1L, 0x40);
-      WriteReg(MDMAEN, 2);
+      SmwCopyToVram(swap16(blocks_layer1_vramupload_address), g_ram + 0x1be6, 0x40);
+      SmwCopyToVram(swap16(blocks_layer1_vramupload_address) + 0x400, g_ram + 0x1c26, 0x40);
+      SmwCopyToVram(swap16(blocks_layer1_vramupload_address) + 0x20, g_ram + 0x1c66, 0x40);
+      SmwCopyToVram(swap16(blocks_layer1_vramupload_address) + 0x420, g_ram + 0x1cA6, 0x40);
     } else {
-      WriteReg(VMAIN, 0x81);
-      WriteRegWord(VMADDL, swap16(blocks_layer1_vramupload_address));
-      for (uint8 n = 6; (n & 0x80) == 0; --n)
-        WriteReg((SnesRegs)(n + DMAP1), kUploadLevelLayer1And2Tilemaps_PARAMS_008A16[n]);
-      WriteReg(MDMAEN, 2);
-      WriteReg(VMAIN, 0x81);
-      WriteRegWord(VMADDL, swap16(blocks_layer1_vramupload_address) + 0x800);
-      for (uint8 ii = 6; (ii & 0x80) == 0; --ii)
-        WriteReg((SnesRegs)(ii + DMAP1), kUploadLevelLayer1And2Tilemaps_PARAMS_008A1D[ii]);
-      WriteReg(MDMAEN, 2);
-      WriteReg(VMAIN, 0x81);
-      WriteRegWord(VMADDL, swap16(blocks_layer1_vramupload_address) + 1);
-      for (uint8 jj = 6; (jj & 0x80) == 0; --jj)
-        WriteReg((SnesRegs)(jj + DMAP1), kUploadLevelLayer1And2Tilemaps_PARAMS_008A24[jj]);
-      WriteReg(MDMAEN, 2);
-      WriteReg(VMAIN, 0x81);
-      WriteRegWord(VMADDL, swap16(blocks_layer1_vramupload_address) + 0x801);
-      for (uint8 kk = 6; (kk & 0x80) == 0; --kk)
-        WriteReg((SnesRegs)(kk + DMAP1), kUploadLevelLayer1And2Tilemaps_PARAMS_008A2B[kk]);
-      WriteReg(MDMAEN, 2);
+      SmwCopyToVramPitch32(swap16(blocks_layer1_vramupload_address), g_ram + 0x1be6, 0x40);
+      SmwCopyToVramPitch32(swap16(blocks_layer1_vramupload_address) + 0x800, g_ram + 0x1c26, 0x2c);
+      SmwCopyToVramPitch32(swap16(blocks_layer1_vramupload_address) + 1, g_ram + 0x1c66, 0x40);
+      SmwCopyToVramPitch32(swap16(blocks_layer1_vramupload_address) + 0x801, g_ram + 0x1cA6, 0x2c);
     }
   }
   LOBYTE(blocks_layer1_vramupload_address) = 0;
   if ((uint8)blocks_layer2_vramupload_address) {
     if ((misc_level_layout_flags & 2) != 0) {
-      WriteReg(VMAIN, 0x80);
-      WriteRegWord(VMADDL, swap16(blocks_layer2_vramupload_address));
-      for (uint8 mm = 6; (mm & 0x80) == 0; --mm)
-        WriteReg((SnesRegs)(mm + DMAP1), kUploadLevelLayer1And2Tilemaps_PARAMS_008A32[mm]);
-      WriteReg(MDMAEN, 2);
-      WriteReg(VMAIN, 0x80);
-      WriteRegWord(VMADDL, swap16(blocks_layer2_vramupload_address) + 0x400);
-      for (uint8 nn = 6; (nn & 0x80) == 0; --nn)
-        WriteReg((SnesRegs)(nn + DMAP1), kUploadLevelLayer1And2Tilemaps_PARAMS_008A39[nn]);
-      WriteReg(DAS1L, 0x40);
-      WriteReg(MDMAEN, 2);
-      WriteReg(VMAIN, 0x80);
-      WriteRegWord(VMADDL, swap16(blocks_layer2_vramupload_address) + 0x20);
-      for (uint8 i1 = 6; (i1 & 0x80) == 0; --i1)
-        WriteReg((SnesRegs)(i1 + DMAP1), kUploadLevelLayer1And2Tilemaps_PARAMS_008A40[i1]);
-      WriteReg(MDMAEN, 2);
-      WriteReg(VMAIN, 0x80);
-      WriteRegWord(VMADDL, swap16(blocks_layer2_vramupload_address) + 0x420);
-      for (uint8 i2 = 6; (i2 & 0x80) == 0; --i2)
-        WriteReg((SnesRegs)(i2 + DMAP1), kUploadLevelLayer1And2Tilemaps_PARAMS_008A47[i2]);
-      WriteReg(DAS1L, 0x40);
-      WriteReg(MDMAEN, 2);
+      SmwCopyToVram(swap16(blocks_layer2_vramupload_address), g_ram + 0x1ce8, 0x40);
+      SmwCopyToVram(swap16(blocks_layer2_vramupload_address) + 0x400, g_ram + 0x1d28, 0x40);
+      SmwCopyToVram(swap16(blocks_layer2_vramupload_address) + 0x20, g_ram + 0x1d68, 0x40);
+      SmwCopyToVram(swap16(blocks_layer2_vramupload_address) + 0x420, g_ram + 0x1da8, 0x40);
     } else {
-      WriteReg(VMAIN, 0x81);
-      WriteRegWord(VMADDL, swap16(blocks_layer2_vramupload_address));
-      for (uint8 i3 = 6; (i3 & 0x80) == 0; --i3)
-        WriteReg((SnesRegs)(i3 + DMAP1), kUploadLevelLayer1And2Tilemaps_PARAMS_008A32[i3]);
-      WriteReg(MDMAEN, 2);
-      WriteReg(VMAIN, 0x81);
-      WriteRegWord(VMADDL, swap16(blocks_layer2_vramupload_address) + 0x800);
-      for (uint8 i4 = 6; (i4 & 0x80) == 0; --i4)
-        WriteReg((SnesRegs)(i4 + DMAP1), kUploadLevelLayer1And2Tilemaps_PARAMS_008A39[i4]);
-      WriteReg(MDMAEN, 2);
-      WriteReg(VMAIN, 0x81);
-      WriteRegWord(VMADDL, swap16(blocks_layer2_vramupload_address) + 1);
-      for (uint8 i5 = 6; (i5 & 0x80) == 0; --i5)
-        WriteReg((SnesRegs)(i5 + DMAP1), kUploadLevelLayer1And2Tilemaps_PARAMS_008A40[i5]);
-      WriteReg(MDMAEN, 2);
-      WriteReg(VMAIN, 0x81);
-      WriteRegWord(VMADDL, swap16(blocks_layer2_vramupload_address) + 0x801);
-      for (uint8 i6 = 6; (i6 & 0x80) == 0; --i6)
-        WriteReg((SnesRegs)(i6 + DMAP1), kUploadLevelLayer1And2Tilemaps_PARAMS_008A47[i6]);
-      WriteReg(MDMAEN, 2);
+      SmwCopyToVramPitch32(swap16(blocks_layer2_vramupload_address), g_ram + 0x1ce8, 0x40);
+      SmwCopyToVramPitch32(swap16(blocks_layer2_vramupload_address) + 0x800, g_ram + 0x1d28, 0x2c);
+      SmwCopyToVramPitch32(swap16(blocks_layer2_vramupload_address) + 1, g_ram + 0x1d68, 0x40);
+      SmwCopyToVramPitch32(swap16(blocks_layer2_vramupload_address) + 0x801, g_ram + 0x1dA8, 0x2c);
     }
   }
   LOBYTE(blocks_layer2_vramupload_address) = 0;
@@ -669,26 +543,10 @@ uint16 ManipulateMode7Image_008B2B(uint16 k, uint8 r0) {  // 008b2b
 }
 
 void InitializeStatusBarTilemap() {  // 008cff
-  WriteReg(VMAIN, 0x80);
-  WriteRegWord(VMADDL, 0x502E);
-  for (uint8 i = 6; (i & 0x80) == 0; --i)
-    WriteReg((SnesRegs)(i + DMAP1), kInitializeStatusBarTilemap_PARAMS_008D90[i]);
-  WriteReg(MDMAEN, 2);
-  WriteReg(VMAIN, 0x80);
-  WriteRegWord(VMADDL, 0x5042);
-  for (uint8 j = 6; (j & 0x80) == 0; --j)
-    WriteReg((SnesRegs)(j + DMAP1), kInitializeStatusBarTilemap_PARAMS_008D97[j]);
-  WriteReg(MDMAEN, 2);
-  WriteReg(VMAIN, 0x80);
-  WriteRegWord(VMADDL, 0x5063);
-  for (uint8 k = 6; (k & 0x80) == 0; --k)
-    WriteReg((SnesRegs)(k + DMAP1), kInitializeStatusBarTilemap_PARAMS_008D9E[k]);
-  WriteReg(MDMAEN, 2);
-  WriteReg(VMAIN, 0x80);
-  WriteRegWord(VMADDL, 0x508E);
-  for (uint8 m = 6; (m & 0x80) == 0; --m)
-    WriteReg((SnesRegs)(m + DMAP1), kInitializeStatusBarTilemap_PARAMS_008DA5[m]);
-  WriteReg(MDMAEN, 2);
+  SmwCopyToVram(0x502e, RomPtr_00(0x8c81), 8);
+  SmwCopyToVram(0x5042, RomPtr_00(0x8c89), 0x38);
+  SmwCopyToVram(0x5063, RomPtr_00(0x8cc1), 0x36);
+  SmwCopyToVram(0x508e, RomPtr_00(0x8cf7), 8);
   int8 v4 = 54;
   uint8 v5 = 108;
   do {
@@ -700,16 +558,8 @@ void InitializeStatusBarTilemap() {  // 008cff
 }
 
 void UploadStatusBarTilemap() {  // 008dac
-  WriteReg(VMAIN, 0);
-  WriteRegWord(VMADDL, 0x5042);
-  for (uint8 i = 6; (i & 0x80) == 0; --i)
-    WriteReg((SnesRegs)(i + DMAP1), kUploadStatusBarTilemap_PARAMS_StBr1[i]);
-  WriteReg(MDMAEN, 2);
-  WriteReg(VMAIN, 0);
-  WriteRegWord(VMADDL, 0x5063);
-  for (uint8 j = 6; (j & 0x80) == 0; --j)
-    WriteReg((SnesRegs)(j + DMAP1), kUploadStatusBarTilemap_PARAMS_StBr2[j]);
-  WriteReg(MDMAEN, 2);
+  SmwCopyToVramLow(0x5042, g_ram + 0xef9, 0x1c);
+  SmwCopyToVramLow(0x5063, g_ram + 0xf15, 0x1b);
 }
 
 void UpdateStatusBarCounters() {  // 008e1a
@@ -934,10 +784,7 @@ uint16 DrawLoadingLetters_Draw(uint8 k, uint8 j, uint16 r0w) {  // 0091e9
 
 void UpdateEntirePalette() {  // 00922f
   palettes_palette_mirror[0] = 0;
-  WriteReg(CGADD, 0);
-  for (uint8 i = 6; (i & 0x80) == 0; --i)
-    WriteReg((SnesRegs)(i + DMAP2), kUpdateEntirePalette_PARAMS_009249[i]);
-  WriteReg(MDMAEN, 4);
+  RtlUpdatePalette(palettes_palette_mirror, 0, 0x100);
 }
 
 void SetupHDMAWindowingEffects() {  // 009250
@@ -1179,13 +1026,7 @@ void GameMode19_Cutscene_GameMode1BEntry() {  // 0094fd
 void UploadBigLayer3LettersToVRAM() {  // 00955e
   const uint8 *p0 = GraphicsDecompressionRoutines(0x2F);
   const uint8 *v1 = &p0[0];
-  WriteReg(VMAIN, 0x80);
-  WriteRegWord(VMADDL, 0x4600);
-  int16 v0 = 512;
-  do {
-    WriteRegWord(VMDATAL, *(uint16 *)v1);
-    v1 += 2;
-  } while (--v0);
+  SmwCopyToVram(0x4600, v1, 512 * 2);
 }
 
 void GameMode1D_LoadYoshisHouse() {  // 009583
@@ -1406,7 +1247,7 @@ void GameMode12_PrepareLevel_PrepareMode7Level() {  // 0097bc
   misc_m7_angle = 0x2020;
   LOBYTE(shaking_layer1_disp_y) = 0;
   ClearLayer3Tilemap();
-  misc_level_tileset_setting = -1;
+  misc_level_tileset_setting = 0xff;
   GameMode12_PrepareLevel_UploadTiltingPlatformTilemap();
   if ((misc_nmito_use_flag & 0x40) == 0) {
     BufferPalettesRoutines_IggyLarryPlatform();
@@ -1483,13 +1324,7 @@ void UploadMode7KoopaBossesAndLavaAnimation() {  // 0098a9
   int8 v0 = misc_nmito_use_flag & 1;
   if (!(misc_nmito_use_flag & 1)) {
     uint8 v1 = (counter_local_frames >> 2) & 6;
-    WriteReg(VMAIN, 0x80);
-    WriteRegWord(DMAP2, 0x1801);
-    WriteRegWord(VMADDL, 0x7800);
-    WriteRegWord(A1T2L, kLevelTileAnimations_FrameData_Local1_Frame5[v1 >> 1]);
-    WriteReg(A1B2, 0x7E);
-    WriteRegWord(DAS2L, 0x80);
-    WriteReg(MDMAEN, 4);
+    SmwCopyToVram(0x7800, g_ram + kLevelTileAnimations_FrameData_Local1_Frame5[v1 >> 1], 0x80);    
     v0 = 0;
   }
   uint16 v2 = 4;
@@ -1500,16 +1335,10 @@ void UploadMode7KoopaBossesAndLavaAnimation() {  // 0098a9
   }
   uint16 r0w = v2;
   uint16 r2w = 0xc680;
-  WriteRegWord(VMAIN, 0);
-  WriteRegWord(DMAP2, 0x1800);
-  WriteReg(A1B2, 0x7E);
   do {
-    WriteRegWord(VMADDL, kUploadMode7KoopaBossesAndLavaAnimation_VRAMAddressToUpload[v3 >> 1]);
-    uint16 v4 = r2w;
-    WriteRegWord(A1T2L, r2w);
-    r2w = r0w + v4;
-    WriteRegWord(DAS2L, r0w);
-    WriteReg(MDMAEN, 4);
+    SmwCopyToVramLow(kUploadMode7KoopaBossesAndLavaAnimation_VRAMAddressToUpload[v3 >> 1],
+        g_ram + r2w, r0w);
+    r2w += r0w;
     v3 -= 2;
   } while ((v3 & 0x80) == 0);
 }
@@ -2313,70 +2142,39 @@ void UpdateCurrentPlayerPositionRAM() {  // 00a2f3
 
 void UploadPlayerGFX() {  // 00a300
   if (player_number_of_tiles_to_update) {
-    WriteReg(CGADD, 0x86);
-    WriteRegWord(DMAP2, 0x2200);
-    WriteRegWord(A1T2L, pointer_player_palette);
-    WriteReg(A1B2, 0);
-    WriteRegWord(DAS2L, 0x14);
-    WriteReg(MDMAEN, 4);
+    RtlUpdatePalette((uint16*)(g_ram + pointer_player_palette), 0x86, 10);
   }
-  WriteReg(VMAIN, 0x80);
-  WriteRegWord(DMAP2, 0x1801);
-  WriteRegWord(VMADDL, 0x67F0);
-  WriteRegWord(A1T2L, graphics_dynamic_sprite_tile7 ? graphics_dynamic_sprite_tile7 : 0x2000);
-  WriteReg(A1B2, 0x7E);
-  WriteRegWord(DAS2L, 0x20);
-  WriteReg(MDMAEN, 4);
-  WriteRegWord(VMADDL, 0x6000);
+  SmwCopyToVram(0x67f0, g_ram + (graphics_dynamic_sprite_tile7 ? graphics_dynamic_sprite_tile7 : 0x2000), 0x20);
+
   uint8 v0 = 0;
   do {
     uint16 t = *(uint16 *)&graphics_dynamic_sprite_pointers_top_lo[v0];
-    WriteRegWord(A1T2L, t ? t : 0x2000);  // bugfix to make predictable behavior
-    WriteRegWord(DAS2L, 0x40);
-    WriteReg(MDMAEN, 4);
+    SmwCopyToVram(0x6000 + v0 * 0x10, g_ram + (t ? t : 0x2000), 0x40);
     v0 += 2;
   } while (v0 < player_number_of_tiles_to_update);
-  WriteRegWord(VMADDL, 0x6100);
+
   uint8 v1 = 0;
   do {
     uint16 t = *(uint16 *)&graphics_dynamic_sprite_pointers_bottom_lo[v1];
-    WriteRegWord(A1T2L, t ? t : 0x2000);  // bugfix to make predictable behavior
-    WriteRegWord(DAS2L, 0x40);
-    WriteReg(MDMAEN, 4);
+    // bugfix to make predictable behavior
+    SmwCopyToVram(0x6100 + v1 * 0x10, g_ram + (t ? t : 0x2000), 0x40);
     v1 += 2;
   } while (v1 < player_number_of_tiles_to_update);
 }
 
 void UploadLevelExAnimationData() {  // 00a390
-  WriteReg(VMAIN, 0x80);
-  WriteRegWord(DMAP2, 0x1801);
-  WriteReg(A1B2, 0x7E);
-  if (graphics_tile_anim_vramaddress3) {
-    WriteRegWord(VMADDL, graphics_tile_anim_vramaddress3);
-    WriteRegWord(A1T2L, graphics_tile_anim_source_address3);
-    WriteRegWord(DAS2L, 0x80);
-    WriteReg(MDMAEN, 4);
-  }
-  if (graphics_tile_anim_vramaddress2) {
-    WriteRegWord(VMADDL, graphics_tile_anim_vramaddress2);
-    WriteRegWord(A1T2L, graphics_tile_anim_source_address2);
-    WriteRegWord(DAS2L, 0x80);
-    WriteReg(MDMAEN, 4);
-  }
+  if (graphics_tile_anim_vramaddress3)
+    SmwCopyToVram(graphics_tile_anim_vramaddress3, g_ram + graphics_tile_anim_source_address3, 0x80);
+  if (graphics_tile_anim_vramaddress2)
+    SmwCopyToVram(graphics_tile_anim_vramaddress2, g_ram + graphics_tile_anim_source_address2, 0x80);
   uint16 v0 = graphics_tile_anim_vramaddress1;
   if (graphics_tile_anim_vramaddress1) {
-    WriteRegWord(VMADDL, graphics_tile_anim_vramaddress1);
-    WriteRegWord(A1T2L, graphics_tile_anim_source_address1);
     if (v0 == 0x800) {
-      WriteRegWord(DAS2L, 0x40);
-      WriteReg(MDMAEN, 4);
-      WriteRegWord(VMADDL, 0x900);
-      WriteRegWord(A1T2L, graphics_tile_anim_source_address1 + 64);
-      WriteRegWord(DAS2L, 0x40);
+      SmwCopyToVram(graphics_tile_anim_vramaddress1, g_ram + graphics_tile_anim_source_address1, 0x40);
+      SmwCopyToVram(0x900, g_ram + graphics_tile_anim_source_address1 + 64, 0x40);
     } else {
-      WriteRegWord(DAS2L, 0x80);
+      SmwCopyToVram(graphics_tile_anim_vramaddress1, g_ram + graphics_tile_anim_source_address1, 0x80);
     }
-    WriteReg(MDMAEN, 4);
   }
   UploadLevelAnimations_YellowFlash(0x64);
 }
@@ -2395,17 +2193,8 @@ void UploadLevelAnimations_RedFlash(uint8 a, uint8 r0) {  // 00a41e
 void RestoreSP1AfterMarioStart() {  // 00a436
   if (flag_restoresp1_tiles_after_mario_start) {
     flag_restoresp1_tiles_after_mario_start = 0;
-    WriteReg(VMAIN, 0x80);
-    WriteRegWord(VMADDL, 0x64A0);
-    WriteRegWord(DMAP2, 0x1801);
-    WriteRegWord(A1T2L, 0xBF6);
-    WriteReg(A1B2, 0);
-    WriteRegWord(DAS2L, 0xC0);
-    WriteReg(MDMAEN, 4);
-    WriteRegWord(VMADDL, 0x65A0);
-    WriteRegWord(A1T2L, 0xCB6);
-    WriteRegWord(DAS2L, 0xC0);
-    WriteReg(MDMAEN, 4);
+    SmwCopyToVram(0x64a0, g_ram + 0xbf6, 0xc0);
+    SmwCopyToVram(0x65a0, g_ram + 0xcb6, 0xc0);
   }
 }
 
@@ -2419,19 +2208,11 @@ void UpdatePaletteFromIndexedTable() {  // 00a488
   LongPtr p0 = { .bank = v0, .addr = 0 };
   v1 = WORD(kUpdatePaletteFromIndexedTable_DATA_00A47F[palettes_palette_upload_table_index]);
   uint16 v2 = v1;
-  while (1) {
-    uint8 v3 = *IndirPtr(&p0, v2++);
-    if (!v3)
-      break;
-    WriteRegWord(A1B2, v0);
-    WriteReg(DAS2L, v3);
-    WriteReg(DAS2H, 0);
-    uint8 *v5 = IndirPtr(&p0, v2++);
-    WriteReg(CGADD, *v5);
-    WriteRegWord(DMAP2, 0x2200);
-    WriteRegWord(A1T2L, v2);
-    v2 += v3;
-    WriteReg(MDMAEN, 4);
+  uint8 *p = IndirPtr(&p0, v2);
+  int n;
+  while ((n = p[0]) != 0) {
+    RtlUpdatePalette((uint16 *)(p + 2), p[1], n);
+    p += 2 + n;
   }
   UpdatePaletteFromIndexedTable_00AE47();
   if (!palettes_palette_upload_table_index) {
@@ -2442,13 +2223,7 @@ void UpdatePaletteFromIndexedTable() {  // 00a488
 }
 
 void UploadOverworldExAnimationData() {  // 00a4e3
-  WriteReg(VMAIN, 0x80);
-  WriteRegWord(VMADDL, 0x750);
-  WriteRegWord(DMAP2, 0x1801);
-  WriteRegWord(A1T2L, 0xAF6);
-  WriteReg(A1B2, 0);
-  WriteRegWord(DAS2L, 0x160);
-  WriteReg(MDMAEN, 4);
+  SmwCopyToVram(0x750, g_ram + 0xaf6, 0x160);
   if (pointer_current_overworld_process != 10) {
     UploadLevelAnimations_YellowFlash(0x6D);
     UploadLevelAnimations_RedFlash(0x7D, 16);
@@ -2456,20 +2231,12 @@ void UploadOverworldExAnimationData() {  // 00a4e3
 }
 
 void UploadOverworldLayer1And2Tilemaps(uint8 j) {  // 00a529
-  WriteReg(VMAIN, 0x80);
-  WriteRegWord(VMADDL, (kUploadOverworldLayer1And2Tilemaps_DATA_00A521[j] + 48) << 8);
-  for (uint8 i = 6; (i & 0x80) == 0; --i)
-    WriteReg((SnesRegs)(i + DMAP1), kUploadOverworldLayer1And2Tilemaps_PARAMS_00A586[i]);
-  if (ow_players_map[(uint8)player_current_characterx4 >> 2])
-    WriteReg(A1T1H, 0x60);
-  uint8 Reg = ReadReg(A1T1H);
-  WriteReg(A1T1H, kUploadOverworldLayer1And2Tilemaps_DATA_00A525[j] + Reg);
-  WriteReg(MDMAEN, 2);
-  WriteReg(VMAIN, 0x80);
-  WriteRegWord(VMADDL, (kUploadOverworldLayer1And2Tilemaps_DATA_00A521[j] + 32) << 8);
-  for (uint8 k = 6; (k & 0x80) == 0; --k)
-    WriteReg((SnesRegs)(k + DMAP1), kUploadOverworldLayer1And2Tilemaps_PARAMS_00A58D[k]);
-  WriteReg(MDMAEN, 2);
+  uint32 ram = ow_players_map[(uint8)player_current_characterx4 >> 2] ? 0x6000 : 0x4000;
+  ram += kUploadOverworldLayer1And2Tilemaps_DATA_00A525[j] << 8;
+  SmwCopyToVram(
+      (kUploadOverworldLayer1And2Tilemaps_DATA_00A521[j] + 48) << 8,
+      g_ram + ram, 0x800);
+  SmwCopyToVram((kUploadOverworldLayer1And2Tilemaps_DATA_00A521[j] + 32) << 8, g_ram + 0xe400, 0x800);
 }
 
 void GameMode12_PrepareLevel() {  // 00a59c
@@ -2647,25 +2414,10 @@ void GameMode11_LoadSublevel_00A796() {  // 00a796
 }
 
 void UploadLoadingLettersTiles() {  // 00a7c2
-  WriteReg(VMAIN, 0x80);
-  WriteRegWord(VMADDL, 0x6000);
-  WriteRegWord(DMAP2, 0x1801);
-  WriteRegWord(A1T2L, 0x977B);
-  WriteReg(A1B2, 0x7F);
-  WriteRegWord(DAS2L, 0xC0);
-  WriteReg(MDMAEN, 4);
-  WriteRegWord(VMADDL, 0x6100);
-  WriteRegWord(A1T2L, 0x983B);
-  WriteRegWord(DAS2L, 0xC0);
-  WriteReg(MDMAEN, 4);
-  WriteRegWord(VMADDL, 0x64A0);
-  WriteRegWord(A1T2L, 0x98FB);
-  WriteRegWord(DAS2L, 0xC0);
-  WriteReg(MDMAEN, 4);
-  WriteRegWord(VMADDL, 0x65A0);
-  WriteRegWord(A1T2L, 0x99BB);
-  WriteRegWord(DAS2L, 0xC0);
-  WriteReg(MDMAEN, 4);
+  SmwCopyToVram(0x6000, g_ram + 0x1977b, 0xc0);
+  SmwCopyToVram(0x6100, g_ram + 0x1983B, 0xc0);
+  SmwCopyToVram(0x64a0, g_ram + 0x198fB, 0xc0);
+  SmwCopyToVram(0x65a0, g_ram + 0x199bb, 0xc0);
 }
 
 void BufferLoadingLetterTiles() {  // 00a82d
@@ -2715,29 +2467,15 @@ void BufferLoadingLetterTiles() {  // 00a82d
 }
 
 void UploadGraphicsFiles_Layer3() {  // 00a993
-  WriteRegWord(VMADDL, 0x4000);
-  uint8 r15 = 3;
-  uint8 r14 = 40;
-  do {
-    const uint8 *p0 = GraphicsDecompressionRoutines(r14);
-    const uint8 *v2 = &p0[0];
-    int16 v0 = 0x3ff;
-    uint16 v1 = 0;
-    do {
-      WriteRegWord(VMDATAL, *(uint16 *)v2);
-      v2 += 2;
-      --v0;
-    } while (v0 >= 0);
-    ++r14;
-    --r15;
-  } while ((r15 & 0x80) == 0);
-  WriteRegWord(VMADDL, 0x6000);
-  UploadGraphicsFiles_UploadGFXFile(0);
+  for(int i = 0; i < 4; i++) {
+    const uint8 *p0 = GraphicsDecompressionRoutines(40 + i);
+    SmwCopyToVram(0x4000 + i * 0x400, p0, 0x800);
+  }
+  UploadGraphicsFiles_UploadGFXFile(0x6000, 0);
 }
 
 void UploadGraphicsFiles() {  // 00a9da
   uint8 arr[4];
-  WriteReg(VMAIN, 0x80);
   int8 v0 = 3;
   uint8 v1 = 4 * graphics_level_sprite_graphics_setting;
   do
@@ -2746,16 +2484,16 @@ void UploadGraphicsFiles() {  // 00a9da
   uint8 r15 = 3;
   do {
     uint8 v2 = r15;
-    WriteRegWord(VMADDL, kUploadGraphicsFiles_DATA_00A9D2[v2] << 8);
+    uint16 vmaddl = kUploadGraphicsFiles_DATA_00A9D2[v2] << 8;
     if (misc_currently_loaded_sprite_graphics_files[v2] != arr[v2])
-      UploadGraphicsFiles_UploadGFXFile(arr[v2]);
+      UploadGraphicsFiles_UploadGFXFile(vmaddl, arr[v2]);
     --r15;
   } while ((r15 & 0x80) == 0);
   for (uint8 i = 3; (i & 0x80) == 0; --i)
     misc_currently_loaded_sprite_graphics_files[i] = arr[i];
   if (misc_level_tileset_setting >= 0xFE) {
     if (misc_level_tileset_setting != 0xFE)
-      ConvertGFX27IntoNormallFormat();
+      ConvertGFX27IntoNormallFormat(SmwGetVramAddr() + 2);
     for (int8 j = 3; j >= 0; --j)
       misc_currently_loaded_sprite_graphics_files[(uint8)j + 4] = 0x80;
   } else {
@@ -2767,9 +2505,9 @@ void UploadGraphicsFiles() {  // 00a9da
     r15 = 3;
     do {
       uint8 v6 = r15;
-      WriteRegWord(VMADDL, kUploadGraphicsFiles_DATA_00A9D6[v6] << 8);
+      uint16 vmaddl = kUploadGraphicsFiles_DATA_00A9D6[v6] << 8;
       if (misc_currently_loaded_sprite_graphics_files[v6 + 4] != arr[v6])
-        UploadGraphicsFiles_UploadGFXFile(arr[v6]);
+        UploadGraphicsFiles_UploadGFXFile(vmaddl, arr[v6]);
       --r15;
     } while ((r15 & 0x80) == 0);
     for (uint8 k = 3; (k & 0x80) == 0; --k)
@@ -2777,9 +2515,10 @@ void UploadGraphicsFiles() {  // 00a9da
   }
 }
 
-void UploadGraphicsFiles_UploadGFXFile(uint8 j) {  // 00aa6b
+void UploadGraphicsFiles_UploadGFXFile(uint16 dst_addr, uint8 j) {  // 00aa6b
   uint16 v4;
   uint16 v11;
+  uint16 *dst = SmwGetVramAddr() + dst_addr;
 
   const uint8 *p0 = GraphicsDecompressionRoutines(j);
   if (j == 1 && (ow_level_tile_settings[73] & 0x80) != 0) {
@@ -2787,20 +2526,19 @@ void UploadGraphicsFiles_UploadGFXFile(uint8 j) {  // 00aa6b
     j = 1;
   }
 
-
   if (misc_level_tileset_setting >= 0x11 && j == 8 || j == 30) {
     uint16 r10w = -256;
     for (int8 i = 127; i >= 0; --i) {
       for (int8 k = 7; k >= 0; --k) {
         v11 = WORD(*p0);
-        WriteRegWord(VMDATAL, v11);
+        *dst++ = v11;
         *(uint16 *)&graphics_3_bppto4_bppbuffer[(uint8)k] = WORD(p0[0]) | swap16(v11);
         p0 += 2;
       }
       for (int8 m = 7; m >= 0; --m) {
         const uint8 *v14 = p0;
         uint16 r12w = *v14;
-        WriteRegWord(VMDATAL, r12w | r10w & (*(uint16 *)&graphics_3_bppto4_bppbuffer[(uint8)m] | swap16(*(uint16 *)v14)));
+        *dst++ = r12w | r10w & (*(uint16 *)&graphics_3_bppto4_bppbuffer[(uint8)m] | swap16(*(uint16 *)v14));
         p0 += 1;
       }
     }
@@ -2819,37 +2557,37 @@ void UploadGraphicsFiles_UploadGFXFile(uint8 j) {  // 00aa6b
       }
       for (int8 ii = 7; ii >= 0; --ii) {
         v4 = WORD(*p0);
-        WriteRegWord(VMDATAL, v4);
+        *dst++ = v4;
         *(uint16 *)&graphics_3_bppto4_bppbuffer[(uint8)ii] = WORD(p0[0]) | swap16(v4);
         p0 += 2;
       }
       for (int8 jj = 7; jj >= 0; --jj) {
         uint16 r12w = p0[0];
         const uint8 *v7 = p0;
-        WriteRegWord(VMDATAL, r12w | r10w & (*(uint16 *)&graphics_3_bppto4_bppbuffer[(uint8)jj] | swap16(*(uint16 *)v7)));
+        *dst++ = r12w | r10w & (*(uint16 *)&graphics_3_bppto4_bppbuffer[(uint8)jj] | swap16(*(uint16 *)v7));
         ++p0;
       }
     }
   }
 }
 
-void ConvertGFX27IntoNormallFormat() {  // 00ab42
+void ConvertGFX27IntoNormallFormat(uint16 *dst) {  // 00ab42
   const uint8 *p = GraphicsDecompressionRoutines(0x27);
   for (int i = 0x3ff; i >= 0; --i) {
     uint32 d = p[0] << 16 | p[1] << 8 | p[2];
-    WriteReg(VMDATAH, (d >> 21) & 7);
-    WriteReg(VMDATAH, (d >> 18) & 7);
-    WriteReg(VMDATAH, (d >> 15) & 7);
-    WriteReg(VMDATAH, (d >> 12) & 7);
-    WriteReg(VMDATAH, (d >> 9) & 7);
-    WriteReg(VMDATAH, (d >> 6) & 7);
-    WriteReg(VMDATAH, (d >> 3) & 7);
-    WriteReg(VMDATAH, (d >> 0) & 7);
+    HIBYTE(*dst++) = (d >> 21) & 7;
+    HIBYTE(*dst++) = (d >> 18) & 7;
+    HIBYTE(*dst++) = (d >> 15) & 7;
+    HIBYTE(*dst++) = (d >> 12) & 7;
+    HIBYTE(*dst++) = (d >> 9) & 7;
+    HIBYTE(*dst++) = (d >> 6) & 7;
+    HIBYTE(*dst++) = (d >> 3) & 7;
+    HIBYTE(*dst++) = (d >> 0) & 7;
     p += 3;
   }
   int v11 = 0x2000;
   do {
-    WriteReg(VMDATAH, 0);
+    HIBYTE(*dst++) = 0;
   } while (--v11);
 }
 
@@ -2977,7 +2715,7 @@ void HandlePaletteFades_00AF35(bool run_code_at_end) {  // 00af35
     if (run_code_at_end) {
       const uint8 *p0 = RomPtr_00(pointer_player_palette);
       for (uint16 i = 20; (i & 0x8000) == 0; i -= 2)
-        palettes_copy_of_palette_mirror[(i >> 1) + 134] = p0[i];
+        palettes_copy_of_palette_mirror[(i >> 1) + 134] = WORD(p0[i]);
       palettes_copy_of_palette_mirror[128] = 0x81ee;
       for (uint16 j = 206; (j & 0x8000) == 0; j -= 18) {
         uint16 r0w = 7;

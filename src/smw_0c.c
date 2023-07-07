@@ -178,22 +178,8 @@ void BufferCreditsBackgrounds_0C94C0(uint16 mask) {  // 0c94c0
 }
 
 void UpdateCreditsBackground() {  // 0c9567
-  WriteReg(VMAIN, 0x80);
-  WriteRegWord(VMADDL, 0x30C0);
-  for (uint8 i = 6; (i & 0x80) == 0; --i)
-    WriteReg((SnesRegs)(i + DMAP1), kUpdateCreditsBackground_PARAMS_0C9559[i]);
-  int8 v1 = 8 * blocks_screen_to_place_current_object;
-  uint8 Reg = ReadReg(A1T1H);
-  WriteReg(A1T1H, Reg | v1);
-  WriteReg(MDMAEN, 2);
-  WriteReg(VMAIN, 0x80);
-  WriteRegWord(VMADDL, 0x34C0);
-  for (uint8 j = 6; (j & 0x80) == 0; --j)
-    WriteReg((SnesRegs)(j + DMAP1), kUpdateCreditsBackground_PARAMS_0C9560[j]);
-  int8 v4 = 8 * blocks_screen_to_place_current_object;
-  uint8 v5 = ReadReg(A1T1H);
-  WriteReg(A1T1H, v5 | v4);
-  WriteReg(MDMAEN, 2);
+  SmwCopyToVram(0x30c0, g_ram + (0x14000 | blocks_screen_to_place_current_object << 11), 0x400);
+  SmwCopyToVram(0x34c0, g_ram + (0x14400 | blocks_screen_to_place_current_object << 11), 0x400);
   flag_update_credits_background = 0;
 }
 

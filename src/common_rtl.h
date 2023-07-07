@@ -105,6 +105,8 @@ void RtlReadSram();
 void RtlWriteSram();
 void RtlSaveSnapshot(const char *filename, bool saving_with_bug);
 
+void RtlUpdatePalette(const uint16 *src, int dst, int n);
+
 enum {
   kJoypadL_A = 0x80,
   kJoypadL_X = 0x40,

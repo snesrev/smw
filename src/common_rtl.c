@@ -19,7 +19,7 @@ const uint8 *g_rom;
 bool g_is_uploading_apu;
 bool g_did_finish_level_hook;
 uint8 game_id;
-bool g_playback_mode = 0;
+bool g_playback_mode = 1;
 
 static uint8 *g_rtl_memory_ptr;
 static RunFrameFunc *g_rtl_runframe;
@@ -454,7 +454,7 @@ static void RtlLoadFromFile(FILE *f, bool replay) {
 }
 
 static const char *const kBugSaves[] = {
-  "playthrough/75_1",
+  "playthrough/9_1",
 };
 
 
@@ -487,7 +487,7 @@ void RtlSaveLoad(int cmd, int slot) {
   }
 }
 
-static int g_playback_ctr = 75 * 2;
+static int g_playback_ctr = 10 * 2;
 void SmwLoadNextPlaybackSnapshot() {
   char name[128];
   for (int i = 0; i < 10; i++) {
@@ -798,3 +798,75 @@ void RtlWriteSram(void) {
   }
 }
 
+
+
+void SmwCopyToVram(uint16 vram_addr, const uint8 *src, int n) {
+  for (size_t i = 0; i < (n >> 1); i++)
+    g_snes->my_ppu->vram[vram_addr + i] = WORD(src[i * 2]);
+}
+
+void SmwCopyToVramPitch32(uint16 vram_addr, const uint8 *src, int n) {
+  for (size_t i = 0; i < (n >> 1); i++)
+    g_snes->my_ppu->vram[vram_addr + i * 32] = WORD(src[i * 2]);
+}
+
+void SmwCopyToVramLow(uint16 vram_addr, const uint8 *src, int n) {
+  for (size_t i = 0; i < n; i++)
+    g_snes->my_ppu->vram[vram_addr + i] = (g_snes->my_ppu->vram[vram_addr + i] & 0xff00) | src[i];
+}
+
+void RtlUpdatePalette(const uint16 *src, int dst, int n) {
+  for(int i = 0; i < n; i++)
+    g_snes->ppu->cgram[dst + i] = src[i];
+}
+
+void SmwClearVram(uint16 vram_addr, uint16 value, int n) {
+  for (int i = 0; i < n; i++)
+    g_snes->ppu->vram[vram_addr + i] = value;
+}
+
+uint16 *SmwGetVramAddr() {
+  return g_snes->ppu->vram;
+}
+
+void LoadStripeImage_UploadToVRAM(LongPtr p0) {  // 00871e
+  WriteReg(A1B1, p0.bank);
+  uint8 *pp = IndirPtr(&p0, 0);
+  while (1) {
+    if ((*pp & 0x80) != 0)
+      break;
+    uint16 vram_addr = pp[0] << 8 | pp[1];
+    uint8 vmain = __CFSHL__(pp[2], 1);
+    uint8 fixed_addr = (uint8)(pp[2] & 0x40) >> 3;
+    uint16 num = (swap16(WORD(pp[2])) & 0x3FFF) + 1;
+    uint16 *dst = g_snes->ppu->vram + vram_addr;
+    pp += 4;
+    
+    if (fixed_addr) {
+      uint16 src_data = WORD(*pp);
+      int ctr = (num + 1) >> 1;
+      if (vmain) {
+        for (int i = 0; i < ctr; i++)
+          dst[i * 32] = src_data;
+      } else {
+        // uhm...?
+        uint8 *dst_b = (uint8 *)dst;
+        for (int i = 0; i < num; i++)
+          dst_b[i + ((i & 1) << 1)] = src_data;
+        for (int i = 0; i < num; i += 2)
+          dst_b[i + 1] = src_data >> 8;
+      }
+      pp += 2;
+    } else {
+      uint16 *src = (uint16 *)pp;
+      if (vmain) {
+        for (int i = 0; i < (num >> 1); i++)
+          dst[i * 32] = src[i];
+      } else {
+        for (int i = 0; i < (num >> 1); i++)
+          dst[i] = src[i];
+      }
+      pp += num;
+    }
+  }
+}

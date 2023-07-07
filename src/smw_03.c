@@ -4057,35 +4057,31 @@ void Spr0A9_Reznor_03D77F() {  // 03d77f
 }
 
 void GameMode12_PrepareLevel_UploadTiltingPlatformTilemap() {  // 03d958
-  WriteReg(VMAIN, 0);
-  WriteRegWord(VMADDL, 0);
-  int16 v0 = 0x4000;
-  do {
-    WriteReg(VMDATAL, 0xFF);
-    --v0;
-  } while (v0);
+  uint16 *dst = SmwGetVramAddr();
+  for (int i = 0; i < 0x4000; i++)
+    LOBYTE(dst[i]) = 0xff;
   if ((misc_nmito_use_flag & 0x40) == 0) {
     GameMode12_PrepareLevel_03D991(RomPtr(0x3d7ec), 0x810);
   }
 }
 
 void GameMode12_PrepareLevel_03D991(const uint8 *p5, uint16 r0w) {  // 03d991
-  WriteReg(VMAIN, 0);
   uint8 v0 = 0;
   do {
     uint8 r2 = v0, r3;
     uint8 v1 = 0;
     do {
       r3 = v1;
-      WriteRegWord(VMADDL, r0w);
+      uint16 *dst = SmwGetVramAddr() + r0w;
       v0 = r2;
       uint8 n = 16;
       do {
         uint8 v3 = p5[v0];
         sprites_cutscene_sprite_table_0AF6[v0] = v3;
         uint8 v4 = r3 | (4 * v3);
-        WriteReg(VMDATAL, *((uint8 *)kGameMode12_PrepareLevel_DATA_03D8EC + v4));
-        WriteReg(VMDATAL, *((uint8 *)&kGameMode12_PrepareLevel_DATA_03D8EC[1] + v4));
+        LOBYTE(dst[0]) = *((uint8 *)kGameMode12_PrepareLevel_DATA_03D8EC + v4);
+        LOBYTE(dst[1]) = *((uint8 *)&kGameMode12_PrepareLevel_DATA_03D8EC[1] + v4);
+        dst += 2;
         ++v0;
         --n;
       } while (n);
@@ -4110,13 +4106,12 @@ void InitializeMode7TilemapsAndPalettes(uint8 k) {  // 03dd7d
   const uint8 *p0 = RomPtr_00(r0w);
   for (uint8 i = 11; (i & 0x80) == 0; --i)
     *((uint8 *)&palettes_palette_mirror[2] + i) = p0[i];
-  WriteReg(VMAIN, 0x80);
-  WriteRegWord(VMADDL, 0);
+  uint16 *dst = SmwGetVramAddr();
   if (v1) {
     const uint8 *pp = GraphicsDecompressionRoutines(v1);
     uint8 r3 = 0x80;
     do {
-      pp = InitializeMode7TilemapsAndPalettes_BufferTilemap(pp);
+      pp = InitializeMode7TilemapsAndPalettes_BufferTilemap(&dst, pp);
       --r3;
     } while (r3);
   }
@@ -4124,7 +4119,8 @@ void InitializeMode7TilemapsAndPalettes(uint8 k) {  // 03dd7d
     misc_mode7_boss_tilemap[(uint8)j] = -1;
 }
 
-const uint8 *InitializeMode7TilemapsAndPalettes_BufferTilemap(const uint8 *p0) {  // 03dde5
+const uint8 *InitializeMode7TilemapsAndPalettes_BufferTilemap(uint16 **dstp, const uint8 *p0) {  // 03dde5
+  uint16 *dst = *dstp;
   uint8 v3;
   uint8 v8;
   uint8 v9;
@@ -4164,7 +4160,7 @@ const uint8 *InitializeMode7TilemapsAndPalettes_BufferTilemap(const uint8 *p0) {
       v3 = v9 + v0;
       v3 = v3 & 7;
       graphics_mode7_tile_buffer[v1] = v3;
-      WriteReg(VMDATAH, v3);
+      HIBYTE(*dst++) = v3;
       ++v1;
       --v4;
     } while (v4);
@@ -4175,11 +4171,12 @@ const uint8 *InitializeMode7TilemapsAndPalettes_BufferTilemap(const uint8 *p0) {
     uint8 v11 = i;
     n = 8;
     do {
-      WriteReg(VMDATAH, graphics_mode7_tile_buffer[v11--]);
+      HIBYTE(*dst++) = graphics_mode7_tile_buffer[v11--];
       --n;
     } while (n);
   }
   p0 += 24;
+  *dstp = dst;
   return p0;
 }
 
@@ -4210,10 +4207,11 @@ void InitializeMode7TilemapsAndPalettes_BufferReznorWallTilemap() {  // 03de8e
   uint8 v0 = 0;
   do {
     r0w += 128;
-    WriteRegWord(VMADDL, r0w);
+    uint16 *dst = SmwGetVramAddr() + r0w;
     int8 v1 = 8;
     do {
-      WriteReg(VMDATAL, kInitializeMode7TilemapsAndPalettes_DATA_03DE4E[v0++]);
+      LOBYTE(dst[0]) = kInitializeMode7TilemapsAndPalettes_DATA_03DE4E[v0++];
+      dst++;
       --v1;
     } while (v1);
   } while (v0 < 0x40);
