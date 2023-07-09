@@ -5388,10 +5388,7 @@ void Spr05F_BrownChainedPlatform(uint8 k) {  // 01c773
     v4 = 1;
   }
   uint8 r0 = v4;
-  WriteReg(WRDIVH, v5);
-  WriteReg(WRDIVL, 0);
-  WriteReg(WRDIVB, 5);
-  uint16 r2w = ReadRegWord(RDDIVL);
+  uint16 r2w = SnesDivide(v5 << 8, 5);
   uint16 r6 = r2w;
   uint8 v6 = 0;
   uint8 v7 = pt.x - ctpa.temp14b0;
@@ -5400,10 +5397,7 @@ void Spr05F_BrownChainedPlatform(uint8 k) {  // 01c773
     v6 = 1;
   }
   uint8 r1 = v6;
-  WriteReg(WRDIVH, v7);
-  WriteReg(WRDIVL, 0);
-  WriteReg(WRDIVB, 5);
-  uint16 r4w = ReadRegWord(RDDIVL);
+  uint16 r4w = SnesDivide(v7 << 8, 5);
   uint16 r8w = r4w;
   uint8 v8 = spr_oamindex[k] + 4;
   uint8 r10 = ctpa.temp14b2 - mirror_current_layer1_ypos - 8;
@@ -5614,28 +5608,28 @@ PointU16 CalculateCircleCoordinatesForTiltingPlaform(CalcTiltPlatformArgs inp) {
 uint32 CalculateCircleCoordinatesForTiltingPlaform_01CC28(uint16 R0_W_, uint16 R2_W_) {  // 01cc28
   uint8 r4, r5, r6, r7;
 
-  WriteReg(WRMPYA, R0_W_);
-  WriteReg(WRMPYB, R2_W_);
-  r4 = ReadReg(RDMPYL);
-  r5 = ReadReg(RDMPYH);
+  uint16 mult;
+  
+  mult = Mult8x8(R0_W_, R2_W_);
+  r4 = mult;
+  r5 = mult >> 8;
 
-  WriteReg(WRMPYA, R0_W_);
-  WriteReg(WRMPYB, R2_W_ >> 8);
-  uint16 t = r5 + ReadReg(RDMPYL);
+  mult = Mult8x8(R0_W_, R2_W_ >> 8);
+  uint16 t = r5 + (mult & 0xff);
   r5 = t;
-  r6 = (t >> 8) + ReadReg(RDMPYH);
+  r6 = (t >> 8) + (mult >> 8);
 
-  WriteReg(WRMPYA, R0_W_ >> 8);
-  WriteReg(WRMPYB, R2_W_);
-  t = r5 + ReadReg(RDMPYL);
+  mult = Mult8x8(R0_W_ >> 8, R2_W_);
+
+  t = r5 + (mult & 0xff);
   r5 = t;
-  r6 += (t >> 8) + ReadReg(RDMPYH);
+  r6 += (t >> 8) + (mult >> 8);
 
-  WriteReg(WRMPYA, R0_W_ >> 8);
-  WriteReg(WRMPYB, R2_W_ >> 8);
-  t = r6 + ReadReg(RDMPYL);
+  mult = Mult8x8(R0_W_ >> 8, R2_W_ >> 8);
+
+  t = r6 + (mult & 0xff);
   r6 = t;
-  r7 = (t >> 8) + ReadReg(RDMPYH);
+  r7 = (t >> 8) + (mult >> 8);
 
   return r7 << 24 | r6 << 16 | r5 << 8 | r4;
 }
@@ -8036,11 +8030,8 @@ uint8 Spr035_Yoshi_01F3FE(uint8 k) {  // 01f3fe
   uint8 r0 = t;
   if (spr_table157c[k] ? !(t & 0x100) : (t & 0x100))
     return r13;
-  WriteReg(WRDIVH, spr_table151c[k]);
-  WriteReg(WRDIVL, 0);
-  WriteReg(WRDIVB, 4);
   uint8 r7 = spr_table157c[k];
-  uint8 Reg = ReadReg(RDDIVH);
+  uint8 Reg = SnesDivide(spr_table151c[k] << 8, 4) >> 8;
   if (r7 & 1)
     Reg = -Reg;
   uint8 r5 = Reg;

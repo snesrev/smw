@@ -454,7 +454,7 @@ static void RtlLoadFromFile(FILE *f, bool replay) {
 }
 
 static const char *const kBugSaves[] = {
-  "playthrough/9_1",
+  "playthrough/32_1",
 };
 
 
@@ -487,7 +487,7 @@ void RtlSaveLoad(int cmd, int slot) {
   }
 }
 
-static int g_playback_ctr = 10 * 2;
+static int g_playback_ctr = 32 * 2;
 void SmwLoadNextPlaybackSnapshot() {
   char name[128];
   for (int i = 0; i < 10; i++) {
@@ -531,15 +531,6 @@ uint8 *RomPtr(uint32_t addr) {
     }
   }
   return (uint8 *)&g_rom[(((addr >> 16) << 15) | (addr & 0x7fff)) & 0x3fffff];
-}
-
-const uint8 *RomPtrWithBank2(uint8 bank, uint16_t addr) {
-  if (bank >= 0x7e)
-    return g_ram + ((bank - 0x7e) << 16) + addr;
-  else if (addr & 0x8000)
-    return RomPtr(bank << 16 | addr);
-  assert(addr < 0x2000);
-  return &g_ram[addr];
 }
 
 void WriteReg(uint16 reg, uint8 value) {
@@ -829,9 +820,17 @@ uint16 *SmwGetVramAddr() {
   return g_snes->ppu->vram;
 }
 
-void LoadStripeImage_UploadToVRAM(LongPtr p0) {  // 00871e
-  WriteReg(A1B1, p0.bank);
-  uint8 *pp = IndirPtr(&p0, 0);
+void SmwPpuWrite(uint16 addr, uint8 value) {
+  assert((addr & 0xff00) == 0x2100);
+  WriteReg(addr, value);
+}
+
+void SmwPpuWriteWord(uint16 addr, uint16 value) {
+  WriteRegWord(addr, value);
+}
+
+
+void LoadStripeImage_UploadToVRAM(const uint8 *pp) {  // 00871e
   while (1) {
     if ((*pp & 0x80) != 0)
       break;

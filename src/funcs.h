@@ -202,7 +202,7 @@ void InitializeStatusBarTilemap(void);
 void LoadSaveBufferData(void);
 void LoadStripeImage(void);
 void LoadStripeImage(void);
-void LoadStripeImage_UploadToVRAM(LongPtr p0);
+void LoadStripeImage_UploadToVRAM(const uint8 *pp);
 void ManipulateMode7Image_008AE8(uint8 r0);
 void ManipulateMode7Image(void);
 void OwEventProcess04_FadeInLayer2Tile_00B006(uint8 a);

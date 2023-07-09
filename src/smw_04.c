@@ -846,14 +846,11 @@ void OwProcess04_PlayerIsMoving() {  // 04945d
       v4 = 1;
     }
     r8 = v4;
-    WriteReg(WRMPYA, 16 * kOverworldProcess04_PlayerIsMoving_OWPlayerPathSpeedOffset[ow_player_on_climbing_tile]);
+    uint8 ma = 16 * kOverworldProcess04_PlayerIsMoving_OWPlayerPathSpeedOffset[ow_player_on_climbing_tile];
     v5 = r12;
     if (v5) {
-      WriteReg(WRMPYB, r12);
-      uint16 rw = ReadRegWord(RDMPYL);
-      WriteRegWord(WRDIVL, rw);
-      WriteReg(WRDIVB, r10w);
-      v5 = ReadRegWord(RDDIVL);
+      uint16 rw = Mult8x8(ma, r12);
+      v5 = SnesDivide(rw, r10w);
     }
     r14w = v5;
     r10w = 16 * kOverworldProcess04_PlayerIsMoving_OWPlayerPathSpeedOffset[ow_player_on_climbing_tile];

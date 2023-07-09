@@ -5327,23 +5327,21 @@ void Spr09E_BallNChain_Sub(uint8 k) {  // 02d62a
   uint16 r4w = kCircleCoordinates[(uint16)(2 * (uint8)r0w) >> 1];
   uint16 r6 = kCircleCoordinates[(uint16)(2 * (uint8)(r0w + 0x80)) >> 1];
   uint8 v5 = spr_current_slotid;
-  WriteReg(WRMPYA, r4w);
   uint8 v6 = spr_table187b[v5];
   if (r4w < 256) {
-    WriteReg(WRMPYB, v6);
-    uint8 t = ReadReg(RDMPYL);
-    v6 = ReadReg(RDMPYH) + (t >> 7);
+    uint16 mult = Mult8x8(r4w, v6);
+    uint8 t = mult;
+    v6 = (mult >> 8) + (t >> 7);
   }
   v4 = (r0w >> 8) & 1;
   if (v4)
     v6 = -v6;
   r4w = v6;
-  WriteReg(WRMPYA, r6);
   uint8 v8 = spr_table187b[v5];
   if (!(r6 >> 8)) {
-    WriteReg(WRMPYB, v8);
-    uint8 t = ReadReg(RDMPYL);
-    v8 = ReadReg(RDMPYH) + (t >> 7);
+    uint16 mult = Mult8x8(r6, v8);
+    uint8 t = mult;
+    v8 = (mult >> 8) + (t >> 7);
   }
   v4 = (r2w >> 8) & 1;
   if (v4)
@@ -5441,6 +5439,7 @@ uint8 Spr0A3_GreyChainedPlatform_02D870(uint8 k, uint8 a) {  // 02d870
   WriteReg(WRDIVH, a);
   WriteReg(WRDIVL, 0);
   WriteReg(WRDIVB, spr_table187b[k] >> 1);
+
   uint8 r14 = ReadReg(RDDIVL);
   uint8 Reg = ReadReg(RDDIVH);
   bool v3 = __CFSHL__(r14, 1);
@@ -7525,20 +7524,18 @@ void ClusterSpr04_BooRing(uint8 k) {  // 02fa98
     uint16 r2w = (r0w + 128) & 0x1FF;
     uint16 r4w = kCircleCoordinates[(uint8)r0w];
     uint16 r6 = kCircleCoordinates[(uint8)(r0w + 0x80)];
-    WriteReg(WRMPYA, r4w);
     uint8 v6 = 80;
     if (r4w < 256) {
-      WriteReg(WRMPYB, 0x50);
-      uint8 t = ReadReg(RDMPYL);
-      v6 = ReadReg(RDMPYH) + (t >> 7);
+      uint16 mult = Mult8x8(r4w, v6);
+      uint8 t = mult;
+      v6 = (mult >> 8) + (t >> 7);
     }
     r4w = ((r0w >> 8) & 1) ? -v6 : v6;
-    WriteReg(WRMPYA, r6);
     uint8 v8 = 80;
-    if (!(r6 >> 8)) {
-      WriteReg(WRMPYB, 0x50);
-      uint8 t = ReadReg(RDMPYL);
-      v8 = ReadReg(RDMPYH) + (t >> 7);
+    if (r6 < 256) {
+      uint16 mult = Mult8x8(r6, v8);
+      uint8 t = mult;
+      v8 = (mult >> 8) + (t >> 7);
     }
     uint8 yy = ((r2w >> 8) & 1) ? -v8 : v8;
     uint8 v11 = cluster_spr_table0f86[k];

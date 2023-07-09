@@ -885,8 +885,8 @@ LABEL_13:;
     v3 += 2;
     v4 -= 2;
   } while (v4);
-  WriteReg(TMW, 0x13);
-  WriteReg(TSW, 0x13);
+  SmwPpuWrite(TMW, 0x13);
+  SmwPpuWrite(TSW, 0x13);
   mirror_color_math_initial_settings = 34;
   mirror_hdmaenable = 0x80;
 }

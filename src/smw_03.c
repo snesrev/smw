@@ -1581,22 +1581,20 @@ void Spr0A9_Reznor(uint8 k) {  // 039890
       uint16 r2w = (r0w + 128) & 0x1FF;
       uint16 r4 = kCircleCoordinates[(uint8)r0w];
       uint16 r6 = kCircleCoordinates[(uint8)(r0w + 0x80)];
-      WriteReg(WRMPYA, r4);
       uint8 v4 = 56;
       if (r4 < 256) {
-        WriteReg(WRMPYB, 0x38);
-        uint8 t = ReadReg(RDMPYL) >> 7;
-        v4 = ReadReg(RDMPYH) + t;
+        uint16 mult = Mult8x8(r4, v4);
+        uint8 t = (uint8)mult >> 7;
+        v4 = (mult >> 8) + t;
       }
       uint8 v3 = (r0w >> 8) & 1;
       if (v3)
         v4 = -v4;
-      WriteReg(WRMPYA, r6);
       uint8 v6 = 56;
       if (r6 < 256) {
-        WriteReg(WRMPYB, 0x38);
-        uint8 t = ReadReg(RDMPYL) >> 7;
-        v6 = ReadReg(RDMPYH) + t;
+        uint16 mult = Mult8x8(r6, v6);
+        uint8 t = (uint8)mult >> 7;
+        v6 = (mult >> 8) + t;
       }
       v3 = (r2w >> 8) & 1;
       if (v3)
@@ -2706,7 +2704,8 @@ void Spr07C_PrincessPeach_KissBro(uint8 k) {  // 03ae32
     player_relative_yposition_during_screen_shake = 0;
   }
   if (v1 >= 0x50) {
-    spr_decrementing_table154c[k] = 0x14;
+    if (v1 == 0x50)
+      spr_decrementing_table154c[k] = 0x14;
     spr_table1602[k] = 10;
     if (v1 == 104)
       spr_decrementing_table1558[k] = 0x80;
@@ -3680,9 +3679,7 @@ void Spr07A_Fireworks_03C9E9(uint8 k) {  // 03c9e9
     uint8 v5 = r0;
     if ((r0 & 0x80) != 0)
       v5 = -r0;
-    WriteReg(WRMPYA, v5);
-    WriteReg(WRMPYB, r6);
-    uint8 Reg = ReadReg(RDMPYH);
+    uint8 Reg = Mult8x8(v5, r6) >> 8;
     uint8 v7 = Reg;
     if ((r0 & 0x80) != 0)
       v7 = -Reg;
@@ -3690,9 +3687,7 @@ void Spr07A_Fireworks_03C9E9(uint8 k) {  // 03c9e9
     uint8 v8 = r1;
     if ((r1 & 0x80) != 0)
       v8 = -r1;
-    WriteReg(WRMPYA, v8);
-    WriteReg(WRMPYB, r6);
-    uint8 v9 = ReadReg(RDMPYH);
+    uint8 v9 = Mult8x8(v8, r6) >> 8;
     uint8 v10 = v9;
     if ((r1 & 0x80) != 0)
       v10 = -v9;
@@ -3730,9 +3725,7 @@ void Spr07A_Fireworks_03C9E9(uint8 k) {  // 03c9e9
     uint8 v19 = r0;
     if ((r0 & 0x80) != 0)
       v19 = -r0;
-    WriteReg(WRMPYA, v19);
-    WriteReg(WRMPYB, r6);
-    uint8 v20 = ReadReg(RDMPYH);
+    uint8 v20 = Mult8x8(r6, v19) >> 8;
     uint8 v21 = v20;
     if ((r0 & 0x80) != 0)
       v21 = -v20;
@@ -3740,9 +3733,7 @@ void Spr07A_Fireworks_03C9E9(uint8 k) {  // 03c9e9
     uint8 v22 = r1;
     if ((r1 & 0x80) != 0)
       v22 = -r1;
-    WriteReg(WRMPYA, v22);
-    WriteReg(WRMPYB, r6);
-    uint8 v23 = ReadReg(RDMPYH);
+    uint8 v23 = Mult8x8(v22, r6) >> 8;
     uint8 v24 = v23;
     if ((r1 & 0x80) != 0)
       v24 = -v23;

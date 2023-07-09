@@ -256,11 +256,11 @@ void InitializeLevelLayer1And2Tilemaps() {  // 05809e
     ++blocks_screen_to_place_current_object;
   } while (blocks_screen_to_place_current_object != 32);
   uint8 v2 = mirror_main_screen_layers;
-  WriteReg(TM, mirror_main_screen_layers);
-  WriteReg(TMW, v2);
+  SmwPpuWrite(TM, mirror_main_screen_layers);
+  SmwPpuWrite(TMW, v2);
   uint8 v3 = mirror_sub_screen_layers;
-  WriteReg(TS, mirror_sub_screen_layers);
-  WriteReg(TSW, v3);
+  SmwPpuWrite(TS, mirror_sub_screen_layers);
+  SmwPpuWrite(TSW, v3);
   camera_xy_layer1_vramupd_left_up = -1;
   camera_xy_layer1_vramupd_right_down = -1;
   camera_xy_layer2_vramupd_left_up = -1;
@@ -1733,7 +1733,7 @@ void Layer1SpecialScrolling05_Unused() {  // 05c69e
   camera_layer1_scrolling_direction = 2;
   camera_layer2_scrolling_direction = 0;
   if (l1_l2_scroll_spr_scroll_type_index[0]) {
-    WriteReg(TM, 0x16);
+    SmwPpuWrite(TM, 0x16);
     PointU16 *pt = get_PointU16(l1_l2_scroll_spr_speed, 0);
     uint16 y = pt[1].y;
     if (y != 0xFF80)
@@ -2022,13 +2022,10 @@ uint16 CalculateTimeBonusDigits() {  // 05ce4c
   uint16 R0_W = kCalculateTimeBonusDigits_DATA_05CE3A[counter_timer_hundreds];
   R0_W += kCalculateTimeBonusDigits_DATA_05CE42[counter_timer_tens];
   R0_W += counter_timer_ones;
-  WriteReg(WRMPYA, R0_W);
-  WriteReg(WRMPYB, 0x32);
-  uint8 R2_ = ReadReg(RDMPYL);
-  uint8 R3_ = ReadReg(RDMPYH);
-  WriteReg(WRMPYA, R0_W >> 8);
-  WriteReg(WRMPYB, 0x32);
-  R3_ += ReadReg(RDMPYL);
+  uint16 mult = Mult8x8(R0_W, 0x32);
+  uint8 R2_ = mult;
+  uint8 R3_ = mult >> 8;
+  R3_ += Mult8x8(R0_W >> 8, 0x32);
   return R2_ | R3_ << 8;
 }
 

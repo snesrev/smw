@@ -102,7 +102,7 @@ void SmwVectorReset() {
   WriteReg(APUI01, 0);
   WriteReg(APUI02, 0);
   WriteReg(APUI03, 0);
-  WriteReg(INIDISP, 0x80);
+  SmwPpuWrite(INIDISP, 0x80);
   *(uint16 *)reset_sprites_y_function_in_ram = 0xf0a9;
   uint16 v0 = 381;
   int16 v1 = 0x3fd;
@@ -119,7 +119,7 @@ void SmwVectorReset() {
   InitializeFirst8KBOfRAM();
   HandleSPCUploads_UploadSamples();
   SetupHDMAWindowingEffects();
-  WriteReg(OBSEL, 3);
+  SmwPpuWrite(OBSEL, 3);
   ++waiting_for_vblank;
 }
 
@@ -188,29 +188,29 @@ void SmwVectorNMI() {
   io_sound_ch1 = 0;
   io_sound_ch2 = 0;
   io_sound_ch3 = 0;
-  WriteReg(INIDISP, 0x80);
+  SmwPpuWrite(INIDISP, 0x80);
   WriteReg(HDMAEN, 0);
-  WriteReg(W12SEL, mirror_bg1_and2_window_mask_settings);
-  WriteReg(W34SEL, mirror_bg3_and4_window_mask_settings);
-  WriteReg(WOBJSEL, mirror_object_and_color_window_settings);
-  WriteReg(CGWSEL, mirror_color_math_initial_settings);
+  SmwPpuWrite(W12SEL, mirror_bg1_and2_window_mask_settings);
+  SmwPpuWrite(W34SEL, mirror_bg3_and4_window_mask_settings);
+  SmwPpuWrite(WOBJSEL, mirror_object_and_color_window_settings);
+  SmwPpuWrite(CGWSEL, mirror_color_math_initial_settings);
   if ((misc_nmito_use_flag & 0x80) == 0) {
-    WriteReg(CGADSUB, mirror_color_math_select_and_enable & 0xFB);
-    WriteReg(BGMODE, 9);
+    SmwPpuWrite(CGADSUB, mirror_color_math_select_and_enable & 0xFB);
+    SmwPpuWrite(BGMODE, 9);
     if (waiting_for_vblank) {
       if (misc_nmito_use_flag >> 1) {
 LABEL_25:
         v2 = 0x81;
         if (misc_currently_active_boss_end_cutscene == 8) {
-          WriteReg(INIDISP, mirror_screen_display_register);
+          SmwPpuWrite(INIDISP, mirror_screen_display_register);
           WriteReg(HDMAEN, mirror_hdmaenable);
           WriteReg(NMITIMEN, 0x81);
-          WriteReg(BG3HOFS, mirror_layer3_xpos);
-          WriteReg(BG3HOFS, HIBYTE(mirror_layer3_xpos));
-          WriteReg(BG3VOFS, mirror_layer3_ypos);
-          WriteReg(BG3VOFS, HIBYTE(mirror_layer3_ypos));
-          WriteReg(BGMODE, mirror_bgmode_and_tile_size_setting);
-          WriteReg(CGADSUB, mirror_color_math_select_and_enable);
+          SmwPpuWrite(BG3HOFS, mirror_layer3_xpos);
+          SmwPpuWrite(BG3HOFS, HIBYTE(mirror_layer3_xpos));
+          SmwPpuWrite(BG3VOFS, mirror_layer3_ypos);
+          SmwPpuWrite(BG3VOFS, HIBYTE(mirror_layer3_ypos));
+          SmwPpuWrite(BGMODE, mirror_bgmode_and_tile_size_setting);
+          SmwPpuWrite(CGADSUB, mirror_color_math_select_and_enable);
           return;
         }
         goto LABEL_29;
@@ -225,16 +225,16 @@ LABEL_25:
 LABEL_23:
         PollJoypadInputs();
 LABEL_24:
-        WriteReg(BG1HOFS, mirror_current_layer1_xpos);
-        WriteReg(BG1HOFS, HIBYTE(mirror_current_layer1_xpos));
+        SmwPpuWrite(BG1HOFS, mirror_current_layer1_xpos);
+        SmwPpuWrite(BG1HOFS, HIBYTE(mirror_current_layer1_xpos));
         uint16 voffs1;
         voffs1 = shaking_layer1_disp_y + mirror_current_layer1_ypos;
-        WriteReg(BG1VOFS, voffs1);
-        WriteReg(BG1VOFS, voffs1 >> 8);
-        WriteReg(BG2HOFS, mirror_current_layer2_xpos);
-        WriteReg(BG2HOFS, HIBYTE(mirror_current_layer2_xpos));
-        WriteReg(BG2VOFS, mirror_current_layer2_ypos);
-        WriteReg(BG2VOFS, HIBYTE(mirror_current_layer2_ypos));
+        SmwPpuWrite(BG1VOFS, voffs1);
+        SmwPpuWrite(BG1VOFS, voffs1 >> 8);
+        SmwPpuWrite(BG2HOFS, mirror_current_layer2_xpos);
+        SmwPpuWrite(BG2HOFS, HIBYTE(mirror_current_layer2_xpos));
+        SmwPpuWrite(BG2VOFS, mirror_current_layer2_ypos);
+        SmwPpuWrite(BG2VOFS, HIBYTE(mirror_current_layer2_ypos));
         if (misc_nmito_use_flag)
           goto LABEL_25;
         v3 = 36;
@@ -246,11 +246,11 @@ LABEL_28:
         v2 = 0xa1;
 LABEL_29:
         WriteReg(NMITIMEN, v2);
-        WriteReg(BG3HOFS, 0);
-        WriteReg(BG3HOFS, 0);
-        WriteReg(BG3VOFS, 0);
-        WriteReg(BG3VOFS, 0);
-        WriteReg(INIDISP, mirror_screen_display_register);
+        SmwPpuWrite(BG3HOFS, 0);
+        SmwPpuWrite(BG3HOFS, 0);
+        SmwPpuWrite(BG3VOFS, 0);
+        SmwPpuWrite(BG3VOFS, 0);
+        SmwPpuWrite(INIDISP, mirror_screen_display_register);
         WriteReg(HDMAEN, mirror_hdmaenable);
         return;
       }
@@ -299,21 +299,21 @@ LABEL_36:
     UploadOAMBuffer();
     PollJoypadInputs();
   }
-  WriteReg(BGMODE, 9);
+  SmwPpuWrite(BGMODE, 9);
   uint16 m7x = mirror_m7_center_xpos + 0x80;
-  WriteReg(M7X, m7x);
-  WriteReg(M7X, m7x >> 8);
+  SmwPpuWrite(M7X, m7x);
+  SmwPpuWrite(M7X, m7x >> 8);
   uint16 m7y = mirror_m7_center_ypos + 0x80;
-  WriteReg(M7Y, m7y);
-  WriteReg(M7Y, m7y >> 8);
-  WriteReg(M7A, mirror_m7_matrix_alo);
-  WriteReg(M7A, mirror_m7_matrix_ahi);
-  WriteReg(M7B, mirror_m7_matrix_blo);
-  WriteReg(M7B, mirror_m7_matrix_bhi);
-  WriteReg(M7C, mirror_m7_matrix_clo);
-  WriteReg(M7C, mirror_m7_matrix_chi);
-  WriteReg(M7D, mirror_m7_matrix_dlo);
-  WriteReg(M7D, mirror_m7_matrix_dhi);
+  SmwPpuWrite(M7Y, m7y);
+  SmwPpuWrite(M7Y, m7y >> 8);
+  SmwPpuWrite(M7A, mirror_m7_matrix_alo);
+  SmwPpuWrite(M7A, mirror_m7_matrix_ahi);
+  SmwPpuWrite(M7B, mirror_m7_matrix_blo);
+  SmwPpuWrite(M7B, mirror_m7_matrix_bhi);
+  SmwPpuWrite(M7C, mirror_m7_matrix_clo);
+  SmwPpuWrite(M7C, mirror_m7_matrix_chi);
+  SmwPpuWrite(M7D, mirror_m7_matrix_dlo);
+  SmwPpuWrite(M7D, mirror_m7_matrix_dhi);
   SetMode7PPUPointersAndLayer1Scroll();
   if (!(misc_nmito_use_flag & 1)) {
     v3 = 36;
@@ -322,14 +322,14 @@ LABEL_36:
     }
     goto LABEL_28;
   }
-  WriteReg(INIDISP, mirror_screen_display_register);
+  SmwPpuWrite(INIDISP, mirror_screen_display_register);
   WriteReg(HDMAEN, mirror_hdmaenable);
   WriteReg(NMITIMEN, 0x81);
-  WriteReg(BGMODE, 7);
-  WriteReg(BG1HOFS, mirror_m7_xpos);
-  WriteReg(BG1HOFS, HIBYTE(mirror_m7_xpos));
-  WriteReg(BG1VOFS, mirror_m7_ypos);
-  WriteReg(BG1VOFS, HIBYTE(mirror_m7_ypos));
+  SmwPpuWrite(BGMODE, 7);
+  SmwPpuWrite(BG1HOFS, mirror_m7_xpos);
+  SmwPpuWrite(BG1HOFS, HIBYTE(mirror_m7_xpos));
+  SmwPpuWrite(BG1VOFS, mirror_m7_ypos);
+  SmwPpuWrite(BG1VOFS, HIBYTE(mirror_m7_ypos));
 }
 
 void SmwVectorIRQ() {
@@ -351,31 +351,31 @@ void SmwVectorIRQ() {
     }
     if (!timer_end_level || timer_level_end_fade < 0x40) {
       WriteReg(NMITIMEN, v0);
-      WriteReg(BGMODE, 7);
-      WriteReg(BG1HOFS, mirror_m7_xpos);
-      WriteReg(BG1HOFS, HIBYTE(mirror_m7_xpos));
-      WriteReg(BG1VOFS, mirror_m7_ypos);
-      WriteReg(BG1VOFS, HIBYTE(mirror_m7_ypos));
+      SmwPpuWrite(BGMODE, 7);
+      SmwPpuWrite(BG1HOFS, mirror_m7_xpos);
+      SmwPpuWrite(BG1HOFS, HIBYTE(mirror_m7_xpos));
+      SmwPpuWrite(BG1VOFS, mirror_m7_ypos);
+      SmwPpuWrite(BG1VOFS, HIBYTE(mirror_m7_ypos));
       return;
     }
   }
   WriteReg(NMITIMEN, 0x81);
-  WriteReg(BG3HOFS, mirror_layer3_xpos);
-  WriteReg(BG3HOFS, HIBYTE(mirror_layer3_xpos));
-  WriteReg(BG3VOFS, mirror_layer3_ypos);
-  WriteReg(BG3VOFS, HIBYTE(mirror_layer3_ypos));
+  SmwPpuWrite(BG3HOFS, mirror_layer3_xpos);
+  SmwPpuWrite(BG3HOFS, HIBYTE(mirror_layer3_xpos));
+  SmwPpuWrite(BG3VOFS, mirror_layer3_ypos);
+  SmwPpuWrite(BG3VOFS, HIBYTE(mirror_layer3_ypos));
 LABEL_4:
-  WriteReg(BGMODE, mirror_bgmode_and_tile_size_setting);
-  WriteReg(CGADSUB, mirror_color_math_select_and_enable);
+  SmwPpuWrite(BGMODE, mirror_bgmode_and_tile_size_setting);
+  SmwPpuWrite(CGADSUB, mirror_color_math_select_and_enable);
 }
 
 void SetMode7PPUPointersAndLayer1Scroll() {  // 008416
-  WriteReg(BG1SC, 0x59);
-  WriteReg(BG12NBA, 7);
-  WriteReg(BG1HOFS, mirror_current_layer1_xpos);
-  WriteReg(BG1HOFS, HIBYTE(mirror_current_layer1_xpos));
-  WriteReg(BG1VOFS, shaking_layer1_disp_y + mirror_current_layer1_ypos);
-  WriteReg(BG1VOFS, HIBYTE(mirror_current_layer1_ypos));
+  SmwPpuWrite(BG1SC, 0x59);
+  SmwPpuWrite(BG12NBA, 7);
+  SmwPpuWrite(BG1HOFS, mirror_current_layer1_xpos);
+  SmwPpuWrite(BG1HOFS, HIBYTE(mirror_current_layer1_xpos));
+  SmwPpuWrite(BG1VOFS, shaking_layer1_disp_y + mirror_current_layer1_ypos);
+  SmwPpuWrite(BG1VOFS, HIBYTE(mirror_current_layer1_ypos));
 }
 
 void CompressOamEntExt() {  // 008494
@@ -393,7 +393,7 @@ void CompressOamEntExt() {  // 008494
 void LoadStripeImage() {  // 0085d2
 //  printf("M: upl stripe %d\n", graphics_stripe_image_to_upload);
   LongPtr p0 = *(LongPtr *)((uint8 *)&kLoadStripeImage_StripeImagePtrs[0].addr + graphics_stripe_image_to_upload);
-  LoadStripeImage_UploadToVRAM(p0);
+  LoadStripeImage_UploadToVRAM(IndirPtr(&p0, 0));
   if (!graphics_stripe_image_to_upload) {
     LOBYTE(stripe_image_upload) = graphics_stripe_image_to_upload;
     HIBYTE(stripe_image_upload) = graphics_stripe_image_to_upload;
@@ -486,22 +486,22 @@ void InitializeFirst8KBOfRAM() {  // 008a4e
 }
 
 void SetStandardPPUSettings() {  // 008a79
-  WriteReg(SETINI, 0);
-  WriteReg(MOSAIC, 0);
-  WriteReg(BG1SC, 0x23);
-  WriteReg(BG2SC, 0x33);
-  WriteReg(BG3SC, 0x53);
-  WriteReg(BG12NBA, 0);
-  WriteReg(BG34NBA, 4);
+  SmwPpuWrite(SETINI, 0);
+  SmwPpuWrite(MOSAIC, 0);
+  SmwPpuWrite(BG1SC, 0x23);
+  SmwPpuWrite(BG2SC, 0x33);
+  SmwPpuWrite(BG3SC, 0x53);
+  SmwPpuWrite(BG12NBA, 0);
+  SmwPpuWrite(BG34NBA, 4);
   mirror_bg1_and2_window_mask_settings = 0;
   mirror_bg3_and4_window_mask_settings = 0;
   mirror_object_and_color_window_settings = 0;
-  WriteReg(WBGLOG, 0);
-  WriteReg(WOBJLOG, 0);
-  WriteReg(TMW, 0);
-  WriteReg(TSW, 0);
+  SmwPpuWrite(WBGLOG, 0);
+  SmwPpuWrite(WOBJLOG, 0);
+  SmwPpuWrite(TMW, 0);
+  SmwPpuWrite(TSW, 0);
   mirror_color_math_initial_settings = 2;
-  WriteReg(M7SEL, 0x80);
+  SmwPpuWrite(M7SEL, 0x80);
 }
 
 void ManipulateMode7Image() {  // 008acd
@@ -529,16 +529,11 @@ void ManipulateMode7Image_008AE8(uint8 r0) {  // 008ae8
 }
 
 uint16 ManipulateMode7Image_008B2B(uint16 k, uint8 r0) {  // 008b2b
-  uint16 v2;
-
   uint8 v1 = *((uint8 *)kManipulateMode7Image_DATA_008B57 + k + 1);
   if (v1)
     v1 = r0;
   uint8 r1 = v1;
-  WriteReg(WRMPYA, *((uint8 *)kManipulateMode7Image_DATA_008B57 + k));
-  WriteReg(WRMPYB, r0);
-  HIBYTE(v2) = r1 + ReadReg(RDMPYH);
-  LOBYTE(v2) = ReadReg(RDMPYL);
+  uint16 v2 = (r1 << 8) + Mult8x8(*((uint8 *)kManipulateMode7Image_DATA_008B57 + k), r0);
   return v2 >> 5;
 }
 
@@ -863,7 +858,7 @@ void InitAndMainLoop_ProcessGameMode() {  // 009322
 void TurnOffIO() {  // 00937d
   WriteReg(NMITIMEN, 0);
   WriteReg(HDMAEN, 0);
-  WriteReg(INIDISP, 0x80);
+  SmwPpuWrite(INIDISP, 0x80);
 }
 
 void GameMode00_LoadNintendoPresents() {  // 009391
@@ -912,12 +907,12 @@ void GameMode00_LoadNintendoPresents_Mode04Finish() {  // 0093f7
 }
 
 void SetVisibleLayers(uint8 a, uint8 k, uint8 j) {  // 0093fd
-  WriteReg(CGADSUB, a);
+  SmwPpuWrite(CGADSUB, a);
   mirror_color_math_select_and_enable = a;
-  WriteReg(TM, k);
-  WriteReg(TS, j);
-  WriteReg(TMW, 0);
-  WriteReg(TSW, 0);
+  SmwPpuWrite(TM, k);
+  SmwPpuWrite(TS, j);
+  SmwPpuWrite(TMW, 0);
+  SmwPpuWrite(TSW, 0);
 }
 
 void GameMode01_ShowNintendoPresents() {  // 00940f
@@ -1284,9 +1279,9 @@ LABEL_6:
 LABEL_9:
   graphics_level_sprite_graphics_setting = v0;
   UploadGraphicsFiles();
-  WriteReg(TMW, 0x11);
-  WriteReg(TS, 0);
-  WriteReg(TSW, 0);
+  SmwPpuWrite(TMW, 0x11);
+  SmwPpuWrite(TS, 0);
+  SmwPpuWrite(TSW, 0);
   mirror_bg1_and2_window_mask_settings = 2;
   mirror_object_and_color_window_settings = 50;
   mirror_color_math_initial_settings = 32;
@@ -1635,8 +1630,8 @@ void GameMode07_TitleScreenDemo_FadeOutToTitleScreen() {  // 009c89
 
 void GameMode07_TitleScreenDemo_InitializeFileSelect() {  // 009c9f
   ResetSpritesFunc(0);
-  WriteReg(TM, 4);
-  WriteReg(TS, 0x13);
+  SmwPpuWrite(TM, 4);
+  SmwPpuWrite(TS, 0x13);
   mirror_hdmaenable = 0;
   GameMode07_TitleScreenDemo_InitializeSaveData();
 }
@@ -1895,7 +1890,7 @@ void GameModeXX_FadeInOrOut_GMMosaic() {  // 009f5b
 }
 
 void GameModeXX_FadeInOrOut_009F66() {  // 009f66
-  WriteReg(MOSAIC, mirror_mosaic_size_and_bgenable | 3);
+  SmwPpuWrite(MOSAIC, mirror_mosaic_size_and_bgenable | 3);
 }
 
 void GameModeXX_FadeInOrOut() {  // 009f6f
@@ -1951,7 +1946,7 @@ LABEL_15:
 LABEL_16:
   if (misc_level_layer3_settings) {
     uint8 v6 = r0 + misc_level_layer3_settings - 1;
-    LoadStripeImage_UploadToVRAM(kInitializeLevelLayer3_Layer3ImagePtrs[v6]);
+    LoadStripeImage_UploadToVRAM(IndirPtr(&kInitializeLevelLayer3_Layer3ImagePtrs[v6], 0));
   }
 }
 
@@ -2013,8 +2008,8 @@ void GameMode0C_LoadOverworld() {  // 00a087
     v3 = 23;
   }
   SetVisibleLayers(v2, v3, 2);
-  WriteReg(TMW, v3);
-  WriteReg(TSW, 2);
+  SmwPpuWrite(TMW, v3);
+  SmwPpuWrite(TSW, 2);
   LoadOverworldLayer1AndEvents();
   int v4 = (uint8)(2 * ow_players_map[player_current_character]) >> 1;
   mirror_current_layer1_xpos = kGameMode0C_LoadOverworld_DATA_00A06B[v4];
@@ -2184,10 +2179,10 @@ void UploadLevelAnimations_YellowFlash(uint8 a) {  // 00a41c
 }
 
 void UploadLevelAnimations_RedFlash(uint8 a, uint8 r0) {  // 00a41e
-  WriteReg(CGADD, a);
+  SmwPpuWrite(CGADD, a);
   uint8 v1 = r0 + ((uint8)(counter_local_frames & 0x1C) >> 1);
-  WriteReg(CGDATA, *((uint8 *)kGlobalPalettes_Flashing + v1));
-  WriteReg(CGDATA, *((uint8 *)kGlobalPalettes_Flashing + v1 + 1));
+  SmwPpuWrite(CGDATA, *((uint8 *)kGlobalPalettes_Flashing + v1));
+  SmwPpuWrite(CGDATA, *((uint8 *)kGlobalPalettes_Flashing + v1 + 1));
 }
 
 void RestoreSP1AfterMarioStart() {  // 00a436
@@ -2231,7 +2226,7 @@ void UploadOverworldExAnimationData() {  // 00a4e3
 }
 
 void UploadOverworldLayer1And2Tilemaps(uint8 j) {  // 00a529
-  uint32 ram = ow_players_map[(uint8)player_current_characterx4 >> 2] ? 0x6000 : 0x4000;
+  uint32 ram = ow_players_map[(uint8)player_current_characterx4 >> 2] ? 0x16000 : 0x14000;
   ram += kUploadOverworldLayer1And2Tilemaps_DATA_00A525[j] << 8;
   SmwCopyToVram(
       (kUploadOverworldLayer1And2Tilemaps_DATA_00A521[j] + 48) << 8,
@@ -2493,7 +2488,7 @@ void UploadGraphicsFiles() {  // 00a9da
     misc_currently_loaded_sprite_graphics_files[i] = arr[i];
   if (misc_level_tileset_setting >= 0xFE) {
     if (misc_level_tileset_setting != 0xFE)
-      ConvertGFX27IntoNormallFormat(SmwGetVramAddr() + 2);
+      ConvertGFX27IntoNormallFormat(SmwGetVramAddr());
     for (int8 j = 3; j >= 0; --j)
       misc_currently_loaded_sprite_graphics_files[(uint8)j + 4] = 0x80;
   } else {

@@ -16,6 +16,8 @@ void SmwClearVram(uint16 vram_addr, uint16 value, int n);
 void SmwCopyToVramPitch32(uint16 vram_addr, const uint8 *src, int n);
 void SmwCopyToVramLow(uint16 vram_addr, const uint8 *src, int n);
 uint16 *SmwGetVramAddr();
+void SmwPpuWrite(uint16 addr, uint8 value);
+void SmwPpuWriteWord(uint16 addr, uint16 value);
 
 extern bool g_did_finish_level_hook;
 
