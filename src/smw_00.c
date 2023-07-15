@@ -1923,6 +1923,11 @@ void GameMode07_TitleScreenDemo_InitializeFileSelect() {  // 009c9f
   ResetSpritesFunc(0);
   WriteReg(TM, 4);
   WriteReg(TS, 0x13);
+  
+  // Ensure the black thing goes away at the intro
+  WriteReg(WH0, 0);
+  WriteReg(WH1, 0xff);
+
   mirror_hdmaenable = 0;
   GameMode07_TitleScreenDemo_InitializeSaveData();
 }
