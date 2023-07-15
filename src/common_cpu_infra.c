@@ -259,6 +259,7 @@ Snes *SnesInit(const char *filename) {
   g_snes = snes_init(g_ram);
 
   g_cpu = g_snes->cpu;
+  g_use_my_apu_code = (g_runmode != RM_THEIRS);
 
   bool loaded = loadRom(filename, g_snes);
   if (!loaded) {
@@ -358,20 +359,19 @@ getout:
 static void RtlRunFrameCompare(uint16 input, int run_what) {
   g_snes->input1->currentState = input;
 
+  g_use_my_apu_code = (g_runmode != RM_THEIRS);
+
   if (g_runmode == RM_THEIRS) {
-    g_use_my_apu_code = false;
     g_snes->ppu = g_snes->snes_ppu;
     g_snes->runningWhichVersion = 1;
     g_rtl_game_info->run_frame_emulated();
     g_snes->runningWhichVersion = 0;
   } else if (g_runmode == RM_MINE) {
-    g_use_my_apu_code = true;
     g_snes->ppu = g_snes->snes_ppu;
     g_snes->runningWhichVersion = 2;
     g_rtl_game_info->run_frame();
     g_snes->runningWhichVersion = 0;
   } else {
-    g_use_my_apu_code = true;
     RunOneFrameOfGame_Both();
   }
 }
