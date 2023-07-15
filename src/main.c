@@ -418,7 +418,7 @@ int main(int argc, char** argv) {
     want.freq = 44100;
     want.format = AUDIO_S16;
     want.channels = 2;
-    want.samples = 2048;
+    want.samples = g_config.audio_samples;
     want.callback = &AudioCallback;
     g_audio_device = SDL_OpenAudioDevice(NULL, 0, &want, &have, 0);
     if (g_audio_device == 0) {
