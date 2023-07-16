@@ -16,6 +16,9 @@ void SmwClearVram(uint16 vram_addr, uint16 value, int n);
 void SmwCopyToVramPitch32(uint16 vram_addr, const uint8 *src, int n);
 void SmwCopyToVramLow(uint16 vram_addr, const uint8 *src, int n);
 
+void SmwDrawPpuFrame(void);
+void SmwRunOneFrameOfGame(void);
+
 extern bool g_did_finish_level_hook;
 
 void AddSprXPos(uint8 k, uint16 x);
@@ -53,4 +56,8 @@ typedef struct GenTileArgs {
   uint16 r8;
   uint16 r12, r14;
   uint16 r10;
+  uint8 *ptr_lo_map16_data;
 } GenTileArgs;
+
+const uint8 *GetSpriteListPtr();
+uint8 GetCurrentSlope(int i);

@@ -2958,10 +2958,10 @@ uint8 HandleExtendedSpriteLevelColl_02A611(uint8 k, uint8 r15, ExtCollOut *out) 
   uint8 r8_slope_type;
   uint8 v13 = CheckWhatSlopeSpriteIsOn(blocks_currently_processed_map16_tile_lo, blocks_xpos, blocks_ypos, &r8_slope_type);
   uint8 v14 = blocks_ypos & 0xf;
-  uint8 *rr = IndirPtr(&R5_slopeptr, v13);
-  if (v14 < 0xC && v14 < *rr)
+  uint8 rr = GetCurrentSlope(v13);
+  if (v14 < 0xC && v14 < rr)
     return 0;
-  sprites_distance_to_snap_down_to_nearest_tile = *rr;
+  sprites_distance_to_snap_down_to_nearest_tile = rr;
   out->r11 = kSlopeDataTables_SlopeType[r8_slope_type];
   return 1;
 }
@@ -3002,55 +3002,50 @@ void ParseLevelSpriteList_Entry2() {  // 02a802
 }
 
 void ParseLevelSpriteList_LoadSpriteLoopStrt(uint8 k, uint8 j, uint16 r0w) {  // 02a82e
-  uint8 *psld = IndirPtr(&ptr_sprite_list_data, 0);
-  uint8 r2, r3;
+  const uint8 *p = GetSpriteListPtr();
+  uint8 r2;
   while (1) {
 //    printf("M: Load sprites offs %d: 0x%x\n", j, r0w);
-    uint8 *v2 = &psld[j];
+    const uint8 *v2 = &p[j];
     if (*v2 == 0xFF)
       break;
     r2 = (8 * *v2) & 0x10;
-    uint8 v3 = j + 1;
-    uint8 v4 = r2 | psld[v3] & 0xF;
+    uint8 v4 = r2 | p[j + 1] & 0xF;
     bool v5 = v4 < (r0w >> 8);
     int8 v6 = v4 - (r0w >> 8);
     if (v5)
       goto LABEL_3;
     if (v6)
       return;
-    if ((psld[v3] & 0xF0) != (uint8)r0w || sprites_load_status[k]) {
+    if ((p[j + 1] & 0xF0) != (uint8)r0w || sprites_load_status[k]) {
 LABEL_3:
-      j = v3 + 2;
+      j += 3;
       ++k;
     } else {
       r2 = k;
       ++sprites_load_status[k];
-      uint8 v7 = v3 + 1;
-      uint8 v8 = psld[v7];
+      uint8 v8 = p[j + 2];
       uint8 v9;
       uint8 r5 = v8;
-      v3 = v7 - 1;
       if (v8 >= 0xE7) {
         if (!*(uint16 *)l1_l2_scroll_spr_spriteid) {
           l1_l2_scroll_spr_spriteid[0] = r5 + 25;
-          l1_l2_scroll_spr_scroll_type_index[0] = psld[(uint8)(v3 - 1)] >> 2;
+          l1_l2_scroll_spr_scroll_type_index[0] = p[j] >> 2;
           InitializeScrollSprites();
         }
         goto LABEL_3;
       }
       if (v8 == 0xDE) {
-        r3 = v3 - 1;
-        Spr0DE_Load5Eeries(k, r0w, r2, r3);
+        Spr0DE_Load5Eeries(k, r0w, r2, p + j);
         goto LABEL_3;
       }
       if (v8 == 0xE0) {
-        r3 = v3 - 1;
-        Spr0E0_Load3Platforms(r0w, r2, r3);
+        Spr0E0_Load3Platforms(r0w, r2, p + j);
         goto LABEL_3;
       }
       if (v8 < 0xCB) {
         if (v8 >= 0xC9) {
-          SprXXX_LoadShooter(k, v3, v8, r0w);
+          SprXXX_LoadShooter(k, v8, r0w, p + j);
           goto LABEL_3;
         }
         v9 = 1;
@@ -3061,14 +3056,12 @@ LABEL_3:
           goto LABEL_3;
         }
         if (v8 >= 0xE1) {
-          r3 = v3 - 1;
-          Spr0E1_LoadBooCeiling(k, v8, r0w, r2, r3);
+          Spr0E1_LoadBooCeiling(k, v8, r0w, r2, p + j);
           goto LABEL_3;
         }
         v9 = 9;
       }
       uint8 r4 = v9;
-      r3 = v3 - 1;
       uint8 v10 = kParseLevelSpriteList_SpriteSlotMax[sprites_sprite_memory_setting];
       uint8 r6 = kParseLevelSpriteList_SpriteSlotStart[sprites_sprite_memory_setting];
       if (r5 == kParseLevelSpriteList_ReservedSprite1[sprites_sprite_memory_setting]) {
@@ -3095,16 +3088,14 @@ LABEL_38:
           break;
         }
       }
-      uint8 v11 = r3;
-      uint8 *v12 = &psld[r3];
+      const uint8 *v12 = &p[j];
       if (misc_level_layout_flags & 1) {
         SetSprXYPos(v10, *v12 & 0xF0 | (*v12 & 0xD) << 8, r0w);
       } else {
         SetSprXYPos(v10, r0w, *v12 & 0xF0 | (*v12 & 0xD) << 8);
       }
-      uint8 v14 = v11 + 2;
       spr_current_status[v10] = r4;
-      uint8 v15 = psld[v14];
+      uint8 v15 = p[j + 2];
       if (r4 >= 9)
         v15 += 42;
       if ((ow_level_tile_settings[73] & 0x80) != 0) {
@@ -3125,7 +3116,7 @@ LABEL_38:
       }
       spr_xoffscreen_flag[v10] = 1;
       spr_decrementing_table1fe2[v10] = 4;
-      j = v14 + 1;
+      j += 3;
       k = r2 + 1;
     }
   }
@@ -3149,7 +3140,7 @@ uint8 FindFreeNormalSpriteSlot_02A9E6(uint8 r14) {  // 02a9ef
   return result;
 }
 
-void Spr0E1_LoadBooCeiling(uint8 k, uint8 a, uint16 r0w, uint8 r2, uint8 r3) {  // 02aac0
+void Spr0E1_LoadBooCeiling(uint8 k, uint8 a, uint16 r0w, uint8 r2, const uint8 *edata) {  // 02aac0
   flag_run_cluster_sprites = 1;
   switch (a) {
   case 0xE4:
@@ -3160,9 +3151,8 @@ void Spr0E1_LoadBooCeiling(uint8 k, uint8 a, uint16 r0w, uint8 r2, uint8 r3) {  
       uint8 r = GetRand();
       SetHiLo(&cluster_spr_xpos_hi[i], &cluster_spr_xpos_lo[i], mirror_current_layer1_xpos + r);
       cluster_spr_table0f4a[i] = cluster_spr_xpos_lo[i];
-      uint8 *v14 = IndirPtr(&ptr_sprite_list_data, r3);
-      cluster_spr_ypos_lo[i] = *v14 & 0xF0;
-      cluster_spr_ypos_hi[i] = *v14 & 1;
+      cluster_spr_ypos_lo[i] = *edata & 0xF0;
+      cluster_spr_ypos_hi[i] = *edata & 1;
     }
     break;
   case 0xE6:
@@ -3203,9 +3193,8 @@ void Spr0E1_LoadBooCeiling(uint8 k, uint8 a, uint16 r0w, uint8 r2, uint8 r3) {  
             cluster_spr_table0f4a[n] = r15;
             r15 = 0;
             if (v9) {
-              uint8 *v10 = IndirPtr(&ptr_sprite_list_data, r3);
               uint8 v11 = cluster_spr04_boo_ring_index;
-              uint8 v18 = *v10;
+              uint8 v18 = *edata;
               *(&cluster_spr04_boo_ring1_center_ypos_lo + v11) = v18 & 0xF0;
               *(&cluster_spr04_boo_ring1_center_ypos_hi + v11) = v18 & 1;
               *(&cluster_spr04_boo_ring1_center_xpos_lo + v11) = r0w;
@@ -3236,9 +3225,8 @@ void Spr0E1_LoadBooCeiling(uint8 k, uint8 a, uint16 r0w, uint8 r2, uint8 r3) {  
   }
 }
 
-void SprXXX_LoadShooter(uint8 k, uint8 j, uint8 a, uint16 r0w) {  // 02ab78
+void SprXXX_LoadShooter(uint8 k, uint8 a, uint16 r0w, const uint8 *edata) {  // 02ab78
   uint8 r2 = k;
-  uint8 r3 = j - 1;
   uint8 r4 = a;
   uint8 v3 = 7;
   while (shooter_spr_spriteid[v3]) {
@@ -3250,24 +3238,21 @@ void SprXXX_LoadShooter(uint8 k, uint8 j, uint8 a, uint16 r0w) {  // 02ab78
       break;
     }
   }
-  uint8 v4 = r3;
   shooter_spr_spriteid[v3] = r4 + 56;
-  uint8 *v5 = IndirPtr(&ptr_sprite_list_data, v4);
 
   if (misc_level_layout_flags & 1) {  
-    uint8 v7 = *v5;
-    shooter_spr_xpos_lo[v3] = *v5 & 0xF0;
+    uint8 v7 = *edata;
+    shooter_spr_xpos_lo[v3] = v7 & 0xF0;
     shooter_spr_xpos_hi[v3] = v7 & 1;
     SetHiLo(&shooter_spr_ypos_hi[v3], &shooter_spr_ypos_lo[v3], r0w);
   } else {
-    uint8 v8 = *v5;
-    shooter_spr_ypos_lo[v3] = *v5 & 0xF0;
+    uint8 v8 = *edata;
+    shooter_spr_ypos_lo[v3] = v8 & 0xF0;
     shooter_spr_ypos_hi[v3] = v8 & 1;
     SetHiLo(&shooter_spr_xpos_hi[v3], &shooter_spr_xpos_lo[v3], r0w);
   }
   shooter_spr_unused_level_list_index[v3] = r2;
   shooter_spr_shoot_timer[v3] = 16;
-  ParseLevelSpriteList_LoadSpriteLoopStrt(r2 + 1, v4 + 3, r0w);
 }
 
 void InitializeAllSpritesOnLevelLoad() {  // 02abf2
@@ -3456,8 +3441,8 @@ LABEL_15:;
   }
 }
 
-void Spr0E0_Load3Platforms(uint16 r0w, uint8 r2, uint8 r3) {  // 02af33
-  uint8 v3 = *IndirPtr(&ptr_sprite_list_data, r3);
+void Spr0E0_Load3Platforms(uint16 r0w, uint8 r2, const uint8 *edata) {  // 02af33
+  uint8 v3 = *edata;
   uint16 ypos = PAIR16(v3 & 1, v3 & 0xF0);
   uint8 r4 = 2;
   do {
@@ -3477,8 +3462,8 @@ void Spr0E0_Load3Platforms(uint16 r0w, uint8 r2, uint8 r3) {  // 02af33
   } while ((--r4 & 0x80) == 0);
 }
 
-void Spr0DE_Load5Eeries(uint8 k, uint16 r0w, uint8 r2, uint8 r3) {  // 02af9d
-  uint8 v5 = *IndirPtr(&ptr_sprite_list_data, r3);
+void Spr0DE_Load5Eeries(uint8 k, uint16 r0w, uint8 r2, const uint8 *edata) {  // 02af9d
+  uint8 v5 = *edata;
   uint16 ypos = PAIR16(v5 & 1, v5 & 0xF0);
   uint8 r4 = 4;
   do {
@@ -7304,9 +7289,10 @@ void Spr06A_CoinGameCloud_02EF67(uint8 k) {  // 02ef67
 
 void Spr086_Wiggler_Init(uint8 k) {  // 02eff2
   Spr086_Wiggler_Init_GetWigglerSegmentPosIndex(k);
+  uint8 *v2 = g_ram + 0x10000 + spr86_wiggler_segment_pos_ptr.addr;
   for (int i = 126; i >= 0; i -= 2) {
-    IndirWriteByte(&spr86_wiggler_segment_pos_ptr, i, spr_xpos_lo[k]);
-    IndirWriteByte(&spr86_wiggler_segment_pos_ptr, i + 1, spr_ypos_lo[k]);
+    v2[i] = spr_xpos_lo[k];
+    v2[i + 1] = spr_ypos_lo[k];
   }
   spr_table157c[k] = CheckPlayerPositionRelativeToSprite_Bank23_X(k);
 }
@@ -7378,10 +7364,9 @@ void Spr086_Wiggler(uint8 k) {  // 02f035
     uint8 v8 = kSpr086_Wiggler_DATA_02F103[v7];
     if (r8)
       v8 = (v8 >> 1) & 0xFE;
-    uint8 *v9 = IndirPtr(&spr86_wiggler_segment_pos_ptr, v8);
-    get_OamEnt(oam_buf, v24)[64].xpos = *v9 - mirror_current_layer1_xpos;
-    int8 v10 = *IndirPtr(&spr86_wiggler_segment_pos_ptr, (uint8)(v8 + 1)) - mirror_current_layer1_ypos -
-               kSpr086_Wiggler_WigglerYDisp[r6];
+    uint8 *v9 = g_ram + 0x10000 + spr86_wiggler_segment_pos_ptr.addr + v8;
+    get_OamEnt(oam_buf, v24)[64].xpos = v9[0] - mirror_current_layer1_xpos;
+    int8 v10 = v9[1] - mirror_current_layer1_ypos - kSpr086_Wiggler_WigglerYDisp[r6];
     OamEnt *oam = get_OamEnt(oam_buf, v24);
     oam[64].ypos = v10;
     uint8 v12 = -116;
@@ -7467,8 +7452,8 @@ void Spr086_Wiggler(uint8 k) {  // 02f035
 void Spr086_Wiggler_02F0DB(uint8 k) {  // 02f0db
   uint8 *v2 = g_ram + 0x10000 + spr86_wiggler_segment_pos_ptr.addr;
   memmove(v2 + 2, v2, 0x7E);
-  IndirWriteByte(&spr86_wiggler_segment_pos_ptr, 0, spr_xpos_lo[k]);
-  IndirWriteByte(&spr86_wiggler_segment_pos_ptr, 1, spr_ypos_lo[k]);
+  v2[0] = spr_xpos_lo[k];
+  v2[1] = spr_ypos_lo[k];
 }
 
 void Spr086_Wiggler_02F2D7(uint8 k) {  // 02f2d7

@@ -36,9 +36,7 @@ Snes* snes_init(uint8_t *ram) {
   snes->cpu = cpu_init(snes, 0);
   snes->apu = apu_init();
   snes->dma = dma_init(snes);
-  snes->my_ppu = ppu_init(snes);
-  snes->snes_ppu = ppu_init(snes);
-  snes->ppu = snes->snes_ppu;
+  snes->ppu = ppu_init();
   snes->cart = cart_init(snes);
   snes->input1 = input_init(snes);
   snes->input2 = input_init(snes);
@@ -68,6 +66,7 @@ void snes_saveload(Snes *snes, SaveLoadInfo *sli) {
   sli->func(sli, &snes->ramAdr, 4);
 
   snes->runningWhichVersion = 0;
+  snes->cpu->e = 0;
 }
 
 void snes_reset(Snes* snes, bool hard) {
@@ -75,8 +74,7 @@ void snes_reset(Snes* snes, bool hard) {
   cpu_reset(snes->cpu);
   apu_reset(snes->apu);
   dma_reset(snes->dma);
-  ppu_reset(snes->my_ppu);
-  ppu_reset(snes->snes_ppu);
+  ppu_reset(snes->ppu);
   input_reset(snes->input1);
   input_reset(snes->input2);
   if (hard)
@@ -150,14 +148,14 @@ void snes_handle_pos_stuff(Snes *snes) {
       dma_initHdma(snes->dma);
     } else if (snes->vPos == 225) {
       // ask the ppu if we start vblank now or at vPos 240 (overscan)
-      startingVblank = !ppu_checkOverscan(snes->ppu);
+      startingVblank = !ppu_checkOverscan(g_ppu);
     } else if (snes->vPos == 240) {
       // if we are not yet in vblank, we had an overscan frame, set startingVblank
       if (!snes->inVblank) startingVblank = true;
     }
     if (startingVblank) {
       // if we are starting vblank
-      ppu_handleVblank(snes->ppu);
+      ppu_handleVblank(g_ppu);
       snes->inVblank = true;
       snes->inNmi = true;
       if (snes->nmiEnabled) {
@@ -171,7 +169,7 @@ void snes_handle_pos_stuff(Snes *snes) {
   } else if (snes->hPos == 512) {
     // render the line halfway of the screen for better compatibility
     if (!snes->inVblank && !snes->disableRender) {
-      ppu_runLine(snes->ppu, snes->vPos);
+      ppu_runLine(g_ppu, snes->vPos);
     }
   } else if (snes->hPos == 1024) {
     // start of hblank
@@ -237,7 +235,7 @@ void snes_catchupApu(Snes* snes) {
 
 uint8_t snes_readBBus(Snes* snes, uint8_t adr) {
   if(adr < 0x40) {
-    return ppu_read(snes->ppu, adr);
+    return ppu_read(g_ppu, adr);
   }
   if(adr < 0x80) {
 //    assert(0);
@@ -259,7 +257,7 @@ uint8_t snes_readBBus(Snes* snes, uint8_t adr) {
 
 void snes_writeBBus(Snes* snes, uint8_t adr, uint8_t val) {
   if(adr < 0x40) {
-    ppu_write(snes->ppu, adr, val);
+    ppu_write(g_ppu, adr, val);
     return;
   }
   if(adr < 0x80) {
@@ -361,7 +359,7 @@ static void snes_writeReg(Snes* snes, uint16_t adr, uint8_t val) {
     case 0x4201: {
       if(!(val & 0x80) && snes->ppuLatch) {
         // latch the ppu
-        ppu_read(snes->ppu, 0x37);
+        ppu_read(g_ppu, 0x37);
       }
       snes->ppuLatch = val & 0x80;
       break;

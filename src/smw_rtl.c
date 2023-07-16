@@ -4,6 +4,13 @@
 #include "common_cpu_infra.h"
 #include "snes/snes.h"
 
+const uint8 *ptr_layer1_data;
+const uint8 *ptr_layer2_data;
+uint8 ptr_layer2_is_bg;
+
+uint8 *ptr_lo_map16_data;
+uint8 *ptr_lo_map16_data_bak;
+
 void AddSprXPos(uint8 k, uint16 x) {
   AddHiLo(&spr_xpos_hi[k], &spr_xpos_lo[k], x);
 }
@@ -47,7 +54,41 @@ void SmwSavePlaythroughSnapshot() {
 }
 
 void UploadOAMBuffer() {  // 008449
-  memcpy(g_snes->ppu->oam, g_ram + 0x200, 0x220);
+  memcpy(g_ppu->oam, g_ram + 0x200, 0x220);
   RtlPpuWrite(OAMADDH, 0x80);
   RtlPpuWrite(OAMADDL, mirror_oamaddress_lo);
+}
+
+
+void SmwDrawPpuFrame(void) {
+  SimpleHdma hdma_chans[3];
+
+  Dma *dma = g_dma;
+
+  dma_startDma(dma, mirror_hdmaenable, true);
+
+  SimpleHdma_Init(&hdma_chans[0], &dma->channel[5]);
+  SimpleHdma_Init(&hdma_chans[1], &dma->channel[6]);
+  SimpleHdma_Init(&hdma_chans[2], &dma->channel[7]);
+
+  int trigger = g_snes->vIrqEnabled ? g_snes->vTimer + 1 : -1;
+
+  for (int i = 0; i <= 224; i++) {
+    ppu_runLine(g_ppu, i);
+    SimpleHdma_DoLine(&hdma_chans[0]);
+    SimpleHdma_DoLine(&hdma_chans[1]);
+    SimpleHdma_DoLine(&hdma_chans[2]);
+    //    dma_doHdma(snes->dma);
+    if (i == trigger) {
+      SmwVectorIRQ();
+      trigger = g_snes->vIrqEnabled ? g_snes->vTimer + 1 : -1;
+    }
+  }
+}
+
+void SmwRunOneFrameOfGame(void) {
+  if (*(uint16 *)reset_sprites_y_function_in_ram == 0)
+    SmwVectorReset();
+  SmwRunOneFrameOfGame_Internal();
+  SmwVectorNMI();
 }

@@ -19,9 +19,8 @@ static bool ppu_evaluateSprites(Ppu* ppu, int line);
 static uint16_t ppu_getVramRemap(Ppu* ppu);
 
 
-Ppu* ppu_init(Snes* snes) {
+Ppu* ppu_init(void) {
   Ppu* ppu = malloc(sizeof(Ppu));
-  ppu->snes = snes;
   return ppu;
 }
 
@@ -30,24 +29,20 @@ void ppu_free(Ppu* ppu) {
 }
 
 void ppu_copy(Ppu *ppu, Ppu *ppu_src) {
-  Snes *snes = ppu->snes;
   size_t pitch = ppu->renderPitch;
   uint8_t *renderBuffer = ppu->renderBuffer;
   memcpy(ppu, ppu_src, sizeof(*ppu));
   ppu->renderBuffer = renderBuffer;
   ppu->renderPitch = (uint32_t)pitch;
-  ppu->snes = snes;
 }
 
 void ppu_reset(Ppu* ppu) {
   {
-    Snes *snes = ppu->snes;
     size_t pitch = ppu->renderPitch;
     uint8_t *renderBuffer = ppu->renderBuffer;
     memset(ppu, 0, sizeof(*ppu));
     ppu->renderBuffer = renderBuffer;
     ppu->renderPitch = (uint32_t)pitch;
-    ppu->snes = snes;
   }
   ppu->vramIncrement = 1;
 }
@@ -856,11 +851,8 @@ uint8_t ppu_read(Ppu* ppu, uint8_t adr) {
     return (result >> (8 * (adr - 0x34))) & 0xff;
   }
     case 0x37: {
-      // TODO: only when ppulatch is set
-      ppu->hCount = ppu->snes->hPos / 4;
-      ppu->vCount = ppu->snes->vPos;
-      ppu->countersLatched = true;
-      return ppu->snes->openBus;
+      //assert(0);
+      return 0;
     }
     case 0x38: {
       uint8_t ret = 0;

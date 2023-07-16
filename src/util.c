@@ -170,3 +170,41 @@ void ByteArray_AppendByte(ByteArray *arr, uint8 v) {
   ByteArray_Resize(arr, arr->size + 1);
   arr->data[arr->size - 1] = v;
 }
+
+MemBlk FindIndexInMemblk(MemBlk data, size_t i) {
+  size_t end = data.size, left_off, right_off;
+  if (end < 2)
+    return (MemBlk) { 0, 0 };
+  
+  uint16 f = *(uint16 *)(data.ptr + (end -= 2));
+  size_t mx = f & 0xfff;
+  if (f & 0x4000) {
+    size_t next_mx = *(uint16 *)(data.ptr + (end -= 2));
+    if (next_mx >= 256) {
+      if (i > mx || mx * 2 > end)
+        return (MemBlk) { 0, 0 };
+      end -= mx * 2 + 2;
+      i = *(uint16 *)(data.ptr + end + i * 2);
+    } else {
+      if (i > mx || mx > end)
+        return (MemBlk) { 0, 0 };
+      end -= mx + 1;
+      i = *(uint8 *)(data.ptr + end + i);
+    }
+    mx = next_mx;
+  }
+  if (f & 0x8000) {
+    if (i > mx || mx * 2 > end)
+      return (MemBlk) { 0, 0 };
+    left_off = ((i == 0) ? mx * 2 : mx * 2 + *(uint16 *)(data.ptr + i * 2 - 2));
+    right_off = (i == mx) ? end : mx * 2 + *(uint16 *)(data.ptr + i * 2);
+  } else {
+    if (i > mx || mx * 4 > end)
+      return (MemBlk) { 0, 0 };
+    left_off = ((i == 0) ? mx * 4 : mx * 4 + *(uint32 *)(data.ptr + i * 4 - 4));
+    right_off = (i == mx) ? end : mx * 4 + *(uint32 *)(data.ptr + i * 4);
+  }
+  if (left_off > right_off || right_off > end)
+    return (MemBlk) { 0, 0 };
+  return (MemBlk) { data.ptr + left_off, right_off - left_off };
+}

@@ -1623,17 +1623,17 @@ void UploadStripeImage() {
   WriteReg(A1B1, 0);
   R6_ = 0;
   v0 = 0;
-  for (i = *IndirPtr((LongPtr *)&R0_, 0); i >= 0; i = *IndirPtr((LongPtr *)&R0_, v0)) {
+  for (i = *IndirPtr(*(LongPtr *)&R0_, 0); i >= 0; i = *IndirPtr(*(LongPtr *)&R0_, v0)) {
     R4_ = i;
     v2 = v0 + 1;
-    R3_ = *IndirPtr((LongPtr *)&R0_, v2++);
-    v3 = *IndirPtr((LongPtr *)&R0_, v2) & 0x80;
+    R3_ = *IndirPtr(*(LongPtr *)&R0_, v2++);
+    v3 = *IndirPtr(*(LongPtr *)&R0_, v2) & 0x80;
     R7_ = 4 * v3 + __CFSHL__(v3, 1);
-    R5_ = *IndirPtr((LongPtr *)&R0_, v2) & 0x40;
+    R5_ = *IndirPtr(*(LongPtr *)&R0_, v2) & 0x40;
     WriteReg(DMAP1, (R5_ >> 3) | 1);
     WriteReg(BBAD1, 0x18u);
     WriteRegWord(VMADDL, *(uint16 *)&R3_);
-    v4 = IndirPtr((LongPtr *)&R0_, v2);
+    v4 = IndirPtr(*(LongPtr *)&R0_, v2);
     LOBYTE(v5) = HIBYTE(*(uint16 *)v4);
     HIBYTE(v5) = *(uint16 *)v4;
     v6 = (v5 & 0x3FFF) + 1;
@@ -2406,7 +2406,7 @@ void ProcessAreaData() {
       *(uint16 *)&object_index = i;
       behind_area_parser_flag = 0;
       v1 = area_data_offset;
-      v2 = *IndirPtr(&area_data_ptr, area_data_offset);
+      v2 = *IndirPtr(area_data_ptr, area_data_offset);
       if (v2 == 0xFD)
         goto LABEL_20;
       if ((v2 & 0xF) == 15)
@@ -2418,19 +2418,19 @@ LABEL_20:
       }
       if (level_3_byte_object_flag)
         ++v1;
-      if (__CFSHL__(*IndirPtr(&area_data_ptr, v1 + 1), 1) && !area_object_page_sel) {
+      if (__CFSHL__(*IndirPtr(area_data_ptr, v1 + 1), 1) && !area_object_page_sel) {
         ++area_object_page_sel;
         ++area_object_page_loc;
       }
       v1 = area_data_offset;
-      v3 = *IndirPtr(&area_data_ptr, area_data_offset) & 0xF;
+      v3 = *IndirPtr(area_data_ptr, area_data_offset) & 0xF;
       if (v3 == 13) {
-        v4 = IndirPtr(&area_data_ptr, v1 + 1);
+        v4 = IndirPtr(area_data_ptr, v1 + 1);
         v1 = area_data_offset;
         if ((*v4 & 0x40) == 0 && !area_object_page_sel) {
           if (level_3_byte_object_flag)
             v1 = area_data_offset + 1;
-          area_object_page_loc = *IndirPtr(&area_data_ptr, v1 + 1) & 0x1F;
+          area_object_page_loc = *IndirPtr(area_data_ptr, v1 + 1) & 0x1F;
           ++area_object_page_sel;
           goto LABEL_22;
         }
@@ -2487,7 +2487,7 @@ void DecodeAreaData(uint8 k, uint16 j) {
   tempF6 = 0;
   level_3_byte_object_flag = 0;
   v3 = 16;
-  v4 = IndirPtr(&area_data_ptr, j);
+  v4 = IndirPtr(area_data_ptr, j);
   if (*v4 == 0xFD)
     return;
   v5 = *v4 & 0xF;
@@ -2506,9 +2506,9 @@ void DecodeAreaData(uint8 k, uint16 j) {
       if (tempF6)
         *(uint16 *)&j = j + 1;
       v8 = j + 1;
-      if ((*IndirPtr(&area_data_ptr, v8) & 0x40) == 0)
+      if ((*IndirPtr(area_data_ptr, v8) & 0x40) == 0)
         return;
-      v9 = *IndirPtr(&area_data_ptr, v8) & 0x7F;
+      v9 = *IndirPtr(area_data_ptr, v8) & 0x7F;
       if (v9 == 75)
         ++loop_command;
       v7 = v9 & 0x3F;
@@ -2517,20 +2517,20 @@ void DecodeAreaData(uint8 k, uint16 j) {
     if (v5 >= 0xCu) {
       if (tempF6)
         *(uint16 *)&j = j + 1;
-      v13 = *IndirPtr(&area_data_ptr, j + 1) & 0x70;
+      v13 = *IndirPtr(area_data_ptr, j + 1) & 0x70;
     } else {
       if (tempF6)
         *(uint16 *)&j = j + 1;
       v10 = j + 1;
-      v11 = IndirPtr(&area_data_ptr, v10);
+      v11 = IndirPtr(area_data_ptr, v10);
       v12 = *v11 & 0x70;
       if (!v12) {
         R7_ = 22;
-        v7 = *IndirPtr(&area_data_ptr, v10) & 0xF;
+        v7 = *IndirPtr(area_data_ptr, v10) & 0xF;
         goto LABEL_32;
       }
       R0_ = *v11 & 0x70;
-      if (v12 == 112 && (*IndirPtr(&area_data_ptr, v10) & 8) != 0)
+      if (v12 == 112 && (*IndirPtr(area_data_ptr, v10) & 8) != 0)
         R0_ = 0;
       v13 = R0_;
     }
@@ -2554,7 +2554,7 @@ LABEL_43:
     return;
   }
   if (area_object_page_loc != column_pos_hi) {
-    if ((*IndirPtr(&area_data_ptr, area_data_offset) & 0xF) != 14 || !backloading_flag)
+    if ((*IndirPtr(area_data_ptr, area_data_offset) & 0xF) != 14 || !backloading_flag)
       return;
     goto LABEL_40;
   }
@@ -2565,7 +2565,7 @@ LABEL_43:
     object_index_upper_empty = 0;
     return;
   }
-  if ((uint8)(*IndirPtr(&area_data_ptr, area_data_offset) & 0xF0) >> 4 == current_column_pos_lo) {
+  if ((uint8)(*IndirPtr(area_data_ptr, area_data_offset) & 0xF0) >> 4 == current_column_pos_lo) {
 LABEL_40:
     area_obj_offset_buffer[(uint8)(2 * v6) >> 1] = area_data_offset;
     if (tempF6)
@@ -2589,7 +2589,7 @@ void ExtObj2E_AlterAreaAttributes(uint8 k) {
   uint8 v1;  // al
   uint8 v2;  // [rsp+47h] [rbp-1h]
 
-  v2 = *IndirPtr(&area_data_ptr, area_obj_offset_buffer[(uint16)(2 * k) >> 1] + 1);
+  v2 = *IndirPtr(area_data_ptr, area_obj_offset_buffer[(uint16)(2 * k) >> 1] + 1);
   if ((v2 & 0x40) != 0) {
     v1 = v2 & 7;
     if ((v2 & 7u) >= 4) {
@@ -3114,8 +3114,8 @@ uint8 GetLrgObjAttrib(uint8 k) {
   uint16 v1;  // di
 
   v1 = area_obj_offset_buffer[(uint16)(2 * k) >> 1];
-  R7_ = *IndirPtr(&area_data_ptr, v1) & 0xF;
-  return *IndirPtr(&area_data_ptr, v1 + 1) & 0xF;
+  R7_ = *IndirPtr(area_data_ptr, v1) & 0xF;
+  return *IndirPtr(area_data_ptr, v1 + 1) & 0xF;
 }
 
 uint8 GetAreaObjXPosition() {
@@ -5160,24 +5160,24 @@ LABEL_31:
         return;
       }
       v2 = enemy_data_offset2;
-      v3 = IndirPtr(&enemy_data_ptr, enemy_data_offset2);
+      v3 = IndirPtr(enemy_data_ptr, enemy_data_offset2);
       if (*v3 == 0xFF)
         goto LABEL_59;
-      if ((*v3 & 0xF) != 14 && k >= 8u && (*IndirPtr(&enemy_data_ptr, (uint8)(v2 + 1)) & 0x3F) != 46)
+      if ((*v3 & 0xF) != 14 && k >= 8u && (*IndirPtr(enemy_data_ptr, (uint8)(v2 + 1)) & 0x3F) != 46)
         return;
       uint16 t;
       t = PAIR16(screen_right_xpos_hi, screen_right_xpos) + 48;
       R7_ = t & 0xF0;
       R6_ = t >> 8;
       v4 = enemy_data_offset2 + 1;
-      if (__CFSHL__(*IndirPtr(&enemy_data_ptr, (uint8)(enemy_data_offset2 + 1)), 1) && !enemy_object_page_sel) {
+      if (__CFSHL__(*IndirPtr(enemy_data_ptr, (uint8)(enemy_data_offset2 + 1)), 1) && !enemy_object_page_sel) {
         ++enemy_object_page_sel;
         ++enemy_object_page_loc;
       }
       v5 = v4 - 1;
-      if ((*IndirPtr(&enemy_data_ptr, v5) & 0xF) != 15 || enemy_object_page_sel) {
+      if ((*IndirPtr(enemy_data_ptr, v5) & 0xF) != 15 || enemy_object_page_sel) {
         obj_xpos_hi.enemy[k] = enemy_object_page_loc;
-        v6 = *IndirPtr(&enemy_data_ptr, v5) & 0xF0;
+        v6 = *IndirPtr(enemy_data_ptr, v5) & 0xF0;
         obj_xpos_lo.enemy[k] = v6;
         if (obj_xpos_hi.enemy[k] >= ((v6 < screen_right_xpos) + screen_right_xpos_hi)) {
           if (R6_ < ((R7_ < obj_xpos_lo.enemy[k]) + obj_xpos_hi.enemy[k])) {
@@ -5196,14 +5196,14 @@ LABEL_59:
             }
           } else {
             obj_ypos_hi.enemy[k] = 1;
-            v7 = 16 * *IndirPtr(&enemy_data_ptr, v5);
+            v7 = 16 * *IndirPtr(enemy_data_ptr, v5);
             obj_ypos_lo.enemy[k] = v7;
             if (v7 == 0xE0)
               goto LABEL_66;
             v8 = v5 + 1;
-            if ((*IndirPtr(&enemy_data_ptr, v8) & 0x40) != 0 && !secondary_hard_mode)
+            if ((*IndirPtr(enemy_data_ptr, v8) & 0x40) != 0 && !secondary_hard_mode)
               goto LABEL_71;
-            v9 = IndirPtr(&enemy_data_ptr, v8);
+            v9 = IndirPtr(enemy_data_ptr, v8);
             v10 = *v9 & 0x3F;
             if (v10 < 0x37u || (*v9 & 0x3F) == 63) {
               if (v10 == 6 && primary_hard_mode)
@@ -5220,17 +5220,17 @@ LABEL_59:
             }
           }
         } else {
-          if ((*IndirPtr(&enemy_data_ptr, v5) & 0xF) != 14) {
-            if ((*IndirPtr(&enemy_data_ptr, enemy_data_offset2) & 0xF) == 14)
+          if ((*IndirPtr(enemy_data_ptr, v5) & 0xF) != 14) {
+            if ((*IndirPtr(enemy_data_ptr, enemy_data_offset2) & 0xF) == 14)
               goto LABEL_70;
             goto LABEL_71;
           }
 LABEL_66:
           v12 = v5 + 2;
-          if (*IndirPtr(&enemy_data_ptr, v12) >> 5 == world_number) {
+          if (*IndirPtr(enemy_data_ptr, v12) >> 5 == world_number) {
             v13 = v12 - 1;
-            area_pointer = *IndirPtr(&enemy_data_ptr, v13);
-            entrance_page = *IndirPtr(&enemy_data_ptr, (uint8)(v13 + 1)) & 0x1F;
+            area_pointer = *IndirPtr(enemy_data_ptr, v13);
+            entrance_page = *IndirPtr(enemy_data_ptr, (uint8)(v13 + 1)) & 0x1F;
           }
 LABEL_70:
           ++enemy_data_offset2;
@@ -5241,7 +5241,7 @@ LABEL_71:
         }
         return;
       }
-      enemy_object_page_loc = *IndirPtr(&enemy_data_ptr, (uint8)(v5 + 1)) & 0x3F;
+      enemy_object_page_loc = *IndirPtr(enemy_data_ptr, (uint8)(v5 + 1)) & 0x3F;
       ++enemy_data_offset2;
       ++enemy_data_offset2;
       ++enemy_object_page_sel;

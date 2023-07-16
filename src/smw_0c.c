@@ -2,6 +2,7 @@
 #include "funcs.h"
 #include "smw_rtl.h"
 #include "variables.h"
+#include "assets/smw_assets.h"
 
 void (*kUnk_ca1de[5])(void) = {
     &sub_CA1ED,
@@ -70,7 +71,6 @@ void (*kGameMode19_Cutscene_Ptrs0CCA79[5])(void) = {
     &CheckIfPlayerCanEndCastleDestructionCutscene,
 };
 
-static const uint16 kBufferCreditsBackgrounds_Layer2Pointers[7] = { 0xf45a, 0xe7c0, 0xec82, 0xdd44, 0xd900, 0xdf59, 0xde54,  };
 static const uint16 kBufferCreditsBackgrounds_TilePageModifier[7] = { 0xffff, 0xfeff, 0xfeff, 0xfeff, 0xffff, 0xfeff, 0xfeff,  };
 static const uint8 kUpdateCreditsBackground_PARAMS_0C9559[7] = { 0x1, 0x18, 0x0, 0x40, 0x7f, 0x0, 0x4,  };
 static const uint8 kUpdateCreditsBackground_PARAMS_0C9560[7] = { 0x1, 0x18, 0x0, 0x44, 0x7f, 0x0, 0x4,  };
@@ -109,12 +109,8 @@ static const uint8 kCreditsFadeOut_DATA_0CAB1D[2] = { 0x0, 0xe0,  };
 static const uint8 kCreditsFadeOut_BGPaletteIndex[8] = { 0x0, 0x18, 0x30, 0x48, 0x60, 0x78, 0x90, 0xa8,  };
 static const uint8 kCreditsFadeOut_SkyColorSetting[7] = { 0x6, 0x0, 0x0, 0x2, 0x5, 0x6, 0x0,  };
 static const uint8 kCreditsFadeOut_BGPaletteSetting[7] = { 0x3, 0x3, 0x7, 0x0, 0x1, 0x2, 0x0,  };
-static const uint16 kGetLayer1And2PointersForEnemyRollcall_Layer1Ptrs[13] = { 0xac29, 0xac3e, 0xac53, 0xac77, 0xac9e, 0xacc8, 0xacda, 0xacef, 0xad04, 0xad1f, 0xad31, 0xad3d, 0xad52,  };
-static const uint16 kGetLayer1And2PointersForEnemyRollcall_Layer2Ptrs[13] = { 0xec82, 0xdd44, 0xdf59, 0xd900, 0xde54, 0xe8fe, 0xdab9, 0xef80, 0xf45a, 0xe103, 0xf45a, 0xe103, 0xad52,  };
 static const uint8 kInitializeEnemyRollcallLayerPositions_DATA_0CADB5[13] = { 0x28, 0x28, 0x44, 0x28, 0x38, 0x20, 0x28, 0x20, 0x8, 0x28, 0x7c, 0x68, 0x28,  };
 static const uint16 kInitializeEnemyRollcallLayerPositions_InitialLayer2YPos[13] = { 0x0, 0x88, 0xe0, 0xc0, 0xe8, 0x0, 0xa0, 0x50, 0xb0, 0xe0, 0x18, 0xe0, 0x0,  };
-static const uint16 kInitializeEnemyRollcallLayerPositions_SpecialWorldEnemyNamePtrs[13] = { 0xfe49, 0xfe4b, 0xfe5f, 0xfe71, 0xfe73, 0xfe8f, 0xfe91, 0xfe93, 0xfe95, 0xfe97, 0xfe99, 0xfe9b, 0xfe9d,  };
-#define kGameMode25_ShowEnemyRollcallScreen_TileData ((uint8*)RomFixedPtr(0xCAF11))
 static const uint16 kGameMode25_ShowEnemyRollcallScreen_EnemyRollcallSpriteDataPtrs[13] = { 0x2fc, 0x11c, 0x1c1, 0x222, 0x0, 0x45, 0x28b, 0x395, 0x9e, 0x42a, 0x493, 0xe7, 0x4fc,  };
 static const uint8 kDrawThankYouSpeechBubble_TileData[12] = { 0x20, 0x48, 0xa6, 0x18, 0x30, 0x48, 0xa8, 0x18, 0x28, 0x58, 0x8d, 0x8,  };
 static const uint8 kDrawCastleDestructionCastleDoor_Tiles[4] = { 0x86, 0x87, 0x96, 0x97,  };
@@ -184,14 +180,16 @@ void BufferCreditsBackgrounds() {  // 0c93dd
   *(uint16 *)&blocks_screen_to_place_current_object = 0;
   do {
     int v0 = blocks_screen_to_place_current_object;
-    uint16 ptr_layer2_data_addr = kBufferCreditsBackgrounds_Layer2Pointers[v0];
-    uint16 modifier = kBufferCreditsBackgrounds_TilePageModifier[v0];
-    bool v1 = ptr_layer2_data_addr >= 0xE8FE;
+    const uint8 *ptr_layer2_data_addr = kBufferCreditsBackgrounds_Layer2(v0).ptr;
+    uint8 isbg = kBufferCreditsBackgrounds_Layer2_IsBg[v0];
+    uint8 upper = isbg >> 4;
     for (uint16 i = 0; i != 512; ++i) {
-      blocks_layer2_tiles_hi[i] = v1;
-      blocks_layer2_tiles_hi[i + 512] = v1;
+      blocks_layer2_tiles_hi[i] = upper;
+      blocks_layer2_tiles_hi[i + 512] = upper;
     }
-    BufferCreditsBackgrounds_0C944C(0xb900, RomPtr_0C(ptr_layer2_data_addr));
+    BufferCreditsBackgrounds_0C944C(0xb900, ptr_layer2_data_addr);
+
+    uint16 modifier = kBufferCreditsBackgrounds_TilePageModifier[v0];
     BufferCreditsBackgrounds_0C94C0(modifier);
     ++*(uint16 *)&blocks_screen_to_place_current_object;
   } while (*(uint16 *)&blocks_screen_to_place_current_object != 7);
@@ -232,7 +230,7 @@ void BufferCreditsBackgrounds_0C944C(uint16 r13w, const uint8 *src) {  // 0c944c
       R5 = v3;
     }
   } while (src[R3] != 0xFF || src[R3 + 1] != 0xFF);
-  uint16 r0w = 0x9100;
+  uint16 r0w = 0x9100;  // kMap16Data_Backgrounds
   for (uint16 i = 0; i != 0x400; i += 2) {
     pointer_map16_tiles[i >> 1] = r0w;
     r0w += 8;
@@ -249,12 +247,12 @@ void BufferCreditsBackgrounds_0C94C0(uint16 mask) {  // 0c94c0
   while (1) {
     do {
       uint16 r2w = p_lo[r4w] | p_hi[r4w] << 8;
-      const uint8 *p2 = RomPtr_0D(pointer_map16_tiles[r2w]);
+      const uint16 *rp = GetMap16RomAddr(13, pointer_map16_tiles[r2w]);
       uint16 v2 = (4 * r0w) & 0x3F | (2 * ((4 * r0w) & 0xFFC0));
-      *(uint16 *)&ow_layer2_tiles[v2] = mask & WORD(p2[0]);
-      *(uint16 *)&ow_layer2_tiles[v2 + 64] = mask & WORD(p2[2]);
-      *(uint16 *)&ow_layer2_tiles[v2 + 2] = mask & WORD(p2[4]);
-      *(uint16 *)&ow_layer2_tiles[v2 + 66] = mask & WORD(p2[6]);
+      *(uint16 *)&ow_layer2_tiles[v2] = mask & rp[0];
+      *(uint16 *)&ow_layer2_tiles[v2 + 64] = mask & rp[1];
+      *(uint16 *)&ow_layer2_tiles[v2 + 2] = mask & rp[2];
+      *(uint16 *)&ow_layer2_tiles[v2 + 66] = mask & rp[3];
       ++r0w;
       ++r4w;
       --r8w;
@@ -987,8 +985,7 @@ void CreditsFadeOut_0CABB2() {  // 0cabb2
   palettes_dynamic_palette_cgramaddress = 2;
   palettes_dynamic_palette_colors[13] = 18;
   palettes_background_color = kGlobalPalettes_Sky[kCreditsFadeOut_SkyColorSetting[blocks_screen_to_place_current_object] & 0xF];
-  uint16 r0w = kCreditsFadeOut_BGPaletteIndex[kCreditsFadeOut_BGPaletteSetting[blocks_screen_to_place_current_object] & 0xF] + 0xb0b0;
-  const uint8 *p0 = RomPtr_00(r0w);
+  const uint8 *p0 = (uint8*)(kGlobalPalettes_Background + (kCreditsFadeOut_BGPaletteSetting[blocks_screen_to_place_current_object] & 0xF) * 12);
   uint16 r4w = 0;
   uint16 n = 1;
   uint16 v0;
@@ -1007,11 +1004,42 @@ void CreditsFadeOut_0CABB2() {  // 0cabb2
 
 void GetLayer1And2PointersForEnemyRollcall() {  // 0cad8c
   int v1 = ++counter_enemy_rollcall_screen;
-  ptr_layer2_data.bank = (counter_enemy_rollcall_screen == 12) ? 12 : 0xff;
-  ptr_layer2_data.addr = kGetLayer1And2PointersForEnemyRollcall_Layer2Ptrs[v1];
-  ptr_layer1_data.bank = 12;
-  ptr_layer1_data.addr = kGetLayer1And2PointersForEnemyRollcall_Layer1Ptrs[v1];
+
+  ptr_layer1_data = kRollCallData_Layer1(v1).ptr;
+  ptr_layer2_data = kRollCallData_Layer2(v1).ptr;
+  ptr_layer2_is_bg = kRollCallData_Layer2_IsBg[v1];
 }
+
+
+static const uint16 kCreditsEnemyNames_SpecialWorld[] = {0xffff};
+static const uint16 kCreditsEnemyNames_SpecialWorld_Pumpkin[] = {0xc152, 0x0d00, 0x3819, 0x381e, 0x3816, 0x3819, 0x3814, 0x3812, 0x3817, 0xffff};
+static const uint16 kCreditsEnemyNames_SpecialWorld_Pidget[] = {0x2d53, 0x0b00, 0x3819, 0x3812, 0x380d, 0x3810, 0x3812, 0x381d, 0xffff};
+static const uint16 kCreditsEnemyNames_SpecialWorld_Unused2[] = {0xffff};
+static const uint16 kCreditsEnemyNames_SpecialWorld_MaskKoopa[] = {0x2e53, 0x1500, 0x3816, 0x380a, 0x381c, 0x3814, 0x00fc, 0x3814, 0x3818, 0x3818, 0x3819, 0x380a, 0x381c, 0xffff};
+static const uint16 kCreditsEnemyNames_SpecialWorld_Unused3[] = {0xffff};
+static const uint16 kCreditsEnemyNames_SpecialWorld_Unused4[] = {0xffff};
+static const uint16 kCreditsEnemyNames_SpecialWorld_Unused5[] = {0xffff};
+static const uint16 kCreditsEnemyNames_SpecialWorld_Unused6[] = {0xffff};
+static const uint16 kCreditsEnemyNames_SpecialWorld_Unused7[] = {0xffff};
+static const uint16 kCreditsEnemyNames_SpecialWorld_Unused8[] = {0xffff};
+static const uint16 kCreditsEnemyNames_SpecialWorld_Unused9[] = {0xffff};
+static const uint16 kCreditsEnemyNames_SpecialWorld_Unused10[] = {0xffff};
+
+static const uint16 * const kInitializeEnemyRollcallLayerPositions_SpecialWorldEnemyNamePtrs[13] = {
+  kCreditsEnemyNames_SpecialWorld,
+  kCreditsEnemyNames_SpecialWorld_Pumpkin,
+  kCreditsEnemyNames_SpecialWorld_Pidget,
+  kCreditsEnemyNames_SpecialWorld_Unused2,
+  kCreditsEnemyNames_SpecialWorld_MaskKoopa,
+  kCreditsEnemyNames_SpecialWorld_Unused3,
+  kCreditsEnemyNames_SpecialWorld_Unused4,
+  kCreditsEnemyNames_SpecialWorld_Unused5,
+  kCreditsEnemyNames_SpecialWorld_Unused6,
+  kCreditsEnemyNames_SpecialWorld_Unused7,
+  kCreditsEnemyNames_SpecialWorld_Unused8,
+  kCreditsEnemyNames_SpecialWorld_Unused9,
+  kCreditsEnemyNames_SpecialWorld_Unused10,
+};
 
 void InitializeEnemyRollcallLayerPositions() {  // 0cadf6
   graphics_stripe_image_to_upload = 3 * counter_enemy_rollcall_screen - 40;
@@ -1019,15 +1047,14 @@ void InitializeEnemyRollcallLayerPositions() {  // 0cadf6
   uint8 v6 = 2 * counter_enemy_rollcall_screen;
   LoadStripeImage();
   if ((ow_level_tile_settings[73] & 0x80) != 0) {
-    uint16 r0w = kInitializeEnemyRollcallLayerPositions_SpecialWorldEnemyNamePtrs[counter_enemy_rollcall_screen];
-    const uint8 *p0 = RomPtr_0D(r0w);
+    const uint16 *r0w = kInitializeEnemyRollcallLayerPositions_SpecialWorldEnemyNamePtrs[counter_enemy_rollcall_screen];
     uint8 v0 = 0;
     uint8 v1 = stripe_image_upload;
     uint16 v3;
     do {
-      const uint8 *v2 = &p0[v0];
+      const uint8 *v2 = (const uint8 *)&r0w[v0 >> 1];
       v3 = *(uint16 *)v2;
-      *(uint16 *)&stripe_image_upload_data[v1] = *(uint16 *)v2;
+      *(uint16 *)&stripe_image_upload_data[v1] = v3;
       v0 += 2;
       v1 += 2;
     } while (v3 != 0xffff);

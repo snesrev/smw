@@ -97,10 +97,16 @@
 #define credits_var65 (*(uint16*)(g_ram+0x65))
 #define credits_index (*(uint8*)(g_ram+0x67))
 
-#define ptr_layer1_data (*(LongPtr*)(g_ram+0x65))
-#define ptr_layer2_data (*(LongPtr*)(g_ram+0x68))
-#define ptr_lo_map16_data (*(LongPtr*)(g_ram+0x6B))
-#define ptr_hi_map16_data (*(LongPtr*)(g_ram+0x6E))
+extern const uint8 *ptr_layer1_data;
+extern const uint8 *ptr_layer2_data;
+extern uint8 *ptr_lo_map16_data;
+extern uint8 *ptr_lo_map16_data_bak;
+extern uint8 ptr_layer2_is_bg;
+
+#define xptr_layer1_data (*(LongPtr*)(g_ram+0x65))
+#define xptr_layer2_data (*(LongPtr*)(g_ram+0x68))
+#define xptr_lo_map16_data (*(LongPtr*)(g_ram+0x6B))
+#define xptr_hi_map16_data (*(LongPtr*)(g_ram+0x6E))
 
 #define player_current_state (*(uint8*)(g_ram+0x71))
 #define player_in_air_flag (*(uint8*)(g_ram+0x72))
@@ -121,8 +127,6 @@
 #define flag_ice_level (*(uint8*)(g_ram+0x86))
 #define player_timer_pipe_warping (*(uint8*)(g_ram+0x88))
 #define player_pipe_action (*(uint8*)(g_ram+0x89))
-
-#define decomp_src (*(LongPtr*)(g_ram+0x8A))
 
 #define player_collision_var8a (*(uint8*)(g_ram+0x8A))
 #define player_collision_var8b (*(uint8*)(g_ram+0x8B))

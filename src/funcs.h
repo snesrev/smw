@@ -5,7 +5,7 @@ typedef struct CollInfo {
 } CollInfo;
 
 typedef struct HdmaPtrs {
-  uint16 r4, r6;
+  const uint8 *r4, *r6;
 } HdmaPtrs;
 
 typedef struct PairU8 {
@@ -26,6 +26,10 @@ typedef struct CheckPlatformCollRet {
   bool out_of_bounds;
 } CheckPlatformCollRet;
 
+const uint16 *GetLayerLayoutPtr(int layer, int top);
+const uint16 *GetPlayerPalette();
+const uint16 *GetMap16RomAddr(uint8 bank, uint16_t addr);
+
 // Bank 0
 PairU16 BufferFileSelectText_009DB5(uint8 k);
 PairU16 GetPlayerLevelCollisionMap16ID_Entry2(uint8 k);
@@ -36,7 +40,6 @@ PairU16 OwPrompt03_OverworldLifeExchanger_00974C(uint8 a);
 uint8 CheckWaterSlope(uint8 a);
 uint8 CheckWhatSlopeSpriteIsOn(uint8 a, uint8 r10, uint8 r12, uint8 *r8_slope_type);
 uint8 GameMode07_TitleScreenDemo_009CBE(void);
-uint8 GraphicsDecompressionRoutines_ReadByte(void);
 uint8 HandleMenuCursor_Main_ReturnsTwice(uint8 j);
 uint16 ManipulateMode7Image_008B2B(uint16 k, uint8 r0);
 uint8 ModifyMap16IDForSpecialBlocks(uint8 a);
@@ -52,7 +55,7 @@ void BufferLoadingLetterTiles(void);
 void BufferPalettesRoutines_IggyLarryPlatform(void);
 void BufferPalettesRoutines_Levels(void);
 void BufferPalettesRoutines_LoadColorInVerticalStrip(uint16 k, uint16 r4);
-void BufferPalettesRoutines_LoadColors(uint16 r0, uint16 r4, uint16 r6, uint16 r8);
+void BufferPalettesRoutines_LoadColors(const uint16 *r0, uint16 r4, uint16 r6, uint16 r8);
 void BufferPalettesRoutines_Overworld(void);
 void BufferPalettesRoutines_Overworld(void);
 void BufferPalettesRoutines_ReznorAndMode7KoopaBosses(void);
@@ -145,7 +148,7 @@ void GenericPage01Tile_00C0FB(GenTileArgs *gta, uint16 j);
 void GenericPage01Tile(GenTileArgs *gta);
 void GenericPage01Tile_Return00C1AB(void);
 void GenericPage01Tile_SetItemMemory(GenTileArgs *gta);
-void GraphicsDecompressTo(uint8 *pdst);
+void GraphicsDecompressTo(const uint8 *src, uint8 *pdst);
 void GraphicsDecompressionRoutines_DecompressGFX32And33(void);
 const uint8 *GraphicsDecompress(uint8 j);
 void HandleMenuCursor_009E82(uint8 j);
@@ -1160,15 +1163,15 @@ void Spr09F_BanzaiBill_Draw(uint8 k);
 void Spr09F_BanzaiBill_Sub(uint8 k);
 PointU8 Spr0A3_GreyChainedPlatform_02D813(uint8 k);
 PointU8 Spr0A3_GreyChainedPlatform_02D848(uint8 k);
-void Spr0DE_Load5Eeries(uint8 k, uint16 r0w, uint8 r2, uint8 r3);
-void Spr0E0_Load3Platforms(uint16 r0w, uint8 r2, uint8 r3);
-void Spr0E1_LoadBooCeiling(uint8 k, uint8 a, uint16 r0w, uint8 r2, uint8 r3);
+void Spr0DE_Load5Eeries(uint8 k, uint16 r0w, uint8 r2, const uint8 *edata);
+void Spr0E0_Load3Platforms(uint16 r0w, uint8 r2, const uint8 *edata);
+void Spr0E1_LoadBooCeiling(uint8 k, uint8 a, uint16 r0w, uint8 r2, const uint8 *edata);
 void SprXXX_Dolphins(uint8 k);
 void SprXXX_Dolphins_Draw(uint8 k);
 void SprXXX_JumpingPiranhaPlant_02E17F(uint8 k);
 void SprXXX_JumpingPiranhaPlant_02E1C0(uint8 k, uint8 a);
 void Spr04F_JumpingPiranhaPlant(uint8 k);
-void SprXXX_LoadShooter(uint8 k, uint8 j, uint8 a, uint16 r0w);
+void SprXXX_LoadShooter(uint8 k, uint8 a, uint16 r0w, const uint8 *edata);
 void SprXXX_SuperKoopas_02EB3D(uint8 k, uint8 j);
 void SprXXX_SuperKoopas_02EBB5(uint8 k, uint8 r0);
 void SprXXX_SuperKoopas_02EBCA(uint8 k);
@@ -1610,9 +1613,9 @@ void ScrollLayer3(void);
 void ScrollSecondInteractiveLayer(void);
 void ScrollSecondInteractiveLayer(void);
 void ShowCourseClearText(void);
-void SpecifySublevelToLoad_05DBAC(void);
-void SpecifySublevelToLoad_HandleChocolateIsland2Gimmick(void);
-void SpecifySublevelToLoad(void);
+void LoadLevel_05DBAC(void);
+void LoadLevel_HandleChocolateIsland2Gimmick(void);
+void LoadLevel(void);
 void Spr0E7_SpecialAutoScroll_Layer2(void);
 void Spr0E7_SpecialAutoScroll(void);
 void Spr0E9_Layer2Smash(void);

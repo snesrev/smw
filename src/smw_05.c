@@ -2,7 +2,8 @@
 #include "funcs.h"
 #include "smw_rtl.h"
 #include "variables.h"
-
+#include "assets/smw_assets.h"
+#include "snes/snes.h"
 void (*kBufferScrollingTiles_Layer1_Main_PtrsLong058823[32])(void) = {
     &BufferScrollingTiles_Layer1,
     &BufferScrollingTiles_Layer1,
@@ -204,6 +205,7 @@ void (*kProcessLevelEndRoutines_Ptrs05CC0E[4])(void) = {
     &GiveTimeBonusAndBonusStars_Return,
 };
 
+static const uint8 kInitializeMap16Pointers_DATA_0581BB[64] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xe0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0xfe, 0x0, 0x7f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xe0, 0x0, 0x0, 0x3, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,  };
 static const uint16 kInitializeMap16Pointers_TilesetMap16Ptrs[15] = { 0x8b70, 0xbc00, 0xc800, 0xd400, 0xe300, 0xe300, 0xc800, 0x8b70, 0xc800, 0xd400, 0xd400, 0xd400, 0x8b70, 0xe300, 0xd400,  };
 static const uint8 kLoadLevelHeader_VerticalTable[32] = { 0x0, 0x0, 0x80, 0x1, 0x81, 0x2, 0x82, 0x3, 0x83, 0x0, 0x1, 0x0, 0x0, 0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x80,  };
 static const uint8 kLoadLevelHeader_LevMainScrnTbl[32] = { 0x15, 0x15, 0x17, 0x15, 0x15, 0x15, 0x17, 0x15, 0x17, 0x15, 0x15, 0x15, 0x15, 0x15, 0x4, 0x4, 0x15, 0x17, 0x15, 0x15, 0x15, 0x15, 0x15, 0x15, 0x15, 0x15, 0x15, 0x15, 0x15, 0x15, 0x1, 0x2,  };
@@ -296,28 +298,20 @@ static const uint8 kCalculateTimeBonusDigits_DATA_05CE42[10] = { 0x0, 0xa, 0x14,
 static const uint8 kNoBonusStarsText_Stars[32] = { 0x51, 0xb1, 0x0, 0x9, 0xfc, 0x38, 0xfc, 0x38, 0xfc, 0x38, 0xfc, 0x38, 0x0, 0x38, 0x51, 0xf3, 0x0, 0x3, 0xfc, 0x38, 0xfc, 0x38, 0x52, 0x13, 0x0, 0x3, 0xfc, 0x38, 0xfc, 0x38, 0xff, 10 };
 static const uint8 kGiveTimeBonusAndBonusStars_DATA_05CEC2[4] = { 0xa, 0x0, 0x64, 0x0,  };
 static const uint8 kGiveTimeBonusAndBonusStars_DATA_05CEC6[4] = { 0x1, 0x0, 0xa, 0x0,  };
-static const uint8 kSpecifySublevelToLoad_DATA_05D708[4] = { 0x0, 0x60, 0xc0, 0x0,  };
-static const uint8 kSpecifySublevelToLoad_DATA_05D70C[4] = { 0x60, 0x90, 0xc0, 0x0,  };
-static const uint8 kSpecifySublevelToLoad_L2VertScrollSettings[8] = { 0x3, 0x1, 0x1, 0x0, 0x0, 0x2, 0x2, 0x1,  };
-static const uint8 kSpecifySublevelToLoad_L2HorzScrollSettings[8] = { 0x2, 0x2, 0x1, 0x0, 0x1, 0x2, 0x1, 0x0,  };
-static const uint8 kSpecifySublevelToLoad_DATA_05D730[16] = { 0x0, 0x30, 0x60, 0x80, 0xa0, 0xb0, 0xc0, 0xe0, 0x10, 0x30, 0x50, 0x60, 0x70, 0x90, 0x0, 0x0,  };
-static const uint8 kSpecifySublevelToLoad_DATA_05D740[16] = { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1,  };
-static const uint8 kSpecifySublevelToLoad_DATA_05D750[8] = { 0x10, 0x80, 0x0, 0xe0, 0x10, 0x70, 0x0, 0xe0,  };
-static const uint8 kSpecifySublevelToLoad_DATA_05D758[8] = { 0x0, 0x0, 0x0, 0x0, 0x1, 0x1, 0x1, 0x1,  };
-static const uint8 kSpecifySublevelToLoad_LevelEntranceTileset[6] = { 0x5, 0x1, 0x2, 0x6, 0x8, 0x1,  };
-static const uint8 kSpecifySublevelToLoad_LevelEntranceLayer3[6] = { 0x3, 0x0, 0x0, 0x0, 0x0, 0x0,  };
-static const uint8 kSpecifySublevelToLoad_LevelEntranceYPos[6] = { 0x70, 0x70, 0x60, 0x70, 0x70, 0x70,  };
-static const uint16 kSpecifySublevelToLoad_Layer1Ptrs[9] = { 0xec24, 0xec7e, 0xec7e, 0xe985, 0xe9fb, 0xeab0, 0xeb0b, 0xeb72, 0xebbe,  };
-static const uint16 kSpecifySublevelToLoad_SpritePtrs[9] = { 0xd899, 0xd8a1, 0xd8a1, 0xd7e5, 0xd7ea, 0xd825, 0xd84b, 0xd86e, 0xd888,  };
-static const uint16 kSpecifySublevelToLoad_Layer2Ptrs[9] = { 0xdf59, 0xdf59, 0xdf59, 0xdf59, 0xdf59, 0xdf59, 0xdf59, 0xdf59, 0xdf59,  };
-static const uint8 kSpecifySublevelToLoad_BonusLevelSublevelsLo[3] = { 0x0, 0xc8, 0x0,  };
+static const uint8 kLoadLevel_DATA_05D708[4] = { 0x0, 0x60, 0xc0, 0x0,  };
+static const uint8 kLoadLevel_DATA_05D70C[4] = { 0x60, 0x90, 0xc0, 0x0,  };
+static const uint8 kLoadLevel_L2VertScrollSettings[8] = { 0x3, 0x1, 0x1, 0x0, 0x0, 0x2, 0x2, 0x1,  };
+static const uint8 kLoadLevel_L2HorzScrollSettings[8] = { 0x2, 0x2, 0x1, 0x0, 0x1, 0x2, 0x1, 0x0,  };
+static const uint8 kLoadLevel_DATA_05D730[16] = { 0x0, 0x30, 0x60, 0x80, 0xa0, 0xb0, 0xc0, 0xe0, 0x10, 0x30, 0x50, 0x60, 0x70, 0x90, 0x0, 0x0,  };
+static const uint8 kLoadLevel_DATA_05D740[16] = { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1,  };
+static const uint8 kLoadLevel_DATA_05D750[8] = { 0x10, 0x80, 0x0, 0xe0, 0x10, 0x70, 0x0, 0xe0,  };
+static const uint8 kLoadLevel_DATA_05D758[8] = { 0x0, 0x0, 0x0, 0x0, 0x1, 0x1, 0x1, 0x1,  };
+static const uint8 kLoadLevel_LevelEntranceTileset[6] = { 0x5, 0x1, 0x2, 0x6, 0x8, 0x1,  };
+static const uint8 kLoadLevel_LevelEntranceLayer3[6] = { 0x3, 0x0, 0x0, 0x0, 0x0, 0x0,  };
+static const uint8 kLoadLevel_LevelEntranceYPos[6] = { 0x70, 0x70, 0x60, 0x70, 0x70, 0x70,  };
+static const uint16 kChoclateIsland2_SpritePtrs[9] = { 0xd899, 0xd8a1, 0xd8a1, 0xd7e5, 0xd7ea, 0xd825, 0xd84b, 0xd86e, 0xd888,  };
+static const uint8 kLoadLevel_BonusLevelSublevelsLo[3] = { 0x0, 0xc8, 0x0,  };
 static const uint8 kLoadOverworldLifeCounter_DATA_05DBC9[9] = { 0x50, 0x88, 0x0, 0x3, 0xfe, 0x38, 0xfe, 0x38, 0xff,  };
-
-static const uint16 kLevelDataLayoutTables_Layer1LoPtrs[32] = { 0xbad8, 0xbad8, 0xbad8, 0xbb38, 0xbb38, 0xbb92, 0xbb92, 0xbbec, 0xbbec, 0x0, 0xbbec, 0x0, 0xbad8, 0xbbec, 0xbad8, 0xbad8, 0x0, 0xbad8, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0xbad8, 0xbad8,  };
-static const uint16 kLevelDataLayoutTables_Layer2LoPtrs[32] = { 0xbb08, 0xbb08, 0xbb08, 0xbb62, 0xbb62, 0xbbc2, 0xbbc2, 0xbc16, 0xbc16, 0x0, 0xbc16, 0x0, 0xbb08, 0xbc16, 0xbb08, 0xbb08, 0x0, 0xbb08, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0xbb08, 0xbb08,  };
-static const uint16 kLevelDataLayoutTables_Layer1HiPtrs[32] = { 0xbc40, 0xbc40, 0xbc40, 0xbca0, 0xbca0, 0xbcfa, 0xbcfa, 0xbd54, 0xbd54, 0x0, 0xbd54, 0x0, 0xbc40, 0xbd54, 0xbc40, 0xbc40, 0x0, 0xbc40, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0xbc40, 0xbc40,  };
-static const uint16 kLevelDataLayoutTables_Layer2HiPtrs[32] = { 0xbc70, 0xbc70, 0xbc70, 0xbcca, 0xbcca, 0xbd2a, 0xbd2a, 0xbd7e, 0xbd7e, 0x0, 0xbd7e, 0x0, 0xbc70, 0xbd7e, 0xbc70, 0xbc70, 0x0, 0xbc70, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0xbc70, 0xbc70,  };
-
 
 void LoadSublevel() {  // 05801e
   for (uint16 i = 0; i != 512; ++i) {
@@ -325,13 +319,12 @@ void LoadSublevel() {  // 05801e
     blocks_layer2_tiles_lo[i + 512] = 37;
   }
   blocks_screen_to_place_current_object = 0;
-  if (ptr_layer2_data.bank == 0xFF) {
-    bool v1 = ptr_layer2_data.addr >= 0xE8FE;
+  if (ptr_layer2_is_bg & 2) {
+    uint8 v1 = ptr_layer2_is_bg >> 4;
     for (uint16 j = 0; j != 512; ++j) {
       blocks_layer2_tiles_hi[j] = v1;
       blocks_layer2_tiles_hi[j + 512] = v1;
     }
-    ptr_layer2_data.bank = 12;
     unusedram_copy_of_level_tileset_setting = 0;
     misc_level_tileset_setting = 0;
     BufferBGTilemap(g_ram + 0xb900);
@@ -383,14 +376,11 @@ void InitializeLevelLayer1And2Tilemaps() {  // 05809e
 }
 
 void BufferBGTilemap(uint8 *r13) {  // 058126
-  uint8 *p = IndirPtr(&ptr_layer2_data, 0);
+  const uint8 *p = ptr_layer2_data; 
   uint16 R3 = 0;
   uint16 R5_W = 0;
   do {
-    int16 v0 = R3;
-    uint8 r7 = p[R3];
-    uint16 v1 = v0 + 1;
-    R3 = v1;
+    uint8 r7 = p[R3++];
     if ((r7 & 0x80) == 0) {
       do {
         uint8 v5 = p[R3++];
@@ -398,16 +388,13 @@ void BufferBGTilemap(uint8 *r13) {  // 058126
       } while ((--r7 & 0x80) == 0);
     } else {
       r7 &= ~0x80;
-      uint8 v2 = p[v1];
-      R3 = v1 + 1;
-      uint16 v3 = R5_W;
+      uint8 v2 = p[R3++];
       do {
-        r13[v3++] = v2;
+        r13[R5_W++] = v2;
       } while ((--r7 & 0x80) == 0);
-      R5_W = v3;
     }
   } while (p[R3] != 0xFF || p[R3 + 1] != 0xFF);
-  uint16 R0_W = 0x9100;
+  uint16 R0_W = 0x9100;  // kMap16Data_Backgrounds
   for (uint16 i = 0; i != 0x400; i += 2) {
     pointer_map16_tiles[i >> 1] = R0_W;
     R0_W += 8;
@@ -420,15 +407,15 @@ void InitializeMap16Pointers() {  // 0581fb
   blocks_highest_number_solid_map16_tile_for_sprites = -54;
   ptr_slope_steepness.addr = 0xe55e;
   uint16 R0_W = kInitializeMap16Pointers_TilesetMap16Ptrs[misc_level_tileset_setting];
-  uint16 R2_W = 0x8000;
-  LongPtr r13 = LONGPTR(0x581bb);
+  uint16 R2_W = 0x8000;  // bank 0xD
+  const uint8 *r13 = kInitializeMap16Pointers_DATA_0581BB;
 //  R4_W = 0;
 //  R9_ = 0;
   uint8 r11 = 0;
   uint16 v0 = 0;
   uint16 v1 = 0;
   do {
-    uint16 r12 = *IndirPtr(&r13, v0);
+    uint16 r12 = r13[v0];
     do {
       bool v2 = __CFSHL__(r12, 1);
       r12 *= 2;
@@ -452,16 +439,14 @@ void InitializeMap16Pointers() {  // 0581fb
     uint16 v3 = 904;
     R0_W = 0x8a70;
     for (int16 i = 3; i >= 0; --i) {
-      uint16 v5 = R0_W;
       pointer_map16_tiles[v3 >> 1] = R0_W;
-      R0_W = v5 + 8;
+      R0_W = R0_W + 8;
       v3 += 2;
     }
     uint16 v6 = 984;
     for (int16 j = 3; j >= 0; --j) {
-      uint16 v8 = R0_W;
       pointer_map16_tiles[v6 >> 1] = R0_W;
-      R0_W = v8 + 8;
+      R0_W = R0_W + 8;
       v6 += 2;
     }
   }
@@ -531,12 +516,13 @@ uint16 InitializeLevelData_Hi(uint16 k, uint8 a) {  // 05833a
   return k + 1;
 }
 
+extern Snes *g_snes;
 void BeginLoadingLevelData() {  // 0583ac
   LOBYTE(misc_current_layer_being_processed) = 0;
   LoadLevelHeader();
   InitializeMap16Pointers();
   while (misc_level_mode_setting != 9 && misc_level_mode_setting != 11 && misc_level_mode_setting != 16) {
-    if (*IndirPtr(&ptr_layer1_data, 0) != 0xFF)
+    if (*ptr_layer1_data != 0xFF)
       LoadLevelDataObject();
     if (misc_level_mode_setting == 0 || misc_level_mode_setting == 10 || misc_level_mode_setting == 12 ||
         misc_level_mode_setting == 13 || misc_level_mode_setting == 14 || misc_level_mode_setting == 17 || misc_level_mode_setting == 30) 
@@ -544,15 +530,14 @@ void BeginLoadingLevelData() {  // 0583ac
     LOBYTE(misc_current_layer_being_processed) = misc_current_layer_being_processed + 1;
     if ((uint8)misc_current_layer_being_processed == 2)
       break;
-    ptr_layer1_data.addr = ptr_layer2_data.addr + 5;
-    ptr_layer1_data.bank = ptr_layer2_data.bank;
+    ptr_layer1_data = ptr_layer2_data + 5;
     blocks_screen_to_place_current_object = 0;
   }
   LOBYTE(misc_current_layer_being_processed) = 0;
 }
 
 void LoadLevelHeader() {  // 0584e3
-  uint8 *hdr = IndirPtr(&ptr_layer1_data, 0);
+  const uint8 *hdr = ptr_layer1_data;
   uint8 v0 = hdr[0];
   misc_screens_in_lvl = (v0 & 0x1F) + 1;
   misc_bgpalette_setting = v0 >> 5;
@@ -599,55 +584,49 @@ void LoadLevelHeader() {  // 0584e3
     v5 = 0;
   }
   flag_layer1_vert_scroll_level_setting = v5;
-  ptr_layer1_data.addr += 5;
+  ptr_layer1_data += 5;
 }
 
 void LoadLevelDataObject() {  // 0585ff
+  const uint8 *hdr;
   do {
-    uint8 *hdr = IndirPtr(&ptr_layer1_data, 0);
-    uint8 r10 = hdr[0];
-    uint8 r11 = hdr[1];
+    hdr = ptr_layer1_data;
+    uint8 b0 = hdr[0];
+    uint8 b1 = hdr[1];
     blocks_size_or_type = hdr[2];
-    ptr_layer1_data.addr += 3;
+    ptr_layer1_data += 3;
 
-    blocks_object_number = (r11 >> 4) | ((uint8)(r10 & 0x60) >> 1);
+    blocks_object_number = (b1 >> 4) | ((b0 & 0x60) >> 1);
     int8 v1 = misc_level_layout_flags;
     if ((uint8)misc_current_layer_being_processed)
       v1 = misc_level_layout_flags >> 1;
     if ((v1 & 1) != 0) {
       if (__PAIR16__(blocks_object_number, blocks_size_or_type) >= 2) {
-        uint8 r0 = r10 & 0xF;
-        r10 = r11 & 0xF | r10 & 0xF0;
-        r11 = r0 | r11 & 0xF0;
+        uint8 r0 = b0 & 0xF;
+        b0 = b1 & 0xF | b0 & 0xF0;
+        b1 = r0 | b1 & 0xF0;
       }
     }
-    blocks_sub_scr_pos = 16 * (r10 & 0xF);
-    blocks_sub_scr_pos |= r11 & 0xF;
+    blocks_sub_scr_pos = 16 * (b0 & 0xF);
+    blocks_sub_scr_pos |= b1 & 0xF;
     int v2 = misc_current_layer_being_processed;
-    uint8 v3 = 2 * (misc_level_mode_setting & 0x1F);
+    uint8 v3 = misc_level_mode_setting & 0x1F;
 
-    const uint8 *r3 = RomPtr_00(kLevelDataLayoutTables_LoTablePtrs[v2]);
-    const uint8 *r6 = RomPtr_00(kLevelDataLayoutTables_HiTablePtrs[v2]);
+    const uint16 *r0 = GetLayerLayoutPtr(v2, v3);
 
-    const uint8 *r0 = RomPtr_00(WORD(r3[v3]));
-    const uint8 *r13 = RomPtr_00(WORD(r6[v3]));
-
-    blocks_screen_to_place_current_object += __CFSHL__(r10 & 0x80, 1);
+    blocks_screen_to_place_current_object += (b0 & 0x80) != 0;
     blocks_screen_to_place_next_object = blocks_screen_to_place_current_object;
-    uint8 v4 = 3 * blocks_screen_to_place_current_object;
-    ptr_lo_map16_data = *(LongPtr *)(r0 + v4);
-    ptr_hi_map16_data = *(LongPtr *)(r13 + v4);
-    if ((r10 & 0x10) != 0) {
-      ++HIBYTE(ptr_lo_map16_data);
-      ++HIBYTE(ptr_hi_map16_data);
+    ptr_lo_map16_data = g_ram + r0[blocks_screen_to_place_current_object];
+    if ((b0 & 0x10) != 0) {
+      ptr_lo_map16_data += 256;
     }
-    loadlvl_R10 = r10;
-    loadlvl_R11 = r11;
+    loadlvl_R10 = b0;
+    loadlvl_R11 = b1;
     if (blocks_object_number)
       ProcessStandardAndTilesetSpecificObjects();
     else
       ProcessExtendedObjects();
-  } while (*IndirPtr(&ptr_layer1_data, 0) != 0xFF);
+  } while (*ptr_layer1_data != 0xff);
 }
 
 void CheckIfLevelTilemapsNeedScrollUpdate() {  // 0586f1
@@ -731,10 +710,118 @@ void BufferScrollingTiles_Layer2_Init() {  // 058955
   kBufferScrollingTiles_Layer2_Init_PtrsLong05895E[misc_level_mode_setting]();
 }
 
+static const uint16 kLevelDataLayout_StdHoriz[] = {
+  0xc800, 0xc9b0, 0xcb60, 0xcd10, 0xcec0, 0xd070, 0xd220, 0xd3d0, 0xd580, 0xd730, 0xd8e0, 0xda90, 0xdc40, 0xddf0, 0xdfa0, 0xe150,
+  0xe300, 0xe4b0, 0xe660, 0xe810, 0xe9c0, 0xeb70, 0xed20, 0xeed0, 0xf080, 0xf230, 0xf3e0, 0xf590, 0xf740, 0xf8f0, 0xfaa0, 0xfc50
+};
+
+static const uint16 kLevelDataLayout_VertL1HorizL2[] = {
+  0xc800, 0xca00, 0xcc00, 0xce00, 0xd000, 0xd200, 0xd400, 0xd600, 0xd800, 0xda00, 0xdc00, 0xde00, 0xe000, 0xe200,
+  0xe300, 0xe4b0, 0xe660, 0xe810, 0xe9c0, 0xeb70, 0xed20, 0xeed0, 0xf080, 0xf230, 0xf3e0, 0xf590, 0xf740, 0xf8f0, 0xfaa0, 0xfc50,
+};
+
+static const uint16 kLevelDataLayout_HorizL1VertL2[] = {
+  0xc800, 0xc9b0, 0xcb60, 0xcd10, 0xcec0, 0xd070, 0xd220, 0xd3d0, 0xd580, 0xd730, 0xd8e0, 0xda90, 0xdc40, 0xddf0, 0xdfa0, 0xe150,
+  0xe400, 0xe600, 0xe800, 0xea00, 0xec00, 0xee00, 0xf000, 0xf200, 0xf400, 0xf600, 0xf800, 0xfa00, 0xfc00, 0xfe00,
+};
+
+static const uint16 kLevelDataLayout_StdVert[] = {
+  0xc800, 0xca00, 0xcc00, 0xce00, 0xd000, 0xd200, 0xd400, 0xd600, 0xd800, 0xda00, 0xdc00, 0xde00, 0xe000, 0xe200,
+  0xe400, 0xe600, 0xe800, 0xea00, 0xec00, 0xee00, 0xf000, 0xf200, 0xf400, 0xf600, 0xf800, 0xfa00, 0xfc00, 0xfe00,
+};
+
+static const uint16 *const kLevelDataLayoutTables_Layer1LoPtrs[32] = {
+  kLevelDataLayout_StdHoriz,
+  kLevelDataLayout_StdHoriz,
+  kLevelDataLayout_StdHoriz,
+  kLevelDataLayout_VertL1HorizL2,
+  kLevelDataLayout_VertL1HorizL2,
+  kLevelDataLayout_HorizL1VertL2,
+  kLevelDataLayout_HorizL1VertL2,
+  kLevelDataLayout_StdVert,
+  kLevelDataLayout_StdVert,
+  0,
+  kLevelDataLayout_StdVert,
+  0,
+  kLevelDataLayout_StdHoriz,
+  kLevelDataLayout_StdVert,
+  kLevelDataLayout_StdHoriz,
+  kLevelDataLayout_StdHoriz,
+  0,
+  kLevelDataLayout_StdHoriz,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  kLevelDataLayout_StdHoriz,
+  kLevelDataLayout_StdHoriz,
+};
+
+static const uint16 *const kLevelDataLayoutTables_Layer2LoPtrs[32] = {
+  kLevelDataLayout_StdHoriz + 16,
+  kLevelDataLayout_StdHoriz + 16,
+  kLevelDataLayout_StdHoriz + 16,
+  kLevelDataLayout_VertL1HorizL2 + 14,
+  kLevelDataLayout_VertL1HorizL2 + 14,
+  kLevelDataLayout_HorizL1VertL2 + 16,
+  kLevelDataLayout_HorizL1VertL2 + 16,
+  kLevelDataLayout_StdVert + 14,
+  kLevelDataLayout_StdVert + 14,
+  0,
+  kLevelDataLayout_StdVert + 14,
+  0,
+  kLevelDataLayout_StdHoriz + 16,
+  kLevelDataLayout_StdVert + 14,
+  kLevelDataLayout_StdHoriz + 16,
+  kLevelDataLayout_StdHoriz + 16,
+  0,
+  kLevelDataLayout_StdHoriz + 16,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  0,
+  kLevelDataLayout_StdHoriz + 16,
+  kLevelDataLayout_StdHoriz + 16,
+};
+
+const uint16 *GetLayerLayoutPtr(int layer, int top) {
+  return layer ? kLevelDataLayoutTables_Layer2LoPtrs[top] : kLevelDataLayoutTables_Layer1LoPtrs[top];
+}
+
+const uint16 *GetMap16RomAddr(uint8 bank, uint16_t addr) {
+  if (bank == 13) {
+    if (addr >= 0xe300)
+      return (uint16 *)((const uint8 *)kMap16Data_GhostHouse + addr - 0xe300);
+    else if (addr >= 0xd400)
+      return (uint16 *)((const uint8 *)kMap16Data_Underground + addr - 0xd400);
+    else if (addr >= 0xc800)
+      return (uint16 *)((const uint8 *)kMap16Data_Rope + addr - 0xc800);
+    else if (addr >= 0xbc00)
+      return (uint16 *)((const uint8 *)kMap16Data_Castle + addr - 0xbc00);
+    else
+      return (uint16 *)((const uint8 *)kMap16Data + addr - 0x8000);
+  }
+  assert(addr >= 0xd000 && addr < 0xd608);
+  return (uint16*)((const uint8 *)kMap16Data_OverworldLayer1 + addr - 0xd000);
+}
+
 void BufferScrollingTiles_Layer1() {  // 0589ce
-  const uint8 *r10 = RomPtr_00(kLevelDataLayoutTables_Layer1LoPtrs[misc_level_mode_setting]);
-  const uint8 *r13 = RomPtr_00(kLevelDataLayoutTables_Layer1HiPtrs[misc_level_mode_setting]);
-  
   uint16 v0 = camera_layer1_scrolling_direction;
   HIBYTE(blocks_layer1_vramupload_address) = 2 * (*((uint8 *)&camera_layer1_row_column_to_update_left_up + v0) & 0xF);
   int8 v1 = 32;
@@ -742,20 +829,19 @@ void BufferScrollingTiles_Layer1() {  // 0589ce
     v1 = 36;
   LOBYTE(blocks_layer1_vramupload_address) = v1;
   uint16 R0_W = (uint16)(*(uint16 *)((int8 *)&camera_layer1_row_column_to_update_left_up + v0) & 0x1F0) >> 4;
-  const uint8 *plo = IndirPtr((LongPtr *)(r10 + 3 * R0_W), 0);
-  const uint8 *phi = IndirPtr((LongPtr *)(r13 + 3 * R0_W), 0);
+  const uint8 *plo = g_ram + kLevelDataLayoutTables_Layer1LoPtrs[misc_level_mode_setting][R0_W];
   uint8 bank = sign8(misc_level_tileset_setting - 16) ? 13 : 5;
   uint16 r8 = *((uint8 *)&camera_layer1_row_column_to_update_left_up + v0) & 0xF;
   uint16 v4 = 0;
   do {
     uint16 v5 = r8;
-    R0_W = plo[v5] | phi[v5] << 8;
-    r10 = RomPtrWithBank(bank, pointer_map16_tiles[R0_W]);
+    R0_W = plo[v5] | plo[v5 + 0x10000] << 8;
+    const uint16 *r10t = GetMap16RomAddr(bank, pointer_map16_tiles[R0_W]);
     int v6 = v4 >> 1;
-    blocks_layer1_tiles_to_upload_buffer[v6] = *(uint16 *)(r10);
-    blocks_layer1_tiles_to_upload_buffer[v6 + 1] = *(uint16 *)(r10 + 2);
-    blocks_layer1_tiles_to_upload_buffer[v6 + 64] = *(uint16 *)(r10 + 4);
-    blocks_layer1_tiles_to_upload_buffer[v6 + 65] = *(uint16 *)(r10 + 6);
+    blocks_layer1_tiles_to_upload_buffer[v6] = r10t[0];
+    blocks_layer1_tiles_to_upload_buffer[v6 + 1] = r10t[1];
+    blocks_layer1_tiles_to_upload_buffer[v6 + 64] = r10t[2];
+    blocks_layer1_tiles_to_upload_buffer[v6 + 65] = r10t[3];
     v4 += 4;
     r8 += 16;
   } while (r8 < 0x1B0);
@@ -769,8 +855,7 @@ void BufferScrollingTiles_Layer1_VerticalLevel() {  // 058a9b
   int lvl_setting = misc_level_mode_setting;
   int max_n = (lvl_setting == 7 || lvl_setting == 8 || lvl_setting == 10 || lvl_setting == 13) ? 28 : 16;
 
-  const uint8 *r10 = RomPtr_00(kLevelDataLayoutTables_Layer1LoPtrs[lvl_setting]);
-  const uint8 *r13 = RomPtr_00(kLevelDataLayoutTables_Layer1HiPtrs[lvl_setting]);
+  const uint16 *r10 = kLevelDataLayoutTables_Layer1LoPtrs[lvl_setting];
 
   uint16 v0 = camera_layer1_scrolling_direction;
   uint8 v1 = 32;
@@ -779,24 +864,23 @@ void BufferScrollingTiles_Layer1_VerticalLevel() {  // 058a9b
   LOBYTE(blocks_layer1_vramupload_address) = v1 | (*((uint8 *)&camera_layer1_row_column_to_update_left_up + v0) >> 2) & 3;
   HIBYTE(blocks_layer1_vramupload_address) = (*((uint8 *)&camera_layer1_row_column_to_update_left_up + v0) & 3) << 6;
   uint16 R0_W = (uint16)(*(uint16 *)((int8 *)&camera_layer1_row_column_to_update_left_up + v0) & 0x1F0) >> 4;
-  uint16 v2 = (R0_W < max_n) ? 3 * R0_W : 0;
-  const uint8 *plo = IndirPtr((LongPtr *)(r10 + v2), 0);
-  const uint8 *phi = IndirPtr((LongPtr *)(r13 + v2), 0);
+  uint16 v2 = (R0_W < max_n) ? R0_W : 0;
+  const uint8 *plo = g_ram + r10[v2];
   uint8 bank = sign8(misc_level_tileset_setting - 16) ? 13 : 5;
   uint16 r8 = 16 * (*((uint8 *)&camera_layer1_row_column_to_update_left_up + v0) & 0xF);
   uint16 v4 = 0;
   do {
     uint16 v5 = r8;
-    R0_W = plo[r8] | phi[v5] << 8;
+    R0_W = plo[r8] | plo[v5 + 0x10000] << 8;
     
-    r10 = RomPtrWithBank(bank, pointer_map16_tiles[R0_W]);
+    const uint16 *r10p = GetMap16RomAddr(bank, pointer_map16_tiles[R0_W]);
     int v6 = v4 >> 1;
-    blocks_layer1_tiles_to_upload_buffer[v6] = WORD(r10[0]);
-    blocks_layer1_tiles_to_upload_buffer[v6 + 64] = WORD(r10[2]);
+    blocks_layer1_tiles_to_upload_buffer[v6] = r10p[0];
+    blocks_layer1_tiles_to_upload_buffer[v6 + 64] = r10p[1];
     uint16 v7 = v4 + 2;
     int v8 = v7 >> 1;
-    blocks_layer1_tiles_to_upload_buffer[v8] = WORD(r10[4]);
-    blocks_layer1_tiles_to_upload_buffer[v8 + 64] = WORD(r10[6]);
+    blocks_layer1_tiles_to_upload_buffer[v8] = r10p[2];
+    blocks_layer1_tiles_to_upload_buffer[v8 + 64] = r10p[3];
     v4 = v7 + 2;
     uint16 v9 = r8++;
     if ((r8 & 0xF) == 0)
@@ -810,8 +894,7 @@ void BufferScrollingTiles_Layer2() {  // 058b8d
     v1 = 0x1000;
   uint16 R3_W = v1;
 
-  const uint8 *r10 = RomPtr_00(kLevelDataLayoutTables_Layer2LoPtrs[misc_level_mode_setting]);
-  const uint8 *r13 = RomPtr_00(kLevelDataLayoutTables_Layer2HiPtrs[misc_level_mode_setting]);
+  const uint16 *r10 = kLevelDataLayoutTables_Layer2LoPtrs[misc_level_mode_setting];
   
   uint16 v0 = camera_layer2_scrolling_direction;
   HIBYTE(blocks_layer2_vramupload_address) = 2 * (*((uint8 *)&camera_layer2_row_column_to_update_left_up + v0) & 0xF);
@@ -820,22 +903,20 @@ void BufferScrollingTiles_Layer2() {  // 058b8d
     v2 = 52;
   LOBYTE(blocks_layer2_vramupload_address) = v2;
   uint16 R0_W = (uint16)(*(uint16 *)((int8 *)&camera_layer2_row_column_to_update_left_up + v0) & 0x1F0) >> 4;
-  uint16 v3 = 3 * R0_W;
-  const uint8 *plo = IndirPtr((LongPtr *)(r10 + v3), 0);
-  const uint8 *phi = IndirPtr((LongPtr *)(r13 + v3), 0);
+  const uint8 *plo = g_ram + r10[R0_W];
 
   uint8 bank = sign8(misc_level_tileset_setting - 16) ? 13 : 5;
   uint16 r8 = *((uint8 *)&camera_layer2_row_column_to_update_left_up + v0) & 0xF;
   uint16 v5 = 0;
   do {
     uint16 v6 = r8;
-    R0_W = plo[r8] | phi[v6] << 8;
-    r10 = RomPtrWithBank(bank, pointer_map16_tiles[R0_W]);
+    R0_W = plo[r8] | plo[v6 + 0x10000] << 8;
+    const uint16 *r10w = GetMap16RomAddr(bank, pointer_map16_tiles[R0_W]);
     int v7 = v5 >> 1;
-    blocks_layer2_tiles_to_upload_buffer[v7] = R3_W | WORD(r10[0]);
-    blocks_layer2_tiles_to_upload_buffer[v7 + 1] = R3_W | WORD(r10[2]);
-    blocks_layer2_tiles_to_upload_buffer[v7 + 64] = R3_W | WORD(r10[4]);
-    blocks_layer2_tiles_to_upload_buffer[v7 + 65] = R3_W | WORD(r10[6]);
+    blocks_layer2_tiles_to_upload_buffer[v7] = R3_W | r10w[0];
+    blocks_layer2_tiles_to_upload_buffer[v7 + 1] = R3_W | r10w[1];
+    blocks_layer2_tiles_to_upload_buffer[v7 + 64] = R3_W | r10w[2];
+    blocks_layer2_tiles_to_upload_buffer[v7 + 65] = R3_W | r10w[3];
     v5 += 4;
     r8 += 16;
   } while (r8 < 0x1B0);
@@ -854,8 +935,7 @@ void BufferScrollingTiles_Layer2_VerticalLevel() {  // 058c71
     v2 = 0x1000;
   uint16 R3_W = v2;
 
-  const uint8 *r10 = RomPtr_00(kLevelDataLayoutTables_Layer2LoPtrs[misc_level_mode_setting]);
-  const uint8 *r13 = RomPtr_00(kLevelDataLayoutTables_Layer2HiPtrs[misc_level_mode_setting]);
+  const uint16 *r10 = kLevelDataLayoutTables_Layer2LoPtrs[misc_level_mode_setting];
 
   uint16 v1 = camera_layer2_scrolling_direction;
   uint8 v3 = 48;
@@ -864,23 +944,22 @@ void BufferScrollingTiles_Layer2_VerticalLevel() {  // 058c71
   LOBYTE(blocks_layer2_vramupload_address) = v3 | (*((uint8 *)&camera_layer2_row_column_to_update_left_up + v1) >> 2) & 3;
   HIBYTE(blocks_layer2_vramupload_address) = (*((uint8 *)&camera_layer2_row_column_to_update_left_up + v1) & 3) << 6;
   uint16 R0_W = (uint16)(*(uint16 *)((int8 *)&camera_layer2_row_column_to_update_left_up + v1) & 0x1F0) >> 4;
-  uint16 v4 = (R0_W < max_n) ? 3 * R0_W : 0;
-  const uint8 *plo = IndirPtr((LongPtr *)(r10 + v4), 0);
-  const uint8 *phi = IndirPtr((LongPtr *)(r13 + v4), 0);
+  uint16 v4 = (R0_W < max_n) ? R0_W : 0;
+  const uint8 *plo = g_ram + r10[v4];
   uint8 bank = sign8(misc_level_tileset_setting - 16) ? 13 : 5;
   uint16 r8 = 16 * (*((uint8 *)&camera_layer2_row_column_to_update_left_up + v1) & 0xF);
   uint16 v6 = 0;
   do {
     uint16 v7 = r8;
-    R0_W = plo[r8] | phi[v7] << 8;
-    r10 = RomPtrWithBank(bank, pointer_map16_tiles[R0_W]);
+    R0_W = plo[r8] | plo[r8 + 0x10000] << 8;
+    const uint16 *r10w = GetMap16RomAddr(bank, pointer_map16_tiles[R0_W]);
     int v8 = v6 >> 1;
-    blocks_layer2_tiles_to_upload_buffer[v8] = R3_W | *(uint16 *)(r10);
-    blocks_layer2_tiles_to_upload_buffer[v8 + 64] = R3_W | *(uint16 *)(r10 + 2);
+    blocks_layer2_tiles_to_upload_buffer[v8] = R3_W | r10w[0];
+    blocks_layer2_tiles_to_upload_buffer[v8 + 64] = R3_W | r10w[1];
     uint16 v9 = v6 + 2;
     int v10 = v9 >> 1;
-    blocks_layer2_tiles_to_upload_buffer[v10] = R3_W | *(uint16 *)(r10 + 4);
-    blocks_layer2_tiles_to_upload_buffer[v10 + 64] = R3_W | *(uint16 *)(r10 + 6);
+    blocks_layer2_tiles_to_upload_buffer[v10] = R3_W | r10w[2];
+    blocks_layer2_tiles_to_upload_buffer[v10 + 64] = R3_W | r10w[3];
     v6 = v9 + 2;
     uint16 v11 = r8++;
     if ((r8 & 0xF) == 0)
@@ -900,7 +979,7 @@ void BufferScrollingTiles_Layer2_Background() {  // 058d7a
     plo += 432;
     phi += 432;
   }
-  const uint8 *r10 = RomPtr(0xd9100);
+  const uint8 *r10 = (const uint8 *)kMap16Data + 0x1100;  // kMap16Data_Backgrounds
   uint16 r8 = blocks_screen_to_place_current_object & 0xF;
   uint16 v1 = 0;
   do {
@@ -1087,12 +1166,23 @@ uint8 UnusedOverworldEventPassedCheck(uint8 j) {  // 05b363
   return kBitTable_Bank05[j & 7] & ow_event_flags[j >> 3];
 }
 
+static const kLevelTileAnimationsAddrs[] = {
+  0x600, 0x640, 0x680,
+  0x740, 0xEA0, 0x800,
+  0x500, 0x540, 0x580,
+  0x5C0, 0x780, 0x7C0,
+  0xDA0, 0x6C0, 0x700,
+  0x4C0, 0x440, 0x480,
+  0x400,     0,     0,
+  0,     0,     0
+};
+
 void HandleLevelTileAnimations() {  // 05bb39
   uint8 v0 = 3 * (counter_local_frames & 7);
   uint16 R0_W = (uint8)(counter_local_frames & 0x18) >> 2;
-  graphics_tile_anim_vramaddress3 = *(uint16 *)((char *)&kLevelTileAnimations_DATA_05B93B[0].field_0 + (2 * v0));
-  graphics_tile_anim_vramaddress2 = *(uint16 *)((char *)&kLevelTileAnimations_DATA_05B93B[0].field_2 + (2 * v0));
-  graphics_tile_anim_vramaddress1 = *(uint16 *)((char *)&kLevelTileAnimations_DATA_05B93B[0].field_4 + (2 * v0));
+  graphics_tile_anim_vramaddress3 = kLevelTileAnimationsAddrs[v0 + 0];
+  graphics_tile_anim_vramaddress2 = kLevelTileAnimationsAddrs[v0 + 1];
+  graphics_tile_anim_vramaddress1 = kLevelTileAnimationsAddrs[v0 + 2];
   uint8 v2 = 4;
   do {
     uint8 v4 = v2;
@@ -2209,18 +2299,66 @@ void GiveTimeBonusAndBonusStars_Return() {  // 05cfe9
   ;
 }
 
-void SpecifySublevelToLoad() {  // 05d796
+// If we don't use the exact right id for the sprite list the snapshot load will fail.
+#define E(a, b) (a) | (b) << 20
+static const uint32 kSpriteListPtrToIndex[] = {
+  E(0x7c340, 0x9b), E(0x7c345, 0x9a), E(0x7c34a, 0x99), E(0x7c34f, 0x98), E(0x7c354, 0x97), E(0x7c359, 0x96), E(0x7c367, 0x95), E(0x7c3db, 0x93), 
+  E(0x7c3e3, 0x94), E(0x7c3ee, 0xbd), E(0x7c3f0, 0xc6), E(0x7c3f5, 0xc4), E(0x7c407, 0x0), E(0x7c40c, 0xeb), E(0x7c414, 0xd5), E(0x7c422, 0x10d), 
+  E(0x7c427, 0xc7), E(0x7c441, 0xc5), E(0x7c446, 0x14), E(0x7c44b, 0xca), E(0x7c450, 0x11b), E(0x7c473, 0x1d8), E(0x7c478, 0x121), E(0x7c498, 0x1d7), 
+  E(0x7c49d, 0x8), E(0x7c4c0, 0xc9), E(0x7c4c5, 0x3), E(0x7c4ca, 0x105), E(0x7c532, 0x106), E(0x7c57f, 0x1ca), E(0x7c593, 0x103), E(0x7c5ef, 0x1fd), 
+  E(0x7c5f4, 0x102), E(0x7c659, 0x1ff), E(0x7c661, 0x1be), E(0x7c66f, 0x101), E(0x7c6bf, 0x1fc), E(0x7c6d0, 0x1f6), E(0x7c6d5, 0x15), E(0x7c749, 0xe3), 
+  E(0x7c751, 0x9), E(0x7c7a7, 0xe9), E(0x7c7b5, 0x4), E(0x7c7bd, 0xde), E(0x7c7cb, 0xfe), E(0x7c7d9, 0x5), E(0x7c844, 0x6), E(0x7c8cd, 0xd2), 
+  E(0x7c8ea, 0xc3), E(0x7c904, 0x7), E(0x7c915, 0xe8), E(0x7c926, 0xe7), E(0x7c943, 0xe5), E(0x7c948, 0xa), E(0x7c9aa, 0xc2), E(0x7c9ca, 0x13), 
+  E(0x7c9db, 0xed), E(0x7c9f2, 0xf1), E(0x7ca0c, 0xe4), E(0x7ca17, 0x10b), E(0x7ca6d, 0x1c6), E(0x7ca87, 0x11a), E(0x7cb01, 0x1ef), E(0x7cb2a, 0x118), 
+  E(0x7cbc5, 0x1c3), E(0x7cbdc, 0x107), E(0x7cc11, 0x1ea), E(0x7cc25, 0x10a), E(0x7ccba, 0x1c2), E(0x7ccd4, 0x119), E(0x7cd63, 0x1f5), E(0x7cd68, 0x11c), 
+  E(0x7cd94, 0x1f3), E(0x7cdc0, 0x1f2), E(0x7cdc8, 0x109), E(0x7ce0c, 0x1f1), E(0x7ce14, 0x1f0), E(0x7ce1c, 0x1), E(0x7ceba, 0xd8), E(0x7cebf, 0x2), 
+  E(0x7cf06, 0xb), E(0x7cf4d, 0xe0), E(0x7cfaf, 0xf), E(0x7d02f, 0xbf), E(0x7d043, 0x10), E(0x7d0cf, 0xc1), E(0x7d0d7, 0xe), E(0x7d0f4, 0xdc), 
+  E(0x7d111, 0xdb), E(0x7d152, 0xd9), E(0x7d157, 0x11), E(0x7d1f5, 0xc), E(0x7d25a, 0xd), E(0x7d304, 0xdd), E(0x7d30c, 0x11e), E(0x7d380, 0x120), 
+  E(0x7d445, 0x123), E(0x7d4c5, 0x1f8), E(0x7d4cd, 0x20), E(0x7d51d, 0xcc), E(0x7d522, 0x11d), E(0x7d56c, 0x1fa), E(0x7d577, 0x11f), E(0x7d5c7, 0x1df), 
+  E(0x7d5cf, 0x1c1), E(0x7d5f5, 0x122), E(0x7d648, 0x1f), E(0x7d668, 0xd6), E(0x7d6d9, 0x22), E(0x7d741, 0xbe), E(0x7d74c, 0x21), E(0x7d799, 0xfc), 
+  E(0x7d7bf, 0x24), E(0x7d7e5, 0xcf), E(0x7d7ea, 0x205), E(0x7d825, 0x206), E(0x7d84b, 0xce), E(0x7d86e, 0x208), E(0x7d888, 0x209), E(0x7d899, 0xcd), 
+  E(0x7d8a1, 0x202), E(0x7d8be, 0x23), E(0x7d956, 0xd7), E(0x7d95e, 0x1b), E(0x7d9b1, 0xef), E(0x7d9ef, 0x117), E(0x7da12, 0x1ed), E(0x7da44, 0x1ec), 
+  E(0x7da7f, 0x1c0), E(0x7da93, 0x1d), E(0x7dadd, 0xea), E(0x7db0f, 0x1c), E(0x7db95, 0xc0), E(0x7dbbb, 0x1a), E(0x7dbf9, 0xd4), E(0x7dc22, 0xd3), 
+  E(0x7dc2d, 0x18), E(0x7dc3b, 0xf8), E(0x7dc61, 0xf7), E(0x7dd14, 0x116), E(0x7dd76, 0x1e5), E(0x7dd7b, 0x115), E(0x7ddb3, 0x1e3), E(0x7ddb8, 0x1e2), 
+  E(0x7ddcf, 0xc8), E(0x7de01, 0x114), E(0x7de0f, 0x1dd), E(0x7de3b, 0x1db), E(0x7de4f, 0x113), E(0x7df08, 0x10f), E(0x7df94, 0x1bf), E(0x7dfb1, 0x110), 
+  E(0x7dfe0, 0x1fe), E(0x7e024, 0x1eb), E(0x7e032, 0x111), E(0x7e067, 0x1d4), E(0x7e08d, 0x1d3), E(0x7e0c5, 0x1d2), E(0x7e0e8, 0x1d1), E(0x7e114, 0x1cf), 
+  E(0x7e131, 0x1ce), E(0x7e160, 0x1cd), E(0x7e183, 0x1cc), E(0x7e19d, 0x10e), E(0x7e1c0, 0x1c7), E(0x7e1c5, 0x134), E(0x7e221, 0x130), E(0x7e29e, 0x132), 
+  E(0x7e2af, 0x135), E(0x7e335, 0x136), E(0x7e3dc, 0x12a), E(0x7e402, 0x1c4), E(0x7e428, 0x12b), E(0x7e466, 0x12c), E(0x7e4ec, 0x1c8), E(0x7e4f1, 0x12d), 
+  E(0x7e574, 0x128), E(0x7e5df, 0x127), E(0x7e650, 0x126), E(0x7e6f4, 0x125), E(0x7e759, 0x104), E(0x7e76d, 0x12), 
+};
+#undef E
+
+size_t FindWithBinarySearch(const uint32 *sorted_values, size_t values_size, uint32 value_to_find) {
+  size_t low = 0, high = values_size - 1;
+  while (low < high) {
+    size_t mid = (low + high) >> 1;
+    bool pred = (sorted_values[mid] & 0xfffff) < value_to_find;
+    low = pred ? mid + 1 : low;
+    high = pred ? high : mid;
+  }
+  if (low == high && (sorted_values[low] & 0xfffff) == value_to_find)
+    return sorted_values[low] >> 20;
+  return -1;
+}
+
+const uint8 *GetSpriteListPtr() {
+  uint32 v = Load24(ptr_sprite_list_data);
+  int idx = (int)FindWithBinarySearch(kSpriteListPtrToIndex, arraysize(kSpriteListPtrToIndex), v);
+  assert(idx != -1);
+  const uint8 *bb = kLoadLevelSpriteList(idx).ptr;
+  return bb;
+}
+
+void LoadLevel() {  // 05d796
   uint16 v1;
   int16 v5;
   uint16 v10;
   uint16 r14w;
-
   uint8 R1_ = 0;
-
 
   flag_override_no_yoshi_intro_for_midway_entrance = 0;
   if (in_yoshi_wings_bonus_area || flag_active_bonus_game)
-    SpecifySublevelToLoad_05DBAC();
+    LoadLevel_05DBAC();
   if (counter_sublevels_entered) {
     uint8 v0 = HIBYTE(player_xpos);
     if ((misc_level_layout_flags & 1) != 0)
@@ -2229,16 +2367,16 @@ void SpecifySublevelToLoad() {  // 05d796
    
     if (flag_use_secondary_entrance) {
       uint16 j = r14w;
-      r14w = (r14w & ~0xff) | kSpecifySublevelToLoad_DATA_05F800[j];
-      uint8 r0 = kSpecifySublevelToLoad_DATA_05FA00[j];
-      LOBYTE(player_ypos) = kSpecifySublevelToLoad_DATA_05D730[r0 & 0xF];
-      HIBYTE(player_ypos) = kSpecifySublevelToLoad_DATA_05D740[r0 & 0xF];
-      LOBYTE(mirror_current_layer1_ypos) = kSpecifySublevelToLoad_DATA_05D708[(r0 & 0x30) >> 4];
-      LOBYTE(mirror_current_layer2_ypos) = kSpecifySublevelToLoad_DATA_05D70C[r0 >> 6];
-      R1_ = kSpecifySublevelToLoad_DATA_05FC00[j];
-      LOBYTE(player_xpos) = kSpecifySublevelToLoad_DATA_05D750[R1_ >> 5];
-      HIBYTE(player_xpos) = kSpecifySublevelToLoad_DATA_05D758[R1_ >> 5];
-      misc_level_header_entrance_settings = kSpecifySublevelToLoad_DATA_05FE00[j] & 7;
+      r14w = (r14w & ~0xff) | kLevelInfo_05F800[j];
+      uint8 r0 = kLevelInfo_05FA00[j];
+      LOBYTE(player_ypos) = kLoadLevel_DATA_05D730[r0 & 0xF];
+      HIBYTE(player_ypos) = kLoadLevel_DATA_05D740[r0 & 0xF];
+      LOBYTE(mirror_current_layer1_ypos) = kLoadLevel_DATA_05D708[(r0 & 0x30) >> 4];
+      LOBYTE(mirror_current_layer2_ypos) = kLoadLevel_DATA_05D70C[r0 >> 6];
+      R1_ = kLevelInfo_05FC00[j];
+      LOBYTE(player_xpos) = kLoadLevel_DATA_05D750[R1_ >> 5];
+      HIBYTE(player_xpos) = kLoadLevel_DATA_05D758[R1_ >> 5];
+      misc_level_header_entrance_settings = kLevelInfo_05FE00[j] & 7;
     }
   } else {
     v1 = 0;
@@ -2261,45 +2399,46 @@ void SpecifySublevelToLoad() {  // 05d796
       v2 -= 36;
     r14w = (ow_players_map[(uint8)v1] != 0) << 8 | v2;
   }
-  ptr_layer1_data = kSpecifySublevelToLoad_Layer1DataPtrs[r14w];
-  ptr_layer2_data = kSpecifySublevelToLoad_Layer2DataPtrs[r14w];
+  ptr_layer1_data = kLevelData_Layer1(r14w).ptr;
+  ptr_layer2_data = kLevelData_Layer2(r14w).ptr;
+  ptr_layer2_is_bg = kLevelData_Layer2_IsBg[r14w];
+
   HIBYTE(v5) = 0;
-  ptr_sprite_list_data.addr = kSpecifySublevelToLoad_SpriteDataPtrs[r14w];
-  ptr_sprite_list_data.bank = 7;
-  uint8 sprite_hdr = *IndirPtr(&ptr_sprite_list_data, 0);
+  ptr_sprite_list_data = (LongPtr){ .bank = 7, .addr = kLoadLevel_SpriteDataPtrs[r14w] };
+  uint8 sprite_hdr = *GetSpriteListPtr();
   sprites_sprite_memory_setting = sprite_hdr & 0x3F;
   sprites_sprite_buoyancy_settings = sprite_hdr & 0xC0;
-  uint8 v6 = kSpecifySublevelToLoad_DATA_05F000[r14w] >> 4;
-  flag_layer2_horiz_scroll_level_setting = kSpecifySublevelToLoad_L2HorzScrollSettings[v6];
-  flag_layer2_vert_scroll_level_setting = kSpecifySublevelToLoad_L2VertScrollSettings[v6];
+  uint8 v6 = kLevelInfo_05F000[r14w] >> 4;
+  flag_layer2_horiz_scroll_level_setting = kLoadLevel_L2HorzScrollSettings[v6];
+  flag_layer2_vert_scroll_level_setting = kLoadLevel_L2VertScrollSettings[v6];
   flag_layer1_horiz_scroll_level_setting = 1;
-  misc_level_layer3_settings = (kSpecifySublevelToLoad_DATA_05F200[r14w] & 0xC0) >> 6;
+  misc_level_layer3_settings = (kLevelInfo_05F200[r14w] & 0xC0) >> 6;
   HIBYTE(mirror_current_layer1_ypos) = 0;
   HIBYTE(mirror_current_layer2_ypos) = 0;
-  flag_disable_no_yoshi_intro = kSpecifySublevelToLoad_DATA_05F600[r14w] & 0x80;
-  misc_level_layout_flags = (uint8)(kSpecifySublevelToLoad_DATA_05F600[r14w] & 0x60) >> 5;
+  flag_disable_no_yoshi_intro = kLevelInfo_05F600[r14w] & 0x80;
+  misc_level_layout_flags = (uint8)(kLevelInfo_05F600[r14w] & 0x60) >> 5;
   uint8 R2_ = 0;  // todo: what is R2 here?
   if (!flag_use_secondary_entrance) {
-    v10 = kSpecifySublevelToLoad_DATA_05F000[r14w] & 0xF;
-    player_ypos = PAIR16(kSpecifySublevelToLoad_DATA_05D740[v10], kSpecifySublevelToLoad_DATA_05D730[v10]);
-    R2_ = kSpecifySublevelToLoad_DATA_05F200[r14w];
+    v10 = kLevelInfo_05F000[r14w] & 0xF;
+    player_ypos = PAIR16(kLoadLevel_DATA_05D740[v10], kLoadLevel_DATA_05D730[v10]);
+    R2_ = kLevelInfo_05F200[r14w];
     v10 = R2_ & 7;
-    player_xpos = PAIR16(kSpecifySublevelToLoad_DATA_05D758[v10], kSpecifySublevelToLoad_DATA_05D750[v10]);
+    player_xpos = PAIR16(kLoadLevel_DATA_05D758[v10], kLoadLevel_DATA_05D750[v10]);
     misc_level_header_entrance_settings = (uint8)(R2_ & 0x38) >> 3;
-    R2_ = kSpecifySublevelToLoad_DATA_05F400[r14w];
+    R2_ = kLevelInfo_05F400[r14w];
     v10 = R2_ & 3;
-    mirror_current_layer2_ypos = kSpecifySublevelToLoad_DATA_05D70C[v10];
+    mirror_current_layer2_ypos = kLoadLevel_DATA_05D70C[v10];
     LOBYTE(v10) = (uint8)(R2_ & 0xC) >> 2;
-    mirror_current_layer1_ypos = kSpecifySublevelToLoad_DATA_05D708[v10];
-    R1_ = kSpecifySublevelToLoad_DATA_05F600[r14w];
+    mirror_current_layer1_ypos = kLoadLevel_DATA_05D708[v10];
+    R1_ = kLevelInfo_05F600[r14w];
   }
   if ((misc_level_layout_flags & 1) != 0) {
-    HIBYTE(player_ypos) = *IndirPtr(&ptr_layer1_data, 0) & 0x1F;
+    HIBYTE(player_ypos) = *ptr_layer1_data & 0x1F;
     camera_last_screen_vert = HIBYTE(player_ypos) + 1;
     flag_layer1_vert_scroll_level_setting = 1;
   }
   if (counter_sublevels_entered || (unusedram_disable_midpoint = R2_ >> 4, flag_got_midpoint = 0,
-                                    ow_current_event_number = kSpecifySublevelToLoad_DATA_05D608[*(uint16 *)&ow_level_number_lo],
+                                    ow_current_event_number = kLoadLevel_DATA_05D608[ow_level_number_lo],
                                     (ow_level_tile_settings[ow_level_number_lo] & 0x40) == 0)) {
     R1_ &= 0x1F;
     if ((misc_level_layout_flags & 1) != 0) {
@@ -2318,8 +2457,8 @@ void SpecifySublevelToLoad() {  // 05d796
   uint8 v11;
   if (ow_level_number_lo < 0x52) {
     v11 = 4;
-    uint8 v12 = *IndirPtr(&ptr_layer1_data, 4) & 0xF;
-    while (v12 != kSpecifySublevelToLoad_LevelEntranceTileset[v11]) {
+    uint8 v12 = ptr_layer1_data[4] & 0xF;
+    while (v12 != kLoadLevel_LevelEntranceTileset[v11]) {
       if ((--v11 & 0x80) != 0)
         goto LABEL_47;
     }
@@ -2332,35 +2471,34 @@ void SpecifySublevelToLoad() {  // 05d796
       v11 = 5;
     }
     if (!flag_override_no_yoshi_intro_for_midway_entrance) {
-      LOBYTE(player_ypos) = kSpecifySublevelToLoad_LevelEntranceYPos[v11];
+      LOBYTE(player_ypos) = kLoadLevel_LevelEntranceYPos[v11];
       HIBYTE(player_ypos) = 1;
       player_xpos = 48;
       LOBYTE(mirror_current_layer1_ypos) = -64;
       LOBYTE(mirror_current_layer2_ypos) = -64;
       misc_level_header_entrance_settings = 0;
-      ptr_sprite_list_data.addr = 0xc3ee;
-      ptr_sprite_list_data.bank = 7;
-      uint8 sprite_hdr = *IndirPtr(&ptr_sprite_list_data, 0);
+      ptr_sprite_list_data = (LongPtr){ .bank = 7, .addr = 0xc3ee };
+      uint8 sprite_hdr = *GetSpriteListPtr();
       sprites_sprite_memory_setting = sprite_hdr & 0x3F;
       sprites_sprite_buoyancy_settings = sprite_hdr & 0xC0;
       flag_layer2_horiz_scroll_level_setting = 0;
       flag_layer2_vert_scroll_level_setting = 0;
       flag_layer1_horiz_scroll_level_setting = 0;
       misc_level_layout_flags = 0;
-      misc_level_layer3_settings = kSpecifySublevelToLoad_LevelEntranceLayer3[v11];
-      ptr_layer1_data = kSpecifySublevelToLoad_LevelEntranceLayer1[v11];
-      ptr_layer2_data = kSpecifySublevelToLoad_LevelEntranceLayer2[v11];
+      misc_level_layer3_settings = kLoadLevel_LevelEntranceLayer3[v11];
+      ptr_layer1_data = kEntranceData_Layer1(v11).ptr;
+      ptr_layer2_data = kEntranceData_Layer2(v11).ptr;
+      ptr_layer2_is_bg = kEntranceData_Layer2_IsBg[v11];
     }
-    misc_level_tileset_setting = kSpecifySublevelToLoad_LevelEntranceTileset[v11];
+    misc_level_tileset_setting = kLoadLevel_LevelEntranceTileset[v11];
   }
 LABEL_47:
   if (counter_sublevels_entered && !flag_active_bonus_game && ow_level_number_lo == 36)
-    SpecifySublevelToLoad_HandleChocolateIsland2Gimmick();
+    LoadLevel_HandleChocolateIsland2Gimmick();
 }
 
-void SpecifySublevelToLoad_HandleChocolateIsland2Gimmick() {  // 05daef
-  int8 v0 = *IndirPtr(&ptr_layer1_data, 4) & 0xC0;
-  int8 v1 = 2 * (4 * v0 + __CFSHL__(v0, 1)) + __CFSHL__(2 * v0, 1);
+void LoadLevel_HandleChocolateIsland2Gimmick() {  // 05daef
+  uint8 v1 = ptr_layer1_data[4] >> 6;
   uint8 v2;
   if (v1) {
     if (v1 == 1) {
@@ -2386,22 +2524,23 @@ void SpecifySublevelToLoad_HandleChocolateIsland2Gimmick() {  // 05daef
   } else {
     v2 = (counter_yoshi_coins_to_display != 4) ? 2 : 0;
   }
+
   int v3 = v2 >> 1;
-  ptr_layer1_data.addr = kSpecifySublevelToLoad_Layer1Ptrs[v3];
-  ptr_sprite_list_data.addr = kSpecifySublevelToLoad_SpritePtrs[v3];
-  ptr_layer2_data.addr = kSpecifySublevelToLoad_Layer2Ptrs[v3];
+  ptr_layer1_data = kChoclateIsland2_Layer1(v3).ptr;
+  ptr_sprite_list_data.addr = kChoclateIsland2_SpritePtrs[v3];
+  ptr_layer2_data = kChoclateIsland2_Layer2(v3).ptr;
+  ptr_layer2_is_bg = kChoclateIsland2_Layer2_IsBg[v3];
 
-  uint8 sprite_hdr = *IndirPtr(&ptr_sprite_list_data, 0);
-
+  uint8 sprite_hdr = *GetSpriteListPtr();
   sprites_sprite_memory_setting = sprite_hdr & 0x7F;
   sprites_sprite_buoyancy_settings = sprite_hdr & 0x80;
 }
 
-void SpecifySublevelToLoad_05DBAC() {  // 05dbac
+void LoadLevel_05DBAC() {  // 05dbac
   uint8 v0 = HIBYTE(player_xpos);
   if ((misc_level_layout_flags & 1) != 0)
     v0 = HIBYTE(player_ypos);
-  misc_subscreen_exit_entrance_number_lo[v0] = kSpecifySublevelToLoad_BonusLevelSublevelsLo[in_yoshi_wings_bonus_area != 0];
+  misc_subscreen_exit_entrance_number_lo[v0] = kLoadLevel_BonusLevelSublevelsLo[in_yoshi_wings_bonus_area != 0];
   ++counter_sublevels_entered;
 }
 

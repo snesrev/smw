@@ -18,7 +18,7 @@ Cpu *g_cpu;
 bool g_calling_asm_from_c;
 int g_calling_asm_from_c_ret;
 bool g_fail;
-bool g_use_my_apu_code = false;
+bool g_use_my_apu_code = true;
 extern bool g_other_image;
 const RtlGameInfo *g_rtl_game_info;
 
@@ -211,17 +211,17 @@ static void MakeSnapshot(Snapshot *s) {
   s->vTimer = g_snes->vTimer;
   memcpy(s->ram, g_snes->ram, 0x20000);
   memcpy(s->sram, g_snes->cart->ram, g_snes->cart->ramSize);
-  memcpy(s->vram, g_snes->ppu->vram, sizeof(uint16) * 0x8000);
-  memcpy(s->oam, g_snes->ppu->oam, sizeof(uint16) * 0x120);
-  memcpy(s->cgram, g_snes->ppu->cgram, sizeof(uint16) * 0x100);
+  memcpy(s->vram, g_ppu->vram, sizeof(uint16) * 0x8000);
+  memcpy(s->oam, g_ppu->oam, sizeof(uint16) * 0x120);
+  memcpy(s->cgram, g_ppu->cgram, sizeof(uint16) * 0x100);
 }
 
 static void MakeMySnapshot(Snapshot *s) {
   memcpy(s->ram, g_snes->ram, 0x20000);
   memcpy(s->sram, g_snes->cart->ram, g_snes->cart->ramSize);
-  memcpy(s->vram, g_snes->ppu->vram, sizeof(uint16) * 0x8000);
-  memcpy(s->oam, g_snes->ppu->oam, sizeof(uint16) * 0x120);
-  memcpy(s->cgram, g_snes->ppu->cgram, sizeof(uint16) * 0x100);
+  memcpy(s->vram, g_ppu->vram, sizeof(uint16) * 0x8000);
+  memcpy(s->oam, g_ppu->oam, sizeof(uint16) * 0x120);
+  memcpy(s->cgram, g_ppu->cgram, sizeof(uint16) * 0x100);
 }
 
 static void RestoreSnapshot(Snapshot *s) {
@@ -233,66 +233,66 @@ static void RestoreSnapshot(Snapshot *s) {
   cpu_setFlags(c, s->flags);
   memcpy(g_snes->ram, s->ram, 0x20000);
   memcpy(g_snes->cart->ram, s->sram, g_snes->cart->ramSize);
-  memcpy(g_snes->ppu->vram, s->vram, sizeof(uint16) * 0x8000);
-  memcpy(g_snes->ppu->oam, s->oam, sizeof(uint16) * 0x120);
-  memcpy(g_snes->ppu->cgram, s->cgram, sizeof(uint16) * 0x100);
-}
-
-static bool loadRom(const char *name, Snes *snes) {
-  size_t length = 0;
-  uint8_t *file = NULL;
-  file = ReadWholeFile(name, &length);
-  if (file == NULL) {
-    fprintf(stderr, "Failed to read file: %s\n", name);
-    return false;
-  }
-  bool result = snes_loadRom(snes, file, (int)length);
-  free(file);
-  return result;
+  memcpy(g_ppu->vram, s->vram, sizeof(uint16) * 0x8000);
+  memcpy(g_ppu->oam, s->oam, sizeof(uint16) * 0x120);
+  memcpy(g_ppu->cgram, s->cgram, sizeof(uint16) * 0x100);
 }
 
 static void FixupCarry(uint32 addr) {
   *SnesRomPtr(addr) = 0;
 }
   
-Snes *SnesInit(const char *filename) {
-  g_snes = snes_init(g_ram);
+Snes *SnesInit(const uint8 *data, int data_size) {
+  g_my_ppu = ppu_init();
+  ppu_reset(g_my_ppu);
 
+  g_snes = snes_init(g_ram);
   g_cpu = g_snes->cpu;
+  g_dma = g_snes->dma;
   g_use_my_apu_code = (g_runmode != RM_THEIRS);
 
-  bool loaded = loadRom(filename, g_snes);
-  if (!loaded) {
-    return NULL;
+  RtlSetupEmuCallbacks(NULL, &RtlRunFrameCompare, NULL);
+
+  if (data_size != 0) {
+    bool loaded = snes_loadRom(g_snes, data, data_size);
+    if (!loaded) {
+      return NULL;
+    }
+    g_rom = g_snes->cart->rom;
+
+    if (memcmp(g_rom + 0x7fc0, "Super Mario Bros. LL ", 21) == 0) {
+      g_rtl_game_info = &kSmbllGameInfo;
+    } else if (memcmp(g_rom + 0x7fc0, "Super Mario Bros. 1  ", 21) == 0) {
+      g_rtl_game_info = &kSmb1GameInfo;
+    } else {
+      g_rtl_game_info = &kSmwGameInfo;
+    }
+
+    for (size_t i = 0; i != g_rtl_game_info->patch_carrys_count; i++) {
+      uint8 t = *SnesRomPtr(g_rtl_game_info->patch_carrys[i]);
+      if (t) {
+        kPatchedCarrysOrg[i] = t;
+        FixupCarry(g_rtl_game_info->patch_carrys[i]);
+      } else {
+        printf("0x%x double patched!\n", g_rtl_game_info->patch_carrys[i]);
+      }
+    }
+    PatchBugs(1, 0);
+  } else {
+    g_runmode = RM_MINE;
+    g_snes->cart->ramSize = 2048;
+    g_snes->cart->ram = calloc(1, 2048);
+    g_rtl_game_info = &kSmwGameInfo;
+
+    ppu_reset(g_snes->ppu);
+    dma_reset(g_snes->dma);
   }
 
   g_sram = g_snes->cart->ram;
   g_sram_size = g_snes->cart->ramSize;
-  g_rom = g_snes->cart->rom;
-
-  RtlSetupEmuCallbacks(NULL, &RtlRunFrameCompare, NULL);
-
-  if (memcmp(g_rom + 0x7fc0, "Super Mario Bros. LL ", 21) == 0) {
-    g_rtl_game_info = &kSmbllGameInfo;
-  } else if (memcmp(g_rom + 0x7fc0, "Super Mario Bros. 1  ", 21) == 0) {
-    g_rtl_game_info = &kSmb1GameInfo;
-  } else {
-    g_rtl_game_info = &kSmwGameInfo;
-  }
-
   game_id = g_rtl_game_info->game_id;
   g_rtl_game_info->initialize();
 
-  for (size_t i = 0; i != g_rtl_game_info->patch_carrys_count; i++) {
-    uint8 t = *SnesRomPtr(g_rtl_game_info->patch_carrys[i]);
-    if (t) {
-      kPatchedCarrysOrg[i] = t;
-      FixupCarry(g_rtl_game_info->patch_carrys[i]);
-    } else {
-      printf("0x%x double patched!\n", g_rtl_game_info->patch_carrys[i]);
-    }
-  }
-  PatchBugs(1, 0);
   return g_snes;
 }
 
@@ -306,7 +306,7 @@ void SaveBugSnapshot() {
 }
 
 void RunOneFrameOfGame_Both(void) {
-  g_snes->ppu = g_snes->snes_ppu;
+  g_ppu = g_snes->ppu;
   MakeSnapshot(&g_snapshot_before);
 
   // Run orig version then snapshot
@@ -317,7 +317,7 @@ again_theirs:
 
   // Run my version and snapshot
 //again_mine:
-  g_snes->ppu = g_snes->my_ppu;
+  g_ppu = g_my_ppu;
   RestoreSnapshot(&g_snapshot_before);
 
   g_snes->runningWhichVersion = 2;
@@ -335,7 +335,7 @@ again_theirs:
 
     printf("Verify failure!\n");
 
-    g_snes->ppu = g_snes->snes_ppu;
+    g_ppu = g_snes->ppu;
     RestoreSnapshot(&g_snapshot_before);
 
     if (g_debug_flag)
@@ -346,10 +346,10 @@ again_theirs:
     goto getout;
   }
 
-  g_snes->ppu = g_snes->snes_ppu;
+  g_ppu = g_snes->ppu;
   RestoreSnapshot(&g_snapshot_theirs);
 getout:
-  g_snes->ppu = g_other_image ? g_snes->my_ppu : g_snes->snes_ppu;
+  g_ppu = g_other_image ? g_my_ppu : g_snes->ppu;
   g_snes->runningWhichVersion = 0;
 
   if (g_got_mismatch_count)
@@ -362,12 +362,12 @@ static void RtlRunFrameCompare(uint16 input, int run_what) {
   g_use_my_apu_code = (g_runmode != RM_THEIRS);
 
   if (g_runmode == RM_THEIRS) {
-    g_snes->ppu = g_snes->snes_ppu;
+    g_ppu = g_snes->ppu;
     g_snes->runningWhichVersion = 1;
     g_rtl_game_info->run_frame_emulated();
     g_snes->runningWhichVersion = 0;
   } else if (g_runmode == RM_MINE) {
-    g_snes->ppu = g_snes->snes_ppu;
+    g_ppu = g_my_ppu;
     g_snes->runningWhichVersion = 2;
     g_rtl_game_info->run_frame();
     g_snes->runningWhichVersion = 0;

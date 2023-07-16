@@ -842,6 +842,8 @@ music_keep_running:
   if (--p->counter_sf0c)
     return;
 Music_loop_1:
+  if (p->music_ptr_toplevel == 0)
+    return;
   for(;;) {
     t = WORD(p->ram[p->music_ptr_toplevel]);
     p->music_ptr_toplevel += 2;
@@ -861,8 +863,9 @@ Music_loop_1:
     }
   }
   uint16 *src = (uint16*)(p->ram + t);
-  for (int i = 7; i >= 0; i--)
+  for (int i = 7; i >= 0; i--) {
     p->channel[i].pattern_cur_ptr = WORD(src[i]);
+  }
   
   p->cur_chan_bit = 0x80;
   for (int i = 7; i >= 0; i--, p->cur_chan_bit >>= 1) {
@@ -1021,7 +1024,6 @@ static void HandleEffect(SmwSpcPlayer *p, Channel *c, uint8 effect) {
     break;
   case 0xe5:  // tremolo on
     c->tremolo_delay_ticks = p->ram[c->pattern_cur_ptr++];
-    printf("Writing to bad tremolo ram addr!\n");
     //c->tremolo_rate = p->ram[c->pattern_cur_ptr++];
     c->tremolo_depth = p->ram[c->pattern_cur_ptr++];
     break;
@@ -1116,7 +1118,6 @@ static void Chan_HandleTick(SmwSpcPlayer *p, Channel *c) {
       if (c->tremolo_count & 0x80 && c->tremolo_depth == 0xff) {
         c->tremolo_count = 0x80;
       } else {
-        printf("Reading bad tremolo ram addr!\n");
         //c->tremolo_count += c->tremolo_rate;
       }
       CalcTremolo(p, c);
@@ -1307,13 +1308,15 @@ static void SmwSpcPlayer_GenerateSamples(SpcPlayer *p_in) {
 }
 
 static void SmwSpcPlayer_Upload(SpcPlayer *p_in, const uint8_t *data) {
+  const uint8 *data_org = data;
   SmwSpcPlayer *p = (SmwSpcPlayer *)p_in;
   Dsp_Write(p, FLG, 0x60);
   Dsp_Write(p, KOF, 0xff);
   for (;;) {
     int numbytes = *(uint16 *)(data);
-    if (numbytes == 0)
+    if (numbytes == 0) {
       break;
+    }
     int target = *(uint16 *)(data + 2);
     data += 4;
     do {
@@ -1329,6 +1332,11 @@ static void SmwSpcPlayer_Upload(SpcPlayer *p_in, const uint8_t *data) {
   memset(p->base.input_ports, 0, sizeof(p->base.input_ports));
   memset(p->last_value_from_snes, 0, sizeof(p->last_value_from_snes));
   memset(p->new_value_from_snes, 0, sizeof(p->new_value_from_snes));
+
+  p->music_ptr_toplevel = 0;
+  for (int i = 0; i < 8; i++)
+    p->channel[i].pattern_cur_ptr = 0;
+
   Dsp_Write(p, FLG, 0x20);  
 }
 

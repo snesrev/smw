@@ -152,6 +152,11 @@ static inline PairU16 MakePairU16(uint16 k, uint16 j) {
 #define MakePairU16_AY MakePairU16
 
 
+typedef struct MemBlk {
+  const uint8 *ptr;
+  size_t size;
+} MemBlk;
+MemBlk FindIndexInMemblk(MemBlk data, size_t i);
 
 #endif  // SM_TYPES_H_
 

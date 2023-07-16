@@ -21,7 +21,7 @@ typedef struct Snes Snes;
 struct Snes {
   Cpu* cpu;
   Apu* apu;
-  Ppu* ppu, *snes_ppu, *my_ppu;
+  Ppu* ppu;
   Dma* dma;
   Cart* cart;
   Input *input1;

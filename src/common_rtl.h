@@ -26,17 +26,21 @@ typedef struct SimpleHdma {
   uint8 indir_bank;
 } SimpleHdma;
 
+
+typedef struct Dma Dma;
 typedef struct DmaChannel DmaChannel;
+typedef struct Ppu Ppu;
 
 void SimpleHdma_Init(SimpleHdma *c, DmaChannel *dc);
 void SimpleHdma_DoLine(SimpleHdma *c);
 void RtlHdmaSetup(uint8 which, uint8 transfer_unit, uint8 reg, uint32 addr, uint8 indirect_bank);
 
-
 extern uint8 g_ram[0x20000];
 extern uint8 *g_sram;
 extern int g_sram_size;
 extern const uint8 *g_rom;
+extern Ppu *g_ppu, *g_my_ppu;
+extern Dma *g_dma;
 
 #define GET_BYTE(p) (*(uint8*)(p))
 
@@ -49,7 +53,7 @@ typedef struct SpcPlayer SpcPlayer;
 extern SpcPlayer *g_spc_player;
 
 void mov24(LongPtr *dst, uint32 src);
-uint32 Load24(const LongPtr *src);
+uint32 Load24(LongPtr src);
 void MemCpy(void *dst, const void *src, int size);
 bool Unreachable();
 
@@ -65,6 +69,7 @@ static inline const uint8 *RomFixedPtr(uint32_t addr) { return &g_rom[(((addr >>
 #define GET_BYTE(p) (*(uint8*)(p))
 
 uint8 *RomPtr(uint32_t addr);
+
 static inline uint8 *RomPtr_RAM(uint16_t addr) { assert(addr < 0x2000); return g_ram + addr; }
 static inline const uint8 *RomPtr_00(uint16_t addr) { return RomPtr(0x000000 | addr); }
 static inline const uint8 *RomPtr_01(uint16_t addr) { return RomPtr(0x010000 | addr); }
@@ -93,9 +98,8 @@ void WriteReg(uint16 reg, uint8 value);
 void WriteRegWord(uint16 reg, uint16 value);
 uint16 ReadRegWord(uint16 reg);
 uint8 ReadReg(uint16 reg);
-uint8_t *IndirPtr(LongPtr *ptr, uint16 offs);
-void IndirWriteWord(LongPtr *ptr, uint16 offs, uint16 value);
-void IndirWriteByte(LongPtr *ptr, uint16 offs, uint8 value);
+uint8_t *IndirPtr(LongPtr ptr, uint16 offs);
+void IndirWriteByte(LongPtr ptr, uint16 offs, uint8 value);
 
 
 typedef void RunFrameFunc(uint16 input, int run_what);

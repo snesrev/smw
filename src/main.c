@@ -13,6 +13,8 @@
 #include <unistd.h>
 #endif
 
+#include "assets/smw_assets.h"
+
 #include "snes/ppu.h"
 
 #include "types.h"
@@ -22,11 +24,15 @@
 #include "util.h"
 #include "smw_spc_player.h"
 
+#include "snes/snes.h"
 #ifdef __SWITCH__
 #include "switch_impl.h"
 #endif
 
+#include "assets/smw_assets.h"
+
 static void SDLCALL AudioCallback(void *userdata, Uint8 *stream, int len);
+static void LoadAssets();
 static void SwitchDirectory();
 static void RenderNumber(uint8 *dst, size_t pitch, int n, uint8 big);
 static void OpenOneGamepad(int i);
@@ -41,7 +47,7 @@ void OpenGLRenderer_Create(struct RendererFuncs *funcs);
 bool g_debug_flag;
 bool g_want_dump_memmap_flags;
 bool g_new_ppu = true;
-bool g_other_image = false;
+bool g_other_image = true;
 struct SpcPlayer *g_spc_player;
 static uint32_t button_state;
 
@@ -165,7 +171,7 @@ void RtlDrawPpuFrame(uint8 *pixel_buffer, size_t pitch, uint32 render_flags) {
 }
 
 static void DrawPpuFrameWithPerf(void) {
-  int render_scale = PpuGetCurrentRenderScale(g_snes->ppu, g_ppu_render_flags);
+  int render_scale = PpuGetCurrentRenderScale(g_ppu, g_ppu_render_flags);
   uint8 *pixel_buffer = 0;
   int pitch = 0;
 
@@ -332,6 +338,8 @@ int main(int argc, char** argv) {
   }
   ParseConfigFile(config_file);
 
+  LoadAssets();
+
   g_snes_width = (g_config.extended_aspect_ratio * 2 + 256);
   g_snes_height = 224;// (g_config.extend_y ? 240 : 224);
   g_ppu_render_flags = g_config.new_renderer * kPpuRenderFlags_NewRenderer |
@@ -376,18 +384,24 @@ int main(int argc, char** argv) {
     g_renderer_funcs = kSdlRendererFuncs;
   }
 
-  // init snes, load rom
-  const char* filename = argv[0] ? argv[0] : "smw.sfc";
-  Snes *snes = SnesInit(filename);
+  if (argv[0]) {
+    size_t size;
+    kRom = ReadWholeFile(argv[0], &size);
+    kRom_SIZE = (uint32)size;
+    if (!kRom)
+      goto error_reading;
+  }
 
-  if(snes == NULL) {
-  #ifdef __SWITCH__
+  Snes *snes = SnesInit(kRom, kRom_SIZE);
+  if (snes == NULL) {
+error_reading:;
+#ifdef __SWITCH__
     ThrowMissingROM();
-  #else
+#else
     char buf[256];
-    snprintf(buf, sizeof(buf), "unable to load rom: %s", filename);
+    snprintf(buf, sizeof(buf), "unable to load rom");
     Die(buf);
-  #endif
+#endif
     return 1;
   }
 
@@ -431,8 +445,8 @@ int main(int argc, char** argv) {
     g_audiobuffer = (uint8 *)calloc(g_frames_per_block * have.channels * sizeof(int16), 1);
   }
 
-  PpuBeginDrawing(snes->snes_ppu, g_pixels, 256 * 4, 0);
-  PpuBeginDrawing(snes->my_ppu, g_my_pixels, 256 * 4, 0);
+  PpuBeginDrawing(g_snes->ppu, g_pixels, 256 * 4, 0);
+  PpuBeginDrawing(g_my_ppu, g_my_pixels, 256 * 4, 0);
 
   if (g_config.save_playthrough)
     MkDir("playthrough");
@@ -807,6 +821,40 @@ static void HandleGamepadAxisInput(int gamepad_id, int axis, int value) {
     if (value < 12000 || value >= 16000)  // hysteresis
       HandleGamepadInput(axis == SDL_CONTROLLER_AXIS_TRIGGERLEFT ? kGamepadBtn_L2 : kGamepadBtn_R2, value >= 12000);
   }
+}
+
+const uint8 *g_asset_ptrs[kNumberOfAssets];
+uint32 g_asset_sizes[kNumberOfAssets];
+
+static void LoadAssets() {
+  size_t length = 0;
+  uint8 *data = ReadWholeFile("assets/smw_assets.dat", &length);
+  if (!data)
+    data = ReadWholeFile("smw_assets.dat", &length);
+  if (!data) Die("Failed to read smw_assets.dat. Please see the README for information about how you get this file.");
+
+  static const char kAssetsSig[] = { kAssets_Sig };
+
+  if (length < 16 + 32 + 32 + 8 + kNumberOfAssets * 4 ||
+    memcmp(data, kAssetsSig, 48) != 0 ||
+    *(uint32*)(data + 80) != kNumberOfAssets)
+    Die("Invalid assets file");
+
+  uint32 offset = 88 + kNumberOfAssets * 4 + *(uint32 *)(data + 84);
+
+  for (size_t i = 0; i < kNumberOfAssets; i++) {
+    uint32 size = *(uint32 *)(data + 88 + i * 4);
+    offset = (offset + 3) & ~3;
+    if ((uint64)offset + size > length)
+      Die("Assets file corruption");
+    g_asset_sizes[i] = size;
+    g_asset_ptrs[i] = data + offset;
+    offset += size;
+  }
+}
+
+MemBlk FindInAssetArray(int asset, int idx) {
+  return FindIndexInMemblk((MemBlk) { g_asset_ptrs[asset], g_asset_sizes[asset] }, idx);
 }
 
 // Go some steps up and find smw.ini

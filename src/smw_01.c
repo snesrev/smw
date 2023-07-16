@@ -2,6 +2,7 @@
 #include "funcs.h"
 #include "smw_rtl.h"
 #include "variables.h"
+#include "assets/smw_assets.h"
 
 void (*kUnk_18137[13])(uint8) = {
     &SprStatus00_EmptySlot,   &SprStatus01_Init,         &SprStatus02_Dead,
@@ -1963,6 +1964,10 @@ void HandleNormalSpriteLevelColl_0192C9(uint8 k) {  // 0192c9
   }
 }
 
+uint8 GetCurrentSlope(int i) {
+  return (kSlopeDataTables_ShapeOfSlope + R5_slopeptr.addr - 0xE632)[i];
+}
+
 void HandleNormalSpriteLevelColl_01933B(uint8 k, uint8 a, uint8 r10, uint8 r12, uint8 r15) {  // 01933b
   if (a < 0x11) {
     if ((r12 & 0xF) >= 5)
@@ -1972,10 +1977,10 @@ void HandleNormalSpriteLevelColl_01933B(uint8 k, uint8 a, uint8 r10, uint8 r12, 
       goto LABEL_18;
     uint8 r8_slope_type;
     uint8 v2 = CheckWhatSlopeSpriteIsOn(a, r10, r12, &r8_slope_type);
-    uint8 *v3 = IndirPtr(&R5_slopeptr, v2);
-    if (*v3 == 16)
+    uint8 v3 = GetCurrentSlope(v2);
+    if (v3 == 16)
       return;
-    if (*v3 >= 0x10) {
+    if (v3 >= 0x10) {
 LABEL_18:
       if ((r12 & 0xF) < 5) {
         uint8 v6 = spr_current_status[k];
@@ -1987,9 +1992,9 @@ LABEL_18:
       return;
     }
     uint8 v4 = r12 & 0xf;
-    if (v4 < 0xC && v4 < *v3)
+    if (v4 < 0xC && v4 < v3)
       return;
-    sprites_distance_to_snap_down_to_nearest_tile = *v3;
+    sprites_distance_to_snap_down_to_nearest_tile = v3;
     uint8 v5 = kSlopeDataTables_SlopeType[r8_slope_type];
     spr_slope_surface_its_on[k] = v5;
     if (v5 == 4 || v5 == 0xFC) {
@@ -6700,9 +6705,10 @@ void SprXXX_LineGuided_State01_OnLineGuide(uint8 k) {  // 01d768
 }
 
 void SprXXX_LineGuided_01D7B0(uint8 k, uint8 j) {  // 01d7b0
-  uint16 t = PAIR16(spr_table1528[k], spr_table151c[k]);
-  uint8 r6 = RomPtr_07(t)[j] & 0xF;
-  uint8 r7 = RomPtr_07(t)[j] >> 4;
+  uint16 t = PAIR16(spr_table1528[k], spr_table151c[k]) - 0xF9DB;
+  uint8 tt = kLineGuideSpeedTableData[t + j];
+  uint8 r6 = tt & 0xF;
+  uint8 r7 = tt >> 4;
   spr_ypos_lo[k] = r7 + (spr_ypos_lo[k] & 0xF0);
   spr_xpos_lo[k] = r6 + (spr_xpos_lo[k] & 0xF0);
 }
