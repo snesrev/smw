@@ -430,7 +430,7 @@ error_reading:;
   bool enable_audio = true;
   if (enable_audio) {
     SDL_AudioSpec want = { 0 }, have;
-    want.freq = 44100;
+    want.freq = g_config.audio_freq;
     want.format = AUDIO_S16;
     want.channels = 2;
     want.samples = g_config.audio_samples;
