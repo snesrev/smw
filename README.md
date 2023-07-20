@@ -8,8 +8,8 @@ You must self-build for now. Easy method on Windows (no installs, terminal, or b
 (1) Click the green button "Code > Download ZIP" on the github page and extract the ZIP<br>
 (2) Place the USA rom named smw.sfc in that folder (crc32=b1ed489)<br>
 (3) Download [TCC](https://github.com/FitzRoyX/tinycc/releases/download/tcc_20230519/tcc_20230519.zip) and [SDL2](https://github.com/libsdl-org/SDL/releases/download/release-2.26.5/SDL2-devel-2.26.5-VC.zip) and extract each ZIP into the "third-party" subfolder<br>
-(4) run `python3 assets/restool.py`.
-(5) Double-click run_with_tcc.bat in the main dir. This will create smw.exe and run it.<br>
+(4) Either double-click extract_assets.bat in the main dir or run `python3 assets/restool.py`.<br>
+(5) Double-click `run_with_tcc.bat` in the main dir. This will create smw.exe and run it.<br>
 (6) Configure with smw.ini<br>
 
 For other platforms and compilers, see: https://github.com/snesrev/smw/blob/main/BUILDING.md
