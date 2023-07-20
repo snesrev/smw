@@ -17,7 +17,7 @@
 ## Building with Tiny C Compiler
 
  Dependencies and requirements:
- * You'll need [TCC](https://github.com/FitzRoyX/tinycc/releases/download/tcc_20230519/tcc_20230519.zip) and [SDL2](https://github.com/libsdl-org/SDL/releases/download/release-2.26.5/SDL2-devel-2.26.5-VC.zip) in order to compile using TCC.
+ * You'll need [TCC](https://github.com/FitzRoyX/tinycc/releases/download/tcc_20230519/tcc_20230519.zip) and [SDL2](https://github.com/libsdl-org/SDL/releases/download/release-2.28.1/SDL2-devel-2.28.1-VC.zip) in order to compile using TCC.
 
 1. Rename your obtaind Super Mario World rom to `smw.sfc` and place it in the root folder.
 2. Unzip both TCC and SDL2 and place them in `third_party` folder.
