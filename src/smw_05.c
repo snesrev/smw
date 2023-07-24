@@ -1166,7 +1166,7 @@ uint8 UnusedOverworldEventPassedCheck(uint8 j) {  // 05b363
   return kBitTable_Bank05[j & 7] & ow_event_flags[j >> 3];
 }
 
-static const kLevelTileAnimationsAddrs[] = {
+static const uint16 kLevelTileAnimationsAddrs[] = {
   0x600, 0x640, 0x680,
   0x740, 0xEA0, 0x800,
   0x500, 0x540, 0x580,
