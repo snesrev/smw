@@ -386,7 +386,7 @@ int main(int argc, char** argv) {
 
   if (argv[0]) {
     size_t size;
-    kRom = ReadWholeFile(argv[0], &size);
+    kRom == ReadWholeFile(argv[0], &size);
     kRom_SIZE = (uint32)size;
     if (!kRom)
       goto error_reading;
