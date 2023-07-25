@@ -157,6 +157,7 @@ typedef struct MemBlk {
   size_t size;
 } MemBlk;
 MemBlk FindIndexInMemblk(MemBlk data, size_t i);
+const uint8 *FindAddrInMemblk(MemBlk data, uint32 addr);
 
 #endif  // SM_TYPES_H_
 

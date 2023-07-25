@@ -1628,13 +1628,8 @@ void GetBounceSpriteLevelCollisionMap16ID(uint8 k) {  // 029265
       return;
     uint8 r2 = bounce_spr_xpos_hi[k];
     r0 |= r1 >> 4;
-    uint8 v3 = kLevelDataLayoutTables_EightBitLo_Vertical[r3];
-    uint8 v4 = kLevelDataLayoutTables_EightBitHi_Vertical[r3];
-    if (r15) {
-      v3 = kLevelDataLayoutTables_EightBitLo_Vertical[r3 + 14];
-      v4 = kLevelDataLayoutTables_EightBitHi_Vertical[r3 + 14];
-    }
-    r5w = PAIR16(r2, r0) + PAIR16(v4, v3);
+    uint16 v34 = GetLevelLayoutPtr_Vertical(r3 + (r15 ? 14 : 0));
+    r5w = PAIR16(r2, r0) + v34;
   } else {
     uint16 t = PAIR16(bounce_spr_ypos_hi[k], bounce_spr_ypos_lo[k]) - 3;
     uint8 r0 = t & ~0xf;
@@ -1648,14 +1643,8 @@ void GetBounceSpriteLevelCollisionMap16ID(uint8 k) {  // 029265
       return;
     uint8 r3 = bounce_spr_xpos_hi[k];
     r0 |= r1 >> 4;
-    uint8 v6 = v5;
-    uint8 v7 = kLevelDataLayoutTables_EightBitLo_Horizontal[v5];
-    uint8 v8 = kLevelDataLayoutTables_EightBitHi_Horizontal[v6];
-    if (r15) {
-      v7 = kLevelDataLayoutTables_EightBitLo_Horizontal[v6 + 16];
-      v8 = kLevelDataLayoutTables_EightBitHi_Horizontal[v6 + 16];
-    }
-    r5w = PAIR16(r2, r0) + PAIR16(v8, v7);
+    uint16 v78 = GetLevelLayoutPtr_Horizontal(v5 + (r15 ? 16 : 0));
+    r5w = PAIR16(r2, r0) + v78;
   }
   uint8 v9 = sprites_currently_processed_misc_sprite;
   blocks_currently_processed_map16_tile_lo = g_ram[r5w];
@@ -1816,17 +1805,12 @@ void HandleCapeLevelColl_029540(uint8 r15) {  // 029540
       if ((uint8)(posx >> 8) < 2) {
         HIBYTE(blocks_xpos) = r2 = (posx >> 8);
         r0 |= r1 >> 4;
-        uint8 v2 = kLevelDataLayoutTables_EightBitLo_Vertical[r3];
-        uint8 v3 = kLevelDataLayoutTables_EightBitHi_Vertical[r3];
-        if (r15) {
-          v2 = kLevelDataLayoutTables_EightBitLo_Vertical[r3 + 14];
-          v3 = kLevelDataLayoutTables_EightBitHi_Vertical[r3 + 14];
-        }
-        r5 = PAIR16(r2, r0) + PAIR16(v3, v2);
+        uint16 pp = GetLevelLayoutPtr_Vertical(r3 + (r15 ? 14 : 0));
+        r5 = pp + PAIR16(r2, r0);
 LABEL_17:
         blocks_currently_processed_map16_tile_lo = g_ram[r5];
-        uint8 *v8 = &g_ram[r5 + 0x10000];
-        if (ModifyMap16IDForSpecialBlocks(*v8)) {
+        uint8 v8 = g_ram[r5 + 0x10000];
+        if (LmHook_ModifyMap16IDForSpecialBlocks(v8)) {
           LOBYTE(misc_current_layer_being_processed) = r15;
           CheckIfBlockWasHit(blocks_currently_processed_map16_tile_lo, 0);
         }
@@ -1842,13 +1826,8 @@ LABEL_17:
       if ((uint8)(posx >> 8) < misc_screens_in_lvl) {
         HIBYTE(blocks_xpos) = r3 = posx >> 8;
         r0 |= r1 >> 4;
-        uint8 v6 = kLevelDataLayoutTables_EightBitLo_Horizontal[r3];
-        uint8 v7 = kLevelDataLayoutTables_EightBitHi_Horizontal[r3];
-        if (r15) {
-          v6 = kLevelDataLayoutTables_EightBitLo_Horizontal[r3 + 16];
-          v7 = kLevelDataLayoutTables_EightBitHi_Horizontal[r3 + 16];
-        }
-        r5 = PAIR16(r2, r0) + PAIR16(v7, v6);
+        uint16 pp = GetLevelLayoutPtr_Horizontal(r3 + (r15 ? 16 : 0));
+        r5 = pp + PAIR16(r2, r0);
         goto LABEL_17;
       }
     }
@@ -2910,20 +2889,21 @@ uint8 HandleExtendedSpriteLevelColl_02A611(uint8 k, uint8 r15, ExtCollOut *out) 
         return 0;
       HIBYTE(blocks_xpos) = r2 = (t >> 8);
       r0 |= r1 >> 4;
-      uint8 v4 = kLevelDataLayoutTables_EightBitLo_Vertical[r3];
-      uint8 v5 = kLevelDataLayoutTables_EightBitHi_Vertical[r3];
-      if (r15) {
-        v4 = kLevelDataLayoutTables_EightBitLo_Vertical[r3 + 14];
-        v5 = kLevelDataLayoutTables_EightBitHi_Vertical[r3 + 14];
-      }
-      r5 = PAIR16(r2, r0) + PAIR16(v5, v4);
+      uint16 pp = GetLevelLayoutPtr_Vertical(r3 + (r15 ? 14 : 0));
+      r5 = pp + PAIR16(r2, r0);
     } else {
       uint16 t = PAIR16(ext_spr_ypos_hi[k], ext_spr_ypos_lo[k]) + 8;
       blocks_ypos = t;
-      r0 = t & 0xf0;
+      t &= 0xfff0;
+      r0 = t;
       r2 = t >> 8;
-      if ((uint8)(r0 - mirror_current_layer1_ypos) >= 0xF0)
-        return 0;
+      if (g_lunar_magic) {
+        if (t >= lm_level_height)
+          return 0;
+      } else {
+        if ((uint8)(r0 - mirror_current_layer1_ypos) >= 0xF0)
+          return 0;
+      }
       uint16 xpos = PAIR16(ext_spr_xpos_hi[k], ext_spr_xpos_lo[k]) + 4;
       LOBYTE(blocks_xpos) = r1 = xpos;
       if ((xpos >> 8) >= misc_screens_in_lvl)
@@ -2931,17 +2911,12 @@ uint8 HandleExtendedSpriteLevelColl_02A611(uint8 k, uint8 r15, ExtCollOut *out) 
       r3 = (xpos >> 8);
       HIBYTE(blocks_xpos) = (xpos >> 8);
       r0 |= r1 >> 4;
-      uint8 v10 = kLevelDataLayoutTables_EightBitLo_Horizontal[r3];
-      uint8 v11 = kLevelDataLayoutTables_EightBitHi_Horizontal[r3];
-      if (r15) {
-        v10 = kLevelDataLayoutTables_EightBitLo_Horizontal[r3 + 16];
-        v11 = kLevelDataLayoutTables_EightBitHi_Horizontal[r3 + 16];
-      }
-      r5 = PAIR16(r2, r0) + PAIR16(v11, v10);
+      uint16 pp = GetLevelLayoutPtr_Horizontal(r3 + (r15 ? 16 : 0));
+      r5 = pp + PAIR16(r2, r0);
     }
     k = spr_current_slotid;
     blocks_currently_processed_map16_tile_lo = g_ram[r5];
-    if (!ModifyMap16IDForSpecialBlocks(g_ram[r5 + 0x10000]))
+    if (!LmHook_ModifyMap16IDForSpecialBlocks(g_ram[r5 + 0x10000]))
       return 0;
     if (blocks_currently_processed_map16_tile_lo < 0x11)
       return (blocks_ypos & 0xF) < 6;
@@ -2984,7 +2959,7 @@ void ParseLevelSpriteList() {  // 02a7fc
 
 void ParseLevelSpriteList_Entry2() {  // 02a802
   int8 v0;
-  uint8 r0;
+  uint8 r0, r1;
   if (misc_level_layout_flags & 1) {
     uint16 t = kParseLevelSpriteList_DATA_02A7F6[camera_layer1_scrolling_direction] + (uint8)mirror_current_layer1_ypos;
     r0 = t & 0xF0;
@@ -2994,131 +2969,136 @@ void ParseLevelSpriteList_Entry2() {  // 02a802
     r0 = t & 0xF0;
     v0 = HIBYTE(mirror_current_layer1_xpos) + (t >> 8);
   }
-  int8 v1 = kParseLevelSpriteList_DATA_02A7F9[camera_layer1_scrolling_direction] + v0;
-  if (v1 >= 0) {
-    uint8 r1 = v1;
-    ParseLevelSpriteList_LoadSpriteLoopStrt(0, 1, r0 | r1 << 8);
+  r1 = kParseLevelSpriteList_DATA_02A7F9[camera_layer1_scrolling_direction] + v0;
+
+  if (g_lunar_magic) {
+    LmHook_BE8A(r0 | r1 << 8);
+  } else {
+    if ((int8)r1 >= 0)
+      ParseLevelSpriteList_LoadSpriteLoopStrt(0, 1, (PointU16) { .x = r0 | r1 << 8, .y = 0 });
   }
 }
 
-void ParseLevelSpriteList_LoadSpriteLoopStrt(uint8 k, uint8 j, uint16 r0w) {  // 02a82e
+bool LoadOneSprite(const uint8 *p, uint8 k, PointU16 pt) {
+  ++sprites_load_status[k];
+  uint8 v8 = p[2];
+  uint8 v9;
+  uint8 r5 = v8;
+  if (v8 >= 0xE7) {
+    if (!*(uint16 *)l1_l2_scroll_spr_spriteid) {
+      l1_l2_scroll_spr_spriteid[0] = r5 + 25;
+      l1_l2_scroll_spr_scroll_type_index[0] = p[0] >> 2;
+      InitializeScrollSprites();
+    }
+    return false;
+  }
+  if (v8 == 0xDE) {
+    Spr0DE_Load5Eeries(k, pt, k, p);
+    return false;
+  }
+  if (v8 == 0xE0) {
+    Spr0E0_Load3Platforms(pt, k, p);
+    return false;
+  }
+  if (v8 < 0xCB) {
+    if (v8 >= 0xC9) {
+      SprXXX_LoadShooter(k, v8, pt, p);
+      return false;
+    }
+    v9 = 1;
+  } else {
+    if (v8 < 0xDA) {
+      gen_spr_spriteid = v8 + 54;
+      sprites_load_status[k] = 0;
+      return false;
+    }
+    if (v8 >= 0xE1) {
+      Spr0E1_LoadBooCeiling(k, v8, pt, k, p);
+      return false;
+    }
+    v9 = 9;
+  }
+  uint8 r4 = v9;
+  uint8 v10 = kParseLevelSpriteList_SpriteSlotMax[sprites_sprite_memory_setting];
+  uint8 r6 = kParseLevelSpriteList_SpriteSlotStart[sprites_sprite_memory_setting];
+  if (r5 == kParseLevelSpriteList_ReservedSprite1[sprites_sprite_memory_setting]) {
+    v10 = kParseLevelSpriteList_SpriteSlotMax1[sprites_sprite_memory_setting];
+    r6 = kParseLevelSpriteList_SpriteSlotStart1[sprites_sprite_memory_setting];
+  }
+  if (r5 == kParseLevelSpriteList_ReservedSprite2[sprites_sprite_memory_setting] && (r5 != 100 || (pt.x & 0x10) != 0)) {
+    v10 = kParseLevelSpriteList_SpriteSlotMax2[sprites_sprite_memory_setting];
+    r6 = -1;
+  }
+  uint8 r15 = v10;
+  while (spr_current_status[v10]) {
+    if (--v10 == r6) {
+      if (r5 != 123) {
+      LABEL_38:
+        sprites_load_status[k] = 0;
+        return true;
+      }
+      v10 = r15;
+      while ((spr_property_bits167a[v10] & 2) != 0) {
+        if (--v10 == r6)
+          goto LABEL_38;
+      }
+      break;
+    }
+  }
+  if (misc_level_layout_flags & 1) {
+    SetSprXYPos(v10, *p & 0xF0 | (*p & 0xD) << 8, pt.x);
+  } else {
+    if (g_lunar_magic)
+      SetSprXYPos(v10, pt.x, pt.y + (*p & 0xF0 | (*p & 0x1) << 8));
+    else
+      SetSprXYPos(v10, pt.x, *p & 0xF0 | (*p & 0xD) << 8);
+  }
+  spr_current_status[v10] = r4;
+  uint8 v15 = p[2];
+  if (r4 >= 9)
+    v15 += 42;
+  if ((ow_level_tile_settings[73] & 0x80) != 0) {
+    if (v15 == 4)
+      v15 = 7;
+    if (v15 == 5)
+      v15 = 6;
+  }
+  spr_spriteid[v10] = v15;
+  spr_load_status_table_index[v10] = k;
+  if (!timer_silver_pswitch || (kInitializeNormalSpriteRAMTables_Sprite190FVals[spr_spriteid[v10]] & 0x40) != 0) {
+    InitializeNormalSpriteRAMTables(v10);
+  } else {
+    spr_spriteid[v10] = 33;
+    spr_current_status[v10] = 8;
+    InitializeNormalSpriteRAMTables(v10);
+    spr_table15f6[v10] = spr_table15f6[v10] & 0xF1 | 2;
+  }
+  spr_xoffscreen_flag[v10] = 1;
+  spr_decrementing_table1fe2[v10] = 4;
+  if (g_lunar_magic && r5 == 0x7b) {
+    spr_table187b[v10] = lm_var_0054 & 0xd;
+  }
+  return false;
+}
+
+void ParseLevelSpriteList_LoadSpriteLoopStrt(uint8 spr_index, uint8 j, PointU16 pt) {  // 02a82e
   const uint8 *p = GetSpriteListPtr();
-  uint8 r2;
   while (1) {
 //    printf("M: Load sprites offs %d: 0x%x\n", j, r0w);
     const uint8 *v2 = &p[j];
     if (*v2 == 0xFF)
       break;
-    r2 = (8 * *v2) & 0x10;
-    uint8 v4 = r2 | p[j + 1] & 0xF;
-    bool v5 = v4 < (r0w >> 8);
-    int8 v6 = v4 - (r0w >> 8);
-    if (v5)
-      goto LABEL_3;
-    if (v6)
-      return;
-    if ((p[j + 1] & 0xF0) != (uint8)r0w || sprites_load_status[k]) {
-LABEL_3:
-      j += 3;
-      ++k;
-    } else {
-      r2 = k;
-      ++sprites_load_status[k];
-      uint8 v8 = p[j + 2];
-      uint8 v9;
-      uint8 r5 = v8;
-      if (v8 >= 0xE7) {
-        if (!*(uint16 *)l1_l2_scroll_spr_spriteid) {
-          l1_l2_scroll_spr_spriteid[0] = r5 + 25;
-          l1_l2_scroll_spr_scroll_type_index[0] = p[j] >> 2;
-          InitializeScrollSprites();
-        }
-        goto LABEL_3;
+    uint8 v4 = (8 * *v2) & 0x10 | p[j + 1] & 0xF;
+    if (v4 >= (pt.x >> 8)) {
+      if (v4 > (pt.x >> 8))
+        return;
+      if ((p[j + 1] & 0xF0) == (uint8)pt.x && !sprites_load_status[spr_index]) {
+        if (LoadOneSprite(p + j, spr_index, pt))
+          return;
       }
-      if (v8 == 0xDE) {
-        Spr0DE_Load5Eeries(k, r0w, r2, p + j);
-        goto LABEL_3;
-      }
-      if (v8 == 0xE0) {
-        Spr0E0_Load3Platforms(r0w, r2, p + j);
-        goto LABEL_3;
-      }
-      if (v8 < 0xCB) {
-        if (v8 >= 0xC9) {
-          SprXXX_LoadShooter(k, v8, r0w, p + j);
-          goto LABEL_3;
-        }
-        v9 = 1;
-      } else {
-        if (v8 < 0xDA) {
-          gen_spr_spriteid = v8 + 54;
-          sprites_load_status[k] = 0;
-          goto LABEL_3;
-        }
-        if (v8 >= 0xE1) {
-          Spr0E1_LoadBooCeiling(k, v8, r0w, r2, p + j);
-          goto LABEL_3;
-        }
-        v9 = 9;
-      }
-      uint8 r4 = v9;
-      uint8 v10 = kParseLevelSpriteList_SpriteSlotMax[sprites_sprite_memory_setting];
-      uint8 r6 = kParseLevelSpriteList_SpriteSlotStart[sprites_sprite_memory_setting];
-      if (r5 == kParseLevelSpriteList_ReservedSprite1[sprites_sprite_memory_setting]) {
-        v10 = kParseLevelSpriteList_SpriteSlotMax1[sprites_sprite_memory_setting];
-        r6 = kParseLevelSpriteList_SpriteSlotStart1[sprites_sprite_memory_setting];
-      }
-      if (r5 == kParseLevelSpriteList_ReservedSprite2[sprites_sprite_memory_setting] && (r5 != 100 || (r0w & 0x10) != 0)) {
-        v10 = kParseLevelSpriteList_SpriteSlotMax2[sprites_sprite_memory_setting];
-        r6 = -1;
-      }
-      uint8 r15 = v10;
-      while (spr_current_status[v10]) {
-        if (--v10 == r6) {
-          if (r5 != 123) {
-LABEL_38:
-            sprites_load_status[r2] = 0;
-            return;
-          }
-          v10 = r15;
-          while ((spr_property_bits167a[v10] & 2) != 0) {
-            if (--v10 == r6)
-              goto LABEL_38;
-          }
-          break;
-        }
-      }
-      const uint8 *v12 = &p[j];
-      if (misc_level_layout_flags & 1) {
-        SetSprXYPos(v10, *v12 & 0xF0 | (*v12 & 0xD) << 8, r0w);
-      } else {
-        SetSprXYPos(v10, r0w, *v12 & 0xF0 | (*v12 & 0xD) << 8);
-      }
-      spr_current_status[v10] = r4;
-      uint8 v15 = p[j + 2];
-      if (r4 >= 9)
-        v15 += 42;
-      if ((ow_level_tile_settings[73] & 0x80) != 0) {
-        if (v15 == 4)
-          v15 = 7;
-        if (v15 == 5)
-          v15 = 6;
-      }
-      spr_spriteid[v10] = v15;
-      spr_load_status_table_index[v10] = r2;
-      if (!timer_silver_pswitch || (kInitializeNormalSpriteRAMTables_Sprite190FVals[spr_spriteid[v10]] & 0x40) != 0) {
-        InitializeNormalSpriteRAMTables(v10);
-      } else {
-        spr_spriteid[v10] = 33;
-        spr_current_status[v10] = 8;
-        InitializeNormalSpriteRAMTables(v10);
-        spr_table15f6[v10] = spr_table15f6[v10] & 0xF1 | 2;
-      }
-      spr_xoffscreen_flag[v10] = 1;
-      spr_decrementing_table1fe2[v10] = 4;
-      j += 3;
-      k = r2 + 1;
     }
+    j += 3;
+    spr_index++;
   }
 }
 
@@ -3140,7 +3120,7 @@ uint8 FindFreeNormalSpriteSlot_02A9E6(uint8 r14) {  // 02a9ef
   return result;
 }
 
-void Spr0E1_LoadBooCeiling(uint8 k, uint8 a, uint16 r0w, uint8 r2, const uint8 *edata) {  // 02aac0
+void Spr0E1_LoadBooCeiling(uint8 k, uint8 a, PointU16 pt, uint8 r2, const uint8 *edata) {  // 02aac0
   flag_run_cluster_sprites = 1;
   switch (a) {
   case 0xE4:
@@ -3197,8 +3177,8 @@ void Spr0E1_LoadBooCeiling(uint8 k, uint8 a, uint16 r0w, uint8 r2, const uint8 *
               uint8 v18 = *edata;
               *(&cluster_spr04_boo_ring1_center_ypos_lo + v11) = v18 & 0xF0;
               *(&cluster_spr04_boo_ring1_center_ypos_hi + v11) = v18 & 1;
-              *(&cluster_spr04_boo_ring1_center_xpos_lo + v11) = r0w;
-              *(&cluster_spr04_boo_ring1_center_xpos_hi + v11) = r0w >> 8;
+              *(&cluster_spr04_boo_ring1_center_xpos_lo + v11) = pt.x;
+              *(&cluster_spr04_boo_ring1_center_xpos_hi + v11) = pt.x >> 8;
               *(&cluster_spr04_boo_ring1_offscreen_flag + v11) = 0;
               *(&cluster_spr04_boo_ring_unused_ring1_level_list_index + v11) = r2;
             }
@@ -3225,7 +3205,7 @@ void Spr0E1_LoadBooCeiling(uint8 k, uint8 a, uint16 r0w, uint8 r2, const uint8 *
   }
 }
 
-void SprXXX_LoadShooter(uint8 k, uint8 a, uint16 r0w, const uint8 *edata) {  // 02ab78
+void SprXXX_LoadShooter(uint8 k, uint8 a, PointU16 pt, const uint8 *edata) {  // 02ab78
   uint8 r2 = k;
   uint8 r4 = a;
   uint8 v3 = 7;
@@ -3244,12 +3224,12 @@ void SprXXX_LoadShooter(uint8 k, uint8 a, uint16 r0w, const uint8 *edata) {  // 
     uint8 v7 = *edata;
     shooter_spr_xpos_lo[v3] = v7 & 0xF0;
     shooter_spr_xpos_hi[v3] = v7 & 1;
-    SetHiLo(&shooter_spr_ypos_hi[v3], &shooter_spr_ypos_lo[v3], r0w);
+    SetHiLo(&shooter_spr_ypos_hi[v3], &shooter_spr_ypos_lo[v3], pt.x);
   } else {
     uint8 v8 = *edata;
     shooter_spr_ypos_lo[v3] = v8 & 0xF0;
     shooter_spr_ypos_hi[v3] = v8 & 1;
-    SetHiLo(&shooter_spr_xpos_hi[v3], &shooter_spr_xpos_lo[v3], r0w);
+    SetHiLo(&shooter_spr_xpos_hi[v3], &shooter_spr_xpos_lo[v3], pt.x);
   }
   shooter_spr_unused_level_list_index[v3] = r2;
   shooter_spr_shoot_timer[v3] = 16;
@@ -3287,6 +3267,8 @@ void LoadSpritesOnLevelLoad() {  // 02ac5c
   if (misc_level_layout_flags & 1) {
     uint8 v5 = camera_layer1_scrolling_direction;
     camera_layer1_scrolling_direction = 1;
+    if (g_lunar_magic)
+      LmHook_LoadSpritesOnLevelLoad();
     uint16 old_y = mirror_current_layer1_ypos;
     mirror_current_layer1_ypos -= 96;
     misc_scratch7e18b6 = 0;
@@ -3300,6 +3282,8 @@ void LoadSpritesOnLevelLoad() {  // 02ac5c
   } else {
     uint8 v6 = camera_layer1_scrolling_direction;
     camera_layer1_scrolling_direction = 1;
+    if (g_lunar_magic)
+      LmHook_LoadSpritesOnLevelLoad();
     uint16 old_x = mirror_current_layer1_xpos;
     mirror_current_layer1_xpos -= 96;
     misc_scratch7e18b6 = 0;
@@ -3441,9 +3425,9 @@ LABEL_15:;
   }
 }
 
-void Spr0E0_Load3Platforms(uint16 r0w, uint8 r2, const uint8 *edata) {  // 02af33
+void Spr0E0_Load3Platforms(PointU16 pt, uint8 r2, const uint8 *edata) {  // 02af33
   uint8 v3 = *edata;
-  uint16 ypos = PAIR16(v3 & 1, v3 & 0xF0);
+  uint16 ypos = pt.y + PAIR16(v3 & 1, v3 & 0xF0);
   uint8 r4 = 2;
   do {
     uint8 j = FindFreeNormalSpriteSlot_HighPriority();
@@ -3453,7 +3437,7 @@ void Spr0E0_Load3Platforms(uint16 r0w, uint8 r2, const uint8 *edata) {  // 02af3
     spr_current_status[j] = 1;
     spr_spriteid[j] = -93;
     InitializeNormalSpriteRAMTables(j);
-    SetSprXYPos(j, r0w, ypos);
+    SetSprXYPos(j, pt.x, ypos);
     uint8 v2 = r4;
     spr_table1602[v1] = kSpr0E0_Load3Platforms_InitialAngleLo[r4];
     spr_table151c[v1] = kSpr0E0_Load3Platforms_InitialAngleHi[v2];
@@ -3462,9 +3446,9 @@ void Spr0E0_Load3Platforms(uint16 r0w, uint8 r2, const uint8 *edata) {  // 02af3
   } while ((--r4 & 0x80) == 0);
 }
 
-void Spr0DE_Load5Eeries(uint8 k, uint16 r0w, uint8 r2, const uint8 *edata) {  // 02af9d
+void Spr0DE_Load5Eeries(uint8 k, PointU16 pt, uint8 r2, const uint8 *edata) {  // 02af9d
   uint8 v5 = *edata;
-  uint16 ypos = PAIR16(v5 & 1, v5 & 0xF0);
+  uint16 ypos = pt.y + PAIR16(v5 & 1, v5 & 0xF0);
   uint8 r4 = 4;
   do {
     uint8 j = FindFreeNormalSpriteSlot_HighPriority();
@@ -3474,7 +3458,7 @@ void Spr0DE_Load5Eeries(uint8 k, uint16 r0w, uint8 r2, const uint8 *edata) {  //
     spr_current_status[j] = 8;
     spr_spriteid[j] = 57;
     InitializeNormalSpriteRAMTables(j);
-    SetSprXYPos(j, PAIR16(kSpr0DE_Load5Eeries_xhi[v3], kSpr0DE_Load5Eeries_xlo[v3]) + r0w, ypos);
+    SetSprXYPos(j, PAIR16(kSpr0DE_Load5Eeries_xhi[v3], kSpr0DE_Load5Eeries_xlo[v3]) + pt.x, ypos);
     spr_yspeed[j] = kSpr0DE_Load5Eeries_InitialYSpeed[v3];
     spr_table00c2[j] = kSpr0DE_Load5Eeries_InitialVerticalDirection[v3];
     if (v3 == 4)
@@ -4072,15 +4056,13 @@ void CheckPlayerToNormalSpriteColl_02B9D9(uint8 j) {  // 02b9d9
 void CheckBerryTileCollisionWithYoshiTongue(CollInfo *ci) {  // 02b9fa
   uint8 r15 = 0;
   uint8 r4 = ci->r1 & 0xF0;
-  if (ci->r9 < 2) {
+  uint16 r9r1 = PAIR16(ci->r9, ci->r1);
+  if (r9r1 < (g_lunar_magic ? lm_level_height : 0x200)) {
     uint8 r13 = ci->r9;
     HIBYTE(yoshi_ypos) = ci->r9;
     if (ci->r8 < misc_screens_in_lvl) {
       r4 |= ci->r0 >> 4;
-      uint16 vv = PAIR16(kLevelDataLayoutTables_EightBitHi_Horizontal[ci->r8], kLevelDataLayoutTables_EightBitLo_Horizontal[ci->r8]);
-      if (r15)
-        vv = PAIR16(kLevelDataLayoutTables_EightBitHi_Horizontal[ci->r8 + 16], kLevelDataLayoutTables_EightBitLo_Horizontal[ci->r8 + 16]);
-      
+      uint16 vv = GetLevelLayoutPtr_Horizontal(ci->r8 + (r15 ? 16 : 0));
       uint16 r5 = PAIR16(r13, r4) + vv;
       blocks_currently_processed_map16_tile_lo = g_ram[r5];
       if (!g_ram[r5 + 0x10000] && blocks_currently_processed_map16_tile_lo >= 0x45 && blocks_currently_processed_map16_tile_lo < 0x48) {
@@ -5370,8 +5352,9 @@ void SubOffscreen_Bank02_02D027(uint8 k, uint8 r3) {  // 02d027
       return;
     }
     if (r3 != 4) {
-      uint16 ypos = GetSprYPos(k) + 0x50;
-      if (!sign8((ypos >> 8) - 2)) {
+      uint16 y = GetSprYPos(k);
+      bool want_erase = g_lunar_magic ? LmHook_WantEraseSprite(k, y) : !sign8(((y + 80) >> 8) - 2);
+      if (want_erase) {
 LABEL_10:
         SubOffscreen_Bank02_EraseSprite(k);
         return;
@@ -5421,8 +5404,9 @@ void Spr035_Yoshi_02D0E6(uint8 k) {  // 02d0e6
   uint8 r15 = 0;
   uint16 t = GetSprYPos(k) + 8;
   LOBYTE(yoshi_ypos) = t;
-  uint8 r0 = t & 0xF0;
-  if (t < 0x200) {
+  t &= 0xfff0;
+  uint8 r0 = t;
+  if (t < (g_lunar_magic ? lm_level_height : 0x200)) {
     uint8 r2 = t >> 8;
     HIBYTE(yoshi_ypos) = t >> 8;
     uint8 v2 = spr_table157c[k];
@@ -5434,10 +5418,8 @@ void Spr035_Yoshi_02D0E6(uint8 k) {  // 02d0e6
       uint8 r3 = (xpos >> 8);
       r0 |= r1 >> 4;
       uint8 v6 = (xpos >> 8);
-      uint16 v8 = PAIR16(kLevelDataLayoutTables_EightBitHi_Horizontal[v6], kLevelDataLayoutTables_EightBitLo_Horizontal[v6]);
-      if (r15)
-        v8 = PAIR16(kLevelDataLayoutTables_EightBitHi_Horizontal[v6 + 16], kLevelDataLayoutTables_EightBitLo_Horizontal[v6 + 16]);
-      uint16 r5 = PAIR16(r2, r0) + v8;
+      uint16 pp = GetLevelLayoutPtr_Horizontal(v6 + (r15 ? 16 : 0));
+      uint16 r5 = pp + PAIR16(r2, r0);
       uint8 v9 = spr_current_slotid;
       blocks_currently_processed_map16_tile_lo = g_ram[r5];
       if (!g_ram[0x10000 + r5] && blocks_currently_processed_map16_tile_lo >= 0x45 && blocks_currently_processed_map16_tile_lo < 0x48) {

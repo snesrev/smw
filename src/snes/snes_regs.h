@@ -1,3 +1,5 @@
+#ifndef SNES_SNES_REGS_H_
+#define SNES_SNES_REGS_H_
 #pragma once
 
 typedef enum SnesRegs {
@@ -213,3 +215,5 @@ typedef enum SnesRegs {
   UNUSED7 = 0x437B,
   MIRR7 = 0x437F,
 } SnesRegs;
+
+#endif  // SNES_SNES_REGS_H_

@@ -38,7 +38,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -164,6 +164,7 @@
     <ClCompile Include="common_rtl.c" />
     <ClCompile Include="config.c" />
     <ClCompile Include="glsl_shader.c" />
+    <ClCompile Include="lm.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="opengl.c" />
     <ClCompile Include="platform\win32\volume_control.c" />

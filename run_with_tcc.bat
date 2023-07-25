@@ -33,7 +33,7 @@ IF ERRORLEVEL 1 goto GETOUT
 copy %SDL2%\lib\x64\SDL2.dll .
 
 echo Running...
-smw.exe smw.sfc
+smw.exe 
 
 :GETOUT
 pause

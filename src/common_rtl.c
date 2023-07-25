@@ -24,6 +24,7 @@ uint8 game_id;
 bool g_playback_mode;
 Ppu *g_ppu, *g_my_ppu;
 Dma *g_dma;
+bool g_custom_music;
 
 static uint8 *g_rtl_memory_ptr;
 static RunFrameFunc *g_rtl_runframe;
@@ -708,8 +709,10 @@ static void RtlResetApuQueue_Locked(void) {
 
 void RtlApuUpload(const uint8 *p) {
   RtlApuLock();
-  g_spc_player->upload(g_spc_player, p);
-  RtlResetApuQueue_Locked();
+  if (!g_custom_music) {
+    g_spc_player->upload(g_spc_player, p);
+    RtlResetApuQueue_Locked();
+  }
   RtlApuUnlock();
 }
 
@@ -823,6 +826,12 @@ void SmwCopyToVramLow(uint16 vram_addr, const uint8 *src, int n) {
     g_ppu->vram[vram_addr + i] = (g_ppu->vram[vram_addr + i] & 0xff00) | src[i];
 }
 
+void SmwCopyFromVram(uint16 vram_addr, uint8 *dst, int n) {
+  for (size_t i = 0; i < (n >> 1); i++)
+    WORD(dst[i * 2]) = g_ppu->vram[vram_addr + i];
+}
+
+
 void RtlUpdatePalette(const uint16 *src, int dst, int n) {
   for(int i = 0; i < n; i++)
     g_ppu->cgram[dst + i] = src[i];
@@ -925,45 +934,4 @@ void SimpleHdma_DoLine(SimpleHdma *c) {
     }
   }
   c->rep_count--;
-}
-
-
-void LoadStripeImage_UploadToVRAM(const uint8 *pp) {  // 00871e
-  while (1) {
-    if ((*pp & 0x80) != 0)
-      break;
-    uint16 vram_addr = pp[0] << 8 | pp[1];
-    uint8 vmain = __CFSHL__(pp[2], 1);
-    uint8 fixed_addr = (uint8)(pp[2] & 0x40) >> 3;
-    uint16 num = (swap16(WORD(pp[2])) & 0x3FFF) + 1;
-    uint16 *dst = g_ppu->vram + vram_addr;
-    pp += 4;
-    
-    if (fixed_addr) {
-      uint16 src_data = WORD(*pp);
-      int ctr = (num + 1) >> 1;
-      if (vmain) {
-        for (int i = 0; i < ctr; i++)
-          dst[i * 32] = src_data;
-      } else {
-        // uhm...?
-        uint8 *dst_b = (uint8 *)dst;
-        for (int i = 0; i < num; i++)
-          dst_b[i + ((i & 1) << 1)] = src_data;
-        for (int i = 0; i < num; i += 2)
-          dst_b[i + 1] = src_data >> 8;
-      }
-      pp += 2;
-    } else {
-      uint16 *src = (uint16 *)pp;
-      if (vmain) {
-        for (int i = 0; i < (num >> 1); i++)
-          dst[i * 32] = src[i];
-      } else {
-        for (int i = 0; i < (num >> 1); i++)
-          dst[i] = src[i];
-      }
-      pp += num;
-    }
-  }
 }

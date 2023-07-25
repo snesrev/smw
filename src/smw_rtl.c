@@ -3,6 +3,7 @@
 #include <time.h>
 #include "common_cpu_infra.h"
 #include "snes/snes.h"
+#include "src/funcs.h"
 
 const uint8 *ptr_layer1_data;
 const uint8 *ptr_layer2_data;
@@ -10,6 +11,9 @@ uint8 ptr_layer2_is_bg;
 
 uint8 *ptr_lo_map16_data;
 uint8 *ptr_lo_map16_data_bak;
+
+bool g_lunar_magic;
+
 
 void AddSprXPos(uint8 k, uint16 x) {
   AddHiLo(&spr_xpos_hi[k], &spr_xpos_lo[k], x);
@@ -92,3 +96,53 @@ void SmwRunOneFrameOfGame(void) {
   SmwRunOneFrameOfGame_Internal();
   SmwVectorNMI();
 }
+
+
+void LoadStripeImage_UploadToVRAM(const uint8 *pp) {  // 00871e
+  while (1) {
+    if ((*pp & 0x80) != 0)
+      break;
+    uint16 vram_addr = pp[0] << 8 | pp[1];
+    if (g_lunar_magic)
+      vram_addr = LmHook_LoadStripeImage(vram_addr);
+
+    uint8 vmain = __CFSHL__(pp[2], 1);
+    uint8 fixed_addr = (uint8)(pp[2] & 0x40) >> 3;
+    uint16 num = (swap16(WORD(pp[2])) & 0x3FFF) + 1;
+    pp += 4;
+
+    if (fixed_addr) {
+      if (vram_addr != 0xffff) {
+        uint16 *dst = g_ppu->vram + vram_addr;
+        uint16 src_data = WORD(*pp);
+        int ctr = (num + 1) >> 1;
+        if (vmain) {
+          for (int i = 0; i < ctr; i++)
+            dst[i * 32] = src_data;
+        } else {
+          // uhm...?
+          uint8 *dst_b = (uint8 *)dst;
+          for (int i = 0; i < num; i++)
+            dst_b[i + ((i & 1) << 1)] = src_data;
+          for (int i = 0; i < num; i += 2)
+            dst_b[i + 1] = src_data >> 8;
+        }
+      }
+      pp += 2;
+    } else {
+      if (vram_addr != 0xffff) {
+        uint16 *dst = g_ppu->vram + vram_addr;
+        uint16 *src = (uint16 *)pp;
+        if (vmain) {
+          for (int i = 0; i < (num >> 1); i++)
+            dst[i * 32] = src[i];
+        } else {
+          for (int i = 0; i < (num >> 1); i++)
+            dst[i] = src[i];
+        }
+      }
+      pp += num;
+    }
+  }
+}
+

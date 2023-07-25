@@ -87,6 +87,8 @@ static inline const uint8 *RomPtr_0C(uint16_t addr) { return RomPtr(0x0c0000 | a
 static inline const uint8 *RomPtr_0D(uint16_t addr) { return RomPtr(0x0d0000 | addr); }
 static inline const uint8 *RomPtr_0E(uint16_t addr) { return RomPtr(0x0e0000 | addr); }
 static inline const uint8 *RomPtr_0F(uint16_t addr) { return RomPtr(0x0f0000 | addr); }
+static inline const uint8 *RomPtr_11(uint16_t addr) { return RomPtr(0x110000 | addr); }
+static inline const uint8 *RomPtr_12(uint16_t addr) { return RomPtr(0x120000 | addr); }
 static inline const uint8 *RomPtrWithBank(uint8 bank, uint16_t addr) { return RomPtr((bank << 16) | addr); }
 
 uint16 Mult8x8(uint8 a, uint8 b);

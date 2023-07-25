@@ -106,6 +106,7 @@ int CpuOpcodeHook(uint32 addr) {
     int i = RunPatchBugHook(addr);
     if (i >= 0) return i;
   }
+  printf("Bad hook at 0x%x!\n", addr);
   assert(0);
   return 0;
 }
@@ -126,7 +127,7 @@ static void VerifySnapshotsEq(Snapshot *b, Snapshot *a, Snapshot *prev) {
     int j = 0;
     for (size_t i = 0; i < 0x20000; i++) {
       if (a->ram[i] != b->ram[i]) {
-        if (++j < 256) {
+        if (++j < 256*10) {
           if (((i & 1) == 0 || i < 0x10000) && a->ram[i + 1] != b->ram[i + 1]) {
             fprintf(stderr, "0x%.6X: %.4X != %.4X (%.4X)\n", (int)i,
               WORD(b->ram[i]), WORD(a->ram[i]), WORD(prev->ram[i]));
@@ -253,7 +254,7 @@ Snes *SnesInit(const uint8 *data, int data_size) {
 
   RtlSetupEmuCallbacks(NULL, &RtlRunFrameCompare, NULL);
 
-  if (data_size != 0) {
+  if (data_size != 0 && g_runmode != RM_MINE) {
     bool loaded = snes_loadRom(g_snes, data, data_size);
     if (!loaded) {
       return NULL;
@@ -277,6 +278,7 @@ Snes *SnesInit(const uint8 *data, int data_size) {
         printf("0x%x double patched!\n", g_rtl_game_info->patch_carrys[i]);
       }
     }
+    g_rtl_game_info->initialize();
     PatchBugs(1, 0);
   } else {
     g_runmode = RM_MINE;
@@ -291,7 +293,7 @@ Snes *SnesInit(const uint8 *data, int data_size) {
   g_sram = g_snes->cart->ram;
   g_sram_size = g_snes->cart->ramSize;
   game_id = g_rtl_game_info->game_id;
-  g_rtl_game_info->initialize();
+  
 
   return g_snes;
 }
@@ -305,12 +307,15 @@ void SaveBugSnapshot() {
   g_got_mismatch_count = 5 * 60;
 }
 
+int g_dbg_ctr_mine, g_dbg_ctr_theirs;
+
 void RunOneFrameOfGame_Both(void) {
   g_ppu = g_snes->ppu;
   MakeSnapshot(&g_snapshot_before);
 
   // Run orig version then snapshot
 again_theirs:
+  g_dbg_ctr_mine = g_dbg_ctr_theirs = 0;
   g_snes->runningWhichVersion = 1;
   g_rtl_game_info->run_frame_emulated();
   MakeSnapshot(&g_snapshot_theirs);

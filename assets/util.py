@@ -16,9 +16,9 @@ SMW_SHA1 = {
    SMW_SHA1_US : ('us', 'Super Mario World (USA)'),
 }
 
-def load_rom(filename, support_multilanguage = False):
+def load_rom(filename, support_multilanguage = False, disable_hash_check = False):
   global ROM
-  ROM = LoadedRom(filename, support_multilanguage)
+  ROM = LoadedRom(filename, support_multilanguage, disable_hash_check)
   return ROM
 
 def get_byte(addr):
@@ -50,7 +50,7 @@ def get_word(addr):
 
 
 class LoadedRom:
-  def __init__(self, path = None, support_multilanguage = False):
+  def __init__(self, path = None, support_multilanguage = False, disable_hash_check = False):
     rom_path = self.__get_rom_path(path)
     self.ROM = open(rom_path, 'rb').read()
 
@@ -62,16 +62,8 @@ class LoadedRom:
     entry = SMW_SHA1.get(hash)
     self.language = entry[0] if entry != None else None
 
-    if support_multilanguage:
-      if self.language == None:
-        msg = f"\n\nROM with hash {hash} not supported.\n\nYou need one of the following ROMs to extract the resources:\n"
-        for k, v in SMW_SHA1.items():
-          msg += '%5s: %s: %s\n' % (v[0], k, v[1])
-        raise Exception(msg)
-      print('Identified ROM as: %s - "%s"' % entry)
-    else:
-      if self.language != 'us':
-        raise Exception(f"\n\nROM with hash {hash} not supported.\n\nExpected {SMW_SHA1_US}.\nPlease verify your ROM is \"Super Mario World\"");
+    if not disable_hash_check and self.language != 'us':
+      raise Exception(f"\n\nROM with hash {hash} not supported.\n\nExpected {SMW_SHA1_US}.\nPlease verify your ROM is \"Super Mario World\".\n\nIf you want to use a LunarMagic edited rom you can run restool with -f to bypass this check.");
 
   def get_byte(self, ea):
     assert (ea & 0x8000)

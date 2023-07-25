@@ -72,8 +72,6 @@ void (*kGameMode19_Cutscene_Ptrs0CCA79[5])(void) = {
 };
 
 static const uint16 kBufferCreditsBackgrounds_TilePageModifier[7] = { 0xffff, 0xfeff, 0xfeff, 0xfeff, 0xffff, 0xfeff, 0xfeff,  };
-static const uint8 kUpdateCreditsBackground_PARAMS_0C9559[7] = { 0x1, 0x18, 0x0, 0x40, 0x7f, 0x0, 0x4,  };
-static const uint8 kUpdateCreditsBackground_PARAMS_0C9560[7] = { 0x1, 0x18, 0x0, 0x44, 0x7f, 0x0, 0x4,  };
 static const uint8 kGameMode1B_EndingCinema_DATA_0C9EAC[5] = { 0x40, 0x3e, 0xfc, 0x0, 0xff,  };
 static const uint16 kGameMode1B_EndingCinema_BackgroundChangeHeight[7] = { 0xc0, 0x180, 0x240, 0x300, 0x3c0, 0x480, 0x559,  };
 static const uint8 kGameMode1B_EndingCinema_PeachOnYoshiOffset[3] = { 0x0, 0xff, 0x0,  };
@@ -194,6 +192,7 @@ void BufferCreditsBackgrounds() {  // 0c93dd
     ++*(uint16 *)&blocks_screen_to_place_current_object;
   } while (*(uint16 *)&blocks_screen_to_place_current_object != 7);
   credits_var65 = 0x5840;
+  LmHook_BufferCreditsBackgrounds();
   credits_index = 0;
   blocks_screen_to_place_current_object = 0;
   UpdateCreditsBackground();

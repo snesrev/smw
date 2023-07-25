@@ -14,3 +14,5 @@ SDL2.dll
 /work
 smw_assets.dat
 __pycache__
+/enhanced/
+*.sfc

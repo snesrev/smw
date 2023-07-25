@@ -154,6 +154,13 @@ extern uint8 ptr_layer2_is_bg;
 #define spr86_wiggler_segment_pos_ptr (*(LongPtr*)(g_ram+0xD5))
 #define spr_ypos_lo ((uint8*)(g_ram+0xD8))
 #define spr_xpos_lo ((uint8*)(g_ram+0xE4))
+
+#define lunar_magic_F9 (*(uint8*)(g_ram+0xf9))
+#define lunar_magic_FA (*(uint8*)(g_ram+0xfa))
+#define lunar_magic_FB (*(uint8*)(g_ram+0xfb))
+#define lunar_magic_FC (*(uint8*)(g_ram+0xfc))
+#define lunar_magic_FD (*(uint8*)(g_ram+0xfd))
+#define lunar_magic_FE (*(uint16*)(g_ram+0xfe))
 #define misc_game_mode (*(uint8*)(g_ram+0x100))
 #define misc_currently_loaded_sprite_graphics_files ((uint8*)(g_ram+0x101))
 #define misc_intro_level_flag (*(uint8*)(g_ram+0x109))
@@ -309,7 +316,7 @@ extern uint8 ptr_layer2_is_bg;
 #define flag_show_save_prompt (*(uint8*)(g_ram+0x13CA))
 #define unusedram_got_invincible_star_from_goal (*(uint8*)(g_ram+0x13CB))
 #define counter_coin_handler (*(uint8*)(g_ram+0x13CC))
-#define unusedram_disable_midpoint (*(uint8*)(g_ram+0x13CD))
+#define lm_var13CD (*(uint8*)(g_ram+0x13CD))
 #define flag_got_midpoint (*(uint8*)(g_ram+0x13CE))
 #define flag_override_no_yoshi_intro_for_midway_entrance (*(uint8*)(g_ram+0x13CF))
 #define ow_destroy_tile_event_tile_index (*(uint8*)(g_ram+0x13D0))
@@ -415,6 +422,7 @@ extern uint8 ptr_layer2_is_bg;
 #define misc_layer3_xspeed (*(uint16*)(g_ram+0x1458))
 #define misc_layer3_yspeed (*(uint16*)(g_ram+0x145A))
 #define misc_layer3_tide_sub_ypos (*(uint16*)(g_ram+0x145C))
+#define lm_word_7E145E (*(uint16*)(g_ram+0x145e))
 #define flag_layer3_vert_scroll_direction (*(uint8*)(g_ram+0x1460))
 #define unusedram_7e1461 (*(uint8*)(g_ram+0x1461))
 #define misc_layer1_pos ((PointU16*)(g_ram+0x1462))
@@ -870,3 +878,174 @@ extern uint8 ptr_layer2_is_bg;
 #define graphics_decompressed_loading_letters ((uint8*)(g_ram+0x1977B))
 #define spr86_wiggler_segment_pos_table ((uint8*)(g_ram+0x19A7B))
 #define blocks_map16_table_hi ((uint8*)(g_ram+0x1C800))
+
+#define lm_ptr0 (*(LongPtr*)(g_ram + 0x1c000))
+#define lm_var3 (*(uint8*)(g_ram + 0x1c003))
+#define lm_var4 (*(uint8*)(g_ram + 0x1c004))
+#define lm_level_info (*(LongPtr*)(g_ram + 0x1c006))
+#define lm_var9 (*(uint8*)(g_ram + 0x1c009))
+#define lm_varA (*(uint8*)(g_ram + 0x1c00a))
+#define lm_varB (*(uint8*)(g_ram + 0x1c00b))
+#define lm_varC (*(uint16*)(g_ram + 0x1c00c))
+#define lm_varE (*(uint16*)(g_ram + 0x1c00e))
+#define lm_ptr10 (*(LongPtr *)(g_ram + 0x1c010))
+#define lm_ptr16 (*(LongPtr*)(g_ram + 0x1c016))
+#define lm_var19 (*(uint8*)(g_ram + 0x1c019))
+
+#define lm_var1a (*(uint8*)(g_ram + 0x1c01a))
+#define lm_var1b (*(uint8*)(g_ram + 0x1c01b))
+#define lm_var1c  (*(uint8*)(g_ram + 0x1c01c))
+
+#define lm_exanim_setting (*(uint8*)(g_ram + 0x1c00a))
+#define lm_custom_triggers (*(uint16*)(g_ram + 0x1c0fc))
+
+#define smart_spawn_horiz_collision (*(uint8*)(g_ram + 0xBEE))
+#define smart_spawn_vert_collision (*(uint8*)(g_ram + 0xBEF))
+#define min_y_offset_from_screen_to_spawn (*(uint16*)(g_ram + 0xBF0))
+#define max_y_offset_from_screen_to_spawn (*(uint16*)(g_ram + 0xBF2))
+#define extra_flags_for_sprites (*(uint8*)(g_ram + 0xBF4))
+#define extra_flags_and_horiz_level_mode (*(uint8*)(g_ram + 0xBF5))
+#define L1_Screen_Lo ((LongPtr*)(g_ram + 0xBF6))
+#define L2_Screen_Lo ((LongPtr*)(g_ram + 0xC26))
+#define L1_Screen_Hi ((LongPtr*)(g_ram + 0xC56))
+#define L2_Screen_Hi ((LongPtr*)(g_ram + 0xC86))
+#define lm_ptrs_to_sprites_per_screen ((uint16*)(g_ram + 0xCF6))
+#define lm_screen_sprite_data ((uint16*)(g_ram + 0xD36))
+
+#define lm_level_height (*(uint16*)(g_ram + 0x13D7))
+#define lm_level_height_minus_16 (*(uint16*)(g_ram + 0x1936))
+
+#define L1_Screen_8bit_Lo (g_ram + 0xcb6)
+#define L1_Screen_8bit_Hi (g_ram + 0xcd6)
+
+#define lm_var8325 (*(uint16*)(g_ram + 0x18325))
+#define lm_var8323 (*(uint16*)(g_ram + 0x18323))
+#define lm_var8321 (*(uint16*)(g_ram + 0x18321))
+#define lm_var831f (*(uint16*)(g_ram + 0x1831f))
+
+#pragma pack (push, 1)
+typedef struct ExAnimationInfo {
+  uint16 hdr_size;
+  uint16 dst;
+  LongPtr src;
+} ExAnimationInfo;
+#pragma pack (pop)
+
+#define lm_exanim_manual_triggers ((uint8*)(g_ram + 0x1c070))
+#define lm_exanim_frame_ctr ((uint16*)(g_ram + 0x1c080))
+#define ex_anim_info_0 (*(ExAnimationInfo*)(g_ram + 0x1c0c0))
+#define ex_anim_info_1 (*(ExAnimationInfo*)(g_ram + 0x1c0c7))
+#define ex_anim_info_2 (*(ExAnimationInfo*)(g_ram + 0x1c0ce))
+#define ex_anim_info_3 (*(ExAnimationInfo*)(g_ram + 0x1c0d5))
+#define ex_anim_info_4 (*(ExAnimationInfo*)(g_ram + 0x1c0dc))
+#define ex_anim_info_5 (*(ExAnimationInfo*)(g_ram + 0x1c0e3))
+#define ex_anim_info_6 (*(ExAnimationInfo*)(g_ram + 0x1c0ea))
+#define ex_anim_info_7 (*(ExAnimationInfo*)(g_ram + 0x1c0f1))
+
+#define lm_one_shot_triggers (*(uint32*)(g_ram + 0x1c0f8))
+
+#define lm_vram_dma_dst0 (*(uint16*)(g_ram + 0x695))
+#define lm_vram_dma_dst1 (*(uint16*)(g_ram + 0x697))
+#define lm_vram_dma_dst2 (*(uint16*)(g_ram + 0x699))
+#define lm_vram_dma_dst3 (*(uint16*)(g_ram + 0x69b))
+#define lm_vram_dma_dst4 (*(uint16*)(g_ram + 0x69d))
+#define lm_vram_dma_dst5 (*(uint16*)(g_ram + 0x69f))
+
+#define lm_vram_dma_size0 (*(uint8*)(g_ram + 0x6a1))
+#define lm_vram_dma_size1 (*(uint8*)(g_ram + 0x6a2))
+#define lm_vram_dma_size2 (*(uint8*)(g_ram + 0x6a3))
+#define lm_vram_dma_size3 (*(uint8*)(g_ram + 0x6a4))
+#define lm_vram_dma_size4 (*(uint8*)(g_ram + 0x6a5))
+#define lm_vram_dma_size5 (*(uint8*)(g_ram + 0x6a6))
+
+#define lm_vram_dma_src0 (*(uint16*)(g_ram + 0x6a7))
+#define lm_vram_dma_src1 (*(uint16*)(g_ram + 0x6a9))
+#define lm_vram_dma_src2 (*(uint16*)(g_ram + 0x6ab))
+#define lm_vram_dma_src3 (*(uint16*)(g_ram + 0x6ad))
+#define lm_vram_dma_src4 (*(uint16*)(g_ram + 0x6af))
+#define lm_vram_dma_src5 (*(uint16*)(g_ram + 0x6b1))
+
+#define lm_vram_dma_dst6 (*(uint16*)(g_ram + 0x6b3))
+#define lm_vram_dma_dst7 (*(uint16*)(g_ram + 0x6b5))
+#define lm_vram_dma_dst8 (*(uint16*)(g_ram + 0x6b7))
+#define lm_vram_dma_dst9 (*(uint16*)(g_ram + 0x6b9))
+#define lm_vram_dma_dst10 (*(uint16*)(g_ram + 0x6bb))
+#define lm_vram_dma_dst11 (*(uint16*)(g_ram + 0x6bd))
+
+#define lm_vram_dma_size6 (*(uint8*)(g_ram + 0x6bf))
+#define lm_vram_dma_size7 (*(uint8*)(g_ram + 0x6c0))
+#define lm_vram_dma_size8 (*(uint8*)(g_ram + 0x6c1))
+#define lm_vram_dma_size9 (*(uint8*)(g_ram + 0x6c2))
+#define lm_vram_dma_size10 (*(uint8*)(g_ram + 0x6c3))
+#define lm_vram_dma_size11 (*(uint8*)(g_ram + 0x6c4))
+
+#define lm_vram_dma_src6 (*(uint16*)(g_ram + 0x6c5))
+#define lm_vram_dma_src7 (*(uint16*)(g_ram + 0x6c7))
+#define lm_vram_dma_src8 (*(uint16*)(g_ram + 0x6c9))
+#define lm_vram_dma_src9 (*(uint16*)(g_ram + 0x6cb))
+#define lm_vram_dma_src10 (*(uint16*)(g_ram + 0x6cd))
+#define lm_vram_dma_src11 (*(uint16*)(g_ram + 0x6cf))
+
+#define lm_vram_dma_dst12 (*(uint16*)(g_ram + 0x6d1))
+#define lm_vram_dma_dst13 (*(uint16*)(g_ram + 0x6d3))
+#define lm_vram_dma_dst14 (*(uint16*)(g_ram + 0x6d5))
+#define lm_vram_dma_dst15 (*(uint16*)(g_ram + 0x6d7))
+
+#define lm_vram_dma_size12 (*(uint8*)(g_ram + 0x6d9))
+#define lm_vram_dma_size13 (*(uint8*)(g_ram + 0x6da))
+#define lm_vram_dma_size14 (*(uint8*)(g_ram + 0x6db))
+#define lm_vram_dma_size15 (*(uint8*)(g_ram + 0x6dc))
+
+#define lm_vram_dma_src12 (*(uint16*)(g_ram + 0x6dd))
+#define lm_vram_dma_src13 (*(uint16*)(g_ram + 0x6df))
+#define lm_vram_dma_src14 (*(uint16*)(g_ram + 0x6e1))
+#define lm_vram_dma_src15 (*(uint16*)(g_ram + 0x6e3))
+
+#define lm_vram_dma_dst16 (*(uint16*)(g_ram + 0x6e5))
+#define lm_vram_dma_dst17 (*(uint16*)(g_ram + 0x6e7))
+#define lm_vram_dma_dst18 (*(uint16*)(g_ram + 0x6e9))
+#define lm_vram_dma_dst19 (*(uint16*)(g_ram + 0x6eb))
+
+#define lm_vram_dma_size16 (*(uint8*)(g_ram + 0x6ed))
+#define lm_vram_dma_size17 (*(uint8*)(g_ram + 0x6ee))
+#define lm_vram_dma_size18 (*(uint8*)(g_ram + 0x6ef))
+#define lm_vram_dma_size19 (*(uint8*)(g_ram + 0x6f0))
+
+#define lm_vram_dma_src16 (*(uint16*)(g_ram + 0x6f1))
+#define lm_vram_dma_src17 (*(uint16*)(g_ram + 0x6f3))
+#define lm_vram_dma_src18 (*(uint16*)(g_ram + 0x6f5))
+#define lm_vram_dma_src19 (*(uint16*)(g_ram + 0x6f7))
+
+#define lm_vram_upload_enable_0 (*(uint16*)(g_ram + 0x18183))
+#define lm_vram_upload_enable_6 (*(uint16*)(g_ram + 0x18185))
+#define lm_vram_upload_enable_12 (*(uint16*)(g_ram + 0x18187))
+#define lm_vram_upload_enable_16 (*(uint16*)(g_ram + 0x18189))
+
+#define lm_L1_colbuf ((uint16*)(g_ram + 0x1818b))
+#define lm_L2_colbuf ((uint16*)(g_ram + 0x1820b))
+#define lm_tilebuf3 ((uint16*)(g_ram + 0x1828b))
+
+#define lm_arr1830b ((uint16*)(g_ram + 0x1830b))
+#define lm_arr1831b ((uint8*)(g_ram + 0x1831b))
+#define lm_arr1831f ((uint16*)(g_ram + 0x1831f))
+
+#define lm_arr_7FBC00 ((uint16*)(g_ram + 0x1BC00))
+#define lm_arr_7FC300 ((uint16*)(g_ram + 0x1C300))
+
+#define lm_var18327 (*(uint16*)(g_ram + 0x18327))
+
+#define lm_var_0045 (*(uint8 *)(g_ram + 0x45))
+#define lm_var_0046 (*(uint16 *)(g_ram + 0x46))
+#define lm_var_0048 (*(uint16 *)(g_ram + 0x48))
+#define lm_var_004A (*(uint16 *)(g_ram + 0x4A))
+#define lm_var_004C (*(uint16 *)(g_ram + 0x4C))
+#define lm_var_004E (*(uint16 *)(g_ram + 0x4E))
+#define lm_var_0050 (*(uint16 *)(g_ram + 0x50))
+#define lm_var_0052 (*(uint16 *)(g_ram + 0x52))
+#define lm_var_0054 (*(uint8 *)(g_ram + 0x54))
+
+#define lm_state_array ((uint8 *)(g_ram + 0x1c060))
+
+#define lm_title_screen_var (*(uint16 *)(g_ram + 0x1fffe))
+
+extern bool g_lunar_magic;

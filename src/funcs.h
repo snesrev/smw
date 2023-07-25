@@ -1,3 +1,6 @@
+#ifndef SMW_FUNCS_H_
+#define SMW_FUNCS_H_
+
 #include "smw_rtl.h"
 
 typedef struct CollInfo {
@@ -29,6 +32,7 @@ typedef struct CheckPlatformCollRet {
 const uint16 *GetLayerLayoutPtr(int layer, int top);
 const uint16 *GetPlayerPalette();
 const uint16 *GetMap16RomAddr(uint8 bank, uint16_t addr);
+const uint16 *Lm_GetMap16RomAddr(uint16 addr);
 
 // Bank 0
 PairU16 BufferFileSelectText_009DB5(uint8 k);
@@ -148,9 +152,9 @@ void GenericPage01Tile_00C0FB(GenTileArgs *gta, uint16 j);
 void GenericPage01Tile(GenTileArgs *gta);
 void GenericPage01Tile_Return00C1AB(void);
 void GenericPage01Tile_SetItemMemory(GenTileArgs *gta);
-void GraphicsDecompressTo(const uint8 *src, uint8 *pdst);
+int DecompressTo(const uint8 *src, uint8 *pdst);
 void GraphicsDecompressionRoutines_DecompressGFX32And33(void);
-const uint8 *GraphicsDecompress(uint8 j);
+uint8 *GraphicsDecompress(uint8 j);
 void HandleMenuCursor_009E82(uint8 j);
 void HandleMenuCursor_009ED4(uint8 k);
 void HandlePaletteFades_00AF35(bool run_code_at_end);
@@ -326,7 +330,7 @@ void UploadBigLayer3LettersToVRAM(void);
 void ConvertGFX27IntoNormallFormat(uint16 *dst);
 void UploadGraphicsFiles_Layer3(void);
 void UploadGraphicsFiles(void);
-void UploadGraphicsFiles_UploadGFXFile(uint16 dst_addr, uint8 j);
+void UploadGraphicsFiles_UploadGFXFile(uint16 dst_addr, uint8 j, uint8 index);
 void UploadLevelExAnimationData(void);
 void UploadLevelAnimations_RedFlash(uint8 a, uint8 r0);
 void UploadLevelAnimations_YellowFlash(uint8 a);
@@ -685,7 +689,7 @@ void Spr0A5_Sparky(uint8 k);
 void Spr0A7_IggyBall(uint8 k);
 void Spr0A9_Reznor_Init(uint8 k);
 void Spr0AA_Fishbone_Init(uint8 k);
-void Spr0A0_ActivateBowserBattle(uint8 k);
+void HandleExtraSprites(uint8 k);
 void Spr0AC_DownFirstWoodenSpike_Init(uint8 k);
 void Spr0AD_UpDownFirstWoodenSpike_Init(uint8 k);
 void Spr0B1_CreateEatBlock_Init(uint8 k);
@@ -980,7 +984,8 @@ void MExtSpr0A_BooStream(uint8 k);
 void MExtSpr0B_UnusedYoshiSmoke(uint8 k);
 void MExtSpr_Delete(uint8 k);
 void ParseLevelSpriteList_Entry2(void);
-void ParseLevelSpriteList_LoadSpriteLoopStrt(uint8 k, uint8 j, uint16 r0w);
+bool LoadOneSprite(const uint8 *p, uint8 k, PointU16 pt);
+void ParseLevelSpriteList_LoadSpriteLoopStrt(uint8 k, uint8 j, PointU16 pt);
 void ParseLevelSpriteList(void);
 void ProcessBounceAndSmokeSprites_BounceSprites(uint8 k);
 void ProcessBounceAndSmokeSprites(void);
@@ -1163,15 +1168,15 @@ void Spr09F_BanzaiBill_Draw(uint8 k);
 void Spr09F_BanzaiBill_Sub(uint8 k);
 PointU8 Spr0A3_GreyChainedPlatform_02D813(uint8 k);
 PointU8 Spr0A3_GreyChainedPlatform_02D848(uint8 k);
-void Spr0DE_Load5Eeries(uint8 k, uint16 r0w, uint8 r2, const uint8 *edata);
-void Spr0E0_Load3Platforms(uint16 r0w, uint8 r2, const uint8 *edata);
-void Spr0E1_LoadBooCeiling(uint8 k, uint8 a, uint16 r0w, uint8 r2, const uint8 *edata);
+void Spr0DE_Load5Eeries(uint8 k, PointU16 pt, uint8 r2, const uint8 *edata);
+void Spr0E0_Load3Platforms(PointU16 pt, uint8 r2, const uint8 *edata);
+void Spr0E1_LoadBooCeiling(uint8 k, uint8 a, PointU16 pt, uint8 r2, const uint8 *edata);
 void SprXXX_Dolphins(uint8 k);
 void SprXXX_Dolphins_Draw(uint8 k);
 void SprXXX_JumpingPiranhaPlant_02E17F(uint8 k);
 void SprXXX_JumpingPiranhaPlant_02E1C0(uint8 k, uint8 a);
 void Spr04F_JumpingPiranhaPlant(uint8 k);
-void SprXXX_LoadShooter(uint8 k, uint8 a, uint16 r0w, const uint8 *edata);
+void SprXXX_LoadShooter(uint8 k, uint8 a, PointU16 pt, const uint8 *edata);
 void SprXXX_SuperKoopas_02EB3D(uint8 k, uint8 j);
 void SprXXX_SuperKoopas_02EBB5(uint8 k, uint8 r0);
 void SprXXX_SuperKoopas_02EBCA(uint8 k);
@@ -1278,7 +1283,7 @@ void Spr07C_PrincessPeach_StandByBro(uint8 k);
 void Spr07C_PrincessPeach_WaitAfterFall(uint8 k);
 void Spr07C_PrincessPeach_WalkTowardsBro(uint8 k);
 void Spr0A0_ActivateBowserBattle_Init(uint8 k);
-void Spr0A0_ActivateBowserBattle(uint8 k);
+void HandleExtraSprites(uint8 k);
 void Spr0A0_ActivateBowserBattle_03A4D2(uint8 k);
 void Spr0A0_ActivateBowserBattle_03A4ED(uint8 k);
 void Spr0A0_ActivateBowserBattle_03A4FD(uint8 k);
@@ -1486,7 +1491,7 @@ void OWSpr0A_Boo_04FDD2(uint8 k, uint8 a, uint8 r0);
 void OWSpr0A_Boo(uint8 k);
 void OwEventProcess00_CheckIfEventShouldRun(void);
 void OwEventProcess01_DestroyTileAnimation_04ED83(void);
-void OwEventProcess01_DestroyTileAnimation_04EDE6(uint16 k, uint16 j, uint16 r0w, const uint8 *p);
+void OwEventProcess01_DestroyTileAnimation_04EDE6(uint16 k, uint16 r0w, const uint8 *p);
 void OwEventProcess01_DestroyTileAnimation_04EEAA(void);
 void OwEventProcess02_SetEventTileIndexes(void);
 void OwEventProcess03_GetLayer2Tile_04EA62(void);
@@ -1496,7 +1501,7 @@ void OwEventProcess04_FadeInLayer2Tile_04EE30(void);
 void OwEventProcess04_FadeInLayer2Tile(void);
 void OwEventProcess05_GetLayer1Tile(void);
 void OwEventProcess06_FadeInLayer1Tile(void);
-void OwEventProcess07_SilentEventsAndEndOfEvent_Entry2(uint8 a);
+void OwEventProcess07_SilentEventsAndEndOfEvent_Entry2(uint8 a, bool from_where);
 void OwEventProcess07_SilentEventsAndEndOfEvent(void);
 void OverworldLightningAndRandomCloudSpawning(void);
 void OverworldLightningAndRandomCloudSpawning_Return04F828(uint8 k);
@@ -1615,7 +1620,7 @@ void ScrollSecondInteractiveLayer(void);
 void ShowCourseClearText(void);
 void LoadLevel_05DBAC(void);
 void LoadLevel_HandleChocolateIsland2Gimmick(void);
-void LoadLevel(void);
+bool LoadLevel(void);
 void Spr0E7_SpecialAutoScroll_Layer2(void);
 void Spr0E7_SpecialAutoScroll(void);
 void Spr0E9_Layer2Smash(void);
@@ -1957,3 +1962,176 @@ void UndergroundObj3C_VerySteepSlope_VerySteepRightSlope(void);
 void UndergroundObj3D_CeilingLedge(uint8 k);
 void UndergroundObj3E_CeilingEdges(uint8 k);
 void UndergroundObj3F_SolidDirt(uint8 k);
+
+void LmStdObj22_DirectMap16(uint8 k);
+void LmStdObj23(uint8 k);
+void LmStdObj24(uint8 k);
+void LmStdObj25(uint8 k);
+void LmStdObj26_MusicBypass(uint8 k);
+void LmStdObj27(uint8 k);
+void LmStdObj28(uint8 k);
+void LmStdObj29(uint8 k);
+
+void LmHook_InitExanimForLevel(void);
+void LmHook_UploadLevelAnimations(void);
+void LmHook_BeginLoadingLevelDataB(void);
+void LmHook_PrepareLevel(void);
+void LmFunc1_CustomPalettes(int a);
+void LmHook_UploadGraphicsFiles(void);
+uint8 LmFunc15_DecompressSlot(uint8 a);
+void LmGraphicsDecompress(uint16 a);
+
+const uint8 *LmHook_UploadGFXFile(uint8 a, uint8 index);
+
+uint8 LmFunc18_GetFF200(uint8 a, uint8 k);
+
+uint8 LmHook_ModifyMap16IDForSpecialBlocks(uint8 a);
+uint8 LmFunc20_ModifyMap16IDForSpecialBlocks(uint8 a);
+
+uint8 *LmHook_GraphicsDecompress(uint8 a);
+void LmHandleDirectMapObjs(uint8 a);
+
+void LmHook_LoadSpritesOnLevelLoad(void);
+void LmHook_LoadLevelInfo(void);
+void LmHook_BufferCreditsBackgrounds(void);
+void LmHook_LoadLevel(uint16 j);
+void LmHook_LoadLevelB(const uint8 *ptr_layer1_data, uint8 R2, uint16 level_number);
+uint16 LmFunc_InitScreenTables(int k, int a);
+void LmHook_HandleStandardLevelCameraScroll(void);
+bool LmHook_GameMode11_LoadSublevel(void);
+
+void LmHook_UploadLevelLayer1And2Tilemaps(void);
+
+void LmHook_BE8A(uint16 xbase);
+
+void LmHook_PreserveLevelDataPointerInObjects(void);
+void LmHook_RestoreLevelDataPointerInObjects(void);
+uint8 LmHook_HandleHorizontalSubScreenCrossingForCurrentObject_Entry2(void);
+uint8 LmHook_HandleVerticalSubScreenCrossingForCurrentObject(void);
+void LmFunc_DF1C3(uint8 k, uint8 a);
+
+void LmHook_InitializeLevelLayer1And2Tilemaps(void);
+void LmHook_CheckIfLevelTilemapsNeedScrollUpdate(void);
+
+void LmHook_BufferTilemap_L1(void);
+void LmHook_BufferTilemap_L2(void);
+void LmHook_UploadLevelLayer1And2Tilemaps(void);
+
+void Lm_BufferTilemap_L1_0(void);
+void Lm_BufferTilemap_L1_1(void);
+void LmHook_BufferScrollingTiles_L2_Background(void);
+void LmHook_BufferScrollingTiles_L2_1(void);
+void LmHook_BufferScrollingTiles_L2_7(void);
+void LmHook_BufferScrollingTiles_L2_7(void);
+void LmFunc_UpdateTilemapA_0(void);
+void LmFunc_UpdateTilemapB_0(void);
+void LmFunc_UpdateTilemapB_7(void);
+void LmFunc_UpdateTilemapC_0(void);
+void LmFunc_UpdateTilemapD_0(void);
+void LmFunc_UpdateTilemapD_1(void);
+void LmFunc_UpdateTilemapD_2(void);
+
+void Lm_CopyTilesToL1UploadBuffer(const uint8 *plo, const uint8 *phi, uint16 j, uint16 r6);
+void Lm_SetupLmVramDma_0(void);
+void Lm_SetupLmVramDma_6(void);
+void Lm_SetupLmVramDma_12(void);
+void Lm_SetupLmVramDma_16(void);
+void Lm_SetupPipeTiles(uint16 a);
+const uint16 *Lm_GetMap16RomAddr(uint16 a);
+
+uint16 *LmHook_CustomBgMap16(void);
+void Lm_CopyToVramBufD_6(const uint8 *plo, const uint8 *phi, uint16 j, const uint16 *ptile);
+void Lm_SetupLmVramDma_6(void);
+
+void LmHook_LevelTileAnimations(void);
+
+typedef struct ParseTileAnimCtx {
+  const uint8 *p, *porg;
+  uint8 *r8;
+  uint8 r10;
+  LongPtr ptr;
+} ParseTileAnimCtx;
+
+void LmFunc_10C713(LongPtr p, uint16 r8, uint8 r10, uint16 k);
+
+void LmHook_SetStandardPPUSettings(void);
+void LmHook_HandleStandardLevelCameraScrollB(void);
+void LmHook_HandleStandardLevelCameraScrollC(void);
+uint16 LmHook_HandleStandardLevelCameraScrollD(void);
+uint16 LmHook_HandleStandardLevelCameraScrollG(uint16 r2, uint16 r4);
+uint16 LmHook_LoadStripeImage(uint16 r3);
+
+void LmHook_GameMode0C_LoadOverworld(uint16 k);
+
+const uint16 *LmHook_TileGen(uint16 j);
+bool LmHook_WantEraseSprite(uint16 k, uint16 y);
+void LmHook_OwGraphicsDecompress(void);
+
+uint16 LmHook_LoadLevelInfo_A(uint16 a, uint16 k);
+uint16 LmHook_LoadLevelInfo_C(uint16 a);
+
+void LmHook_ExpandLvlHdr(uint16 lvl);
+
+bool LmHook_CustomTitleScreenDemo(void);
+void LmHook_InitializeSaveData(void);
+void LmHook_DisplayMessage(void);
+void LmHook_OverworldPalette(void);
+void LmHook_LevelNamesPatch(uint16 a);
+int LmHook_LoadLevelInfo_E(uint16 k, uint16 lvl, uint8 r0, uint8 r1);
+
+uint16 LmHook_DestroyTileAnimation2(uint16 a);
+const uint8* LmHook_DestroyTileAnimation3(uint16 k);
+uint16 LmHook_RemapDestroyTile(uint16 a);
+
+void LmHook_EventStuff(uint8 a, bool from_where);
+
+void LmFunc_UploadGraphics_StepA(void);
+void LmFunc_UpdateBG12NBA(void);
+void LmHook_InitializeLevelLayer3_GenerateInteractiveTideWater(void);
+
+uint16 GetLevelLayoutPtr_Vertical(int i);
+uint16 GetLevelLayoutPtr_Horizontal(int i);
+
+enum {
+  kLmFeature_LmEnabled = 1 << 0,
+  kLmFeature_Exanim = 1 << 1,
+  kLmFeature_SkipOverworldDecompress = 1 << 2,
+  kLmFeature_OverworldTiles4bpp = 1 << 3,
+  kLmFeature_Copy512colors = 1 << 4,
+  kLmFeature_WeirdPalette = 1 << 5,
+  kLmFeature_SkipLoadPaletteHook = 1 << 6,
+  kLmFeature_GfxUpload = 1 << 7,
+  kLmFeature_LoadLevel = 1 << 8,
+  kLmFeature_4bppgfx = 1 << 9,
+  kLmFeature_CustomTitleScreenDemo = 1 << 10,
+  kLmFeature_CustomDisplayMessage = 1 << 11,
+  kLmFeature_DontSetYposForIntroMarch = 1 << 12,
+  kLmFeature_OwPalette = 1 << 13,
+  kLmFeature_LevelNamesPatch = 1 << 14,
+  kLmFeature_DestroyTileAnims = 1 << 15,
+  kLmFeature_EventStuff = 1 << 16,
+  kLmFeature_MusicRegTweak = 1 << 17,
+  kLmFeature_TideWaterTweak = 1 << 18,
+  kLmFeature_EnemyCollTweak = 1 << 19,
+  kLmFeature_Ow4bppGfx = 1 << 20,
+};
+
+// Non lunar magic hacks
+enum {
+  kHack_Walljump = 1 << 0,
+};
+
+typedef struct LmFeatures {
+  uint32 flags;
+  uint32 kLmLvlInfo_addr;
+  uint32 kLmLvlInfo_addr_other;
+  uint32 hacks;
+} LmFeatures;
+
+#define LM_FEATURES ((LmFeatures *)kLmFeatures)
+#define HAS_LM_FEATURE(i) ((LM_FEATURES->flags & (i)) != 0)
+#define HAS_HACK(i) ((LM_FEATURES->hacks & (i)) != 0)
+
+void HackHandleWalljump();
+
+#endif  // SMW_FUNCS_H_

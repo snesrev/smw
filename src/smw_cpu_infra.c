@@ -3,6 +3,9 @@
 #include "snes/snes.h"
 #include "variables.h"
 #include "funcs.h"
+#include "assets/smw_assets.h"
+
+extern bool g_custom_music;
 
 static const uint32 kPatchedCarrys_SMW[] = {
   0xFE1F,
@@ -60,6 +63,10 @@ static const uint32 kPatchedCarrys_SMW[] = {
 };
 
 static uint8 preserved_db;
+
+static uint32 get_24(uint32 a) {
+  return *(uint32*)SnesRomPtr(a) & 0xffffff;
+}
 
 uint32 PatchBugs_SMW1(void) {
   if (FixBugHook(0xA33C) || FixBugHook(0xa358) || FixBugHook(0xA378)) {
@@ -142,15 +149,102 @@ uint32 PatchBugs_SMW1(void) {
   } else if (FixBugHook(0x817e)) {
     g_cpu->y = g_ram[kSmwRam_APUI02];
     return 0x8181;
+  } else if (g_lunar_magic) {
+
+    static uint32 LmFunc_UpdateTilemapC_0, buffer_tilemap_L1_0, buffer_tilemap_L1_1, LmFunc_UpdateTilemapD_1, LmHook_BufferScrollingTiles_L2_1;
+    static uint32 LmHook_HandleStandardLevelCameraScrollD;
+
+    if (!LmFunc_UpdateTilemapC_0) {
+      uint32 LmHook_BufferTilemap_L1 = get_24(0x580BF+1);
+      buffer_tilemap_L1_0 = get_24(LmHook_BufferTilemap_L1 + 0xAB29 - 0xAB15);
+      buffer_tilemap_L1_1 = get_24(LmHook_BufferTilemap_L1 + 0xAB29 - 0xAB15 + 3 * 7);
+
+      uint32 LmHook_CheckIfLevelTilemapsNeedScrollUpdate = get_24(0x586F7 + 1);
+      uint32 LmFunc_UpdateTilemapD = get_24(LmHook_CheckIfLevelTilemapsNeedScrollUpdate + 0xB5D0 - 0xB538);
+      LmFunc_UpdateTilemapD_1 = get_24(LmFunc_UpdateTilemapD + 0xAD41 - 0xAD38 + 3 * 1);
+
+      uint32 LmHook_BufferTilemap_L2 = get_24(0x580C3+1);
+      LmHook_BufferScrollingTiles_L2_1 = get_24(LmHook_BufferTilemap_L2 + 0xAB9D - 0xAB89 + 3 * 1);
+
+      uint32 LmFunc_UpdateTilemapC = get_24(LmHook_CheckIfLevelTilemapsNeedScrollUpdate + 0xB5A9 + 1 - 0xB538);
+      LmFunc_UpdateTilemapC_0 = get_24(LmFunc_UpdateTilemapC + 0xACD8 - 0xACCF + 3 * 1);
+
+      LmHook_HandleStandardLevelCameraScrollD = get_24(0xF70D + 1);
+    }
+
+    if (FixBugHook(LmFunc_UpdateTilemapC_0 + 0xAE7B - 0xAE28)) {
+      g_cpu->a &= 0xf;
+    } else if (FixBugHook(LmHook_HandleStandardLevelCameraScrollD + 0xBB7C - 0xBB6B)) {
+      if (sign16(g_cpu->a))
+        g_cpu->a = 0;
+    } else if (FixBugHook(buffer_tilemap_L1_0 + 0xAFEE - 0xAFCF) || 
+               FixBugHook(buffer_tilemap_L1_1 + 0xB099 - 0xB07A) ||
+               FixBugHook(LmHook_BufferScrollingTiles_L2_1 + 0xB11E - 0xB0EE)) {
+      if (sign16(g_cpu->a))
+        return buffer_tilemap_L1_1 + 0xB0EB - 0xB07A;
+    } else if (FixBugHook(LmFunc_UpdateTilemapD_1 + 0xB2B4 - 0xB28B)) {
+      static const uint16 kLm10B483[2] = {0, 14};
+      g_cpu->a = kLm10B483[lm_arr1831b[3] >> 1] + ((int16)mirror_current_layer2_ypos >> 4);
+      if (sign16(g_cpu->a))
+        return LmFunc_UpdateTilemapD_1 + 0xB33E - 0xB28B;
+    }
   }
   return 0;
 }
 
 void SmwCpuInitialize(void) {
+  g_lunar_magic = HAS_LM_FEATURE(kLmFeature_LmEnabled);
   if (g_rom) {
     *SnesRomPtr(0x843B) = 0x60; // remove WaitForHBlank_Entry2
     *SnesRomPtr(0x2DDA2) = 5;
     *SnesRomPtr(0xCA5AC) = 7;
+
+    uint8 *music = SnesRomPtr(0x8052);
+    g_custom_music = music[1] != 0xE8;
+    if (g_custom_music) {
+      music[0] = 0xea;
+      music[1] = 0xea;
+      music[2] = 0xea;
+
+      *SnesRomPtr(0x8079) = 0x60;  // HandleSPCUploads_SPC700UploadLoop ret 
+
+      uint8* p = SnesRomPtr(0x8075);
+      p[0] = 0x64;
+      p[1] = 0x10;
+      p[2] = 0x80;
+      p[3] = 0xF2;
+
+      printf("Custom music not supported!\n");
+
+      static const uint8 kRevertProcessNormalSprites[] = { 0xda, 0x8a, 0xae, 0x92, 0x16, 0x18, 0x7f, 0xb4, 0xf0, 0x07, 0xaa, 0xbf, 0x00, 0xf0, 0x07, 0xfa, 0x9d, 0xea, 0x15 };
+      memcpy(SnesRomPtr(0x180d2), kRevertProcessNormalSprites, sizeof(kRevertProcessNormalSprites));
+      static const uint8 kRevertStatusBar[] = { 0xad, 0x22, 0x14, 0xc9 };
+      memcpy(SnesRomPtr(0x8FD8), kRevertStatusBar, sizeof(kRevertStatusBar));
+      
+      if (HAS_HACK(kHack_Walljump)) {
+        uint8 *wallhack = SnesRomPtr(0xa2a1);
+        wallhack[3] &= 0x7f;
+        wallhack = SnesRomPtr(get_24(0xa2a2));
+        wallhack[3] &= 0x7f;
+      }
+
+      // Reznor platform fix
+      static const uint8 kRevert_0x39890[] = { 0xee, 0x0f, 0x14 };
+      memcpy(SnesRomPtr(0x39890), kRevert_0x39890, sizeof(kRevert_0x39890));
+
+      static const uint8 kRevert_0x2907a[] = { 0xbd, 0x9d, 0x16, 0xd0 };
+      memcpy(SnesRomPtr(0x2907a), kRevert_0x2907a, sizeof(kRevert_0x2907a));
+      static const uint8 kRevert_0xf5f3[] = { 0xa0, 0x04, 0x8c, 0xf9, 0x1d };
+      memcpy(SnesRomPtr(0xf5f3), kRevert_0xf5f3, sizeof(kRevert_0xf5f3));
+      static const uint8 kRevert_0x1bb33[] = { 0xa9, 0x30, 0x9d, 0xea, 0x15 };
+      memcpy(SnesRomPtr(0x1bb33), kRevert_0x1bb33, sizeof(kRevert_0x1bb33));
+      static const uint8 kRevert_0x2a129[] = { 0xa9, 0x21, 0x95, 0x9e, 0xa9, 0x08, 0x9d, 0xc8, 0x14, 0x22, 0xd2, 0xf7, 0x07 };
+      memcpy(SnesRomPtr(0x2a129), kRevert_0x2a129, sizeof(kRevert_0x2a129));
+      static const uint8 kRevert_0x2db82[] = { 0xbd, 0xe0, 0x14, 0x99, 0xe0, 0x14 };
+      memcpy(SnesRomPtr(0x2db82), kRevert_0x2db82, sizeof(kRevert_0x2db82));
+      static const uint8 kRevert_0x2e6ec[] = { 0xa9, 0x38, 0x9d, 0xea, 0x15 };
+      memcpy(SnesRomPtr(0x2e6ec), kRevert_0x2e6ec, sizeof(kRevert_0x2e6ec));
+    }
   }
 }
 
@@ -166,6 +260,13 @@ static void SmwFixSnapshotForCompare(Snapshot *b, Snapshot *a) {
   memcpy(&b->ram[0x14B0], &a->ram[0x14B0], 0x11);  // temp14b0 etc
 
   memcpy(&b->ram[0x1436], &a->ram[0x1436], 4);  // temp14b0 etc
+
+  memcpy(&b->ram[0x1C00B], &a->ram[0x1C00B], 1);  // lm_varB
+
+  if (g_custom_music) {
+    memcpy(&b->ram[0x1DF9], &a->ram[0x1DF9], 8); // sound io
+  }
+
 }
 
 static uint32 RunCpuUntilPC(uint32 pc1, uint32 pc2) {
@@ -174,7 +275,7 @@ static uint32 RunCpuUntilPC(uint32 pc1, uint32 pc2) {
   for(;;) {
     snes_runCpu(g_snes);
 //    snes_runCycle(g_snes);
-    uint32 addr = g_snes->cpu->k << 16 | g_snes->cpu->pc;
+    uint32 addr = (g_snes->cpu->k << 16 | g_snes->cpu->pc) & 0x7fffff;
     if (addr != addr_last && (addr == pc1 || addr == pc2)) {
       return addr;
     }

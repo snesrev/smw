@@ -735,34 +735,34 @@ int bp_cnt = 0;
 extern bool g_debug_apu_cycles;
 
 void DumpCpuHistory() {
-  for (int i = 0; i < 8; i++) {
-    printf("PC history: 0x%x\n", pc_hist[(pc_hist_ctr + i) & 7]);
+  for (int i = 0; i < 16; i++) {
+    printf("PC history: 0x%x\n", pc_hist[(pc_hist_ctr + i) & 15]);
   }
 }
 
+extern int g_dbg_ctr_theirs;
+
 static void cpu_doOpcode(Cpu* cpu, uint8_t opcode) {
-  uint32 cur_pc = ((cpu->k << 16) | cpu->pc - 1);
+  if (cpu->k & 0x80 || cpu->sp < 0x150 && cpu->sp != 0x100) {
+    DumpCpuHistory();
+    assert(0);
+  }
+  uint32 cur_pc = ((cpu->k << 16) | cpu->pc - 1) & 0x7fffff;
   pc_hist[pc_hist_ctr] = cur_pc;
   pc_hist_ctr = (pc_hist_ctr + 1) & 15;
   
+  if (0 && cur_pc == 0x5D83B) {
+    g_snes->debug_cycles = 0;
+  }
+
   if (cur_pc == pc_bp) {
-    printf("Reached BP 0x%x. A=0x%.2x, X=0x%.2x, Y=0x%.2x. C=%d. 0x%x\n", 
-      cur_pc, (uint8)cpu->a, cpu->x, cpu->y, cpu->c,
-      0);
+    printf("Reached BP 0x%x. A=0x%.2x, X=0x%.2x, Y=0x%.2x. C=%d. lm_var13CD=%x\n", 
+      cur_pc, cpu->a, cpu->x, cpu->y, cpu->c,
+      *(uint16*)&g_ram[14]);
+//    printf("T: 16 j=%d, %d\n", g_cpu->y, g_cpu->a);
     bp_cnt += 1;
     //g_snes->debug_cycles = 1;
   }
-  if (cur_pc == 0x85d2) {
-//    printf("T: upl stripe %d\n", graphics_stripe_image_to_upload);
-//  if (cur_pc == 0x29197 && g_cpu->x == 0x800&&0) {
-//    printf("x=0x%x, y=0x%x, t4=0x%x\n", g_cpu->x, g_cpu->y, WORD(tempE4));
-    //g_snes->debug_cycles = 1;
-    uint16 t = g_ram[0xf3] | g_ram[0xf4] << 8;
-//    printf("wr 0x%x = 0x%x\n", t + g_cpu->y, g_cpu->a & 0xff);
-
-  }
-//  if (cur_pc == 0x2A82E)
-//    printf("T: Load sprites offs %d: 0x%x\n", g_cpu->y, WORD(g_ram[0]));
 
 restart:
   switch(opcode) {

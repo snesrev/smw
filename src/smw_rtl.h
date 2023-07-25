@@ -1,6 +1,10 @@
-#pragma once
+#ifndef SMW_SMW_RTL_H_
+#define SMW_SMW_RTL_H_
 #include "common_rtl.h"
 #include "snes/snes_regs.h"
+
+extern bool g_lunar_magic;
+extern int g_dbg_ctr_mine;
 
 PointU16 *get_PointU16(PointU16 *pt, uint8 off);
 static inline OamEnt *get_OamEnt(OamEnt *base, uint16 off) { return (OamEnt *)((uint8 *)base + off); }
@@ -15,6 +19,7 @@ void SmwCopyToVram(uint16 vram_addr, const uint8 *src, int n);
 void SmwClearVram(uint16 vram_addr, uint16 value, int n);
 void SmwCopyToVramPitch32(uint16 vram_addr, const uint8 *src, int n);
 void SmwCopyToVramLow(uint16 vram_addr, const uint8 *src, int n);
+void SmwCopyFromVram(uint16 vram_addr, uint8 *dst, int n);
 
 void SmwDrawPpuFrame(void);
 void SmwRunOneFrameOfGame(void);
@@ -61,3 +66,5 @@ typedef struct GenTileArgs {
 
 const uint8 *GetSpriteListPtr();
 uint8 GetCurrentSlope(int i);
+
+#endif  // SMW_SMW_RTL_H_

@@ -2342,7 +2342,7 @@ void Spr0A0_ActivateBowserBattle_Init(uint8 k) {  // 03a0f1
   InitializeMode7TilemapsAndPalettes(k);
 }
 
-void Spr0A0_ActivateBowserBattle(uint8 k) {  // 03a118
+void HandleExtraSprites(uint8 k) {  // 03a118
   uint8 v1 = spr_spriteid[k];
   switch (v1) {
   case 0xC8: Spr0C8_LightSwitch(k); break;
@@ -3475,8 +3475,9 @@ void SubOffscreen_Bank03_03B85F(uint8 k, uint8 r3) {  // 03b85f
         goto LABEL_8;
     }
   } else {
-    uint16 ypos = GetSprYPos(k) + 0x50;
-    if (!sign8((ypos >> 8) - 2))
+    uint16 y = GetSprYPos(k);
+    bool want_erase = g_lunar_magic ? LmHook_WantEraseSprite(k, y) : !sign8(((y + 80) >> 8) - 2);
+    if (want_erase)
       goto LABEL_8;
     if ((spr_property_bits167a[k] & 4) == 0) {
       uint8 r1 = r3 | counter_global_frames & 1;
@@ -4415,7 +4416,7 @@ void InitializeMode7TilemapsAndPalettes(uint8 k) {  // 03dd7d
     *((uint8 *)&palettes_palette_mirror[2] + i) = p0[i];
   uint16 *dst = RtlGetVramAddr();
   if (v1) {
-    const uint8 *pp = GraphicsDecompress(v1);
+    const uint8 *pp = LmHook_GraphicsDecompress(v1);
     uint8 r3 = 0x80;
     do {
       pp = InitializeMode7TilemapsAndPalettes_BufferTilemap(&dst, pp);
@@ -4584,8 +4585,6 @@ void UpdateMode7SpriteAnimations_03DFAE(uint8 j, uint16 a) {  // 03dfae
   *(uint16 *)((int8 *)&mirror_m7_xpos + j) = *(uint16 *)((int8 *)&mirror_current_layer1_xpos + j) + kUpdateMode7SpriteAnimations_DATA_03DEBB[j >> 1] - a;
 }
 
-static const uint16 kGlobalPalettes_BowserLightningFlash[11] = { 0x0, 0x2ce7, 0x3d6b, 0x4def, 0x5e73, 0x6ef7, 0x7fff,0x7393,     0, 0x3FF,0x573B  };
-
 void Spr0A0_ActivateBowserBattle_UpdatePaletteAndLightningAnimation() {  // 03dfcc
   unsigned int v1;
   uint16 v4;
@@ -4619,7 +4618,7 @@ LABEL_7:
         --palettes_lightning_flash_color_index;
         timer_lightning_frame_duration = 4;
       }
-      v4 = kGlobalPalettes_BowserLightningFlash[v3];
+      v4 = kGlobalPalettes_OW_Sprites[0x31 + v3];
       goto LABEL_10;
     }
   }

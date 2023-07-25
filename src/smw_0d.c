@@ -302,14 +302,14 @@ void (*kProcessGrasslandObjects_GrasslandPtrs[63])(uint8 k) = {
     &StdObj1F_SkinnyVerticalPipeBoneLog,
     &StdObj20_SkinnyHorizontalPipeBoneLog,
     &StdObj21_WideScaleGroundLedge,
-    &RopeObj2E_Unused,
-    &RopeObj2E_Unused,
-    &RopeObj2E_Unused,
-    &RopeObj2E_Unused,
-    &RopeObj2E_Unused,
-    &RopeObj2E_Unused,
-    &RopeObj2E_Unused,
-    &RopeObj2E_Unused,
+    &LmStdObj22_DirectMap16,
+    &LmStdObj23,
+    &LmStdObj24,
+    &LmStdObj25,
+    &LmStdObj26_MusicBypass,
+    &LmStdObj27,
+    &LmStdObj28,
+    &LmStdObj29,
     &RopeObj2E_Unused,
     &RopeObj2E_Unused,
     &RopeObj2E_Unused,
@@ -374,14 +374,14 @@ void (*kProcessCastleObjects_CastlePtrs[63])(uint8 k) = {
     &StdObj1F_SkinnyVerticalPipeBoneLog,
     &StdObj20_SkinnyHorizontalPipeBoneLog,
     &StdObj21_WideScaleGroundLedge,
-    &RopeObj2E_Unused,
-    &RopeObj2E_Unused,
-    &RopeObj2E_Unused,
-    &RopeObj2E_Unused,
-    &RopeObj2E_Unused,
-    &RopeObj2E_Unused,
-    &RopeObj2E_Unused,
-    &RopeObj2E_Unused,
+    &LmStdObj22_DirectMap16,
+    &LmStdObj23,
+    &LmStdObj24,
+    &LmStdObj25,
+    &LmStdObj26_MusicBypass,
+    &LmStdObj27,
+    &LmStdObj28,
+    &LmStdObj29,
     &RopeObj2E_Unused,
     &RopeObj2E_Unused,
     &RopeObj2E_Unused,
@@ -443,14 +443,14 @@ void (*kProcessRopeObjects_RopePtrs[63])(uint8 k) = {
     &StdObj1F_SkinnyVerticalPipeBoneLog,
     &StdObj20_SkinnyHorizontalPipeBoneLog,
     &StdObj21_WideScaleGroundLedge,
-    &RopeObj2E_Unused,
-    &RopeObj2E_Unused,
-    &RopeObj2E_Unused,
-    &RopeObj2E_Unused,
-    &RopeObj2E_Unused,
-    &RopeObj2E_Unused,
-    &RopeObj2E_Unused,
-    &RopeObj2E_Unused,
+    &LmStdObj22_DirectMap16,
+    &LmStdObj23,
+    &LmStdObj24,
+    &LmStdObj25,
+    &LmStdObj26_MusicBypass,
+    &LmStdObj27,
+    &LmStdObj28,
+    &LmStdObj29,
     &RopeObj2E_Unused,
     &RopeObj2E_Unused,
     &RopeObj2E_Unused,
@@ -516,14 +516,14 @@ void (*kProcessUndergroundObjects_UndergroundPtrs[63])(uint8 k) = {
     &StdObj1F_SkinnyVerticalPipeBoneLog,
     &StdObj20_SkinnyHorizontalPipeBoneLog,
     &StdObj21_WideScaleGroundLedge,
-    &RopeObj2E_Unused,
-    &RopeObj2E_Unused,
-    &RopeObj2E_Unused,
-    &RopeObj2E_Unused,
-    &RopeObj2E_Unused,
-    &RopeObj2E_Unused,
-    &RopeObj2E_Unused,
-    &RopeObj2E_Unused,
+    &LmStdObj22_DirectMap16,
+    &LmStdObj23,
+    &LmStdObj24,
+    &LmStdObj25,
+    &LmStdObj26_MusicBypass,
+    &LmStdObj27,
+    &LmStdObj28,
+    &LmStdObj29,
     &RopeObj2E_Unused,
     &RopeObj2E_Unused,
     &RopeObj2E_Unused,
@@ -591,14 +591,14 @@ void (*kProcessGhostHouseObjects_GhostHousePtrs[63])(uint8 k) = {
     &StdObj1F_SkinnyVerticalPipeBoneLog,
     &StdObj20_SkinnyHorizontalPipeBoneLog,
     &StdObj21_WideScaleGroundLedge,
-    &RopeObj2E_Unused,
-    &RopeObj2E_Unused,
-    &RopeObj2E_Unused,
-    &RopeObj2E_Unused,
-    &RopeObj2E_Unused,
-    &RopeObj2E_Unused,
-    &RopeObj2E_Unused,
-    &RopeObj2E_Unused,
+    &LmStdObj22_DirectMap16,
+    &LmStdObj23,
+    &LmStdObj24,
+    &LmStdObj25,
+    &LmStdObj26_MusicBypass,
+    &LmStdObj27,
+    &LmStdObj28,
+    &LmStdObj29,
     &RopeObj2E_Unused,
     &RopeObj2E_Unused,
     &RopeObj2E_Unused,
@@ -774,8 +774,13 @@ void ExtObj00_ScreenExit(uint8 k) {  // 0da512
   blocks_object_number = *ptr_layer1_data++;
   uint8 v2 = loadlvl_R10 & 0x1F;
   misc_subscreen_exit_entrance_number_lo[v2] = blocks_object_number;
-  misc_subscreen_exit_properties[v2] = loadlvl_R11 & 1;
-  flag_use_secondary_entrance = loadlvl_R11 >> 1;
+  if (g_lunar_magic) {
+    misc_subscreen_exit_properties[v2] = loadlvl_R11 & 0xf;
+    flag_use_secondary_entrance = (loadlvl_R11 >> 1) & 1;
+  } else {
+    misc_subscreen_exit_properties[v2] = loadlvl_R11 & 1;
+    flag_use_secondary_entrance = loadlvl_R11 >> 1;
+  }
 }
 
 void ExtObj01_ScreenJump(uint8 k) {  // 0da53d
@@ -1049,7 +1054,7 @@ uint8 HandleHorizontalSubScreenCrossingForCurrentObject(uint8 j, uint8 a) {  // 
 uint8 HandleHorizontalSubScreenCrossingForCurrentObject_Entry2(uint8 j) {  // 0da95d
   uint8 result = j + 1;
   if ((result & 0xF) == 0) {
-    ptr_lo_map16_data += 0x1b0;
+    ptr_lo_map16_data += (g_lunar_magic ? lm_level_height : 0x1b0);
     ++blocks_screen_to_place_next_object;
     result = blocks_sub_scr_pos & 0xF0;
   }
@@ -1098,13 +1103,13 @@ uint8 GoDownRightAndUpdateLevelDataPointerInObjects() {  // 0da9b4
 }
 
 void GoBackOneScreenAndUpdateLevelDataPointerInObjects() {  // 0da9d6
-  ptr_lo_map16_data -= 0x1b0;
+  ptr_lo_map16_data -= (g_lunar_magic ? lm_level_height : 0x1b0);
   ptr_lo_map16_data_bak = ptr_lo_map16_data;
   --blocks_screen_to_place_next_object;
 }
 
 void GoForwardOneScreenAndUpdateLevelDataPointerInObjects() {  // 0da9ef
-  ptr_lo_map16_data += 0x1b0;
+  ptr_lo_map16_data += (g_lunar_magic ? lm_level_height : 0x1b0);
   ptr_lo_map16_data_bak = ptr_lo_map16_data;
   ++blocks_screen_to_place_next_object;
 }

@@ -826,19 +826,41 @@ static void HandleGamepadAxisInput(int gamepad_id, int axis, int value) {
 const uint8 *g_asset_ptrs[kNumberOfAssets];
 uint32 g_asset_sizes[kNumberOfAssets];
 
-static void LoadAssets() {
-  size_t length = 0;
-  uint8 *data = ReadWholeFile("assets/smw_assets.dat", &length);
-  if (!data)
-    data = ReadWholeFile("smw_assets.dat", &length);
-  if (!data) Die("Failed to read smw_assets.dat. Please see the README for information about how you get this file.");
-
+static bool VerifyAssetsFile(const uint8 *data, size_t length) {
   static const char kAssetsSig[] = { kAssets_Sig };
-
   if (length < 16 + 32 + 32 + 8 + kNumberOfAssets * 4 ||
     memcmp(data, kAssetsSig, 48) != 0 ||
-    *(uint32*)(data + 80) != kNumberOfAssets)
-    Die("Invalid assets file");
+    *(uint32 *)(data + 80) != kNumberOfAssets)
+    return false;
+  return true;
+}
+
+static const char *kAssetFileCandidates[] = {
+  "smw_assets.dat",
+  "assets/smw_assets.dat"
+};
+
+static void LoadAssets() {
+  const char *verify_failed = NULL;
+
+  size_t length = 0;
+  uint8 *data = NULL;
+  for (int i = 0; i < 2 && data == NULL; i++) {
+    data = ReadWholeFile(kAssetFileCandidates[i], &length);
+    if (data && !VerifyAssetsFile(data, length)) {
+      verify_failed = kAssetFileCandidates[i];
+      free(data);
+      data = NULL;
+    }
+  }
+
+  if (!data) {
+    if (verify_failed)
+      Die("Invalid assets file - Please re run 'python assets/restool.py'");
+    else
+      Die("Failed to read smw_assets.dat. Please see the README for information about how you get this file.");
+  }
+  
 
   uint32 offset = 88 + kNumberOfAssets * 4 + *(uint32 *)(data + 84);
 
@@ -855,6 +877,10 @@ static void LoadAssets() {
 
 MemBlk FindInAssetArray(int asset, int idx) {
   return FindIndexInMemblk((MemBlk) { g_asset_ptrs[asset], g_asset_sizes[asset] }, idx);
+}
+
+const uint8 *FindPtrInAsset(int asset, uint32 addr) {
+  return FindAddrInMemblk((MemBlk){g_asset_ptrs[asset], g_asset_sizes[asset]}, addr);
 }
 
 // Go some steps up and find smw.ini

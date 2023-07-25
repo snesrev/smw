@@ -243,7 +243,7 @@ void (*kSprStatus08SpriteNormalPtrs[201])(uint8 k) = {
     &Spr018_SurfaceJumpingCheepCheep,
     &Spr03E_PSwitch,
     &Spr01A_ClassicPiranhaPlant,
-    &Spr0A0_ActivateBowserBattle,
+    &HandleExtraSprites,
     &Spr01C_BulletBill,
     &Spr01D_HoppingFlame,
     &Spr01E_Lakitu,
@@ -297,7 +297,7 @@ void (*kSprStatus08SpriteNormalPtrs[201])(uint8 k) = {
     &Spr04E_LedgeMontyMole,
     &Spr04F_JumpingPiranhaPlant,
     &Spr04F_JumpingPiranhaPlant,
-    &Spr0A0_ActivateBowserBattle,
+    &HandleExtraSprites,
     &Spr052_MovingLedgeHole,
     &SprStatus08_Return,
     &Spr054_ClimbingNetDoor,
@@ -338,9 +338,9 @@ void (*kSprStatus08SpriteNormalPtrs[201])(uint8 k) = {
     &Spr077_Feather,
     &SprXXX_PowerUps_StarEntry,
     &Spr079_VineHead,
-    &Spr0A0_ActivateBowserBattle,
+    &HandleExtraSprites,
     &Spr07B_GoalTape,
-    &Spr0A0_ActivateBowserBattle,
+    &HandleExtraSprites,
     &Spr080_Key,
     &Spr080_Key,
     &Spr080_Key,
@@ -376,47 +376,47 @@ void (*kSprStatus08SpriteNormalPtrs[201])(uint8 k) = {
     &Spr09D_BubbleWithSprite,
     &Spr09E_BallNChain,
     &Spr09E_BallNChain,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
     &Spr09E_BallNChain,
     &SprXXX_BuoyantPlatformsAndMine_SpikeBallEntry,
     &Spr0A5_Sparky,
     &Spr0A5_Sparky,
     &Spr0A7_IggyBall,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
     &SprXXX_NonBossBoos_BooEntry,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
     &Spr0B4_NonLineGuideGrinder,
     &Spr033_Podoboo,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
 
 };
 
@@ -2044,39 +2044,35 @@ uint8 HandleNormalSpriteLevelColl_01944D(uint8 k, uint8 j, PointU16 *pt_out) {  
       pt_out->x = GetSprXPos(k) + kHandleNormalSpriteLevelColl_SpriteObjClippingX[j];
       if ((pt_out->x >> 8) < 2) {
         r0 |= (uint8)pt_out->x >> 4;
-        uint8 v4 = kLevelDataLayoutTables_EightBitLo_Vertical[r13];
-        uint8 v5 = kLevelDataLayoutTables_EightBitHi_Vertical[r13];
-        if (misc_scratch7e185e) {
-          v4 = kLevelDataLayoutTables_EightBitLo_Vertical[r13 + 14];
-          v5 = kLevelDataLayoutTables_EightBitHi_Vertical[r13 + 14];
-        }
-        return HandleNormalSpriteLevelColl_019523(PAIR16(pt_out->x >> 8, r0) + PAIR16(v5, v4));
+        uint16 pp = GetLevelLayoutPtr_Vertical(r13 + (misc_scratch7e185e ? 14 : 0));
+        return HandleNormalSpriteLevelColl_019523(pp + PAIR16(pt_out->x >> 8, r0));
       }
     }
 LABEL_9:
-    blocks_currently_processed_map16_tile_lo = 0;
     sprites_distance_to_snap_down_to_nearest_tile = 0;
+    if (HAS_LM_FEATURE(kLmFeature_EnemyCollTweak)) {
+      blocks_currently_processed_map16_tile_lo = lm_word_7E145E & 4 ? 0x25 : 0;
+    } else {
+      blocks_currently_processed_map16_tile_lo = 0;
+    }
     return 0;
   }
   uint16 r12w = GetSprYPos(k) + kHandleNormalSpriteLevelColl_SpriteObjClippingY[j];
   pt_out->y = r12w;
-  if (r12w >= 0x1B0)
+  if (r12w >= (g_lunar_magic ? lm_level_height : 0x1B0))
     goto LABEL_9;
   pt_out->x = GetSprXPos(k) + kHandleNormalSpriteLevelColl_SpriteObjClippingX[j];
   int xx = pt_out->x >> 8;
   if ((int8)xx < 0 || (uint8)xx >= misc_screens_in_lvl)
     goto LABEL_9;
   uint8 r0 = (r12w & 0xF0) | ((uint8)pt_out->x >> 4);
-  uint16 v10 = PAIR16(kLevelDataLayoutTables_EightBitHi_Horizontal[xx], kLevelDataLayoutTables_EightBitLo_Horizontal[xx]);
-  if (misc_scratch7e185e) {
-    v10 = PAIR16(kLevelDataLayoutTables_EightBitHi_Horizontal[xx + 16], kLevelDataLayoutTables_EightBitLo_Horizontal[xx + 16]);
-  }
+  uint16 v10 = GetLevelLayoutPtr_Horizontal(xx + (misc_scratch7e185e ? 16 : 0));
   return HandleNormalSpriteLevelColl_019523(PAIR16(r12w >> 8, r0) + v10);
 }
 
 uint8 HandleNormalSpriteLevelColl_019523(uint16 r5) {  // 019523
   blocks_currently_processed_map16_tile_lo = g_ram[r5];
-  return ModifyMap16IDForSpecialBlocks(g_ram[r5+0x10000]);
+  return LmHook_ModifyMap16IDForSpecialBlocks(g_ram[r5 + 0x10000]);
 }
 
 void SprStatus09_Stunned(uint8 k) {  // 01953c
@@ -3695,8 +3691,9 @@ void SubOffscreen_Bank01_01AC33(uint8 k, uint8 r3) {  // 01ac33
         }
       }
     } else {
-      uint16 y = GetSprYPos(k) + 80;
-      if (!sign8((y >> 8) - 2)) {
+      uint16 y = GetSprYPos(k);
+      bool want_erase = g_lunar_magic ? LmHook_WantEraseSprite(k, y) : !sign8(((y + 80) >> 8) - 2);
+      if (want_erase) {
         SubOffscreen_Bank01_EraseSprite(k);
       } else if ((spr_property_bits167a[k] & 4) == 0) {
         uint8 v4 = r3 | counter_global_frames & 1;
@@ -5134,9 +5131,11 @@ void Spr07B_GoalTape_Init(uint8 k) {  // 01c075
   SetHiLo(&spr_table151c[k], &spr_table00c2[k], GetSprXPos(k) - 8);
   spr_table1528[k] = spr_ypos_lo[k];
   uint8 v2 = spr_ypos_hi[k];
-  spr_table187b[k] = v2;
-  v2 &= 1;
-  spr_ypos_hi[k] = v2;
+  if (!g_lunar_magic) {
+    spr_table187b[k] = v2;
+    v2 &= 1;
+    spr_ypos_hi[k] = v2;
+  }
   spr_table1534[k] = v2;
 }
 
@@ -6798,9 +6797,9 @@ uint8 SprXXX_LineGuided_01D94D(uint16 r0w, uint16 r2w) {  // 01d94d
   uint8 v3 = r0w & 0xF0 | (r2 >> 4);
   uint16 r5;
   if ((misc_level_layout_flags & 1) != 0) {
-    r5 = PAIR16(kLevelDataLayoutTables_EightBitHi_Vertical[r0w >> 8], kLevelDataLayoutTables_EightBitLo_Vertical[r0w >> 8]) + PAIR16(r2w >> 8, v3);
+    r5 = GetLevelLayoutPtr_Vertical(r0w >> 8) + PAIR16(r2w >> 8, v3);
   } else {
-    r5 = PAIR16(kLevelDataLayoutTables_EightBitHi_Horizontal[r2w >> 8], kLevelDataLayoutTables_EightBitLo_Horizontal[r2w >> 8]) + PAIR16(r0w >> 8, v3);
+    r5 = GetLevelLayoutPtr_Horizontal(r2w >> 8) + PAIR16(r0w >> 8, v3);
   }
   blocks_currently_processed_map16_tile_lo = g_ram[r5];
   return kSprXXX_LineGuided_DATA_018000[v4 & 7] & g_ram[r5 + 0x10000];

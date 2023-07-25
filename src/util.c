@@ -208,3 +208,32 @@ MemBlk FindIndexInMemblk(MemBlk data, size_t i) {
     return (MemBlk) { 0, 0 };
   return (MemBlk) { data.ptr + left_off, right_off - left_off };
 }
+
+const uint8 *FindAddrInMemblk(MemBlk data, uint32 addr) {
+  if (data.size < 2)
+    return 0;  // sanity check
+  // std::lower_bound
+  int count = *(uint16 *)data.ptr, count_org = count;
+  if (data.size < 2 + count * 6)
+    return 0;  // sanity check
+  const uint8 *first = data.ptr + 2;
+  while (count) {
+    const uint8 *it = first;
+    int step = count >> 1;
+    it += step * 3;
+    if ((*(uint32 *)it & 0xffffff) < addr) {
+      first = it + 3;
+      count -= step + 1;
+    } else {
+      count = step;
+    }
+  }
+  if (first >= data.ptr + 2 + count_org * 3 || (*(uint32 *)first & 0xffffff) != addr)
+    first -= 3;
+  uint32 src_off = *(uint32 *)first & 0xffffff;
+  uint32 offset = *(uint32 *)(first + count_org * 3) & 0xffffff;
+  offset += addr - src_off;
+  if (offset >= data.size)
+    return 0;
+  return data.ptr + offset;
+}
