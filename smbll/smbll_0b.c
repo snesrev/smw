@@ -1762,7 +1762,7 @@ void Smbll_DrawToadAndRelatedSprites_Func17() {
   *(uint16 *)&vram_buffer1[8] = 30;
   *(uint16 *)&vram_buffer1[10] = 28;
   *(uint16 *)&vram_buffer1[12] = 17;
-  strcpy((int8 *)&vram_buffer1[14], "(");
+  *(uint16 *)&vram_buffer1[14] = 40;
   *(uint16 *)&vram_buffer1[16] = 28;
   *(uint16 *)&vram_buffer1[18] = 29;
   *(uint16 *)&vram_buffer1[20] = 10;
