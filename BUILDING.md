@@ -103,7 +103,7 @@ Dependencies and requirements:
   * The `switch-sdl2` library
   * [DevKitPro](https://github.com/devkitPro/installer)
   * [Atmosphere](https://github.com/Atmosphere-NX/Atmosphere)
-  * `pk-config`
+  * `pkg-config`
   
 1. Make sure you've installed Atmosphere on your Switch.
 2. Please download the DevKitPro version of MSYS2 through their installer, as the default MSYS2 causes issues with windows compiling.
