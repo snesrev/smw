@@ -2135,7 +2135,8 @@ void GameMode0C_LoadOverworld() {  // 00a087
   ClearOverworldAndCutsceneRAM();
   if (misc_intro_level_flag) {
     timer_title_screen_input_timer = -80;
-    ow_players_map[0] = 0;
+    if (!HAS_LM_FEATURE(kLmFeature_DontResetOwPlayersMap))
+      ow_players_map[0] = 0;
     mirror_mosaic_size_and_bgenable = -16;
     misc_game_mode = 16;
     return;
@@ -2710,8 +2711,9 @@ void UploadGraphicsFiles_UploadGFXFile(uint16 dst_addr, uint8 j, uint8 index) { 
   }
 
   bool lm_flag = HAS_LM_FEATURE(kLmFeature_4bppgfx);
+  bool lm_flag2 = HAS_LM_FEATURE(kLmFeature_NonStdGfxAA8D);
 
-  if (misc_level_tileset_setting >= 0x11 && j == (lm_flag ? 0x32 : 8) || j == (lm_flag ? 0x32 : 30)) {
+  if (misc_level_tileset_setting >= 0x11 && j == (lm_flag2 ? 0x32 : 8) || j == (lm_flag2 ? 0x32 : 30)) {
     uint16 r10w = -256;
     for (int8 i = 127; i >= 0; --i) {
       for (int8 k = 7; k >= 0; --k) {
@@ -2720,11 +2722,12 @@ void UploadGraphicsFiles_UploadGFXFile(uint16 dst_addr, uint8 j, uint8 index) { 
         *(uint16 *)&graphics_3_bppto4_bppbuffer[(uint8)k] = WORD(p0[0]) | swap16(v11);
         p0 += 2;
       }
+      int step = lm_flag ? 2 : 1;
       for (int8 m = 7; m >= 0; --m) {
         const uint8 *v14 = p0;
         uint16 r12w = *v14;
         *dst++ = r12w | r10w & (*(uint16 *)&graphics_3_bppto4_bppbuffer[(uint8)m] | swap16(*(uint16 *)v14));
-        p0 += 1;
+        p0 += step;
       }
     }
   } else {
@@ -4267,7 +4270,8 @@ void PlayerState09_Death() {  // 00d0b6
     if (!flag_prevent_yoshi_carry_over)
       yoshi_carry_over_levels_flag = 0;
     if ((--player_current_life_count & 0x80) == 0) {
-      if (counter_timer_ones | counter_timer_tens | counter_timer_hundreds) {
+      if (HAS_LM_FEATURE(kLmFeature_TimerTweaks) && lm_timer_var != 0 || 
+          counter_timer_ones | counter_timer_tens | counter_timer_hundreds) {
         misc_game_mode = 11;
         return;
       }

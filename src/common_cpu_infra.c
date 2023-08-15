@@ -279,6 +279,7 @@ Snes *SnesInit(const uint8 *data, int data_size) {
       }
     }
     g_rtl_game_info->initialize();
+    snes_reset(g_snes, true); // reset after loading
     PatchBugs(1, 0);
   } else {
     g_runmode = RM_MINE;

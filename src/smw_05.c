@@ -594,6 +594,8 @@ void LoadLevelHeader() {  // 0584e3
   r0 = hdr[3];
   if (!counter_sublevels_entered) {
     counter_timer_hundreds = kLoadLevelHeader_TimerTable[r0 >> 6];
+    if (HAS_LM_FEATURE(kLmFeature_TimerTweaks))
+      lm_timer_var = counter_timer_hundreds;
     counter_timer_tens = 0;
     counter_timer_ones = 0;
   }

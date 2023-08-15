@@ -741,9 +741,20 @@ LABEL_11:
 }
 
 void OwProcess02_HandleLevelBeaten() {  // 048f87
-  UnlockOverworldPathBasedOnExit();
+  uint16 r4 = UnlockOverworldPathBasedOnExit();
   uint8 v0 = 7;
-  while ((uint8)ow_tile_player_is_standing_on != kOwTriggerSaveTiles_048F7F[v0]) {
+  uint8 a = (uint8)ow_tile_player_is_standing_on;
+
+  if (g_lunar_magic) {
+    if (ow_level_tile_settings[ow_level_number_of_each_tiletbl[r4]] & 0x10) {
+      a = 0x80;
+    } else {
+      if (HAS_LM_FEATURE(kLmFeature_NoDefaultSavePrompts))
+        a = 0xff;
+    }
+  }
+
+  while (a != kOwTriggerSaveTiles_048F7F[v0]) {
     if ((--v0 & 0x80) != 0)
       goto LABEL_10;
   }
@@ -1279,27 +1290,29 @@ void OwProcess0C_IntroMarch() {  // 0498c6
   }
 }
 
-void UnlockOverworldPathBasedOnExit() {  // 049903
-  if ((int8)misc_exit_level_action > 0) {
-    uint16 r8 = kSharedOverworldPathTables_DATA_049060[(uint8)(misc_exit_level_action - 1)];
-    uint8 v0 = player_current_characterx4;
-    PointU16 *pt = get_PointU16(ow_players_pos, player_current_characterx4);
-    uint16 r0w = pt->x >> 4;
-    PointU16 *v2 = get_PointU16(ow_players_grid_aligned_pos, player_current_characterx4);
-    v2->x = r0w;
-    uint16 r2w = pt->y >> 4;
-    v2->y = r2w;
-    uint16 r4w = CalculateOverworldPlayerPosition(v0 >> 2, r0w, r2w);
-    uint16 v3 = ow_level_direction_flags[r4w];
-    int16 v4 = r8;
-    if (r8) {
-      do {
-        v3 >>= 1;
-        --v4;
-      } while (v4 >= 0);
-    }
-    *(uint16 *)&ow_level_tile_settings[ow_level_number_of_each_tiletbl[r4w]] |= kBitTable_Bank04[(uint16)(2 * (v3 & 3)) >> 1];
+uint16 UnlockOverworldPathBasedOnExit() {  // 049903
+  if ((int8)misc_exit_level_action <= 0)
+    return 0;
+
+  uint16 r8 = kSharedOverworldPathTables_DATA_049060[(uint8)(misc_exit_level_action - 1)];
+  uint8 v0 = player_current_characterx4;
+  PointU16 *pt = get_PointU16(ow_players_pos, player_current_characterx4);
+  uint16 r0w = pt->x >> 4;
+  PointU16 *v2 = get_PointU16(ow_players_grid_aligned_pos, player_current_characterx4);
+  v2->x = r0w;
+  uint16 r2w = pt->y >> 4;
+  v2->y = r2w;
+  uint16 r4w = CalculateOverworldPlayerPosition(v0 >> 2, r0w, r2w);
+  uint16 v3 = ow_level_direction_flags[r4w];
+  int16 v4 = r8;
+  if (r8) {
+    do {
+      v3 >>= 1;
+      --v4;
+    } while (v4 >= 0);
   }
+  *(uint16 *)&ow_level_tile_settings[ow_level_number_of_each_tiletbl[r4w]] |= kBitTable_Bank04[(uint16)(2 * (v3 & 3)) >> 1];
+  return r4w;
 }
 
 void HandleOverworldPathExits() {  // 049a24
@@ -2043,7 +2056,7 @@ void OwEventProcess07_SilentEventsAndEndOfEvent_Entry2(uint8 a, bool from_where)
   if (HAS_LM_FEATURE(kLmFeature_EventStuff)) {
     LmHook_EventStuff(a, from_where);
   } else {
-    for (uint8 i = 43; (i & 0x80) == 0; --i) {
+    for (uint8 i = kOwEventProcess07_SilentEventsAndEndOfEvent_SilentEventTiles_SIZE - 1; (i & 0x80) == 0; --i) {
       if (a == kOwEventProcess07_SilentEventsAndEndOfEvent_SilentEventTiles[i]) {
         uint8 v4 = i;
         uint8 r2 = kOwEventProcess07_SilentEventsAndEndOfEvent_SilentEventTiles_TileLayer[i];

@@ -1534,7 +1534,7 @@ void SubmapSwitchProcess01_UpdateLayer1(void);
 void SubmapSwitchProcess05_UpdatePalette(void);
 void SubmapSwitchProcess06_EndWindowHDMA(void);
 void SubmapSwitchProcess07_EndSubmapSwitch(void);
-void UnlockOverworldPathBasedOnExit(void);
+uint16 UnlockOverworldPathBasedOnExit(void);
 uint16 UpdateLevelName_049D7F(uint16 j, uint16 k, uint16 r2w);
 void UpdateLevelName(uint16 r0w);
 void UpdateOverworldSpritePosition(uint8 k);
@@ -2114,6 +2114,10 @@ enum {
   kLmFeature_TideWaterTweak = 1 << 18,
   kLmFeature_EnemyCollTweak = 1 << 19,
   kLmFeature_Ow4bppGfx = 1 << 20,
+  kLmFeature_DontResetOwPlayersMap = 1 << 21,
+  kLmFeature_NonStdGfxAA8D = 1 << 22,
+  kLmFeature_TimerTweaks = 1 << 23,
+  kLmFeature_NoDefaultSavePrompts = 1 << 24,
 };
 
 // Non lunar magic hacks

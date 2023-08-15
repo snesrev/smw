@@ -52,6 +52,7 @@ kHackInfo = {
   'enhanced' : ('Super Mario World Enhanced.ips', '2882a39ac64b597e9260e92aaba610d0b6f03adb', 'Super Mario World Enhanced.bsdiff', '5a53369916fd728033d16db3abceb487900f903a', 'ebe23d8a26759ba1b5c2f4d6d8f8db3ab88e902f'),
   'redrawn' : ('smw_redrawn.ips', '7168df51ba025a12177ce00e88540c1341ef3efc', 'smw_redrawn.bsdiff', '13b658e626020aa35dca4e1c3648c6a6d8afa901', '50702ffc8c2e7115c9ba0c80c8ec40da5a487651'),
   'nsmb' : ('SMW with Levels from NSMB.bps', '4277edf003340021ce4e68fe2278d1d73f4d798c', 'SMW with Levels from NSMB.bsdiff', 'e2d2487324374aea1d67a6aa6b3b47f8b3e6727c', '877e9c6fce29e80e4c52892120af06748550487a'),
+  'return_dino_land' : ('Return to Dinosaur Land.bps', 'e9a891ecd0f6f43a4592487ca2590311be00396d', 'Return to Dinosaur Land.bsdiff', 'ad2ebd7b416cbfd3cd7cac833b0ca7f690b9144b', '1d03777086f3c86b1693f9ce2411f560813732a8')
 }
 kModsPath = os.path.join(DEFAULT_ROM_DIRECTORY, '../smw_hacks/mods')
 

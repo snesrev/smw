@@ -751,14 +751,16 @@ static void cpu_doOpcode(Cpu* cpu, uint8_t opcode) {
   pc_hist[pc_hist_ctr] = cur_pc;
   pc_hist_ctr = (pc_hist_ctr + 1) & 15;
   
-  if (0 && cur_pc == 0x5D83B) {
+  if (cur_pc == 0x3FDE0) {
+    DumpCpuHistory();
     g_snes->debug_cycles = 0;
   }
 
   if (cur_pc == pc_bp) {
-    printf("Reached BP 0x%x. A=0x%.2x, X=0x%.2x, Y=0x%.2x. C=%d. lm_var13CD=%x\n", 
-      cur_pc, cpu->a, cpu->x, cpu->y, cpu->c,
-      *(uint16*)&g_ram[14]);
+    printf("Reached BP 0x%x. A=0x%.2x, X=0x%.2x, Y=0x%.2x. C=0x%.2x,0x%.2x\n", 
+      cur_pc, cpu->a, cpu->x, cpu->y, 
+      g_ram[0xbcee],
+      g_ram[0xad10]);
 //    printf("T: 16 j=%d, %d\n", g_cpu->y, g_cpu->a);
     bp_cnt += 1;
     //g_snes->debug_cycles = 1;
@@ -776,7 +778,7 @@ restart:
         break;
       case 2: // rtl
         cpu->pc = cpu_pullWord(cpu) + 1;
-        cpu->k = cpu_pullByte(cpu);
+        cpu->k = cpu_pullByte(cpu) & 0x7f;
         break;
       case 0xe5:
       case 0xe9:
@@ -1002,7 +1004,7 @@ restart:
       cpu_pushByte(cpu, cpu->k);
       cpu_pushWord(cpu, cpu->pc - 1);
       cpu->pc = value;
-      cpu->k = newK;
+      cpu->k = newK & 0x7f;
       break;
     }
     case 0x23: { // and sr
@@ -1378,7 +1380,7 @@ restart:
         DumpCpuHistory();
         Die("The game has crashed!\n");
       }
-      cpu->k = new_k;
+      cpu->k = new_k & 0x7f;
       cpu->pc = value;
       break;
     }
@@ -1488,7 +1490,7 @@ restart:
       }
 
       cpu->pc = cpu_pullWord(cpu) + 1;
-      cpu->k = cpu_pullByte(cpu);
+      cpu->k = cpu_pullByte(cpu) & 0x7f;
       break;
     }
     case 0x6c: { // jmp ind
@@ -2175,7 +2177,7 @@ restart:
     case 0xdc: { // jml ial
       uint16_t adr = cpu_readOpcodeWord(cpu);
       cpu->pc = cpu_readWord(cpu, adr, (adr + 1) & 0xffff);
-      cpu->k = cpu_read(cpu, (adr + 2) & 0xffff);
+      cpu->k = cpu_read(cpu, (adr + 2) & 0xffff) & 0x7f;
       break;
     }
     case 0xdd: { // cmp abx(r)

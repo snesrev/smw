@@ -1048,4 +1048,6 @@ typedef struct ExAnimationInfo {
 
 #define lm_title_screen_var (*(uint16 *)(g_ram + 0x1fffe))
 
+#define lm_timer_var (*(uint8 *)(g_ram + 0x1ffe0))
+
 extern bool g_lunar_magic;

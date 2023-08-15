@@ -235,6 +235,10 @@ kLmFeature_MusicRegTweak = 1 << 17
 kLmFeature_TideWaterTweak = 1 << 18
 kLmFeature_EnemyCollTweak = 1 << 19
 kLmFeature_Ow4bppGfx = 1 << 20
+kLmFeature_DontResetOwPlayersMap = 1 << 21
+kLmFeature_NonStdGfxAA8D = 1 << 22 
+kLmFeature_TimerTweaks = 1 << 23
+kLmFeature_NoDefaultSavePrompts = 1 << 24
 
 kHack_Walljump = 1 << 0
 
@@ -734,10 +738,15 @@ def print_all(args):
   lm_feat.flags |= kLmFeature_TideWaterTweak if get_byte(0xa045) == 0x22 else 0
   lm_feat.flags |= kLmFeature_EnemyCollTweak if get_byte(0x194B6) == 0x5c else 0
   lm_feat.flags |= kLmFeature_Ow4bppGfx if get_bytes(0xA149, 4) != b'\x22\x28\xBA\x00' else 0
+  lm_feat.flags |= kLmFeature_DontResetOwPlayersMap if get_byte(0xa0a0) == 0xea else 0
+  lm_feat.flags |= kLmFeature_NonStdGfxAA8D if get_byte(0xAA8D) != 0x08 else 0
+  lm_feat.flags |= kLmFeature_TimerTweaks if get_byte(0x58E24) == 0x8f else 0
+  lm_feat.flags |= kLmFeature_NoDefaultSavePrompts if get_byte(0x3BA26) == 0 else 0
+
 
   #  Allows Mario to perform a wall kick by sliding along a wall and pressing the
   # B button.
-  lm_feat.hacks |= kHack_Walljump if get_24(0xA2A2) != 0x586F1 else 0
+  lm_feat.hacks |= kHack_Walljump if get_24(0xA2A1) != 0x86F122 else 0
   
   def add_custom_ow_palette():
     r = b''

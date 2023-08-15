@@ -245,6 +245,17 @@ void SmwCpuInitialize(void) {
       static const uint8 kRevert_0x2e6ec[] = { 0xa9, 0x38, 0x9d, 0xea, 0x15 };
       memcpy(SnesRomPtr(0x2e6ec), kRevert_0x2e6ec, sizeof(kRevert_0x2e6ec));
     }
+
+    // fast rom
+    static const uint8 kRevert_0xfffc[] = { 0x00, 0x80 };
+    memcpy(SnesRomPtr(0xfffc), kRevert_0xfffc, sizeof(kRevert_0xfffc));
+    static const uint8 kRevert_0xffea[] = { 0x6a, 0x81 };
+    memcpy(SnesRomPtr(0xffea), kRevert_0xffea, sizeof(kRevert_0xffea));
+    static const uint8 kRevert_0x801c[] = { 0xfb };
+    memcpy(SnesRomPtr(0x801c), kRevert_0x801c, sizeof(kRevert_0x801c));
+    static const uint8 kRevert_0x8713[] = { 0xb7, 0x02, 0x85, 0x01 };
+    memcpy(SnesRomPtr(0x8713), kRevert_0x8713, sizeof(kRevert_0x8713));
+
   }
 }
 
