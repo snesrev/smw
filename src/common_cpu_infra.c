@@ -285,7 +285,7 @@ Snes *SnesInit(const uint8 *data, int data_size) {
     g_snes->cart->ramSize = 2048;
     g_snes->cart->ram = calloc(1, 2048);
     g_rtl_game_info = &kSmwGameInfo;
-
+    g_rtl_game_info->initialize();
     ppu_reset(g_snes->ppu);
     dma_reset(g_snes->dma);
   }
