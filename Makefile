@@ -17,7 +17,7 @@ endif
 
 .PHONY: all clean clean_obj
 
-all: $(TARGET_EXEC) assets/smw_assets.dat
+all: $(TARGET_EXEC) smw_assets.dat
 $(TARGET_EXEC): $(OBJS) $(RES)
 	$(CC) $^ -o $@ $(LDFLAGS) $(SDLFLAGS)
 
@@ -28,7 +28,7 @@ $(TARGET_EXEC): $(OBJS) $(RES)
 #	@echo "Generating Windows resources"
 #	@$(WINDRES) $< -O coff -o $@
 
-assets/smw_assets.dat:
+smw_assets.dat:
 	@echo "Extracting game resources"
 	$(PYTHON) assets/restool.py
 
