@@ -902,27 +902,33 @@ static const char *kAssetFileCandidates[] = {
 };
 
 static void LoadAssets() {
-  const char *verify_failed = NULL;
-
   size_t length = 0;
   uint8 *data = NULL;
-  for (int i = 0; i < 2 && data == NULL; i++) {
+  for (int i = 0; i < 2 && data == NULL; i++)
     data = ReadWholeFile(kAssetFileCandidates[i], &length);
-    if (data && !VerifyAssetsFile(data, length)) {
-      verify_failed = kAssetFileCandidates[i];
-      free(data);
-      data = NULL;
-    }
-  }
 
   if (!data) {
-    if (verify_failed)
-      Die("Invalid assets file - Please re run 'python assets/restool.py'");
-    else
-      Die("Failed to read smw_assets.dat. Please see the README for information about how you get this file.");
-  }
-  
+    size_t bps_length, bps_src_length;
+    uint8 *bps, *bps_src;
 
+    bps = ReadWholeFile("smw_assets.bps", &bps_length);
+    if (!bps)
+      Die("Failed to read smw_assets.dat. Please see the README for information about how you get this file.");
+    
+    bps_src = ReadWholeFile("smw.sfc", &bps_src_length);
+    if (!bps_src)
+      Die("Missing file: smw.sfc");
+    if (bps_src_length != 524288)
+      Die("smw.sfc needs to be the unheadered ROM");
+
+    data = ApplyBps(bps_src, bps_src_length, bps, bps_length, &length);
+    if (!data)
+      Die("Unable to apply smw_assets.bps");
+  }
+
+  if (!VerifyAssetsFile(data, length))
+    Die("Mismatching assets file - Please re run 'python assets/restool.py'");
+    
   uint32 offset = 88 + kNumberOfAssets * 4 + *(uint32 *)(data + 84);
 
   for (size_t i = 0; i < kNumberOfAssets; i++) {
