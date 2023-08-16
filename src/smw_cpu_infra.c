@@ -82,6 +82,10 @@ uint32 PatchBugs_SMW1(void) {
   } else if (FixBugHook(0x4e686)) {
     // CheckIfDestroyTileEventIsActive doesn't zero Y
     g_cpu->y = 0;
+  } else if (FixBugHook(0x9A74)) {
+    CheckWhichControllersArePluggedIn();
+    // Remove old CheckWhichControllersArePluggedIn
+    return 0x9A8A;
   } else if (FixBugHook(0x058AFB) || FixBugHook(0x58CE0)) {
 
     int lvl_setting = misc_level_mode_setting;

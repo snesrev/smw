@@ -1587,14 +1587,9 @@ void GameMode12_PrepareLevel_009A3D(uint8 k) {  // 009a3d
 }
 
 void CheckWhichControllersArePluggedIn() {  // 009a74
-  uint8 v1 = ReadReg(JOYA);
-  uint8 Reg = ReadReg(JOYB);
-  uint8 v2 = (2 * Reg + v1) & 3;
-  if (v2) {
-    if (v2 == 3)
-      v2 = -125;
-    --v2;
-  }
+  uint8 v2 = my_flags & 3;
+  if (v2)
+    v2 += ((v2 == 3) ? 0x80 : 0) - 1;
   io_controllers_plugged_in = v2;
 }
 

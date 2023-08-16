@@ -32,7 +32,6 @@ static uint8 kPatchedCarrysOrg[1024];
 static void VerifySnapshotsEq(Snapshot *b, Snapshot *a, Snapshot *prev);
 static void MakeSnapshot(Snapshot *s);
 static void RestoreSnapshot(Snapshot *s);
-static void RtlRunFrameCompare(uint16 input, int run_what);
 
 uint8_t *SnesRomPtr(uint32 v) {
   return (uint8 *)RomPtr(v);
@@ -252,8 +251,6 @@ Snes *SnesInit(const uint8 *data, int data_size) {
   g_dma = g_snes->dma;
   g_use_my_apu_code = (g_runmode != RM_THEIRS);
 
-  RtlSetupEmuCallbacks(NULL, &RtlRunFrameCompare, NULL);
-
   if (data_size != 0 && g_runmode != RM_MINE) {
     bool loaded = snes_loadRom(g_snes, data, data_size);
     if (!loaded) {
@@ -362,9 +359,7 @@ getout:
     g_got_mismatch_count--;
 }
 
-static void RtlRunFrameCompare(uint16 input, int run_what) {
-  g_snes->input1->currentState = input;
-
+void RtlRunFrameCompare() {
   g_use_my_apu_code = (g_runmode != RM_THEIRS);
 
   if (g_runmode == RM_THEIRS) {

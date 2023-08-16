@@ -24,6 +24,8 @@ static const uint16 kDefaultKbdControls[kKeys_Total] = {
   0,
   // Controls
   _(SDLK_UP), _(SDLK_DOWN), _(SDLK_LEFT), _(SDLK_RIGHT), _(SDLK_RSHIFT), _(SDLK_RETURN), _(SDLK_x), _(SDLK_z), _(SDLK_s), _(SDLK_a), _(SDLK_c), _(SDLK_v),
+  // ControlsP2
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
   // LoadState
   _(SDLK_F1), _(SDLK_F2), _(SDLK_F3), _(SDLK_F4), _(SDLK_F5), _(SDLK_F6), _(SDLK_F7), _(SDLK_F8), _(SDLK_F9), _(SDLK_F10), N, N, N, N, N, N, N, N, N, N,
   // SaveState
@@ -56,7 +58,8 @@ typedef struct KeyNameId {
 #define S(n) {#n, kKeys_##n, 1}
 static const KeyNameId kKeyNameId[] = {
   {"Null", kKeys_Null, 65535},
-  M(Controls), M(Load), M(Save), M(Replay), M(LoadRef), M(ReplayRef),
+  M(Controls), M(ControlsP2),
+  M(Load), M(Save), M(Replay), M(LoadRef), M(ReplayRef),
   S(CheatLife), S(CheatJump), S(ToggleWhichFrame),
   S(ClearKeyLog), S(StopReplay), S(Fullscreen), S(Reset),
   S(Pause), S(PauseDimmed), S(Turbo), S(ReplayTurbo), S(WindowBigger), S(WindowSmaller), S(VolumeUp), S(VolumeDown), S(DisplayPerf), S(ToggleRenderer),
@@ -73,6 +76,14 @@ static int keymap_hash_size;
 static bool has_keynameid[countof(kKeyNameId)];
 
 static bool KeyMapHash_Add(uint16 key, uint16 cmd) {
+  if (!key)
+    return false;
+
+  if (cmd == kKeys_Controls)
+    g_config.has_keyboard_controls |= 1;
+  else if (cmd == kKeys_ControlsP2)
+    g_config.has_keyboard_controls |= 2;
+
   if ((keymap_hash_size & 0xff) == 0) {
     if (keymap_hash_size > 10000)
       Die("Too many keys");
@@ -154,10 +165,10 @@ typedef struct GamepadMapEnt {
   uint16 cmd, next;
 } GamepadMapEnt;
 
-static uint16 joymap_first[kGamepadBtn_Count];
+static uint16 joymap_first[kGamepadBtn_Count * 2];  // 2 gamepads
 static GamepadMapEnt *joymap_ents;
 static int joymap_size;
-static bool has_joypad_controls;
+static uint8 has_assigned_joypad_controls;
 
 static int CountBits32(uint32 n) {
   int count = 0;
@@ -169,7 +180,7 @@ static int CountBits32(uint32 n) {
 static void GamepadMap_Add(int button, uint32 modifiers, uint16 cmd) {
   if ((joymap_size & 0xff) == 0) {
     if (joymap_size > 1000)
-      Die("Too many joypad keys");
+      Die("Too many joypad keys"); 
     joymap_ents = (GamepadMapEnt*)realloc(joymap_ents, sizeof(GamepadMapEnt) * (joymap_size + 64));
     if (!joymap_ents) Die("realloc failure");
   }
@@ -224,12 +235,13 @@ static const uint8 kDefaultGamepadCmds[] = {
   kGamepadBtn_B, kGamepadBtn_A, kGamepadBtn_Y, kGamepadBtn_X, kGamepadBtn_L1, kGamepadBtn_R1,
 };
 
-static void ParseGamepadArray(char *value, int cmd, int size) {
+static void ParseGamepadArray(int gamepad, char *value, int cmd, int size) {
   char *s;
   int i = 0;
   for (; i < size && (s = NextDelim(&value, ',')) != NULL; i++, cmd += (cmd != 0)) {
     if (*s == 0)
       continue;
+    int gamepad_cur = gamepad;
     uint32 modifiers = 0;
     const char *ss = s;
     for (;;) {
@@ -243,7 +255,7 @@ static void ParseGamepadArray(char *value, int cmd, int size) {
         ss++;
         modifiers |= 1 << button;
       } else if (*ss == 0) {
-        GamepadMap_Add(button, modifiers, cmd);
+        GamepadMap_Add(button + gamepad_cur * kGamepadBtn_Count, modifiers, cmd);
         break;
       } else
         goto BAD;
@@ -259,9 +271,13 @@ static void RegisterDefaultKeys(void) {
         KeyMapHash_Add(kDefaultKbdControls[k], k);
     }
   }
-  if (!has_joypad_controls) {
+  if (!(has_assigned_joypad_controls & 1)) {
     for (int i = 0; i < countof(kDefaultGamepadCmds); i++)
       GamepadMap_Add(kDefaultGamepadCmds[i], 0, kKeys_Controls + i);
+  }
+  if (!(has_assigned_joypad_controls & 2)) {
+    for (int i = 0; i < countof(kDefaultGamepadCmds); i++)
+      GamepadMap_Add(kDefaultGamepadCmds[i] + kGamepadBtn_Count, 0, kKeys_ControlsP2 + i);
   }
 }
 
@@ -321,12 +337,18 @@ static bool HandleIniConfig(int section, const char *key, char *value) {
       }
     }
   } else if (section == 5) {
-    for (int i = 0; i < countof(kKeyNameId); i++) {
-      if (StringEqualsNoCase(key, kKeyNameId[i].name)) {
-        if (i == 1)
-          has_joypad_controls = true;
-        ParseGamepadArray(value, kKeyNameId[i].id, kKeyNameId[i].size);
-        return true;
+    if (StringEqualsNoCase(key, "EnableGamepad1")) {
+      return ParseBool(value, &g_config.enable_gamepad[0]);
+    } else if (StringEqualsNoCase(key, "EnableGamepad2")) {
+      return ParseBool(value, &g_config.enable_gamepad[1]);
+    } else {
+      for (int i = 0; i < countof(kKeyNameId); i++) {
+        if (StringEqualsNoCase(key, kKeyNameId[i].name)) {
+          int id = kKeyNameId[i].id;
+          has_assigned_joypad_controls |= (id == kKeys_Controls) ? 1 : (id == kKeys_ControlsP2) ? 2 : 0;
+          ParseGamepadArray(id == kKeys_ControlsP2 ? 1 : 0, value, kKeyNameId[i].id, kKeyNameId[i].size);
+          return true;
+        }
       }
     }
   } else if (section == 1) {

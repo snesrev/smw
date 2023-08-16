@@ -21,6 +21,8 @@ typedef void CpuInfraInitializeFunc(void);
 typedef void RunOneFrameOfGameFunc(void);
 typedef void FixSnapshotForCompareFunc(Snapshot *b, Snapshot *a);
 
+void RtlRunFrameCompare(void);
+
 typedef struct RtlGameInfo {
   const char *title;
   uint8 game_id;

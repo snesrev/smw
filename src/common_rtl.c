@@ -26,30 +26,6 @@ Ppu *g_ppu, *g_my_ppu;
 Dma *g_dma;
 bool g_custom_music;
 
-static uint8 *g_rtl_memory_ptr;
-static RunFrameFunc *g_rtl_runframe;
-static SyncAllFunc *g_rtl_syncall;
-
-void RtlSetupEmuCallbacks(uint8 *emu_ram, RunFrameFunc *func, SyncAllFunc *sync_all) {
-  g_rtl_memory_ptr = emu_ram;
-  g_rtl_runframe = func;
-  g_rtl_syncall = sync_all;
-}
-
-static void RtlSynchronizeWholeState(void) {
-  if (g_rtl_syncall)
-    g_rtl_syncall();
-}
-
-// |ptr| must be a pointer into g_ram, will synchronize the RAM memory with the
-// emulator.
-static void RtlSyncMemoryRegion(void *ptr, size_t n) {
-  uint8 *data = (uint8 *)ptr;
-  assert(data >= g_ram && data < g_ram + 0x20000);
-  if (g_rtl_memory_ptr)
-    memcpy(g_rtl_memory_ptr + (data - g_ram), data, n);
-}
-
 void ByteArray_AppendVl(ByteArray *arr, uint32 v) {
   for (; v >= 255; v -= 255)
     ByteArray_AppendByte(arr, 255);
@@ -81,7 +57,6 @@ void loadFunc(SaveLoadInfo *sli, void *data, size_t data_size) {
 static void LoadSnesState(SaveLoadInfo *sli) {
   // Do the actual loading
   snes_saveload(g_snes, sli);
-  RtlSynchronizeWholeState();
 }
 
 static void SaveSnesState(SaveLoadInfo *sli) {
@@ -89,7 +64,7 @@ static void SaveSnesState(SaveLoadInfo *sli) {
 }
 
 typedef struct StateRecorder {
-  uint16 last_inputs;
+  uint32 last_inputs;
   uint32 frames_since_last;
   uint32 total_frames;
 
@@ -100,6 +75,7 @@ typedef struct StateRecorder {
   uint32 snapshot_flags;
   uint8 replay_cmd;
   bool replay_mode;
+  uint8 cur_player;
 
   ByteArray log;
   ByteArray base_snapshot;
@@ -122,25 +98,31 @@ void StateRecorder_RecordCmd(StateRecorder *sr, uint8 cmd) {
     ByteArray_AppendVl(&sr->log, frames - x);
 }
 
-void StateRecorder_Record(StateRecorder *sr, uint16 inputs) {
-  uint16 diff = inputs ^ sr->last_inputs;
-  if (diff != 0) {
-    sr->last_inputs = inputs;
-    //    printf("0x%.4x %d: ", diff, sr->frames_since_last);
-    //    size_t lb = sr->log.size;
-    for (int i = 0; i < 12; i++) {
-      if ((diff >> i) & 1)
-        StateRecorder_RecordCmd(sr, i << 4);
+static void StateRecorder_RecordKeyDiff(StateRecorder *sr, uint32 diff) {
+  for (int i = 0; diff; i++, diff >>= 1) {
+    if (diff & 1) {
+      int player = (i >= 12);
+      i -= player * 12;
+      if (player != sr->cur_player) {
+        sr->cur_player = player;
+        ByteArray_AppendByte(&sr->log, 0xfc + player);
+      }
+      StateRecorder_RecordCmd(sr, i << 4);
     }
-    //    while (lb < sr->log.size)
-    //      printf("%.2x ", sr->log.data[lb++]);
-    //    printf("\n");
   }
+}
+
+void StateRecorder_Record(StateRecorder *sr, uint32 inputs) {
+  uint32 diff = (inputs ^ sr->last_inputs) & 0xffffff;
+  sr->last_inputs = inputs;
+  if (diff)
+    StateRecorder_RecordKeyDiff(sr, diff);
   sr->frames_since_last++;
   sr->total_frames++;
 }
 
-void StateRecorder_RecordPatchByte(StateRecorder *sr, uint32 addr, const uint8 *value, int num) {
+void StateRecorder_RecordPatchByte(StateRecorder *sr, const uint8 *value, int num) {
+  uint32 addr = value - g_ram;
   assert(addr < 0x20000);
 
   //  printf("%d: PatchByte(0x%x, 0x%x. %d): ", sr->frames_since_last, addr, *value, num);
@@ -173,8 +155,6 @@ void RtlReset(int mode) {
   RtlApuLock();
   RtlRestoreMusicAfterLoad_Locked(true);
   RtlApuUnlock();
-
-  RtlSynchronizeWholeState();
 
   if ((mode & 2) == 0)
     StateRecorder_Init(&state_recorder);
@@ -216,6 +196,7 @@ void StateRecorder_Load(StateRecorder *sr, FILE *f, bool replay_mode) {
   sr->snapshot_flags = hdr[9];
   sr->replay_next_cmd_at = 0;
   sr->replay_mode = replay_mode;
+  sr->cur_player = 0;
   if (replay_mode) {
     sr->frames_since_last = 0;
     sr->last_inputs = 0;
@@ -269,6 +250,12 @@ void StateRecorder_Save(StateRecorder *sr, FILE *f, bool saving_with_bug) {
   assert(sr->base_snapshot.size == 0 ||
     sr->base_snapshot.size == savest.array.size || sr->base_snapshot.size == g_sram_size);
 
+  // Before saving, reset the cur player
+  if (sr->cur_player) {
+    sr->cur_player = 0;
+    ByteArray_AppendVl(&sr->log, 0xfc);
+  }
+
   hdr[0] = 2;
   hdr[1] = sr->total_frames;
   hdr[2] = (uint32)sr->log.size;
@@ -305,12 +292,9 @@ void StateRecorder_ClearKeyLog(StateRecorder *sr) {
   memset(&sr->log, 0, sizeof(sr->log));
   // If there are currently any active inputs, record them initially at timestamp 0.
   sr->frames_since_last = 0;
-  if (sr->last_inputs) {
-    for (int i = 0; i < 12; i++) {
-      if ((sr->last_inputs >> i) & 1)
-        StateRecorder_RecordCmd(sr, i << 4);
-    }
-  }
+  sr->cur_player = 0;
+  StateRecorder_RecordKeyDiff(sr, sr->last_inputs);
+    
   if (sr->replay_mode) {
     // When clearing the key log while in replay mode, we want to keep
     // replaying but discarding all key history up until this point.
@@ -340,7 +324,7 @@ uint16 StateRecorder_ReadNextReplayState(StateRecorder *sr) {
       // Apply next command
       sr->frames_since_last = 0;
       if (sr->replay_cmd < 0xc0) {
-        sr->last_inputs ^= 1 << (sr->replay_cmd >> 4);
+        sr->last_inputs ^= 1 << ((sr->replay_cmd >> 4) + sr->cur_player * 12);
       } else if (sr->replay_cmd < 0xd0) {
         int nb = 1 + ((sr->replay_cmd >> 2) & 3);
         uint8 t;
@@ -352,7 +336,6 @@ uint16 StateRecorder_ReadNextReplayState(StateRecorder *sr) {
         addr |= sr->log.data[replay_pos++];
         do {
           g_ram[addr & 0x1ffff] = sr->log.data[replay_pos++];
-          RtlSyncMemoryRegion(&g_ram[addr & 0x1ffff], 1);
         } while (addr++, --nb);
       } else {
         assert(0);
@@ -365,7 +348,20 @@ uint16 StateRecorder_ReadNextReplayState(StateRecorder *sr) {
       break;
     }
     // Read the next one
-    uint8 cmd = sr->log.data[replay_pos++], t;
+    uint8 cmd, t;
+
+    for (;;) {
+      cmd = sr->log.data[replay_pos++];
+      if (cmd < 0xfc)
+        break;
+      switch (cmd) {
+      case 0xfc: 
+      case 0xfd: sr->cur_player = cmd - 0xfc; break;
+      default:
+        assert(0);
+      }
+    }
+
     int mask = (cmd < 0xc0) ? 0xf : 0x1;
     int frames = cmd & mask;
     if (frames == mask) do {
@@ -400,7 +396,8 @@ void RtlStopReplay(void) {
   StateRecorder_StopReplay(&state_recorder);
 }
 
-bool RtlRunFrame(int inputs) {
+bool RtlRunFrame(uint32 inputs) {
+
   if (g_did_finish_level_hook) {
     if (game_id == kGameID_SMW && !state_recorder.replay_mode && g_config.save_playthrough) {
       SmwSavePlaythroughSnapshot();
@@ -414,6 +411,9 @@ bool RtlRunFrame(int inputs) {
   // Avoid up/down and left/right from being pressed at the same time
   if ((inputs & 0x30) == 0x30) inputs ^= 0x30;
   if ((inputs & 0xc0) == 0xc0) inputs ^= 0xc0;
+  // Player2
+  if ((inputs & 0x30000) == 0x30000) inputs ^= 0x30000;
+  if ((inputs & 0xc0000) == 0xc0000) inputs ^= 0xc0000;
 
   bool is_replay = state_recorder.replay_mode;
 
@@ -433,12 +433,21 @@ bool RtlRunFrame(int inputs) {
       uint8 apui02 = RtlApuReadReg(2);
       if (apui02 != g_ram[kSmwRam_APUI02]) {
         g_ram[kSmwRam_APUI02] = apui02;
-        StateRecorder_RecordPatchByte(&state_recorder, kSmwRam_APUI02, &apui02, 1);
+        StateRecorder_RecordPatchByte(&state_recorder, &g_ram[kSmwRam_APUI02], 1);
+      }
+      // Whether controllers are plugged in.
+      uint32 new_my_flags = inputs >> 30;
+      if (new_my_flags != g_ram[kSmwRam_my_flags]) {
+        assert(new_my_flags <= 255);
+        g_ram[kSmwRam_my_flags] = new_my_flags;
+        StateRecorder_RecordPatchByte(&state_recorder, &g_ram[kSmwRam_my_flags], 1);
       }
     }
   }
+  g_snes->input1_currentState = inputs & 0xfff;
+  g_snes->input2_currentState = (inputs >> 12) & 0xfff;
 
-  g_rtl_runframe(inputs, 0);
+  RtlRunFrameCompare();
 
   snes_frame_counter++;
 
@@ -462,7 +471,6 @@ static void RtlLoadFromFile(FILE *f, bool replay) {
   ppu_copy(g_my_ppu, g_snes->ppu);
 
   RtlApuUnlock();
-  RtlSynchronizeWholeState();
 }
 
 static const char *const kBugSaves[] = {
@@ -789,7 +797,6 @@ void RtlReadSram(void) {
     if (fread(g_sram, 1, g_sram_size, f) != g_sram_size)
       fprintf(stderr, "Error reading %s\n", filename);
     fclose(f);
-    RtlSynchronizeWholeState();
     ByteArray_Resize(&state_recorder.base_snapshot, g_sram_size);
     memcpy(state_recorder.base_snapshot.data, g_sram, g_sram_size);
   }

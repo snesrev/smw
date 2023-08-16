@@ -877,6 +877,9 @@ extern uint8 ptr_layer2_is_bg;
 #define stripe_image_upload_data ((uint8*)(g_ram+0x1837D))
 #define graphics_decompressed_loading_letters ((uint8*)(g_ram+0x1977B))
 #define spr86_wiggler_segment_pos_table ((uint8*)(g_ram+0x19A7B))
+
+#define my_flags (*(uint8*)(g_ram+0x19C7C))
+
 #define blocks_map16_table_hi ((uint8*)(g_ram+0x1C800))
 
 #define lm_ptr0 (*(LongPtr*)(g_ram + 0x1c000))

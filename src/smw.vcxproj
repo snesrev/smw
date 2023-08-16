@@ -199,10 +199,6 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
     </ClCompile>
-    <ClCompile Include="snes\input.c">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">MinSpace</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MinSpace</Optimization>
-    </ClCompile>
     <ClCompile Include="snes\ppu.c">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
@@ -241,7 +237,6 @@
     <ClInclude Include="snes\dma.h" />
     <ClInclude Include="snes\dsp.h" />
     <ClInclude Include="snes\dsp_regs.h" />
-    <ClInclude Include="snes\input.h" />
     <ClInclude Include="snes\ppu.h" />
     <ClInclude Include="snes\saveload.h" />
     <ClInclude Include="snes\snes.h" />

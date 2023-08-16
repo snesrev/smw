@@ -15,6 +15,7 @@ enum {
   kCurrentBugFixCounter = 1,
 
   kSmwRam_APUI02 = 0x18c5,
+  kSmwRam_my_flags = 0x19C7C,
 };
 
 typedef struct SimpleHdma {
@@ -103,12 +104,7 @@ uint8 ReadReg(uint16 reg);
 uint8_t *IndirPtr(LongPtr ptr, uint16 offs);
 void IndirWriteByte(LongPtr ptr, uint16 offs, uint8 value);
 
-
-typedef void RunFrameFunc(uint16 input, int run_what);
-typedef void SyncAllFunc();
-
 void RtlReset(int mode);
-void RtlSetupEmuCallbacks(uint8 *emu_ram, RunFrameFunc *func, SyncAllFunc *sync_all);
 void RtlClearKeyLog();
 void RtlStopReplay();
 
@@ -127,7 +123,7 @@ void RtlSetUploadingApu(bool uploading);
 void RtlApuUpload(const uint8 *p);
 void RtlRenderAudio(int16 *audio_buffer, int samples, int channels);
 void RtlPushApuState();
-bool RtlRunFrame(int inputs);
+bool RtlRunFrame(uint32 inputs);
 void RtlReadSram();
 void RtlWriteSram();
 void RtlSaveSnapshot(const char *filename, bool saving_with_bug);

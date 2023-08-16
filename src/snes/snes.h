@@ -15,7 +15,6 @@ typedef struct Snes Snes;
 #include "dma.h"
 #include "ppu.h"
 #include "cart.h"
-#include "input.h"
 #include "saveload.h"
 
 struct Snes {
@@ -24,8 +23,8 @@ struct Snes {
   Ppu* ppu;
   Dma* dma;
   Cart* cart;
-  Input *input1;
-  Input *input2;
+  uint16 input1_currentState;
+  uint16 input2_currentState;
   // input
   bool debug_cycles;
   bool debug_apu_cycles;
@@ -73,7 +72,6 @@ struct Snes {
 Snes* snes_init(uint8_t *ram);
 void snes_free(Snes* snes);
 void snes_reset(Snes* snes, bool hard);
-void snes_runFrame(Snes* snes);
 // used by dma, cpu
 uint8_t snes_readBBus(Snes* snes, uint8_t adr);
 void snes_writeBBus(Snes* snes, uint8_t adr, uint8_t val);
