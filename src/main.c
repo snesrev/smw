@@ -382,6 +382,8 @@ int main(int argc, char** argv) {
   if (g_config.audio_samples <= 0 || ((g_config.audio_samples & (g_config.audio_samples - 1)) != 0))
     g_config.audio_samples = kDefaultSamples;
 
+  SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
+
   // set up SDL
   if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER) != 0) {
     printf("Failed to init SDL: %s\n", SDL_GetError());
