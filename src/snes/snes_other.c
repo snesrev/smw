@@ -98,7 +98,7 @@ bool snes_loadRom(Snes* snes, const uint8_t* data, int length) {
     snes->cart, headers[used].cartType,
     newData, newLength, headers[used].chips > 0 ? headers[used].ramSize : 0
   );
-  snes_reset(snes, true); // reset after loading
+  
   free(newData);
   return true;
 }

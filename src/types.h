@@ -85,9 +85,14 @@ typedef struct LongPtr {
   uint8 bank;
 } LongPtr;
 #pragma pack (pop)
+#define LONGPTR(t) {(t) & 0xffff, (t) >> 16}
 
 static inline uint8 __CFSHL__(uint8 x, uint8 t) { return x >> (8 - t); }
 static inline uint8 __CFSHL__uint16(uint16 x) { return x >> 15; }
+
+static inline bool __CFADD__uint16(uint16 x, uint16 y) { return (uint16)(x) > (uint16)(x + y); }
+static inline bool __CFADD__uint8(uint8 x, uint8 y) { return (uint8)(x) > (uint8)(x + y); }
+static inline bool __CFADD__(uint8 x, uint8 y) { return (uint8)(x) > (uint8)(x + y); }
 
 typedef struct PairU16 {
   uint16 first, second;
@@ -97,6 +102,10 @@ typedef struct PointU16 {
   uint16 x, y;
 } PointU16;
 
+typedef struct PointU8 {
+  uint8 x, y;
+} PointU8;
+
 typedef struct OamEnt {
   uint8 xpos;
   uint8 ypos;
@@ -104,7 +113,7 @@ typedef struct OamEnt {
   uint8 flags;
 } OamEnt;
 
-typedef void FuncU8(uint8 k);
+typedef void FuncU8(uint8 kk);
 typedef void FuncV(void);
 
 // Some convenience macros to make partial accesses nicer
@@ -117,7 +126,7 @@ typedef void FuncV(void);
 
 #define LOBYTE(x)  BYTEn(x,LOW_IND(x,uint8))
 #define LOWORD(x)  WORDn(x,LOW_IND(x,uint16))
-#define HIBYTE(x)  BYTEn(x,HIGH_IND(x,uint8))
+#define HIBYTE(x)  BYTEn(x,1)
 #define HIWORD(x)  WORDn(x,HIGH_IND(x,uint16))
 
 #define GET_HIBYTE(x) (((x) & 0xff00) >> 8)
@@ -134,6 +143,21 @@ typedef void FuncV(void);
 #define __CASSERT_N1__(l) __CASSERT_N0__(l)
 #define CASSERT(cnd) typedef char __CASSERT_N1__(__LINE__) [(cnd) ? 1 : -1]
 
+static inline PairU16 MakePairU16(uint16 k, uint16 j) {
+  PairU16 r = { k, j };
+  return r;
+}
+
+#define MakePairU16_AX MakePairU16
+#define MakePairU16_AY MakePairU16
+
+
+typedef struct MemBlk {
+  const uint8 *ptr;
+  size_t size;
+} MemBlk;
+MemBlk FindIndexInMemblk(MemBlk data, size_t i);
+const uint8 *FindAddrInMemblk(MemBlk data, uint32 addr);
 
 #endif  // SM_TYPES_H_
 

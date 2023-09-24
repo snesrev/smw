@@ -1,40 +1,29 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
+    <Filter Include="Smb1">
+      <UniqueIdentifier>{0557fe1f-910c-415c-8384-20f8ff3c6d87}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{5b002459-3732-4987-8e36-5228b1cf9b01}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\Shader">
+      <UniqueIdentifier>{2b72ed96-9194-4c2c-b1e5-15445f0a9550}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Smw">
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    <Filter Include="Smb Lost Levels">
+      <UniqueIdentifier>{c20be95b-4f11-4834-a006-bfb273e4bc0b}</UniqueIdentifier>
     </Filter>
     <Filter Include="Snes">
       <UniqueIdentifier>{e1763dbc-4fb3-417f-ad1a-8436411c3b7a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Shader">
-      <UniqueIdentifier>{2b72ed96-9194-4c2c-b1e5-15445f0a9550}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="spc_player.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="config.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="util.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="platform\win32\volume_control.c">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="smw_spc_player.c">
+      <Filter>Smw</Filter>
     </ClCompile>
     <ClCompile Include="snes\apu.c">
       <Filter>Snes</Filter>
@@ -70,81 +59,117 @@
       <Filter>Snes</Filter>
     </ClCompile>
     <ClCompile Include="glsl_shader.c">
-      <Filter>Shader</Filter>
+      <Filter>Common\Shader</Filter>
     </ClCompile>
     <ClCompile Include="opengl.c">
-      <Filter>Shader</Filter>
+      <Filter>Common\Shader</Filter>
     </ClCompile>
     <ClCompile Include="..\third_party\gl_core\gl_core_3_1.c">
-      <Filter>Shader</Filter>
+      <Filter>Common\Shader</Filter>
     </ClCompile>
     <ClCompile Include="smw_00.c">
-      <Filter>Source Files</Filter>
+      <Filter>Smw</Filter>
     </ClCompile>
     <ClCompile Include="smw_01.c">
-      <Filter>Source Files</Filter>
+      <Filter>Smw</Filter>
     </ClCompile>
     <ClCompile Include="smw_02.c">
-      <Filter>Source Files</Filter>
+      <Filter>Smw</Filter>
     </ClCompile>
     <ClCompile Include="smw_03.c">
-      <Filter>Source Files</Filter>
+      <Filter>Smw</Filter>
     </ClCompile>
     <ClCompile Include="smw_04.c">
-      <Filter>Source Files</Filter>
+      <Filter>Smw</Filter>
     </ClCompile>
     <ClCompile Include="smw_05.c">
-      <Filter>Source Files</Filter>
+      <Filter>Smw</Filter>
     </ClCompile>
     <ClCompile Include="smw_07.c">
-      <Filter>Source Files</Filter>
+      <Filter>Smw</Filter>
     </ClCompile>
     <ClCompile Include="smw_0c.c">
-      <Filter>Source Files</Filter>
+      <Filter>Smw</Filter>
     </ClCompile>
     <ClCompile Include="smw_0d.c">
-      <Filter>Source Files</Filter>
+      <Filter>Smw</Filter>
     </ClCompile>
     <ClCompile Include="smw_cpu_infra.c">
-      <Filter>Source Files</Filter>
+      <Filter>Smw</Filter>
     </ClCompile>
     <ClCompile Include="smw_rtl.c">
-      <Filter>Source Files</Filter>
+      <Filter>Smw</Filter>
     </ClCompile>
     <ClCompile Include="snes\ppu_old.c">
       <Filter>Snes</Filter>
     </ClCompile>
+    <ClCompile Include="..\smb1\smb1_00.c">
+      <Filter>Smb1</Filter>
+    </ClCompile>
+    <ClCompile Include="..\smb1\smb1_01.c">
+      <Filter>Smb1</Filter>
+    </ClCompile>
+    <ClCompile Include="..\smb1\smb1_02.c">
+      <Filter>Smb1</Filter>
+    </ClCompile>
+    <ClCompile Include="..\smb1\smb1_08.c">
+      <Filter>Smb1</Filter>
+    </ClCompile>
+    <ClCompile Include="common_cpu_infra.c">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="config.c">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="main.c">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="platform\win32\volume_control.c">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="util.c">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\smb1\smb1_cpu_infra.c">
+      <Filter>Smb1</Filter>
+    </ClCompile>
+    <ClCompile Include="common_rtl.c">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\smbll\smbll_02.c">
+      <Filter>Smb Lost Levels</Filter>
+    </ClCompile>
+    <ClCompile Include="..\smbll\smbll_08.c">
+      <Filter>Smb Lost Levels</Filter>
+    </ClCompile>
+    <ClCompile Include="..\smbll\smbll_00.c">
+      <Filter>Smb Lost Levels</Filter>
+    </ClCompile>
+    <ClCompile Include="..\smbll\smbll_0b.c">
+      <Filter>Smb Lost Levels</Filter>
+    </ClCompile>
+    <ClCompile Include="..\smbll\smbll_01.c">
+      <Filter>Smb Lost Levels</Filter>
+    </ClCompile>
+    <ClCompile Include="..\smbll\smbll_cpu_infra.c">
+      <Filter>Smb Lost Levels</Filter>
+    </ClCompile>
+    <ClCompile Include="..\smb1\smb1_spc_player.c">
+      <Filter>Smb1</Filter>
+    </ClCompile>
+    <ClCompile Include="lm.c">
+      <Filter>Smw</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="types.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="funcs.h">
-      <Filter>Source Files</Filter>
+      <Filter>Smw</Filter>
     </ClInclude>
     <ClInclude Include="variables.h">
-      <Filter>Source Files</Filter>
+      <Filter>Smw</Filter>
     </ClInclude>
-    <ClInclude Include="variables_extra.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="spc_player.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="config.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="features.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="util.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="enemy_defs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="enemy_types.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="smw_spc_player.h">
+      <Filter>Smw</Filter>
     </ClInclude>
     <ClInclude Include="snes\apu.h">
       <Filter>Snes</Filter>
@@ -183,22 +208,58 @@
       <Filter>Snes</Filter>
     </ClInclude>
     <ClInclude Include="glsl_shader.h">
-      <Filter>Shader</Filter>
+      <Filter>Common\Shader</Filter>
     </ClInclude>
     <ClInclude Include="..\third_party\gl_core\gl_core_3_1.h">
-      <Filter>Shader</Filter>
-    </ClInclude>
-    <ClInclude Include="consts.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="smw_cpu_infra.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="smw_rtl.h">
-      <Filter>Header Files</Filter>
+      <Filter>Common\Shader</Filter>
     </ClInclude>
     <ClInclude Include="snes\snes_regs.h">
       <Filter>Snes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smb1\smb1_variables.h">
+      <Filter>Smb1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smb1\smb1_consts.h">
+      <Filter>Smb1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smb1\smb1_rtl.h">
+      <Filter>Smb1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smb1\smb1_funcs.h">
+      <Filter>Smb1</Filter>
+    </ClInclude>
+    <ClInclude Include="consts.h">
+      <Filter>Smw</Filter>
+    </ClInclude>
+    <ClInclude Include="smw_rtl.h">
+      <Filter>Smw</Filter>
+    </ClInclude>
+    <ClInclude Include="common_cpu_infra.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="config.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="util.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="types.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="common_rtl.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smbll\smbll_funcs.h">
+      <Filter>Smb Lost Levels</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smbll\smbll_consts.h">
+      <Filter>Smb Lost Levels</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smbll\smbll_variables.h">
+      <Filter>Smb Lost Levels</Filter>
+    </ClInclude>
+    <ClInclude Include="..\smbll\smbll_rtl.h">
+      <Filter>Smb Lost Levels</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

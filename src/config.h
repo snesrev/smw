@@ -6,6 +6,10 @@ enum {
   kKeys_Null,
   kKeys_Controls,
   kKeys_Controls_Last = kKeys_Controls + 11,
+
+  kKeys_ControlsP2,
+  kKeys_ControlsP2_Last = kKeys_ControlsP2 + 11,
+
   kKeys_Load,
   kKeys_Load_Last = kKeys_Load + 19,
   kKeys_Save,
@@ -72,6 +76,11 @@ typedef struct Config {
   char *memory_buffer;
   const char *shader;
   const char *msu_path;
+
+  bool enable_gamepad[2];
+
+  // Which players have keyboard controls
+  uint8 has_keyboard_controls;
 } Config;
 
 enum {

@@ -10,3 +10,9 @@
 SDL2.dll
 /smw.exe
 /glsl-shaders/
+/dis/
+/work
+smw_assets.dat
+__pycache__
+/enhanced/
+*.sfc

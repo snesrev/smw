@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -131,6 +131,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -146,9 +147,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\smb1\smb1_00.c" />
+    <ClCompile Include="..\smb1\smb1_01.c" />
+    <ClCompile Include="..\smb1\smb1_02.c" />
+    <ClCompile Include="..\smb1\smb1_08.c" />
+    <ClCompile Include="..\smb1\smb1_cpu_infra.c" />
+    <ClCompile Include="..\smb1\smb1_spc_player.c" />
+    <ClCompile Include="..\smbll\smbll_00.c" />
+    <ClCompile Include="..\smbll\smbll_01.c" />
+    <ClCompile Include="..\smbll\smbll_02.c" />
+    <ClCompile Include="..\smbll\smbll_08.c" />
+    <ClCompile Include="..\smbll\smbll_0b.c" />
+    <ClCompile Include="..\smbll\smbll_cpu_infra.c" />
     <ClCompile Include="..\third_party\gl_core\gl_core_3_1.c" />
+    <ClCompile Include="common_cpu_infra.c" />
+    <ClCompile Include="common_rtl.c" />
     <ClCompile Include="config.c" />
     <ClCompile Include="glsl_shader.c" />
+    <ClCompile Include="lm.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="opengl.c" />
     <ClCompile Include="platform\win32\volume_control.c" />
@@ -183,10 +199,6 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
     </ClCompile>
-    <ClCompile Include="snes\input.c">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">MinSpace</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MinSpace</Optimization>
-    </ClCompile>
     <ClCompile Include="snes\ppu.c">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
@@ -198,20 +210,26 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">MinSpace</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MinSpace</Optimization>
     </ClCompile>
-    <ClCompile Include="spc_player.c" />
+    <ClCompile Include="smw_spc_player.c" />
     <ClCompile Include="tracing.c" />
     <ClCompile Include="util.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\smb1\smb1_consts.h" />
+    <ClInclude Include="..\smb1\smb1_funcs.h" />
+    <ClInclude Include="..\smb1\smb1_rtl.h" />
+    <ClInclude Include="..\smb1\smb1_variables.h" />
+    <ClInclude Include="..\smbll\smbll_consts.h" />
+    <ClInclude Include="..\smbll\smbll_funcs.h" />
+    <ClInclude Include="..\smbll\smbll_rtl.h" />
+    <ClInclude Include="..\smbll\smbll_variables.h" />
     <ClInclude Include="..\third_party\gl_core\gl_core_3_1.h" />
+    <ClInclude Include="common_cpu_infra.h" />
+    <ClInclude Include="common_rtl.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="consts.h" />
-    <ClInclude Include="enemy_defs.h" />
-    <ClInclude Include="enemy_types.h" />
-    <ClInclude Include="features.h" />
     <ClInclude Include="funcs.h" />
     <ClInclude Include="glsl_shader.h" />
-    <ClInclude Include="smw_cpu_infra.h" />
     <ClInclude Include="smw_rtl.h" />
     <ClInclude Include="snes\apu.h" />
     <ClInclude Include="snes\cart.h" />
@@ -219,18 +237,16 @@
     <ClInclude Include="snes\dma.h" />
     <ClInclude Include="snes\dsp.h" />
     <ClInclude Include="snes\dsp_regs.h" />
-    <ClInclude Include="snes\input.h" />
     <ClInclude Include="snes\ppu.h" />
     <ClInclude Include="snes\saveload.h" />
     <ClInclude Include="snes\snes.h" />
     <ClInclude Include="snes\snes_regs.h" />
     <ClInclude Include="snes\spc.h" />
-    <ClInclude Include="spc_player.h" />
+    <ClInclude Include="smw_spc_player.h" />
     <ClInclude Include="tracing.h" />
     <ClInclude Include="types.h" />
     <ClInclude Include="util.h" />
     <ClInclude Include="variables.h" />
-    <ClInclude Include="variables_extra.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

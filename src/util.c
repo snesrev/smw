@@ -170,3 +170,155 @@ void ByteArray_AppendByte(ByteArray *arr, uint8 v) {
   ByteArray_Resize(arr, arr->size + 1);
   arr->data[arr->size - 1] = v;
 }
+
+MemBlk FindIndexInMemblk(MemBlk data, size_t i) {
+  size_t end = data.size, left_off, right_off;
+  if (end < 2)
+    return (MemBlk) { 0, 0 };
+  
+  uint16 f = *(uint16 *)(data.ptr + (end -= 2));
+  size_t mx = f & 0xfff;
+  if (f & 0x4000) {
+    size_t next_mx = *(uint16 *)(data.ptr + (end -= 2));
+    if (next_mx >= 256) {
+      if (i > mx || mx * 2 > end)
+        return (MemBlk) { 0, 0 };
+      end -= mx * 2 + 2;
+      i = *(uint16 *)(data.ptr + end + i * 2);
+    } else {
+      if (i > mx || mx > end)
+        return (MemBlk) { 0, 0 };
+      end -= mx + 1;
+      i = *(uint8 *)(data.ptr + end + i);
+    }
+    mx = next_mx;
+  }
+  if (f & 0x8000) {
+    if (i > mx || mx * 2 > end)
+      return (MemBlk) { 0, 0 };
+    left_off = ((i == 0) ? mx * 2 : mx * 2 + *(uint16 *)(data.ptr + i * 2 - 2));
+    right_off = (i == mx) ? end : mx * 2 + *(uint16 *)(data.ptr + i * 2);
+  } else {
+    if (i > mx || mx * 4 > end)
+      return (MemBlk) { 0, 0 };
+    left_off = ((i == 0) ? mx * 4 : mx * 4 + *(uint32 *)(data.ptr + i * 4 - 4));
+    right_off = (i == mx) ? end : mx * 4 + *(uint32 *)(data.ptr + i * 4);
+  }
+  if (left_off > right_off || right_off > end)
+    return (MemBlk) { 0, 0 };
+  return (MemBlk) { data.ptr + left_off, right_off - left_off };
+}
+
+const uint8 *FindAddrInMemblk(MemBlk data, uint32 addr) {
+  if (data.size < 2)
+    return 0;  // sanity check
+  // std::lower_bound
+  int count = *(uint16 *)data.ptr, count_org = count;
+  if (data.size < 2 + count * 6)
+    return 0;  // sanity check
+  const uint8 *first = data.ptr + 2;
+  while (count) {
+    const uint8 *it = first;
+    int step = count >> 1;
+    it += step * 3;
+    if ((*(uint32 *)it & 0xffffff) < addr) {
+      first = it + 3;
+      count -= step + 1;
+    } else {
+      count = step;
+    }
+  }
+  if (first >= data.ptr + 2 + count_org * 3 || (*(uint32 *)first & 0xffffff) != addr)
+    first -= 3;
+  uint32 src_off = *(uint32 *)first & 0xffffff;
+  uint32 offset = *(uint32 *)(first + count_org * 3) & 0xffffff;
+  offset += addr - src_off;
+  if (offset >= data.size)
+    return 0;
+  return data.ptr + offset;
+}
+
+static uint64 BpsDecodeInt(const uint8 **src) {
+  uint64 data = 0, shift = 1;
+  while(true) {
+    uint8 x = *(*src)++;
+    data += (x & 0x7f) * shift;
+    if(x & 0x80) break;
+    shift <<= 7;
+    data += shift;
+  }
+  return data;
+}
+
+#define CRC32_POLYNOMIAL 0xEDB88320
+
+static uint32 crc32(const void *data, size_t length) {
+  uint32 crc = 0xFFFFFFFF;
+  const uint8 *byteData = (const uint8 *)data;
+  for (size_t i = 0; i < length; i++) {
+    crc ^= byteData[i];
+    for (int j = 0; j < 8; j++)
+      crc = (crc >> 1) ^ ((crc & 1) * CRC32_POLYNOMIAL);
+  }
+  return crc ^ 0xFFFFFFFF;
+}
+
+
+uint8 *ApplyBps(const uint8 *src, size_t src_size_in,
+                const uint8 *bps, size_t bps_size, size_t *length_out) {
+  const uint8 *bps_end = bps + bps_size - 12;
+
+  if (memcmp(bps, "BPS1", 4))
+    return NULL;
+  if (crc32(src, src_size_in) != *(uint32 *)(bps_end))
+    return NULL;
+  if (crc32(bps, bps_size - 4) != *(uint32 *)(bps_end + 8))
+    return NULL;
+
+  bps += 4;
+  uint32 src_size = BpsDecodeInt(&bps);
+  uint32 dst_size = BpsDecodeInt(&bps);
+  uint32 meta_size = BpsDecodeInt(&bps);
+  uint32 outputOffset = 0;
+  uint32 sourceRelativeOffset = 0;
+  uint32 targetRelativeOffset = 0;
+  if (src_size != src_size_in)
+    return NULL;
+  *length_out = dst_size;
+  uint8 *dst = malloc(dst_size);
+  if (!dst)
+    return NULL;
+  while (bps < bps_end) {
+    uint32 cmd = BpsDecodeInt(&bps);
+    uint32 length = (cmd >> 2) + 1;
+    switch (cmd & 3) {
+    case 0:
+      while(length--) {
+        dst[outputOffset] = src[outputOffset];
+        outputOffset++;
+      }
+      break;
+    case 1:
+      while (length--)
+        dst[outputOffset++] = *bps++;
+      break;
+    case 2:
+      cmd = BpsDecodeInt(&bps);
+      sourceRelativeOffset += (cmd & 1 ? -1 : +1) * (cmd >> 1);
+      while (length--)
+        dst[outputOffset++] = src[sourceRelativeOffset++];
+      break;
+    default:
+      cmd = BpsDecodeInt(&bps);
+      targetRelativeOffset += (cmd & 1 ? -1 : +1) * (cmd >> 1);
+      while(length--)
+        dst[outputOffset++] = dst[targetRelativeOffset++];
+      break;
+    }
+  }
+  if (dst_size != outputOffset)
+    return NULL;
+  if (crc32(dst, dst_size) != *(uint32 *)(bps_end + 4))
+    return NULL;
+  return dst;
+}
