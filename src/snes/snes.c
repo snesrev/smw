@@ -12,19 +12,15 @@
 #include "dma.h"
 #include "ppu.h"
 #include "cart.h"
-#include "input.h"
 #include "../tracing.h"
 #include "../variables.h"
+#include "../common_rtl.h"
 
 extern bool g_is_uploading_apu;
 void RtlSetUploadingApu(bool uploading);
 
-extern bool g_is_turbo;
 int snes_frame_counter;
 static const double apuCyclesPerMaster = (32040 * 32) / (1364 * 262 * 60.0);
-extern uint8_t g_ram[0x20000];
-
-extern void RtlApuWrite(uint32_t adr, uint8_t val);
 
 static uint8_t snes_readReg(Snes* snes, uint16_t adr);
 static void snes_writeReg(Snes* snes, uint16_t adr, uint8_t val);
@@ -39,12 +35,10 @@ Snes* snes_init(uint8_t *ram) {
   snes->cpu = cpu_init(snes, 0);
   snes->apu = apu_init();
   snes->dma = dma_init(snes);
-  snes->my_ppu = ppu_init(snes);
-  snes->snes_ppu = ppu_init(snes);
-  snes->ppu = snes->snes_ppu;
+  snes->ppu = ppu_init();
   snes->cart = cart_init(snes);
-  snes->input1 = input_init(snes);
-  snes->input2 = input_init(snes);
+  snes->input1_currentState = 0;
+  snes->input2_currentState = 0;
   return snes;
 }
 
@@ -54,8 +48,6 @@ void snes_free(Snes* snes) {
   dma_free(snes->dma);
   ppu_free(snes->ppu);
   cart_free(snes->cart);
-  input_free(snes->input1);
-  input_free(snes->input2);
   free(snes);
 }
 
@@ -71,6 +63,7 @@ void snes_saveload(Snes *snes, SaveLoadInfo *sli) {
   sli->func(sli, &snes->ramAdr, 4);
 
   snes->runningWhichVersion = 0;
+  snes->cpu->e = 0;
 }
 
 void snes_reset(Snes* snes, bool hard) {
@@ -78,10 +71,7 @@ void snes_reset(Snes* snes, bool hard) {
   cpu_reset(snes->cpu);
   apu_reset(snes->apu);
   dma_reset(snes->dma);
-  ppu_reset(snes->my_ppu);
-  ppu_reset(snes->snes_ppu);
-  input_reset(snes->input1);
-  input_reset(snes->input2);
+  ppu_reset(snes->ppu);
   if (hard)
     memset(snes->ram, 0, 0x20000);
   snes->ramAdr = 0;
@@ -109,19 +99,6 @@ void snes_reset(Snes* snes, bool hard) {
   snes->divideResult = 0x101;
   snes->fastMem = false;
   snes->openBus = 0;
-}
-
-void snes_runFrame(Snes *snes) {
-  snes_frame_counter++;
-
-  bool old = true;
-  for (;;) {
-    snes_runCycle(snes);
-    if (snes->inVblank != 0 && snes->inVblank != old) {
-      break;
-    }
-    old = snes->inVblank;
-  }
 }
 
 void snes_handle_pos_stuff(Snes *snes) {
@@ -153,14 +130,14 @@ void snes_handle_pos_stuff(Snes *snes) {
       dma_initHdma(snes->dma);
     } else if (snes->vPos == 225) {
       // ask the ppu if we start vblank now or at vPos 240 (overscan)
-      startingVblank = !ppu_checkOverscan(snes->ppu);
+      startingVblank = !ppu_checkOverscan(g_ppu);
     } else if (snes->vPos == 240) {
       // if we are not yet in vblank, we had an overscan frame, set startingVblank
       if (!snes->inVblank) startingVblank = true;
     }
     if (startingVblank) {
       // if we are starting vblank
-      ppu_handleVblank(snes->ppu);
+      ppu_handleVblank(g_ppu);
       snes->inVblank = true;
       snes->inNmi = true;
       if (snes->nmiEnabled) {
@@ -174,7 +151,7 @@ void snes_handle_pos_stuff(Snes *snes) {
   } else if (snes->hPos == 512) {
     // render the line halfway of the screen for better compatibility
     if (!snes->inVblank && !snes->disableRender) {
-      ppu_runLine(snes->ppu, snes->vPos);
+      ppu_runLine(g_ppu, snes->vPos);
     }
   } else if (snes->hPos == 1024) {
     // start of hblank
@@ -198,20 +175,7 @@ void snes_handle_pos_stuff(Snes *snes) {
   }
 }
 
-void snes_runCycle(Snes* snes) {
-  snes->apuCatchupCycles += apuCyclesPerMaster * 2.0;
-
-  input_cycle(snes->input1);
-  input_cycle(snes->input2);
-
-  // if not in dram refresh, if we are busy with hdma/dma, do that, else do cpu cycle
-  if (snes->hPos < 536 || snes->hPos >= 576) {
-    snes_runCpu(snes);
-  }
-
-  snes_handle_pos_stuff(snes);
- }
-#define IS_ADR(x) (x == 0xffffffff)
+#define IS_ADR(x) (x == 0xfffff)
 
 void snes_runCpu(Snes *snes) {
   uint32_t pc = snes->cpu->k << 16 | snes->cpu->pc;
@@ -240,7 +204,7 @@ void snes_catchupApu(Snes* snes) {
 
 uint8_t snes_readBBus(Snes* snes, uint8_t adr) {
   if(adr < 0x40) {
-    return ppu_read(snes->ppu, adr);
+    return ppu_read(g_ppu, adr);
   }
   if(adr < 0x80) {
 //    assert(0);
@@ -262,12 +226,10 @@ uint8_t snes_readBBus(Snes* snes, uint8_t adr) {
 
 void snes_writeBBus(Snes* snes, uint8_t adr, uint8_t val) {
   if(adr < 0x40) {
-    ppu_write(snes->ppu, adr, val);
+    ppu_write(g_ppu, adr, val);
     return;
   }
   if(adr < 0x80) {
-    if (adr == 0x41 && snes->cpu->pc == 0x8122)
-      RtlSetUploadingApu(true);
     RtlApuWrite(0x2100 + adr, val);
     return;
   }
@@ -330,13 +292,15 @@ static uint8_t snes_readReg(Snes* snes, uint16_t adr) {
     case 0x4217:
       return snes->multiplyResult >> 8;
     case 0x4218:
-      return SwapInputBits(snes->input1->currentState) & 0xff;
+      return SwapInputBits(snes->input1_currentState) & 0xff;
     case 0x4219:
-      return SwapInputBits(snes->input1->currentState) >> 8;
+      return SwapInputBits(snes->input1_currentState) >> 8;
     case 0x421a:
+      return SwapInputBits(snes->input2_currentState) & 0xff;
+    case 0x421b:
+      return SwapInputBits(snes->input2_currentState) >> 8;
     case 0x421c:
     case 0x421e:
-    case 0x421b:
     case 0x421d:
     case 0x421f:
       return 0;
@@ -366,7 +330,7 @@ static void snes_writeReg(Snes* snes, uint16_t adr, uint8_t val) {
     case 0x4201: {
       if(!(val & 0x80) && snes->ppuLatch) {
         // latch the ppu
-        ppu_read(snes->ppu, 0x37);
+        ppu_read(g_ppu, 0x37);
       }
       snes->ppuLatch = val & 0x80;
       break;
@@ -454,7 +418,8 @@ uint8_t snes_read(Snes* snes, uint32_t adr) {
       return snes_readBBus(snes, adr & 0xff); // B-bus
     }
     if (adr == 0x4016 || adr == 0x4017) {
-      return input_read(snes->input1) | (snes->openBus & 0xfc);
+      // joypad read disabled
+      return 0;
     }
     if(adr >= 0x4200 && adr < 0x4220 || adr >= 0x4218 && adr < 0x4220) {
       return snes_readReg(snes, adr); // internal registers

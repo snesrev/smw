@@ -9,10 +9,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "saveload.h"
+
 typedef struct Ppu Ppu;
-
-#include "snes.h"
-
 
 typedef struct BgLayer {
   uint16_t xhScroll;
@@ -93,8 +92,6 @@ struct Ppu {
   uint8 cgadsub;
   uint8 cgwsel;
   // -- END OF SNAPSHOT
-
-  Snes *snes;
 
   // vram access
   uint16_t vramPointer;
@@ -218,7 +215,7 @@ enum {
 };
 
 
-Ppu* ppu_init(Snes* snes);
+Ppu* ppu_init(void);
 void ppu_free(Ppu* ppu);
 void ppu_copy(Ppu *ppu, Ppu *ppu_src);
 void ppu_reset(Ppu* ppu);

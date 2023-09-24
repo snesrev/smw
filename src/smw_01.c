@@ -2,6 +2,7 @@
 #include "funcs.h"
 #include "smw_rtl.h"
 #include "variables.h"
+#include "assets/smw_assets.h"
 
 void (*kUnk_18137[13])(uint8) = {
     &SprStatus00_EmptySlot,   &SprStatus01_Init,         &SprStatus02_Dead,
@@ -242,7 +243,7 @@ void (*kSprStatus08SpriteNormalPtrs[201])(uint8 k) = {
     &Spr018_SurfaceJumpingCheepCheep,
     &Spr03E_PSwitch,
     &Spr01A_ClassicPiranhaPlant,
-    &Spr0A0_ActivateBowserBattle,
+    &HandleExtraSprites,
     &Spr01C_BulletBill,
     &Spr01D_HoppingFlame,
     &Spr01E_Lakitu,
@@ -296,7 +297,7 @@ void (*kSprStatus08SpriteNormalPtrs[201])(uint8 k) = {
     &Spr04E_LedgeMontyMole,
     &Spr04F_JumpingPiranhaPlant,
     &Spr04F_JumpingPiranhaPlant,
-    &Spr0A0_ActivateBowserBattle,
+    &HandleExtraSprites,
     &Spr052_MovingLedgeHole,
     &SprStatus08_Return,
     &Spr054_ClimbingNetDoor,
@@ -337,9 +338,9 @@ void (*kSprStatus08SpriteNormalPtrs[201])(uint8 k) = {
     &Spr077_Feather,
     &SprXXX_PowerUps_StarEntry,
     &Spr079_VineHead,
-    &Spr0A0_ActivateBowserBattle,
+    &HandleExtraSprites,
     &Spr07B_GoalTape,
-    &Spr0A0_ActivateBowserBattle,
+    &HandleExtraSprites,
     &Spr080_Key,
     &Spr080_Key,
     &Spr080_Key,
@@ -375,47 +376,47 @@ void (*kSprStatus08SpriteNormalPtrs[201])(uint8 k) = {
     &Spr09D_BubbleWithSprite,
     &Spr09E_BallNChain,
     &Spr09E_BallNChain,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
     &Spr09E_BallNChain,
     &SprXXX_BuoyantPlatformsAndMine_SpikeBallEntry,
     &Spr0A5_Sparky,
     &Spr0A5_Sparky,
     &Spr0A7_IggyBall,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
     &SprXXX_NonBossBoos_BooEntry,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
     &Spr0B4_NonLineGuideGrinder,
     &Spr033_Podoboo,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
-    &Spr0A0_ActivateBowserBattle,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
+    &HandleExtraSprites,
 
 };
 
@@ -468,6 +469,275 @@ void (*kSpr029_KoopaKids_KoopaKidPtrs[7])(uint8 k) = {
     &Spr029_KoopaKid_WendyLemmy,
 };
 
+static const uint8 kSprXXX_LineGuided_DATA_018000[8] = { 0x80, 0x40, 0x20, 0x10, 0x8, 0x4, 0x2, 0x1,  };
+static const uint8 kSpr02C_YoshiEgg_Init_EggPalette[4] = { 0x9, 0x7, 0x5, 0x7,  };
+static const uint8 kSprXXX_ReflectingEnemy_Init_InitYSpeed[2] = { 0x10, 0xf0,  };
+static const uint8 kSpr04C_ExplodingBlock_Init_ExplodingBlkSpr[4] = { 0x15, 0xf, 0x0, 0x4,  };
+static const uint8 kSpr08F_ScalePlatform_Init_ScalePlatWidth[2] = { 0x80, 0x40,  };
+static const uint8 kSprXXX_WallFollowers_Init_DATA_0183EF[3] = { 0x8, 0x0, 0x8,  };
+static const uint8 kSpr03E_PSwitch_Init_PSwitchPal[2] = { 0x6, 0x2,  };
+static const uint8 kSpr095_ClappinChuck_Init_DATA_018526[2] = { 0x0, 0x4,  };
+static const uint8 kSprXXX_Generic_Spr0to13SpeedX[4] = { 0x8, 0xf8, 0xc, 0xf4,  };
+static const uint8 kSprXXX_Generic_Spr0to13Prop[20] = { 0x0, 0x2, 0x3, 0xd, 0x40, 0x42, 0x43, 0x45, 0x50, 0x50, 0x50, 0x5c, 0xdd, 0x5, 0x0, 0x20, 0x20, 0x0, 0x0, 0x0,  };
+static const uint8 kSprXXX_Generic_DATA_018CBA[2] = { 0xff, 0x1,  };
+static const uint8 kSprXXX_Generic_DATA_018CBC[2] = { 0xf0, 0x10,  };
+static const uint8 kSpr010_ParaGoomba_WingXDisp[16] = { 0xf7, 0xb, 0xf6, 0xd, 0xfd, 0xc, 0xfc, 0xd, 0xb, 0xf5, 0xa, 0xf3, 0xb, 0xfc, 0xc, 0xfb,  };
+static const uint8 kSpr010_ParaGoomba_WingYDisp[8] = { 0xf7, 0xf7, 0xf8, 0xf8, 0x1, 0x1, 0x2, 0x2,  };
+static const uint8 kSpr010_ParaGoomba_WingProp[2] = { 0x46, 0x6,  };
+static const uint8 kSpr010_ParaGoomba_WingTiles[4] = { 0xc6, 0xc6, 0x5d, 0x5d,  };
+static const uint8 kSpr010_ParaGoomba_WingTileSize[4] = { 0x2, 0x2, 0x0, 0x0,  };
+static const uint8 kSprXXX_RegularPiranhaPlant_YSpeed[4] = { 0x0, 0xf0, 0x0, 0x10,  };
+static const uint8 kSprXXX_RegularPiranhaPlant_PhaseTimers[4] = { 0x20, 0x30, 0x20, 0x30,  };
+static const uint8 kSpr01C_BulletBill_Prop[8] = { 0x42, 0x2, 0x3, 0x83, 0x3, 0x43, 0x3, 0x43,  };
+static const uint8 kSpr01C_BulletBill_AnimationFrame[8] = { 0x0, 0x0, 0x1, 0x1, 0x2, 0x3, 0x3, 0x2,  };
+static const uint8 kSpr01C_BulletBill_XSpeed[8] = { 0x20, 0xe0, 0x0, 0x0, 0x18, 0x18, 0xe8, 0xe8,  };
+static const uint8 kSpr01C_BulletBill_YSpeed[8] = { 0x0, 0x0, 0xe0, 0x20, 0xe8, 0x18, 0x18, 0xe8,  };
+static const uint8 kHandleNormalSpriteGravity_MaxYSpeed[2] = { 0x40, 0x10,  };
+static const uint8 kHandleNormalSpriteGravity_YAcceleration[2] = { 0x3, 0x1,  };
+static const uint8 kHandleNormalSpriteLevelColl_SpriteObjClippingX[61] = { 0xe, 0x2, 0x8, 0x8, 0xe, 0x2, 0x7, 0x7, 0x7, 0x7, 0x7, 0x7, 0xe, 0x2, 0x8, 0x8, 0x10, 0x0, 0x8, 0x8, 0xd, 0x2, 0x8, 0x8, 0x7, 0x0, 0x4, 0x4, 0x1f, 0x1, 0x10, 0x10, 0xf, 0x0, 0x8, 0x8, 0x10, 0x0, 0x8, 0x8, 0xd, 0x2, 0x8, 0x8, 0xe, 0x2, 0x8, 0x8, 0xd, 0x2, 0x8, 0x8, 0x10, 0x0, 0x8, 0x8, 0x1f, 0x0, 0x10, 0x10, 0x8,  };
+static const uint8 kHandleNormalSpriteLevelColl_SpriteObjClippingY[61] = { 0x8, 0x8, 0x10, 0x2, 0x12, 0x12, 0x20, 0x2, 0x7, 0x7, 0x7, 0x7, 0x10, 0x10, 0x20, 0xb, 0x12, 0x12, 0x20, 0x2, 0x18, 0x18, 0x20, 0x10, 0x4, 0x4, 0x8, 0x0, 0x10, 0x10, 0x1f, 0x1, 0x8, 0x8, 0xf, 0x0, 0x8, 0x8, 0x10, 0x0, 0x48, 0x48, 0x50, 0x42, 0x4, 0x4, 0x8, 0x0, 0x0, 0x0, 0x0, 0x0, 0x8, 0x8, 0x10, 0x0, 0x8, 0x8, 0x10, 0x0, 0x4,  };
+static const uint8 kHandleNormalSpriteLevelColl_DATA_019134[4] = { 0x1, 0x2, 0x4, 0x8,  };
+static const uint8 kHandleNormalSpriteLevelColl_DATA_019284[2] = { 0xfc, 0x4,  };
+static const uint8 kHandleNormalSpriteLevelColl_DATA_019286[2] = { 0xff, 0x0,  };
+static const uint8 kHandleNormalSpriteLevelColl_DATA_0192C5[2] = { 0x1, 0xff,  };
+static const uint8 kHandleNormalSpriteLevelColl_DATA_0192C7[2] = { 0x0, 0xff,  };
+static const uint8 kSprStatus09_Stunned_SpriteKoopasSpawn[8] = { 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x2, 0x3,  };
+static const uint8 kSprStatus09_Stunned_DATA_0197AD[2] = { 0xc0, 0x40,  };
+static const uint8 kMakeStunnedSpriteBounceOrSlowDownOnGround_DATA_0197AF[38] = { 0x0, 0x0, 0x0, 0xf8, 0xf8, 0xf8, 0xf8, 0xf8, 0xf8, 0xf7, 0xf6, 0xf5, 0xf4, 0xf3, 0xf2, 0xe8, 0xe8, 0xe8, 0xe8, 0x0, 0x0, 0x0, 0x0, 0xfe, 0xfc, 0xf8, 0xec, 0xec, 0xec, 0xe8, 0xe4, 0xe0, 0xdc, 0xd8, 0xd4, 0xd0, 0xcc, 0xc8,  };
+static const uint8 kSprStatus0A_Kicked_XSpeed[2] = { 0xe0, 0x20,  };
+static const uint8 kKickedShellGFXRt_ShellAniTiles[4] = { 0x6, 0x7, 0x8, 0x7,  };
+static const uint8 kKickedShellGFXRt_Prop[4] = { 0x0, 0x0, 0x0, 0x40,  };
+static const uint8 kSprStatus04_SpinJumpKill_SmokeTiles[4] = { 0x64, 0x62, 0x60, 0x62,  };
+static const uint16 kGenericSpriteOAMData_Tiles[126] = { 0xa082, 0xa282, 0xa484, 0x8a8c, 0xc88e, 0xcaca, 0xccce, 0x4e86, 0xe2e0, 0xcee2, 0xe0e4, 0xa3e0, 0xb3a3, 0xe9b3, 0xf9e8, 0xe8f8, 0xf8e9, 0xe2f9, 0xaae6, 0xa8a8, 0xa2aa, 0xb2a2, 0xc3b2, 0xd3c2, 0xc2d2, 0xd2c3, 0xe2d3, 0xcae6, 0xcacc, 0xceac, 0xceae, 0x8383, 0xc4c4, 0x8383, 0xc5c5, 0xa68a, 0xa6a4, 0x80a8, 0x8082, 0x8484, 0x8484, 0x9494, 0x9494, 0xb0a0, 0xd0a0, 0x8082, 0x82, 0x0, 0x8486, 0xec88, 0xa88c, 0x8eaa, 0xaeac, 0xec8e, 0xceee, 0xa8ee, 0x40ee, 0xa040, 0xa0c0, 0xa4c0, 0xa4c4, 0xa0c4, 0xa0c0, 0x40c0, 0x2707, 0x294c, 0x2b4e, 0xa082, 0xa484, 0x6967, 0xce88, 0xae8e, 0xa2a2, 0xb2b2, 0x4000, 0x4244, 0x422c, 0x2828, 0x2828, 0x4c4c, 0x4c4c, 0x8383, 0x6f6f, 0xbcac, 0xa6ac, 0xaa8c, 0x8486, 0xecdc, 0xeede, 0x606, 0x1616, 0x707, 0x1717, 0x1616, 0x606, 0x1717, 0x707, 0x8684, 0x0, 0xe00, 0x242a, 0x602, 0x200a, 0x2822, 0x2e26, 0x4240, 0x40c, 0x6a2b, 0x88ed, 0xa88c, 0xaa8e, 0x8cae, 0xa888, 0xacae, 0x8e8c, 0xeece, 0xc6c4, 0x8482, 0x8c86, 0xcece, 0x8988, 0xcece, 0x8889, 0xcef3, 0xcef3, 0xa9a7,  };
+static const uint8 kGenericSpriteOAMData_TilesOffset[84] = { 0x9, 0x9, 0x10, 0x9, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x37, 0x0, 0x25, 0x25, 0x5a, 0x0, 0x4b, 0x4e, 0x8a, 0x8a, 0x8a, 0x8a, 0x56, 0x3a, 0x46, 0x47, 0x69, 0x6b, 0x73, 0x0, 0x0, 0x80, 0x80, 0x80, 0x80, 0x8e, 0x90, 0x0, 0x0, 0x3a, 0xf6, 0x94, 0x95, 0x63, 0x9a, 0xa6, 0xaa, 0xae, 0xb2, 0xc2, 0xc4, 0xd5, 0xd9, 0xd7, 0xd7, 0xe6, 0xe6, 0xe6, 0xe2, 0x99, 0x17, 0x29, 0xe6, 0xe6, 0xe6, 0x0, 0xe8, 0x0, 0x8a, 0xe8, 0x0, 0xed, 0xea, 0x7f, 0xea, 0xea, 0x3a, 0x3a, 0xfa, 0x71, 0x7f,  };
+static const uint8 kGenericSpriteOAMData_XDisp[4] = { 0x0, 0x8, 0x0, 0x8,  };
+static const uint8 kGenericSpriteOAMData_YDisp[4] = { 0x0, 0x0, 0x8, 0x8,  };
+static const uint8 kGenericSpriteOAMData_Prop[24] = { 0x0, 0x0, 0x0, 0x0, 0x0, 0x40, 0x0, 0x40, 0x0, 0x40, 0x80, 0xc0, 0x40, 0x40, 0x0, 0x0, 0x40, 0x0, 0xc0, 0x80, 0x40, 0x40, 0x40, 0x40,  };
+static const uint8 kDrawWingTiles_XDispLo[4] = { 0xff, 0xf7, 0x9, 0x9,  };
+static const uint8 kDrawWingTiles_XDispHi[4] = { 0xff, 0xff, 0x0, 0x0,  };
+static const uint8 kDrawWingTiles_YDisp[4] = { 0xfc, 0xf4, 0xfc, 0xf4,  };
+static const uint8 kDrawWingTiles_Tiles[4] = { 0x5d, 0xc6, 0x5d, 0xc6,  };
+static const uint8 kDrawWingTiles_Prop[4] = { 0x46, 0x46, 0x6, 0x6,  };
+static const uint8 kDrawWingTiles_TileSize[4] = { 0x0, 0x2, 0x0, 0x2,  };
+static const uint8 kSprStatus0B_Carried_CarriedSpriteXOffsetLo[6] = { 0xb, 0xf5, 0x4, 0xfc, 0x4, 0x0,  };
+static const uint8 kSprStatus0B_Carried_CarriedSpriteXOffsetHi[6] = { 0x0, 0xff, 0x0, 0xff, 0x0, 0x0,  };
+static const uint8 kSprStatus0B_Carried_PlacedSpriteInitialXPosLo[2] = { 0xf3, 0xd,  };
+static const uint8 kSprStatus0B_Carried_PlacedSpriteInitialXPosHi[2] = { 0xff, 0x0,  };
+static const uint8 kSprStatus0B_Carried_ShellXSpeed[4] = { 0xd2, 0x2e, 0xcc, 0x34,  };
+static const uint8 kSprStatus0B_Carried_PlacedSpriteInitiaXSpeed[2] = { 0xfc, 0x4,  };
+static const uint8 kProcessStunnedNormalSprite_StunnedBabyYoshi_DATA_01A35A[7] = { 0x0, 0x3, 0x2, 0x2, 0x1, 0x1, 0x1,  };
+static const uint8 kGetDrawInfo_DATA_01A361[2] = { 0x10, 0x20,  };
+static const uint8 kGetDrawInfo_DATA_01A363[2] = { 0x1, 0x2,  };
+static const uint8 kCheckNormalSpriteToNormalSpriteColl_DATA_01A40B[2] = { 0x2, 0xa,  };
+static const uint8 kStompSoundTable_Bank01[7] = { 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19,  };
+static const uint8 kCheckNormalSpriteToNormalSpriteColl_DATA_01A6D7[2] = { 0x30, 0xd0,  };
+static const uint8 kCheckNormalSpriteToNormalSpriteColl_DATA_01A778[2] = { 0x10, 0xf0,  };
+static const uint8 kCheckNormalSpriteToNormalSpriteColl_DATA_01A77A[2] = { 0x0, 0xff,  };
+const uint8 kGenericSpriteToSpawnTable[19] = { 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x4, 0x4, 0x5, 0x5, 0x7, 0x0, 0x0, 0xf, 0xf, 0xf, 0xd,  };
+static const uint8 kCheckPlayerToNormalSpriteColl_DATA_01A839[2] = { 0xf0, 0x10,  };
+static const uint16 kCheckPlayerToNormalSpriteColl_DATA_01AB2D[2] = { 0x1, 0xffff,  };
+static const uint8 kSubOffscreen_Bank01_SpriteOffScreen1_Lo[2] = { 0x40, 0xb0,  };
+static const uint8 kSubOffscreen_Bank01_SpriteOffScreen1_Hi[2] = { 0x1, 0xff,  };
+static const uint8 kSubOffscreen_Bank01_SpriteOffScreen2_Lo[8] = { 0x30, 0xc0, 0xa0, 0xc0, 0xa0, 0xf0, 0x60, 0x90,  };
+static const uint8 kSubOffscreen_Bank01_SpriteOffScreen2_Hi[8] = { 0x1, 0xff, 0x1, 0xff, 0x1, 0xff, 0x1, 0xff,  };
+static const uint8 kSpr083_LeftFlyingBlock_Acceleration[2] = { 0xff, 0x1,  };
+static const uint8 kSpr083_LeftFlyingBlock_MaxYSpeed[2] = { 0xf4, 0xc,  };
+static const uint8 kSpr083_LeftFlyingBlock_MaxXSpeed[2] = { 0xf0, 0x10,  };
+static const uint8 kSpr083_LeftFlyingBlock_DATA_01AE7F[9] = { 0x0, 0x3, 0x5, 0x7, 0x8, 0x8, 0x7, 0x5, 0x3,  };
+static const uint8 kSpr083_LeftFlyingBlock_DATA_01AE88[8] = { 0x6, 0x2, 0x4, 0x5, 0x6, 0x1, 0x1, 0x5,  };
+static const uint8 kSpr026_Thwomp_XDisp[5] = { 0xfc, 0x4, 0xfc, 0x4, 0x0,  };
+static const uint8 kSpr026_Thwomp_YDisp[5] = { 0x0, 0x0, 0x10, 0x10, 0x8,  };
+static const uint8 kSpr026_Thwomp_Tiles[5] = { 0x8e, 0x8e, 0xae, 0xae, 0xc8,  };
+static const uint8 kSpr026_Thwomp_Prop[5] = { 0x3, 0x43, 0x3, 0x43, 0x3,  };
+static const uint8 kSpr017_GeneratorCheepCheep_Init_InitXSpeed[2] = { 0x10, 0xf0,  };
+static const uint8 kSprXXX_FixedMovementCheepCheep_SwimmingXSpeed[2] = { 0x8, 0xf8,  };
+static const uint8 kSprXXX_FixedMovementCheepCheep_SwimmingYSpeed[4] = { 0x0, 0x0, 0x8, 0xf8,  };
+static const uint8 kSprXXX_FixedMovementCheepCheep_KickedXSpeed[2] = { 0xf0, 0x10,  };
+static const uint8 kSprXXX_FixedMovementCheepCheep_FloppingYSpeed[4] = { 0xe0, 0xe8, 0xd0, 0xd8,  };
+static const uint8 kSprXXX_FixedMovementCheepCheep_FloppingXSpeed[8] = { 0x8, 0xf8, 0x10, 0xf0, 0x4, 0xfc, 0x14, 0xec,  };
+static const uint8 kSprXXX_FixedMovementCheepCheep_DATA_01B031[2] = { 0x3, 0xc,  };
+static const uint8 kSpr018_SurfaceJumpingCheepCheep_YSpeed[3] = { 0xd0, 0xd0, 0xb0,  };
+static const uint8 kSprXXX_BuoyantPlatformsAndMine_Init_InitialXSpeed[4] = { 0x8, 0xf8, 0x10, 0xf0,  };
+static const uint8 kSpr055_HorizontalCheckerboardPlatform_DATA_01B268[2] = { 0xff, 0x1,  };
+static const uint8 kSpr055_HorizontalCheckerboardPlatform_DATA_01B26A[2] = { 0xf0, 0x10,  };
+static const uint8 kNormalSpritePlatformGFXRt_DATA_01B2C3[14] = { 0x0, 0x1, 0x0, 0x1, 0x0, 0x0, 0x0, 0x0, 0x1, 0x1, 0x0, 0x0, 0x0, 0x0,  };
+static const uint8 kNormalSpritePlatformGFXRt_DiagPlatTiles[9] = { 0xcb, 0xe4, 0xcc, 0xe5, 0xcc, 0xe5, 0xcc, 0xe4, 0xcb,  };
+static const uint8 kSolidSpriteBlock_DATA_01B4F9[6] = { 0xe, 0xf1, 0x10, 0xe0, 0x1f, 0xf1,  };
+static const uint8 kSolidSpriteBlock_DATA_01B4FF[6] = { 0x0, 0xff, 0x0, 0xff, 0x0, 0xff,  };
+static const uint8 kSprXXX_BuoyantPlatformsAndMine_SpikeBallXDisp[4] = { 0xf8, 0x8, 0xf8, 0x8,  };
+static const uint8 kSprXXX_BuoyantPlatformsAndMine_SpikeBallYDisp[4] = { 0xf8, 0xf8, 0x8, 0x8,  };
+static const uint8 kSprXXX_BuoyantPlatformsAndMine_SpikeBallProp[4] = { 0x31, 0x71, 0xa1, 0xf1,  };
+static const uint8 kSprXXX_TurnBlockBridge_BlkBridgeLength[2] = { 0x20, 0x0,  };
+static const uint8 kSprXXX_TurnBlockBridge_TurnBlkBridgeSpeed[2] = { 0x1, 0xff,  };
+static const uint8 kSprXXX_TurnBlockBridge_BlkBridgeTiming[2] = { 0x40, 0x40,  };
+static const uint8 kSprXXX_NetKoopas_Init_InitXSpeed[2] = { 0x8, 0xf8,  };
+static const uint8 kSprXXX_NetKoopas_DATA_01B969[10] = { 0x2, 0x2, 0x3, 0x4, 0x3, 0x2, 0x2, 0x2, 0x1, 0x2,  };
+static const uint8 kSprXXX_NetKoopas_DATA_01B973[10] = { 0x1, 0x1, 0x0, 0x0, 0x0, 0x1, 0x1, 0x1, 0x1, 0x1,  };
+static const uint8 kSprXXX_NetKoopas_DATA_01B97D[2] = { 0x3, 0xc,  };
+static const uint8 kSpr054_ClimbingNetDoor_XDisp[16] = { 0x0, 0x1, 0x2, 0x4, 0x6, 0x9, 0xc, 0xd, 0x14, 0xd, 0xc, 0x9, 0x6, 0x4, 0x2, 0x1,  };
+static const uint8 kSpr054_ClimbingNetDoor_AnimationFrame[16] = { 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x1, 0x1, 0x2, 0x1, 0x1, 0x1, 0x0, 0x0, 0x0, 0x0,  };
+static const uint8 kSpr054_ClimbingNetDoor_Tiles[21] = { 0x0, 0x10, 0x0, 0x0, 0x10, 0x0, 0x1, 0x11, 0x1, 0x5, 0x15, 0x5, 0x5, 0x15, 0x5, 0x0, 0x0, 0x0, 0x3, 0x13, 0x3,  };
+static const uint8 kSpr020_Magic_Palettes[4] = { 0x5, 0x7, 0x9, 0xb,  };
+static const uint8 kSpr020_Magic_Disp[16] = { 0x0, 0x1, 0x2, 0x5, 0x8, 0xb, 0xe, 0xf, 0x10, 0xf, 0xe, 0xb, 0x8, 0x5, 0x2, 0x1,  };
+static const uint8 kSpr01F_MagiKoopa_DATA_01BE69[3] = { 0x4, 0x2, 0x0,  };
+static const uint8 kSpr01F_MagiKoopa_WandXDisp[2] = { 0x10, 0xf8,  };
+static const uint8 kSpr07B_GoalTape_YSpeed[2] = { 0x10, 0xf0,  };
+static const uint8 kSprXXX_FlyingItems_YAcceleration[2] = { 0xff, 0x1,  };
+static const uint8 kSprXXX_FlyingItems_MaxYSpeed[2] = { 0xf0, 0x10,  };
+static const uint8 kSprXXX_PowerUps_ChangingItemSprite[4] = { 0x74, 0x75, 0x77, 0x76,  };
+static const uint8 kSprXXX_PowerUps_EatenBerryGfxProp[4] = { 0x2, 0x2, 0x4, 0x6,  };
+static const uint8 kSprXXX_PowerUps_ItemBoxSprite[20] = { 0x0, 0x1, 0x1, 0x1, 0x0, 0x1, 0x4, 0x2, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x4, 0x2, 0x0, 0x0, 0x0, 0x0,  };
+static const uint8 kSprXXX_PowerUps_GivePowerPtrIndex[20] = { 0x0, 0x1, 0x1, 0x1, 0x4, 0x4, 0x4, 0x1, 0x2, 0x2, 0x2, 0x2, 0x3, 0x3, 0x1, 0x3, 0x5, 0x5, 0x5, 0x5,  };
+static const uint8 kPowerUpAndItemGFXRt_PowerUpTiles[13] = { 0x24, 0x26, 0x48, 0xe, 0x24, 0x0, 0x0, 0x0, 0x0, 0xe4, 0xe8, 0x24, 0xec,  };
+static const uint8 kPowerUpAndItemGFXRt_StarPalValues[4] = { 0x0, 0x4, 0x8, 0x4,  };
+static const uint8 kPowerUpAndItemGFXRt_DrawCoinSprite_Tiles[3] = { 0xea, 0xfa, 0xea,  };
+static const uint8 kSpr077_Feather_XAccelerarion[2] = { 0x2, 0xfe,  };
+static const uint8 kSpr077_Feather_MaxXSpeed[2] = { 0x20, 0xe0,  };
+static const uint8 kSpr077_Feather_YSpeed[3] = { 0xa, 0xf6, 0x8,  };
+static const uint8 kSpr05F_BrownChainedPlatform_PlatformXDisp[4] = { 0xe0, 0xf0, 0x0, 0x10,  };
+static const uint8 kSpr05F_BrownChainedPlatform_PlatformTiles[4] = { 0x60, 0x61, 0x61, 0x62,  };
+static const uint8 kSpr05F_BrownChainedPlatform_DATA_01C9D6[2] = { 0x1, 0xff,  };
+static const uint8 kSpr05F_BrownChainedPlatform_DATA_01C9D8[2] = { 0x40, 0xc0,  };
+static const uint8 kSpr029_KoopaKids_Init_DATA_01CD92[3] = { 0x1, 0x1, 0x0,  };
+static const uint8 kSpr029_KoopaKid_MortonRoyLudwig_DATA_01CD99[3] = { 0x0, 0x9, 0x12,  };
+static const uint8 kSpr029_KoopaKid_MortonRoyLudwig_DATA_01CD9C[9] = { 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8,  };
+static const uint8 kSpr029_KoopaKid_MortonRoyLudwig_DATA_01CDA5[2] = { 0x0, 0x80,  };
+static const uint8 kSpr029_KoopaKid_MortonRoyLudwig_LudwigMaxXSpeed[2] = { 0x30, 0xd0,  };
+static const uint8 kSpr029_KoopaKid_MortonRoyLudwig_DATA_01CEB0[4] = { 0x1b, 0x1c, 0x1d, 0x1b,  };
+static const uint8 kSpr029_KoopaKid_MortonRoyLudwig_DATA_01CEB4[2] = { 0x14, 0xec,  };
+static const uint8 kSpr029_KoopaKid_MortonRoyLudwig_DATA_01D057[2] = { 0xff, 0xf1,  };
+static const uint8 kSpr029_KoopaKid_MortonRoyLudwig_DATA_01D0BE[2] = { 0x20, 0xe0,  };
+static const uint8 kSpr029_KoopaKid_MortonRoyLudwig_DATA_01D0DE[56] = { 0x80, 0x83, 0x85, 0x88, 0x8a, 0x8b, 0x8d, 0x8f, 0x90, 0x91, 0x91, 0x92, 0x92, 0x93, 0x93, 0x94, 0x94, 0x95, 0x95, 0x96, 0x96, 0x97, 0x97, 0x98, 0x98, 0x98, 0x99, 0x99, 0x9a, 0x9a, 0x9b, 0x9b, 0x9c, 0x9c, 0x9c, 0x9c, 0x9d, 0x9d, 0x9d, 0x9d, 0x9e, 0x9e, 0x9e, 0x9e, 0x9e, 0x9f, 0x9f, 0x9f, 0x9f, 0x9f, 0x9f, 0x9f, 0x9f, 0x9f, 0x9f, 0x9f,  };
+static const uint8 kSpr029_KoopaKid_MortonRoyLudwig_DATA_01D122[12] = { 0xf0, 0x0, 0x10, 0x0, 0xf0, 0x0, 0x10, 0x0, 0xe8, 0x0, 0x18, 0x0,  };
+static const uint8 kSpr029_KoopaKid_MortonRoyLudwig_DATA_01D12E[16] = { 0x0, 0xf0, 0x0, 0x10, 0x0, 0xf0, 0x0, 0x10, 0x0, 0xe8, 0x0, 0x18, 0x26, 0x26, 0xd8, 0xd8,  };
+static const uint8 kSpr029_KoopaKid_MortonRoyLudwig_DATA_01D13E[4] = { 0x90, 0x30, 0x30, 0x90,  };
+static const uint8 kSpr029_KoopaKid_MortonRoyLudwig_DATA_01D142[4] = { 0x0, 0x1, 0x2, 0x1,  };
+static const uint8 kSpr029_KoopaKid_MortonRoyLudwig_DATA_01D239[2] = { 0xfc, 0x4,  };
+static const uint8 kSpr029_KoopaKid_MortonRoyLudwig_DATA_01D23B[2] = { 0xff, 0x0,  };
+static const uint8 kSpr029_KoopaKid_MortonRoyLudwig_DATA_01D23D[2] = { 0xff, 0x1,  };
+static const uint8 kSpr034_LudwigFireball_OAMIndexes[5] = { 0xa8, 0xb0, 0xb8, 0xc0, 0xc8,  };
+static const uint8 kSpr034_LudwigFireball_XDisp[4] = { 0x0, 0xf0, 0x0, 0x10,  };
+static const uint8 kSpr034_LudwigFireball_Tiles[4] = { 0x4a, 0x4c, 0x6a, 0x6c,  };
+static const uint8 kSpr034_LudwigFireball_Prop[4] = { 0x45, 0x45, 0x5, 0x5,  };
+static const uint8 kSprXXX_ParachutingEnemy_DATA_01D4E7[2] = { 0x1, 0xff,  };
+static const uint8 kSprXXX_ParachutingEnemy_DATA_01D4E9[2] = { 0xf, 0x0,  };
+static const uint8 kSprXXX_ParachutingEnemy_DATA_01D4EB[16] = { 0x0, 0x2, 0x4, 0x6, 0x8, 0xa, 0xc, 0xe, 0xe, 0xc, 0xa, 0x8, 0x6, 0x4, 0x2, 0x0,  };
+static const uint8 kSprXXX_ParachutingEnemy_DATA_01D55E[16] = { 0xd, 0xd, 0xd, 0xd, 0xc, 0xc, 0xc, 0xc, 0xc, 0xc, 0xc, 0xc, 0xd, 0xd, 0xd, 0xd,  };
+static const uint8 kSprXXX_ParachutingEnemy_DATA_01D56E[16] = { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1,  };
+static const uint8 kSprXXX_ParachutingEnemy_DATA_01D57E[16] = { 0xf8, 0xf8, 0xfa, 0xfa, 0xfc, 0xfc, 0xfe, 0xfe, 0x2, 0x2, 0x4, 0x4, 0x6, 0x6, 0x8, 0x8,  };
+static const uint8 kSprXXX_ParachutingEnemy_DATA_01D58E[16] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,  };
+static const uint8 kSprXXX_ParachutingEnemy_DATA_01D59E[16] = { 0xe, 0xe, 0xf, 0xf, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0xf, 0xf, 0xe, 0xe,  };
+static const uint8 kSprXXX_ParachutingEnemy_DATA_01D5AE[2] = { 0xf, 0xd,  };
+static const uint8 kSprXXX_ParachutingEnemy_DATA_01D5B0[3] = { 0x1, 0x5, 0x0,  };
+static const uint8 kSprXXX_LineGuided_DATA_01D717[2] = { 0xf8, 0x0,  };
+static const uint8 kSprXXX_LineGuided_DATA_01D7E1[4] = { 0xfc, 0x4, 0xfc, 0x4,  };
+static const uint8 kSprXXX_LineGuided_DATA_01D7E5[4] = { 0xff, 0x0, 0xff, 0x0,  };
+static const uint8 kSprXXX_LineGuided_DATA_01D7E9[4] = { 0xfc, 0xfc, 0x4, 0x4,  };
+static const uint8 kSprXXX_LineGuided_DATA_01D7ED[4] = { 0xff, 0xff, 0x0, 0x0,  };
+static const uint8 kSpr0B4_NonLineGuideGrinder_XSpeed[2] = { 0x18, 0xe8,  };
+static const uint8 kSpr0B4_NonLineGuideGrinder_XDisp[4] = { 0xf8, 0x8, 0xf8, 0x8,  };
+static const uint8 kSpr0B4_NonLineGuideGrinder_YDisp[4] = { 0x0, 0x0, 0x10, 0x10,  };
+static const uint8 kSpr0B4_NonLineGuideGrinder_Prop[4] = { 0x3, 0x43, 0x83, 0xc3,  };
+static const uint8 kSprXXX_LineGuided_DATA_01DC09[2] = { 0x5, 0x45,  };
+static const uint8 kSprXXX_LineGuided_DATA_01DC3B[4] = { 0xf0, 0x0, 0xf0, 0x0,  };
+static const uint8 kSprXXX_LineGuided_DATA_01DC3F[4] = { 0xf0, 0xf0, 0x0, 0x0,  };
+static const uint8 kSprXXX_LineGuided_DATA_01DC43[4] = { 0x33, 0x73, 0xb3, 0xf3,  };
+static const uint8 kSprXXX_LineGuided_RopeMotorTiles[4] = { 0xc0, 0xc2, 0xe0, 0xc2,  };
+static const uint8 kSprXXX_LineGuided_LineGuideRopeTiles[9] = { 0xc0, 0xce, 0xce, 0xce, 0xce, 0xce, 0xce, 0xce, 0xce,  };
+static const uint8 kSprXXX_LineGuided_DATA_01DCD1[32] = { 0x15, 0x15, 0x15, 0x15, 0xc, 0x10, 0x10, 0x10, 0x10, 0xc, 0xc, 0x10, 0x10, 0x10, 0x10, 0xc, 0x15, 0x15, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x15, 0x15,  };
+static const uint8 kSprXXX_LineGuided_DATA_01DCF1[32] = { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x2, 0x0, 0x0, 0x0, 0x0, 0x2, 0x1, 0x0, 0x0, 0x0, 0x0, 0x1, 0x2, 0x1, 0x2, 0x0, 0x0, 0x0, 0x0, 0x2, 0x2, 0x0, 0x0, 0x0, 0x0,  };
+static const uint8 kSprXXX_LineGuided_DATA_01DD11[64] = { 0x0, 0x10, 0x0, 0xf0, 0xf4, 0xfc, 0xf0, 0x10, 0x4, 0xc, 0xc, 0x0, 0x10, 0xf0, 0xfc, 0xf4, 0xf0, 0x10, 0xf0, 0x10, 0xf0, 0x10, 0xf8, 0xf8, 0x8, 0x8, 0x10, 0x10, 0x0, 0x0, 0xf0, 0x10, 0x10, 0x0, 0xf0, 0xf0, 0xc, 0x4, 0x10, 0xf0, 0x0, 0xf4, 0xf4, 0xfc, 0xf0, 0x10, 0x0, 0xc, 0x10, 0xf0, 0x10, 0x0, 0x10, 0xf0, 0x8, 0x8, 0xf8, 0xf8, 0xf0, 0xf0, 0x0, 0x0, 0x10, 0xf0,  };
+static const uint8 kSprXXX_LineGuided_DATA_01DD51[64] = { 0x10, 0x0, 0x10, 0x0, 0xc, 0x10, 0x4, 0x0, 0x10, 0xc, 0xc, 0x10, 0x4, 0x0, 0x10, 0xc, 0x10, 0x10, 0x8, 0x8, 0x8, 0x8, 0x10, 0x10, 0x10, 0x10, 0x0, 0x0, 0x10, 0x10, 0x10, 0x10, 0x0, 0xf0, 0x0, 0xf0, 0xf4, 0xf0, 0x0, 0xfc, 0xf0, 0xf4, 0xf4, 0xf0, 0x0, 0xfc, 0xf0, 0xf4, 0xf0, 0xf0, 0xf8, 0xf8, 0xf8, 0xf8, 0xf0, 0xf0, 0xf0, 0xf0, 0x0, 0x0, 0xf0, 0xf0, 0xf0, 0xf0 };
+static const uint8 kSpr082_BonusGame_Init_DATA_01DD90[9] = { 0x50, 0x78, 0xa0, 0xa0, 0xa0, 0x78, 0x50, 0x50, 0x78, };
+static const uint8 kSpr082_BonusGame_Init_DATA_01DD99[9] = { 0xf0, 0xf0, 0xf0, 0x18, 0x40, 0x40, 0x40, 0x18, 0x18, };
+static const uint8 kSpr082_BonusGame_Init_DATA_01DDA2[9] = { 0x3, 0x0, 0x0, 0x1, 0x1, 0x2, 0x2, 0x3, 0xff,  };
+static const uint8 kSpr082_BonusGame_DATA_01DE11[4] = { 0x10, 0x0, 0xf0, 0x0,  };
+static const uint8 kSpr082_BonusGame_DATA_01DE15[4] = { 0x0, 0x10, 0x0, 0xf0,  };
+static const uint8 kSpr082_BonusGame_DATA_01DE19[4] = { 0xa0, 0xa0, 0x50, 0x50,  };
+static const uint8 kSpr082_BonusGame_DATA_01DE1D[4] = { 0xf0, 0x40, 0x40, 0xf0,  };
+static const uint8 kSpr082_BonusGame_DATA_01DE21[9] = { 0x1, 0x1, 0x1, 0x4, 0x4, 0x4, 0x7, 0x7, 0x7,  };
+static const uint8 kSpr082_BonusGame_DATA_01DEE3[36] = { 0x58, 0x59, 0x83, 0x83, 0x48, 0x49, 0x58, 0x59, 0x83, 0x83, 0x48, 0x49, 0x34, 0x35, 0x83, 0x83, 0x24, 0x25, 0x34, 0x35, 0x83, 0x83, 0x24, 0x25, 0x36, 0x37, 0x83, 0x83, 0x26, 0x27, 0x36, 0x37, 0x83, 0x83, 0x26, 0x27,  };
+static const uint8 kSpr082_BonusGame_DATA_01DF07[9] = { 0x4, 0x4, 0x4, 0x8, 0x8, 0x8, 0xa, 0xa, 0xa,  };
+static const uint8 kSpr082_BonusGame_DATA_01DF10[9] = { 0x0, 0x3, 0x5, 0x7, 0x8, 0x8, 0x7, 0x5, 0x3,  };
+static const uint8 kSpr082_BonusGame_DATA_01DFC1[24] = { 0x0, 0x1, 0x2, 0x2, 0x3, 0x4, 0x4, 0x5, 0x6, 0x6, 0x7, 0x0, 0x0, 0x8, 0x4, 0x2, 0x8, 0x6, 0x3, 0x8, 0x7, 0x1, 0x8, 0x5,  };
+static const uint8 kSpr033_Podoboo_DATA_01E07B[22] = { 0xf0, 0xdc, 0xd0, 0xc8, 0xc0, 0xb8, 0xb2, 0xac, 0xa6, 0xa0, 0x9a, 0x96, 0x92, 0x8c, 0x88, 0x84, 0x80, 0x4, 0x8, 0xc, 0x10, 0x14,  };
+static const uint8 kSpr033_Podoboo_DATA_01E091[2] = { 0x70, 0x20,  };
+static const uint8 kSpr033_Podoboo_BowserFlameTiles[4] = { 0x2a, 0x2c, 0x2a, 0x2c,  };
+static const uint8 kSpr033_Podoboo_BowserFlameProp[4] = { 0x5, 0x5, 0x45, 0x45,  };
+static const uint8 kSprXXX_SmallMontyMole_DATA_01E35F[2] = { 0x1, 0x2,  };
+static const uint8 kSprXXX_SmallMontyMole_DATA_01E361[2] = { 0x0, 0x5,  };
+static const uint8 kSprXXX_SmallMontyMole_NoFollowXSpeed[2] = { 0x10, 0xf0,  };
+static const uint8 kSprXXX_SmallMontyMole_FollowMaxXSpeed[2] = { 0x18, 0xe8,  };
+static const uint8 kSpr030_ThrowingDryBones_XSpeed[2] = { 0x8, 0xf8,  };
+static const uint8 kSpr030_ThrowingDryBones_DATA_01E43C[2] = { 0x8, 0xf8,  };
+static const uint8 kSpr02F_PortableSpringboard_AnimationFrames[9] = { 0x0, 0x1, 0x2, 0x2, 0x2, 0x1, 0x1, 0x0, 0x0,  };
+static const uint8 kSpr02F_PortableSpringboard_PlayerYDisp[9] = { 0x1e, 0x1b, 0x18, 0x18, 0x18, 0x1a, 0x1c, 0x1d, 0x1e,  };
+static const uint8 kSpr02F_PortableSpringboard_YDispOffset[3] = { 0x0, 0x2, 0x0,  };
+static const uint8 kSpr087_LakituCloud_XDisp[16] = { 0xfc, 0x4, 0xfe, 0x2, 0xfb, 0x5, 0xfd, 0x3, 0xfa, 0x6, 0xfc, 0x4, 0xfb, 0x5, 0xfd, 0x3,  };
+static const uint8 kSpr087_LakituCloud_YDisp[20] = { 0x0, 0xff, 0x3, 0x4, 0xff, 0xfe, 0x4, 0x3, 0xfe, 0xff, 0x3, 0x3, 0xff, 0x0, 0x3, 0x3, 0xf8, 0xfc, 0x0, 0x4,  };
+static const uint8 kSpr087_LakituCloud_CloudYPosOffset[17] = { 0xe, 0xf, 0x10, 0x11, 0x12, 0x11, 0x10, 0xf, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1d, 0x1c, 0x1b, 0x1a,  };
+static const uint8 kSpr087_LakituCloud_EvaporatingCloudTiles[4] = { 0x66, 0x64, 0x62, 0x60,  };
+static const uint8 kSpr087_LakituCloud_MaxLakituXSpeed[2] = { 0x20, 0xe0,  };
+static const uint8 kSpr087_LakituCloud_MaxLakituYSpeed[2] = { 0x10, 0xf0,  };
+static const uint8 kMakeLakituThrowSpiny_InitialXSpeed[2] = { 0x10, 0xf0,  };
+static const uint8 kGenericNormalSpriteAccelerationTable[2] = { 0x1, 0xff,  };
+static const uint8 kSpr035_Yoshi_PanicXSpeed[2] = { 0xe8, 0x18,  };
+static const uint8 kSpr035_Yoshi_DismountXSpeed[2] = { 0x10, 0xf0,  };
+static const uint8 kSpr035_Yoshi_GrowingAniSequence[8] = { 0xc, 0xb, 0xc, 0xb, 0xa, 0xb, 0xa, 0xb,  };
+static const uint8 kSpr035_Yoshi_YoshiEggInitialXSpeed[2] = { 0xf0, 0x10,  };
+static const uint8 kSpr035_Yoshi_YoshiEggInitialXOffsetLo[2] = { 0xfa, 0x6,  };
+static const uint8 kSpr035_Yoshi_YoshiEggInitialXOffsetHi[2] = { 0xff, 0x0,  };
+static const uint8 kSpr035_Yoshi_DATA_01EDE2[2] = { 0x4, 0x10,  };
+static const uint8 kSpr035_Yoshi_DATA_01EDE4[10] = { 0x6, 0x5, 0x5, 0x5, 0xa, 0x5, 0x5, 0xa, 0xa, 0xb,  };
+static const uint8 kSpr035_Yoshi_YoshiWalkFrames[3] = { 0x2, 0x1, 0x0,  };
+static const uint8 kSpr035_Yoshi_YoshiPositionX[2] = { 0x2, 0xfe,  };
+static const uint8 kSpr035_Yoshi_DATA_01EDF3[2] = { 0x0, 0xff,  };
+// oob
+static const uint8 kSpr035_Yoshi_DATA_01EDF5[5] = { 0x3, 0x2, 0x1, 0x0, 0x0 };
+static const uint8 kSpr035_Yoshi_YoshiHeadTiles[13] = { 0x0, 0x1, 0x2, 0x3, 0x2, 0x10, 0x4, 0x5, 0x0, 0x0, 0xff, 0xff, 0x0,  };
+static const uint8 kSpr035_Yoshi_YoshiBodyTiles[13] = { 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0x6, 0xc, 0xa, 0xd, 0xe, 0xf, 0xc,  };
+static const uint8 kSpr035_Yoshi_YoshiHeadXDisp[26] = { 0xa, 0x9, 0xa, 0x6, 0xa, 0xa, 0xa, 0x10, 0xa, 0xa, 0x0, 0x0, 0xa, 0xf6, 0xf7, 0xf6, 0xfa, 0xf6, 0xf6, 0xf6, 0xf0, 0xf6, 0xf6, 0x0, 0x0, 0xf6,  };
+static const uint8 kSpr035_Yoshi_DATA_01EE2D[26] = { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x0, 0x0, 0xff,  };
+static const uint8 kSpr035_Yoshi_YoshiPositionY[13] = { 0x0, 0x1, 0x1, 0x0, 0x4, 0x0, 0x0, 0x4, 0x3, 0x3, 0x0, 0x0, 0x4,  };
+static const uint8 kSpr035_Yoshi_YoshiHeadYDisp[13] = { 0x0, 0x0, 0x1, 0x0, 0x0, 0x0, 0x0, 0x8, 0x0, 0x0, 0x0, 0x0, 0x5,  };
+static const uint8 kSpr035_Yoshi_YoshiShellAbility[14] = { 0x0, 0x0, 0x1, 0x2, 0x0, 0x0, 0x1, 0x2, 0x1, 0x1, 0x1, 0x3, 0x2, 0x2,  };
+static const uint8 kSpr035_Yoshi_YoshiAbilityIndex[6] = { 0x3, 0x2, 0x2, 0x3, 0x1, 0x0,  };
+static const uint8 kSpr035_Yoshi_YoshiFireballInitialXSpeed[3] = { 0x28, 0x24, 0x24,  };
+static const uint8 kSpr035_Yoshi_YoshiFireballInitialYSpeed[3] = { 0x0, 0xf8, 0x8,  };
+static const uint8 kSpr035_Yoshi_SpatOutSpriteXSpeed[4] = { 0x30, 0xd0, 0x10, 0xf0,  };
+static const uint8 kSpr035_Yoshi_DATA_01F305[2] = { 0x10, 0xf0,  };
+static const uint8 kSpr035_Yoshi_DATA_01F307[2] = { 0x0, 0xff,  };
+static const uint8 kSpr035_Yoshi_DATA_01F3D9[2] = { 0x0, 0x4,  };
+static const uint8 kSpr035_Yoshi_DATA_01F60A[16] = { 0xf5, 0xf5, 0xf5, 0xf5, 0xf5, 0xf5, 0xf5, 0xf0, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x13, 0x18,  };
+static const uint8 kSpr035_Yoshi_DATA_01F61A[8] = { 0x8, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8, 0x13,  };
+static const uint8 kSpr02C_YoshiEgg_DATA_01F75C[4] = { 0x0, 0x1, 0x1, 0x1,  };
+static const uint8 kSpr02C_YoshiEgg_YoshiEggTiles[4] = { 0x62, 0x2, 0x2, 0x0,  };
+static const uint8 kSpr02C_YoshiEgg_EggShellInitialYPosLo[4] = { 0x0, 0x0, 0x8, 0x8,  };
+static const uint8 kSpr02C_YoshiEgg_EggShellInitialXPosLo[4] = { 0x0, 0x8, 0x0, 0x8,  };
+static const uint8 kSpr02C_YoshiEgg_EggShellInitialYSpeed[4] = { 0xe8, 0xe8, 0xf4, 0xf4,  };
+static const uint8 kSpr02C_YoshiEgg_EggShellInitialXSpeed[4] = { 0xfa, 0x6, 0xfd, 0x3,  };
+static const uint8 kSprXXX_Eeries_Init_XSpeed[2] = { 0x10, 0xf0,  };
+static const uint8 kSprXXX_Eeries_YSpeed[2] = { 0x18, 0xe8,  };
+static const uint8 kSprXXX_NonBossBoos_MaxSpeed[2] = { 0x8, 0xf8,  };
+static const uint8 kSprXXX_NonBossBoos_DATA_01F8D1[4] = { 0x1, 0x2, 0x2, 0x1,  };
+static const uint8 kSprXXX_NonBossBoos_BooBlockTiles[3] = { 0x8c, 0xc8, 0xca,  };
+static const uint8 kSprXXX_NonBossBoos_BooBlockProp[3] = { 0xe, 0x2, 0x2,  };
+static const uint8 kSpr0A7_IggyBall_XFlip[2] = { 0x40, 0x0,  };
+static const uint8 kSpr0A7_IggyBall_Tiles[4] = { 0x4a, 0x4c, 0x4a, 0x4c,  };
+static const uint8 kSpr0A7_IggyBall_Prop[4] = { 0x35, 0x35, 0xf5, 0xf5,  };
+static const uint8 kSpr0A7_IggyBall_XSpeed[2] = { 0x10, 0xf0,  };
+static const uint8 kSpr029_KoopaKid_IggyLarry_HurtXSpeed[16] = { 0x0, 0xfc, 0xf8, 0xf8, 0xf8, 0xf8, 0xf8, 0xf8, 0xf8, 0xf8, 0xf8, 0xf4, 0xf0, 0xf0, 0xec, 0xec,  };
+static const uint8 kSpr029_KoopaKid_IggyLarry_WalkingAnimationFrames[16] = { 0x0, 0x1, 0x2, 0x0, 0x1, 0x2, 0x0, 0x1, 0x2, 0x0, 0x1, 0x2, 0x0, 0x1, 0x2, 0x1,  };
+static const uint8 kSpr029_KoopaKid_IggyLarry_ThrowingAnimationFrames[16] = { 0x4, 0xb, 0xb, 0xb, 0xb, 0xa, 0xa, 0x9, 0x9, 0x8, 0x8, 0x7, 0x4, 0x5, 0x5, 0x5,  };
+static const uint8 kSpr029_KoopaKid_IggyLarry_BallXDisp[2] = { 0x8, 0xf8,  };
+static const uint8 kSpr029_KoopaKid_IggyLarry_XDisp[96] = { 0xf7, 0xff, 0x0, 0xf8, 0xf7, 0xff, 0x0, 0xf8, 0xf8, 0x0, 0x0, 0xf8, 0xfb, 0x3, 0x0, 0xf8, 0xf8, 0x0, 0x0, 0xf8, 0xfa, 0x2, 0x0, 0xf8, 0x0, 0x0, 0xf8, 0x0, 0x0, 0xf8, 0x0, 0xf8, 0x0, 0x0, 0x0, 0x0, 0xfb, 0xf8, 0x0, 0xf8, 0xf4, 0xf8, 0x0, 0xf8, 0x0, 0xf8, 0x0, 0xf8, 0x9, 0x9, 0x0, 0x10, 0x9, 0x9, 0x0, 0x10, 0x8, 0x8, 0x0, 0x10, 0x5, 0x5, 0x0, 0x10, 0x8, 0x8, 0x0, 0x10, 0x6, 0x6, 0x0, 0x10, 0x0, 0x8, 0x8, 0x8, 0x0, 0x10, 0x0, 0x10, 0x0, 0x8, 0x0, 0x8, 0x5, 0x10, 0x0, 0x10, 0xc, 0x10, 0x0, 0x10, 0x0, 0x10, 0x0, 0x10,  };
+static const uint8 kSpr029_KoopaKid_IggyLarry_YDisp[48] = { 0xfa, 0xf2, 0x0, 0x9, 0xf9, 0xf1, 0x0, 0x8, 0xf8, 0xf0, 0x0, 0x8, 0xfe, 0xf6, 0x0, 0x8, 0xfc, 0xf4, 0x0, 0x8, 0xff, 0xf7, 0x0, 0x8, 0x0, 0xf0, 0xf8, 0xf0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0xfc, 0x0, 0x0, 0x0, 0xf9, 0x0, 0x0, 0x0, 0x0, 0x8, 0x0, 0x8,  };
+static const uint8 kSpr029_KoopaKid_IggyLarry_Tiles[48] = { 0x0, 0xc, 0x2, 0xa, 0x0, 0xc, 0x22, 0xa, 0x0, 0xc, 0x20, 0xa, 0x0, 0xc, 0x20, 0xa, 0x0, 0xc, 0x20, 0xa, 0x0, 0xc, 0x20, 0xa, 0x24, 0x1c, 0x4, 0x1c, 0xe, 0xd, 0xe, 0xd, 0xe, 0x1d, 0xe, 0x1d, 0x4a, 0xd, 0xe, 0xd, 0x4a, 0xd, 0xe, 0xd, 0x20, 0xa, 0x20, 0xa,  };
+static const uint8 kSpr029_KoopaKid_IggyLarry_IggyTiles[3] = { 0x6, 0x2, 0x8,  };
+static const uint16 kSpr029_KoopaKid_IggyLarry_TileSize[3] = { 0x2, 0x2, 0x3b37 };
+static const uint8 kSpr029_KoopaKid_IggyLarry_InShellTiles[4] = { 0x2c, 0x2e, 0x2c, 0x2e,  };
+static const uint8 kSpr029_KoopaKid_IggyLarry_InShellProp[4] = { 0x0, 0x0, 0x40, 0x0,  };
+
 uint8 CheckNormalSpriteLevelColl_Wall(uint8 k) {  // 018008
   return spr_table1588[k] & 3;
 }
@@ -483,14 +753,12 @@ uint8 CheckNormalSpriteLevelColl_Ceiling(uint8 k) {  // 018014
 void SpawnNormalSpriteTurnAroundSmoke(uint8 k) {  // 01804e
   if (spr_table1588[k]) {
     if (!(flag_ice_level | counter_global_frames & 3)) {
-      R0_ = 4;
-      R1_ = 10;
-      SpawnNormalSpriteTurnAroundSmoke_Entry2(k);
+      SpawnNormalSpriteTurnAroundSmoke_Entry2(k, 4, 10);
     }
   }
 }
 
-void SpawnNormalSpriteTurnAroundSmoke_Entry2(uint8 k) {  // 018063
+void SpawnNormalSpriteTurnAroundSmoke_Entry2(uint8 k, uint8 r0, uint8 r1) {  // 018063
   if (!CheckIfNormalSpriteOffScreen(k)) {
     uint8 j = 3;
     while (smoke_spr_spriteid[j]) {
@@ -498,8 +766,8 @@ void SpawnNormalSpriteTurnAroundSmoke_Entry2(uint8 k) {  // 018063
         return;
     }
     smoke_spr_spriteid[j] = 3;
-    smoke_spr_xpos_lo[j] = R0_ + spr_xpos_lo[k];
-    smoke_spr_ypos_lo[j] = R1_ + spr_ypos_lo[k];
+    smoke_spr_xpos_lo[j] = r0 + spr_xpos_lo[k];
+    smoke_spr_ypos_lo[j] = r1 + spr_ypos_lo[k];
     smoke_spr_timer[j] = 19;
   }
 }
@@ -527,6 +795,9 @@ void ProcessNormalSprites() {  // 01808c
 uint8 CheckIfNormalSpriteOffScreen(uint8 k) {  // 0180cb
   return spr_yoffscreen_flag[k] | spr_xoffscreen_flag[k];
 }
+
+static const uint8 kProcessNormalSpritesSpriteOAMIndexes[180] = { 0x30, 0x44, 0x58, 0x6c, 0x80, 0x94, 0xa8, 0xbc, 0xd0, 0xe4, 0x28, 0x2c, 0x80, 0x94, 0xa8, 0xbc, 0xd0, 0xe4, 0x30, 0x58, 0x0, 0x0, 0x28, 0x2c, 0x30, 0x54, 0x64, 0x74, 0x84, 0x94, 0xa4, 0xb4, 0x0, 0x0, 0x28, 0x2c, 0x30, 0x54, 0x78, 0x8c, 0xa0, 0xb4, 0xc8, 0xdc, 0xf0, 0xf8, 0x28, 0x2c, 0x30, 0x74, 0x88, 0x9c, 0xb0, 0xc4, 0xd8, 0xec, 0xf8, 0xfc, 0x28, 0x2c, 0x30, 0x84, 0xd8, 0xe0, 0xe8, 0xf0, 0xf8, 0x0, 0x0, 0x0, 0x28, 0x2c, 0x0, 0x60, 0x74, 0x88, 0x9c, 0xb0, 0xc4, 0x0, 0x0, 0x0, 0x28, 0x2c, 0x30, 0x44, 0x58, 0x6c, 0x80, 0x94, 0xa8, 0x0, 0x0, 0x0, 0x28, 0x2c, 0xa0, 0x30, 0x34, 0x38, 0x3c, 0x40, 0x44, 0x48, 0x4c, 0x50, 0x28, 0x2c, 0x30, 0x48, 0x60, 0x78, 0x8c, 0xa0, 0xb4, 0xc8, 0xdc, 0x0, 0x28, 0x2c, 0x58, 0xac, 0xc0, 0xd4, 0xe8, 0x0, 0x0, 0x0, 0x0, 0x0, 0x28, 0x2c, 0x58, 0x6c, 0x80, 0x94, 0xa8, 0xbc, 0xd0, 0xe4, 0x0, 0x0, 0x28, 0x2c, 0x30, 0x74, 0xb8, 0xc4, 0xd0, 0xdc, 0xe8, 0xf4, 0x0, 0x0, 0x28, 0x2c, 0x30, 0x48, 0x60, 0x78, 0x90, 0xa8, 0xc0, 0xd8, 0x0, 0x0, 0x28, 0x2c, 0x30, 0x44, 0x58, 0x5c, 0x60, 0x64, 0x68, 0x6c, 0x70, 0x0, 0x28, 0x2c,  };
+static const uint8 kProcessNormalSprites_DATA_07F0B4[20] = { 0x0, 0xc, 0x18, 0x24, 0x30, 0x3c, 0x0, 0x48, 0x54, 0x60, 0x6c, 0x78, 0x84, 0x90, 0x9c, 0x0, 0xa8, 0xc, 0x0, 0xb4,  };
 
 void ProcessNormalSprites_GetNormalSpriteOAMIndexAndDecrementTimers(uint8 k) {  // 0180d2
   spr_oamindex[k] =
@@ -939,12 +1210,13 @@ void SprXXX_Generic_JumpOverKickedObject(uint8 k) {  // 018898
     uint8 v1 = 9;
     while (1) {
       if (spr_current_status[v1] == 10) {
-        SetHiLo(&R8_, &R0_, GetSprXPos(v1) - 26);
-        R2_ = 68;
-        SetHiLo(&R9_, &R1_, GetSprYPos(v1));
-        R3_ = 16;
-        StandardSpriteToSpriteCollisionChecks_GetSpriteClippingA(k);
-        if (StandardSpriteToSpriteCollisionChecks_CheckContact()) {
+        CollInfo ci;
+        SetHiLo(&ci.r8, &ci.r0, GetSprXPos(v1) - 26);
+        ci.r2 = 68;
+        SetHiLo(&ci.r9, &ci.r1, GetSprYPos(v1));
+        ci.r3 = 16;
+        StandardSpriteToSpriteCollisionChecks_GetSpriteClippingA(k, &ci);
+        if (StandardSpriteToSpriteCollisionChecks_CheckContact(&ci)) {
           if (CheckNormalSpriteLevelColl_Floor(k))
             break;
         }
@@ -1045,12 +1317,12 @@ LABEL_43:
       }
       if (!CheckNormalSpriteLevelColl_Floor(k))
         goto LABEL_43;
-      R0_ = flag_ice_level ? 1 : 2;
+      uint8 r0 = flag_ice_level ? 1 : 2;
       uint8 v10 = spr_xspeed[v8];
       if (v10 >= 2) {
         if ((int8)(v10 - 2) < 0)
-          v10 += 2 * R0_;
-        uint8 v11 = v10 - R0_;
+          v10 += 2 * r0;
+        uint8 v11 = v10 - r0;
         spr_xspeed[v8] = v11;
         spr_xspeed[k] = v11;
         SpawnNormalSpriteTurnAroundSmoke(k);
@@ -1074,9 +1346,10 @@ LABEL_43:
     } else if (spr_decrementing_table1558[k] == 1) {
       uint8 v13 = spr_table1594[k];
       if (spr_current_status[v13] >= 8 && (spr_yspeed[v13] & 0x80) == 0 && spr_spriteid[v13] != 33) {
-        StandardSpriteToSpriteCollisionChecks_GetSpriteClippingA(k);
-        StandardSpriteToSpriteCollisionChecks_GetSpriteClippingB(v13);
-        if (StandardSpriteToSpriteCollisionChecks_CheckContact()) {
+        CollInfo ci;
+        StandardSpriteToSpriteCollisionChecks_GetSpriteClippingA(k, &ci);
+        StandardSpriteToSpriteCollisionChecks_GetSpriteClippingB(v13, &ci);
+        if (StandardSpriteToSpriteCollisionChecks_CheckContact(&ci)) {
           SubOffscreen_Bank01_EraseSprite(k);
           uint8 v14 = spr_table1594[k];
           spr_decrementing_table1558[v14] = 16;
@@ -1095,12 +1368,12 @@ LABEL_43:
   uint8 v4 = 2;
   if (flag_ice_level)
     v4 = 1;
-  R0_ = v4;
+  uint8 r0 = v4;
   uint8 v5 = spr_xspeed[k];
   if (v5 >= 2) {
     if ((int8)(v5 - 2) < 0)
-      v5 += R0_ + R0_;
-    spr_xspeed[k] = v5 - R0_;
+      v5 += r0 + r0;
+    spr_xspeed[k] = v5 - r0;
     SpawnNormalSpriteTurnAroundSmoke(k);
 LABEL_23:
     spr_table1570[k] = 0;
@@ -1361,27 +1634,29 @@ void SetXSpeedBasedOnNormalSpriteFacingDirection(uint8 k) {  // 018dbb
 }
 
 void Spr010_ParaGoomba_GoombaWingDraw(uint8 k) {  // 018de9
-  if (GetDrawInfo_Bank01_ReturnsTwice(k) == 0xff)
+  GetDrawInfoRes drt;
+
+  if ((drt = GetDrawInfo_Bank01_ReturnsTwice(k)).idx == 0xff)
     return;
-  R5_ = spr_table1602[k] + ((spr_table1570[k] >> 2) & 2);
-  R2_ = 2 * R5_;
-  R4_ = spr_table157c[k];
+  uint8 r5 = spr_table1602[k] + ((spr_table1570[k] >> 2) & 2);
+  uint8 r2 = 2 * r5;
+  uint8 r4 = spr_table157c[k];
   uint8 v1 = spr_oamindex[k];
   for (int8 i = 1; i >= 0; i--) {
-    R3_ = i;
-    uint8 v3 = R2_ + i;
-    uint8 v8 = R2_ + i;
-    if (!R4_)
+    uint8 r3 = i;
+    uint8 v3 = r2 + i;
+    uint8 v8 = r2 + i;
+    if (!r4)
       v3 += 8;
     OamEnt *oam = get_OamEnt(oam_buf, v1);
-    oam[64].xpos = kSpr010_ParaGoomba_WingXDisp[v3] + R0_;
-    oam[64].ypos = kSpr010_ParaGoomba_WingYDisp[v8] + R1_;
-    int v5 = R5_;
-    oam[64].charnum = kSpr010_ParaGoomba_WingTiles[R5_];
+    oam[64].xpos = kSpr010_ParaGoomba_WingXDisp[v3] + drt.x;
+    oam[64].ypos = kSpr010_ParaGoomba_WingYDisp[v8] + drt.y;
+    int v5 = r5;
+    oam[64].charnum = kSpr010_ParaGoomba_WingTiles[r5];
     sprites_oamtile_size_buffer[(v1 >> 2) + 64] = kSpr010_ParaGoomba_WingTileSize[v5];
-    uint8 v6 = R3_;
-    uint8 v7 = kSpr010_ParaGoomba_WingProp[R3_];
-    if (!(R4_ & 1))
+    uint8 v6 = r3;
+    uint8 v7 = kSpr010_ParaGoomba_WingProp[r3];
+    if (!(r4 & 1))
       v7 ^= 0x40;
     get_OamEnt(oam_buf, v1)[64].flags = sprites_tile_priority | v7;
     v1 += 8;
@@ -1415,10 +1690,10 @@ void Spr01A_ClassicPiranhaPlant(uint8 k) {  // 018e76
       spr_yspeed[k] = v2;
       UpdateNormalSpritePosition_Y(k);
     } else {
-      R0_ = spr_table00c2[k] & 3;
-      if (R0_ || (CheckPlayerPositionRelativeToSprite_Bank01_X(k), spr_table1594[k] = 1, (uint8)(R15_ + 0x1b) >= 0x37)) {
+      uint8 r0 = spr_table00c2[k] & 3;
+      if (r0 || (CheckPlayerPositionRelativeToSprite_Bank01_X(k), spr_table1594[k] = 1, (uint8)(player_current_xpos - GetSprXPos(k) + 0x1b) >= 0x37)) {
         spr_table1594[k] = 0;
-        spr_decrementing_table1540[k] = kSprXXX_RegularPiranhaPlant_PhaseTimers[R0_];
+        spr_decrementing_table1540[k] = kSprXXX_RegularPiranhaPlant_PhaseTimers[r0];
         ++spr_table00c2[k];
       }
     }
@@ -1596,6 +1871,7 @@ void HandleNormalSpriteLevelCollision(uint8 k) {  // 019140
 
 void HandleNormalSpriteLevelColl_019211(uint8 k) {  // 019211
   uint8 v3;
+  PointU16 pt;
 
   if (sprites_sprite_buoyancy_settings) {
     uint8 v1 = flag_underwater_level;
@@ -1604,7 +1880,7 @@ LABEL_13:
       spr_table164a[k] = v1;
       goto LABEL_14;
     }
-    if (HandleNormalSpriteLevelColl_01944D(k, 0x3C)) {
+    if (HandleNormalSpriteLevelColl_01944D(k, 0x3C, &pt)) {
       if (blocks_currently_processed_map16_tile_lo < 0x6E)
         goto LABEL_14;
       int8 v2 = CheckWaterSlope(blocks_currently_processed_map16_tile_lo) & 1;
@@ -1621,8 +1897,10 @@ LABEL_8:;
       v1 = spr_table164a[k] | 1;
       if (v4 == 4) {
         int8 v6 = spr_table164a[k] | 1;
-        if (spr_spriteid[k] == 53 || (spr_property_bits167a[k] & 2) == 0)
-          HandleNormalSpriteLevelColl_019330(k);
+        if (spr_spriteid[k] == 53 || (spr_property_bits167a[k] & 2) == 0) {
+          spr_current_status[k] = 5;
+          spr_decrementing_table1558[k] = 64;
+        }
         v1 = v6 | 0x80;
       }
       goto LABEL_13;
@@ -1643,12 +1921,13 @@ LABEL_14:
 }
 
 void HandleNormalSpriteLevelColl_01928E(uint8 k, uint8 a) {  // 01928e
-  a &= 1;
+  uint8 r15 = a & 1;
+  PointU16 pt;
 
-  sprites_map16_tile_touched_horiz_hi = HandleNormalSpriteLevelColl_019441(k, a);
+  sprites_map16_tile_touched_horiz_hi = HandleNormalSpriteLevelColl_019441(k, r15, &pt);
   if (sprites_map16_tile_touched_horiz_hi) {
     if (blocks_currently_processed_map16_tile_lo >= 0x11 && blocks_currently_processed_map16_tile_lo < 0x6E) {
-      HandleNormalSpriteLevelColl_019425(k);
+      HandleNormalSpriteLevelColl_019425(k, pt.x, pt.y, r15);
       blocks_copy_of_currently_processed_map16_tile_lo2 = blocks_currently_processed_map16_tile_lo;
       if (misc_scratch7e185e)
         spr_table1588[k] |= 0x40;
@@ -1658,24 +1937,26 @@ void HandleNormalSpriteLevelColl_01928E(uint8 k, uint8 a) {  // 01928e
 }
 
 void HandleNormalSpriteLevelColl_0192C9(uint8 k) {  // 0192c9
-  uint8 v1 = ((spr_yspeed[k] & 0x80) != 0) ? 3 : 2;
-  sprites_map16_tile_being_touched_vertically_hi = HandleNormalSpriteLevelColl_019441(k, v1);
+  PointU16 pt;
+  uint8 r15 = ((spr_yspeed[k] & 0x80) != 0) ? 3 : 2;
+  sprites_map16_tile_being_touched_vertically_hi = HandleNormalSpriteLevelColl_019441(k, r15, &pt);
   sprites_map16_tile_touched_vert_lo = blocks_currently_processed_map16_tile_lo;
   if (sprites_map16_tile_being_touched_vertically_hi) {
     uint8 v2 = blocks_currently_processed_map16_tile_lo;
-    if (v1 == 2) {
+    if (r15 == 2) {
       if (blocks_currently_processed_map16_tile_lo >= 0x59 && blocks_currently_processed_map16_tile_lo < 0x5C &&
           (misc_level_tileset_setting == 14 || misc_level_tileset_setting == 3) &&
           (spr_spriteid[k] == 53 || (v2 = spr_property_bits167a[k] & 2) == 0)) {
-        HandleNormalSpriteLevelColl_019330(k);
+        spr_current_status[k] = 5;
+        spr_decrementing_table1558[k] = 64;
       } else {
-        HandleNormalSpriteLevelColl_01933B(k, v2);
+        HandleNormalSpriteLevelColl_01933B(k, v2, pt.x, pt.y, r15);
       }
     } else if (blocks_currently_processed_map16_tile_lo >= 0x11 &&
                (blocks_currently_processed_map16_tile_lo < 0x6E ||
                 blocks_currently_processed_map16_tile_lo >= blocks_lowest_number_solid_map16_tile_for_sprites &&
                     blocks_currently_processed_map16_tile_lo < blocks_highest_number_solid_map16_tile_for_sprites)) {
-      HandleNormalSpriteLevelColl_019425(k);
+      HandleNormalSpriteLevelColl_019425(k, pt.x, pt.y, r15);
       blocks_copy_of_currently_processed_map16_tile_lo1 = blocks_currently_processed_map16_tile_lo;
       if (misc_scratch7e185e)
         spr_table1588[k] |= 0x20;
@@ -1683,25 +1964,25 @@ void HandleNormalSpriteLevelColl_0192C9(uint8 k) {  // 0192c9
   }
 }
 
-void HandleNormalSpriteLevelColl_019330(uint8 k) {  // 019330
-  spr_current_status[k] = 5;
-  spr_decrementing_table1558[k] = 64;
+uint8 GetCurrentSlope(int i) {
+  return (kSlopeDataTables_ShapeOfSlope + R5_slopeptr.addr - 0xE632)[i];
 }
 
-void HandleNormalSpriteLevelColl_01933B(uint8 k, uint8 a) {  // 01933b
+void HandleNormalSpriteLevelColl_01933B(uint8 k, uint8 a, uint8 r10, uint8 r12, uint8 r15) {  // 01933b
   if (a < 0x11) {
-    if ((R12_ & 0xF) >= 5)
+    if ((r12 & 0xF) >= 5)
       return;
   } else if (a >= 0x6E) {
     if (a >= 0xD8)
       goto LABEL_18;
-    uint8 v2 = CheckWhatSlopeSpriteIsOn(a);
-    uint8 *v3 = IndirPtr(&R5_, v2);
-    if (*v3 == 16)
+    uint8 r8_slope_type;
+    uint8 v2 = CheckWhatSlopeSpriteIsOn(a, r10, r12, &r8_slope_type);
+    uint8 v3 = GetCurrentSlope(v2);
+    if (v3 == 16)
       return;
-    if (*v3 >= 0x10) {
+    if (v3 >= 0x10) {
 LABEL_18:
-      if ((R12_ & 0xF) < 5) {
+      if ((r12 & 0xF) < 5) {
         uint8 v6 = spr_current_status[k];
         if (v6 != 2 && v6 != 5 && v6 != 11) {
           AddSprYPos(k, -1);
@@ -1710,11 +1991,11 @@ LABEL_18:
       }
       return;
     }
-    uint8 v4 = R0_;
-    if (R0_ < 0xC && v4 < *IndirPtr(&R5_, v2))
+    uint8 v4 = r12 & 0xf;
+    if (v4 < 0xC && v4 < v3)
       return;
-    sprites_distance_to_snap_down_to_nearest_tile = *IndirPtr(&R5_, v2);
-    uint8 v5 = kSlopeDataTables_SlopeType[R8_];
+    sprites_distance_to_snap_down_to_nearest_tile = v3;
+    uint8 v5 = kSlopeDataTables_SlopeType[r8_slope_type];
     spr_slope_surface_its_on[k] = v5;
     if (v5 == 4 || v5 == 0xFC) {
       if (((spr_xspeed[k] ^ v5) & 0x80) != 0 && spr_xspeed[k])
@@ -1724,7 +2005,7 @@ LABEL_18:
   }
   if ((spr_property_bits1686[k] & 4) != 0) {
 LABEL_35:
-    HandleNormalSpriteLevelColl_019435(k);
+    spr_table1588[k] |= kHandleNormalSpriteLevelColl_DATA_019134[r15];
     if (misc_scratch7e185e)
       spr_table1588[k] |= 0x80;
     return;
@@ -1743,67 +2024,55 @@ LABEL_35:
   }
 }
 
-void HandleNormalSpriteLevelColl_019425(uint8 k) {  // 019425
-  blocks_xpos = __PAIR16__(R11_, R10_);
-  blocks_ypos = __PAIR16__(R13_, R12_);
-  HandleNormalSpriteLevelColl_019435(k);
+void HandleNormalSpriteLevelColl_019425(uint8 k, uint16 xpos_r10w, uint16 ypos_r12w, uint8 r15) {  // 019425
+  blocks_xpos = xpos_r10w;
+  blocks_ypos = ypos_r12w;
+  spr_table1588[k] |= kHandleNormalSpriteLevelColl_DATA_019134[r15];
 }
 
-void HandleNormalSpriteLevelColl_019435(uint8 k) {  // 019435
-  spr_table1588[k] |= kHandleNormalSpriteLevelColl_DATA_019134[R15_];
+uint8 HandleNormalSpriteLevelColl_019441(uint8 k, uint8 j, PointU16 *pt_out) {  // 019441
+  return HandleNormalSpriteLevelColl_01944D(k, j + 4 * (spr_property_bits1656[k] & 0xF), pt_out);
 }
 
-uint8 HandleNormalSpriteLevelColl_019441(uint8 k, uint8 j) {  // 019441
-  R15_ = j;
-  return HandleNormalSpriteLevelColl_01944D(k, j + 4 * (spr_property_bits1656[k] & 0xF));
-}
-
-uint8 HandleNormalSpriteLevelColl_01944D(uint8 k, uint8 j) {  // 01944d
+uint8 HandleNormalSpriteLevelColl_01944D(uint8 k, uint8 j, PointU16 *pt_out) {  // 01944d
   if ((misc_level_layout_flags & (uint8)(misc_scratch7e185e + 1)) != 0) {
     uint16 ypos = GetSprYPos(k) + kHandleNormalSpriteLevelColl_SpriteObjClippingY[j];
-    R12_ = ypos;
-    R0_ = ypos & 0xF0;
+    pt_out->y = ypos;
+    uint8 r0 = ypos & 0xF0;
     if ((ypos >> 8) < misc_screens_in_lvl) {
-      R13_ = (ypos >> 8);
-      R10_W = GetSprXPos(k) + kHandleNormalSpriteLevelColl_SpriteObjClippingX[j];
-      if (R11_ < 2) {
-        R0_ |= R10_ >> 4;
-        uint8 v4 = kLevelDataLayoutTables_EightBitLo_Vertical[R13_];
-        uint8 v5 = kLevelDataLayoutTables_EightBitHi_Vertical[R13_];
-        if (misc_scratch7e185e) {
-          v4 = kLevelDataLayoutTables_EightBitLo_Vertical_L2[R13_];
-          v5 = kLevelDataLayoutTables_EightBitHi_Vertical_L2[R13_];
-        }
-        R5_W = PAIR16(R11_, R0_) + PAIR16(v5, v4);
-        return HandleNormalSpriteLevelColl_019523(R13_);
+      uint8 r13 = (ypos >> 8);
+      pt_out->x = GetSprXPos(k) + kHandleNormalSpriteLevelColl_SpriteObjClippingX[j];
+      if ((pt_out->x >> 8) < 2) {
+        r0 |= (uint8)pt_out->x >> 4;
+        uint16 pp = GetLevelLayoutPtr_Vertical(r13 + (misc_scratch7e185e ? 14 : 0));
+        return HandleNormalSpriteLevelColl_019523(pp + PAIR16(pt_out->x >> 8, r0));
       }
     }
 LABEL_9:
-    blocks_currently_processed_map16_tile_lo = 0;
     sprites_distance_to_snap_down_to_nearest_tile = 0;
+    if (HAS_LM_FEATURE(kLmFeature_EnemyCollTweak)) {
+      blocks_currently_processed_map16_tile_lo = lm_word_7E145E & 4 ? 0x25 : 0;
+    } else {
+      blocks_currently_processed_map16_tile_lo = 0;
+    }
     return 0;
   }
-  R12_W = GetSprYPos(k) + kHandleNormalSpriteLevelColl_SpriteObjClippingY[j];
-  if (R12_W >= 0x1B0)
+  uint16 r12w = GetSprYPos(k) + kHandleNormalSpriteLevelColl_SpriteObjClippingY[j];
+  pt_out->y = r12w;
+  if (r12w >= (g_lunar_magic ? lm_level_height : 0x1B0))
     goto LABEL_9;
-  R10_W = GetSprXPos(k) + kHandleNormalSpriteLevelColl_SpriteObjClippingX[j];
-  if ((int8)R11_ < 0 || (uint8)R11_ >= misc_screens_in_lvl)
+  pt_out->x = GetSprXPos(k) + kHandleNormalSpriteLevelColl_SpriteObjClippingX[j];
+  int xx = pt_out->x >> 8;
+  if ((int8)xx < 0 || (uint8)xx >= misc_screens_in_lvl)
     goto LABEL_9;
-  R0_ = (R12_ & 0xF0) | (R10_ >> 4);
-  uint16 v10 = PAIR16(kLevelDataLayoutTables_EightBitHi[R11_], kLevelDataLayoutTables_EightBitLo[R11_]);
-  if (misc_scratch7e185e) {
-    v10 = PAIR16(kLevelDataLayoutTables_EightBitHi_Horizontal_L2[R11_], kLevelDataLayoutTables_EightBitLo_Horizontal_L2[R11_]);
-  }
-  R5_W = PAIR16(R13_, R0_) + v10;
-  return HandleNormalSpriteLevelColl_019523(R11_);
+  uint8 r0 = (r12w & 0xF0) | ((uint8)pt_out->x >> 4);
+  uint16 v10 = GetLevelLayoutPtr_Horizontal(xx + (misc_scratch7e185e ? 16 : 0));
+  return HandleNormalSpriteLevelColl_019523(PAIR16(r12w >> 8, r0) + v10);
 }
 
-uint8 HandleNormalSpriteLevelColl_019523(uint8 k) {  // 019523
-  R7_ = 126;
-  blocks_currently_processed_map16_tile_lo = *IndirPtr(&R5_, 0);
-  ++R7_;
-  uint8 *v1 = IndirPtr(&R5_, 0);
-  return ModifyMap16IDForSpecialBlocks(*v1);
+uint8 HandleNormalSpriteLevelColl_019523(uint16 r5) {  // 019523
+  blocks_currently_processed_map16_tile_lo = g_ram[r5];
+  return LmHook_ModifyMap16IDForSpecialBlocks(g_ram[r5 + 0x10000]);
 }
 
 void SprStatus09_Stunned(uint8 k) {  // 01953c
@@ -1927,11 +2196,11 @@ LABEL_25:
               if (v7 == 1) {
                 uint8 v9 = CheckPlayerPositionRelativeToSprite_Bank01_X(k);
                 uint8 v10 = kSprStatus09_Stunned_DATA_0197AD[v9];
-                R0_ = v9;
+                uint8 r0 = v9;
                 spr_xspeed[j] = v10;
-                uint8 v11 = R0_ ^ 1;
-                spr_table157c[j] = R0_ ^ 1;
-                R1_ = v11;
+                uint8 v11 = r0 ^ 1;
+                spr_table157c[j] = r0 ^ 1;
+                uint8 r1 = v11;
                 spr_decrementing_table154c[j] = 16;
                 spr_table1528[j] = 16;
                 if (spr_spriteid[k] == 7) {
@@ -1946,7 +2215,7 @@ LABEL_25:
                   SetSprYPos(v12, GetSprYPos(k));
                   InitializeNormalSpriteRAMTables(v12);
                   spr_yspeed[v12] = -48;
-                  spr_table157c[v12] = R1_;
+                  spr_table157c[v12] = r1;
                   spr_decrementing_table154c[v12] = 32;
                 }
               } else {
@@ -2023,12 +2292,12 @@ LABEL_8:;
         oam[66].xpos = xpos;
     }
     if (spr_spriteid[k] != 17 && !CheckIfNormalSpriteOffScreen(k)) {
-      R0_ = __CFSHL__(spr_table15f6[k], 1) ? 0 : 8;
+      uint8 r0 = __CFSHL__(spr_table15f6[k], 1) ? 0 : 8;
       OamEnt *v9 = get_OamEnt(oam_buf, v3);
       uint8 v10 = v9[66].xpos + 2;
       v9[64].xpos = v10;
       v9[65].xpos = v10 + 4;
-      uint8 v11 = R0_ + v9[66].ypos;
+      uint8 v11 = r0 + v9[66].ypos;
       v9[64].ypos = v11;
       v9[65].ypos = v11;
       uint8 v17 = v3;
@@ -2099,7 +2368,7 @@ void SprStatus0A_Kicked(uint8 k) {  // 019913
   uint8 v1 = spr_slope_surface_its_on[k];
   HandleNormalSpriteGravity(k);
   if (v1) {
-    R0_ = v1;
+    uint8 r0 = v1;
     if (!spr_table164a[k] && v1 != spr_slope_surface_its_on[k] && ((spr_xspeed[k] ^ v1) & 0x80) == 0) {
       spr_yspeed[k] = -8;
 LABEL_17:
@@ -2300,13 +2569,13 @@ LABEL_10:;
   uint8 v3 = 0;
   if (j != 28)
     v3 = 0x80;
-  R0_ = v3;
+  uint8 r0 = v3;
   uint8 v4 = sprites_tile_priority;
   uint8 v6 = sprites_tile_priority;
   if (spr_table1632[k])
     v4 = 16;
   sprites_tile_priority = v4;
-  GenericGFXRtDraw1Tile16x16_Sub(k, R0_);
+  GenericGFXRtDraw1Tile16x16_Sub(k, r0);
   sprites_tile_priority = v6;
 }
 
@@ -2315,36 +2584,35 @@ void GenericGFXRtDraw4Tiles8x8Square(uint8 k, uint8 a) {  // 019cf3
 }
 
 void GenericGFXRtDraw4Tiles8x8Square_Entry1(uint8 k, uint8 a, uint8 j) {  // 019cf5
-  R5_ = a;
-  R15_ = j;
-  if (GetDrawInfo_Bank01_ReturnsTwice(k) == 0xff)
+  GetDrawInfoRes drt;
+  uint8 r5 = a;
+  if ((drt = GetDrawInfo_Bank01_ReturnsTwice(k)).idx == 0xff)
     return;
-  R1_ += R15_;
-  R2_ = kGenericSpriteOAMData_TilesOffset[spr_spriteid[k]] + __CFSHL__(2 * spr_table1602[k], 1) + 4 * spr_table1602[k];
-  R3_ = sprites_tile_priority | spr_table15f6[k];
+  drt.y += j;
+  uint8 r2 = kGenericSpriteOAMData_TilesOffset[spr_spriteid[k]] + __CFSHL__(2 * spr_table1602[k], 1) + 4 * spr_table1602[k];
+  uint8 r3 = sprites_tile_priority | spr_table15f6[k];
   uint8 v3 = spr_oamindex[k];
-  R4_ = 3;
+  uint8 r4 = 3;
   do {
-    uint8 v4 = R4_;
+    uint8 v4 = r4;
     OamEnt *oam = get_OamEnt(oam_buf, v3);
-    oam[64].xpos = kGenericSpriteOAMData_XDisp[R4_] + R0_;
-    oam[64].ypos = kGenericSpriteOAMData_YDisp[v4] + R1_;
-    oam[64].charnum = *((uint8 *)kGenericSpriteOAMData_Tiles + (uint8)(R4_ + R2_));
-    oam[64].flags = R3_ | kGenericSpriteOAMData_Prop[(uint8)(R4_ + __CFSHL__(2 * R5_, 1) + 4 * R5_)];
+    oam[64].xpos = kGenericSpriteOAMData_XDisp[r4] + drt.x;
+    oam[64].ypos = kGenericSpriteOAMData_YDisp[v4] + drt.y;
+    oam[64].charnum = *((uint8 *)kGenericSpriteOAMData_Tiles + (uint8)(r4 + r2));
+    oam[64].flags = r3 | kGenericSpriteOAMData_Prop[(uint8)(r4 + 4 * r5)];
     v3 += 4;
-    --R4_;
-  } while ((R4_ & 0x80) == 0);
+  } while ((--r4 & 0x80) == 0);
   FinishOAMWrite(k, 0, 3);
 }
 
 void GenericGFXRtDraw2Tiles16x16sStacked_Sub(uint8 k) {  // 019d67
-  uint8 drt;
+  GetDrawInfoRes drt;
 
   if ((spr_table15f6[k] & 0x80) == 0) {
-    if ((drt = GetDrawInfo_Bank01_ReturnsTwice(k)) == 0xff)
+    if ((drt = GetDrawInfo_Bank01_ReturnsTwice(k)).idx == 0xff)
       return;
-    R2_ = spr_table157c[k];
-    uint8 v2 = drt;
+    uint8 r2 = spr_table157c[k];
+    uint8 v2 = drt.idx;
     uint8 v3 = spr_spriteid[k];
     if (v3 < 0xF)
       v2 += (v3 >= 0xF) + 4;
@@ -2354,19 +2622,18 @@ void GenericGFXRtDraw2Tiles16x16sStacked_Sub(uint8 k) {  // 019d67
     oam[64].charnum = *((uint8 *)kGenericSpriteOAMData_Tiles + v5);
     oam[65].charnum = *((uint8 *)kGenericSpriteOAMData_Tiles + v5 + 1);
     uint8 v7 = spr_current_slotid;
-    uint8 v8 = R1_;
-    oam[64].ypos = R1_;
-    oam[65].ypos = v8 + 16;
-    GenericGFXRtDraw2Tiles16x16sStacked_019DA9(v7, v4);
+    oam[64].ypos = drt.y;
+    oam[65].ypos = drt.y + 16;
+    GenericGFXRtDraw2Tiles16x16sStacked_019DA9(v7, v4, drt.x);
   } else {
     GenericGFXRtDraw2Tiles16x16sStacked_UpsideDown(k);
   }
 }
 
-void GenericGFXRtDraw2Tiles16x16sStacked_019DA9(uint8 k, uint8 j) {  // 019da9
-  uint8 v2 = R0_;
+void GenericGFXRtDraw2Tiles16x16sStacked_019DA9(uint8 k, uint8 j, uint8 r0) {  // 019da9
+  uint8 v2 = r0;
   OamEnt *oam = get_OamEnt(oam_buf, j);
-  oam[64].xpos = R0_;
+  oam[64].xpos = r0;
   oam[65].xpos = v2;
   uint8 v4 = sprites_tile_priority | spr_table15f6[k];
   if (!(spr_table157c[k] & 1))
@@ -2381,20 +2648,19 @@ void GenericGFXRtDraw2Tiles16x16sStacked_019DA9(uint8 k, uint8 j) {  // 019da9
 }
 
 void GenericGFXRtDraw2Tiles16x16sStacked_UpsideDown(uint8 k) {  // 019dd9
-  uint8 drt;
+  GetDrawInfoRes drt;
 
-  if ((drt = GetDrawInfo_Bank01_ReturnsTwice(k)) == 0xff)
+  if ((drt = GetDrawInfo_Bank01_ReturnsTwice(k)).idx == 0xff)
     return;
-  R2_ = spr_table157c[k];
+  uint8 r2 = spr_table157c[k];
   uint8 v2 = kGenericSpriteOAMData_TilesOffset[spr_spriteid[k]] + 2 * spr_table1602[k];
-  OamEnt *oam = get_OamEnt(oam_buf, (uint8)(drt + 8));
+  OamEnt *oam = get_OamEnt(oam_buf, (uint8)(drt.idx + 8));
   oam[65].charnum = *((uint8 *)kGenericSpriteOAMData_Tiles + v2);
   oam[64].charnum = *((uint8 *)kGenericSpriteOAMData_Tiles + v2 + 1);
   uint8 v4 = spr_current_slotid;
-  uint8 v5 = R1_;
-  oam[64].ypos = R1_;
-  oam[65].ypos = v5 + 16;
-  GenericGFXRtDraw2Tiles16x16sStacked_019DA9(v4, drt + 8);
+  oam[64].ypos = drt.y;
+  oam[65].ypos = drt.y + 16;
+  GenericGFXRtDraw2Tiles16x16sStacked_019DA9(v4, drt.idx + 8, drt.x);
 }
 
 void DrawWingTiles_ParaKoopaEntry(uint8 k) {  // 019e28
@@ -2405,23 +2671,22 @@ void DrawWingTiles_ParaKoopaEntry(uint8 k) {  // 019e28
 }
 
 void DrawWingTiles_019E35(uint8 k, uint8 j) {  // 019e35
-  R2_ = j;
-  DrawWingTiles_019E37(k);
+  uint8 r2 = j;
+  DrawWingTiles_019E37(k, r2);
 }
 
-void DrawWingTiles_019E37(uint8 k) {  // 019e37
+void DrawWingTiles_019E37(uint8 k, uint8 r2) {  // 019e37
   if (!spr_yoffscreen_flag[k]) {
-    SetHiLo(&R4_, &R0_, GetSprXPos(k));
-    R1_ = spr_ypos_lo[k];
+    uint16 xpos = GetSprXPos(k);
+    uint8 r1 = spr_ypos_lo[k];
     uint8 v1 = spr_oamindex[k];
-    uint8 v2 = R2_ + 2 * spr_table157c[k];
-    uint16 t = PAIR16(R4_, R0_) + PAIR16(kDrawWingTiles_XDispHi[v2], kDrawWingTiles_XDispLo[v2]);
-    R0_ = t;
+    uint8 v2 = r2 + 2 * spr_table157c[k];
+    uint16 t = xpos + PAIR16(kDrawWingTiles_XDispHi[v2], kDrawWingTiles_XDispLo[v2]);
     OamEnt *oam = get_OamEnt(oam_buf, v1);
     uint16 t2 = t - mirror_current_layer1_xpos;
     oam[64].xpos = t2;
     if (t2 < 256) {
-      oam[64].ypos = kDrawWingTiles_YDisp[v2] + R1_ - mirror_current_layer1_ypos;
+      oam[64].ypos = kDrawWingTiles_YDisp[v2] + r1 - mirror_current_layer1_ypos;
       oam[64].charnum = kDrawWingTiles_Tiles[v2];
       oam[64].flags = kDrawWingTiles_Prop[v2] | sprites_tile_priority;
       sprites_oamtile_size_buffer[(v1 >> 2) + 64] = kDrawWingTiles_TileSize[v2];
@@ -2436,11 +2701,12 @@ void DrawWingTiles(uint8 k) {  // 019e95
   uint8 v2 = spr_table157c[k];
   spr_oamindex[k] = v3 + 4;
   spr_table157c[k] = 0;
-  DrawWingTiles_019E35(k, (spr_table1570[k] & 8) != 0);
+  uint8 r2 = (spr_table1570[k] & 8) != 0;
+  DrawWingTiles_019E35(k, r2);
   AddSprXPos(k, 4);
   spr_oamindex[k] += 4;
   spr_table157c[k] = 1;
-  DrawWingTiles_019E37(k);
+  DrawWingTiles_019E37(k, r2);
   spr_table157c[k] = v2;
   spr_oamindex[k] = v3;
   SetSprXPos(k, old_x);
@@ -2448,30 +2714,32 @@ void DrawWingTiles(uint8 k) {  // 019e95
 }
 
 void GenericGFXRtDraw1Tile16x16_Sub(uint8 k, uint8 a) {  // 019f09
-  R4_ = a;
-  GenericGFXRtDraw1Tile16x16_019F0F(k);
+  GenericGFXRtDraw1Tile16x16_019F0F(k, a);
 }
 
 void GenericGFXRtDraw1Tile16x16(uint8 k) {  // 019f0d
-  R4_ = 0;
-  GenericGFXRtDraw1Tile16x16_019F0F(k);
+  GenericGFXRtDraw1Tile16x16_019F0F(k, 0);
 }
 
-void GenericGFXRtDraw1Tile16x16_019F0F(uint8 k) {  // 019f0f
-  if (GetDrawInfo_Bank01_ReturnsTwice(k) == 0xff)
+void GenericGFXRtDraw1Tile16x16_019F0F(uint8 k, uint8 r4) {  // 019f0f
+  GetDrawInfoRes drt;
+
+  if ((drt = GetDrawInfo_Bank01_ReturnsTwice(k)).idx == 0xff)
     return;
-  R2_ = spr_table157c[k];
+  uint8 r2 = spr_table157c[k];
   uint8 v1 = spr_oamindex[k];
   OamEnt *oam = get_OamEnt(oam_buf, v1);
+  uint8 fixt = spr_spriteid[k];
+  fixt = (fixt >= 84) ? 0 : fixt;
   oam[64].charnum =
-      *((uint8 *)kGenericSpriteOAMData_Tiles + (uint8)(kGenericSpriteOAMData_TilesOffset[spr_spriteid[k]] + spr_table1602[k]));
+      *((uint8 *)kGenericSpriteOAMData_Tiles + (uint8)(kGenericSpriteOAMData_TilesOffset[fixt] + spr_table1602[k]));
   uint8 v3 = spr_current_slotid;
-  oam[64].xpos = R0_;
-  oam[64].ypos = R1_;
+  oam[64].xpos = drt.x;
+  oam[64].ypos = drt.y;
   uint8 a = spr_table15f6[v3];
   if (!(spr_table157c[k] & 1))
     a ^= 0x40;
-  oam[64].flags = sprites_tile_priority | R4_ | a;
+  oam[64].flags = sprites_tile_priority | r4 | a;
   v1 >>= 2;
   sprites_oamtile_size_buffer[v1 + 64] = spr_xoffscreen_flag[v3] | 2;
   GenericGFXRtMoveTileOffscreenVertically(v3, v1);
@@ -2564,7 +2832,6 @@ LABEL_39:
     uint8 v7 = player_facing_direction + (player_riding_yoshi_flag ? 2 : 0);
     spr_xspeed[k] = kSprStatus0B_Carried_ShellXSpeed[v7];
     if (((player_xspeed ^ spr_xspeed[k]) & 0x80) == 0) {
-      R0_ = 2 * player_xspeed;
       uint8 v9 = __CFSHL__(player_xspeed, 1) ? 0x80 : 0;
       spr_xspeed[k] = kSprStatus0B_Carried_ShellXSpeed[v7] + (player_xspeed >> 1) + v9;
     }
@@ -2680,9 +2947,11 @@ LABEL_40:
     ProcessStunnedNormalSprite_StunnedBabyYoshi_01A34F(k);
     return;
   }
-  SetHiLo(&R8_, &R0_, GetSprXPos(k) + 8);
-  SetHiLo(&R9_, &R1_, GetSprYPos(k) + 8);
-  CheckBerryTileCollisionWithYoshiTongue();
+  CollInfo ci;
+  SetHiLo(&ci.r8, &ci.r0, GetSprXPos(k) + 8);
+  SetHiLo(&ci.r9, &ci.r1, GetSprYPos(k) + 8);
+
+  CheckBerryTileCollisionWithYoshiTongue(&ci);
   CheckIfBabyYoshiCanEatNormalSprite2(k);
   uint8 v7 = spr_decrementing_table163e[k];
   if (!v7) {
@@ -2765,17 +3034,17 @@ void ProcessStunnedNormalSprite_StunnedBabyYoshi_01A34F(uint8 k) {  // 01a34f
   SetBabyYoshiDynamicGraphicsPointer(k);
 }
 
-uint8 GetDrawInfo_Bank01_ReturnsTwice(uint8 k) {  // 01a365
+GetDrawInfoRes GetDrawInfo_Bank01_ReturnsTwice(uint8 k) {  // 01a365
   spr_yoffscreen_flag[k] = 0;
   spr_xoffscreen_flag[k] = (uint16)(GetSprXPos(k) - mirror_current_layer1_xpos) >= 256;
 
-  R0_ = spr_xpos_lo[k] - mirror_current_layer1_xpos;
-  R1_ = spr_ypos_lo[k] - mirror_current_layer1_ypos;
+  uint8 r0 = spr_xpos_lo[k] - mirror_current_layer1_xpos;
+  uint8 r1 = spr_ypos_lo[k] - mirror_current_layer1_ypos;
 
   uint16 tx = GetSprXPos(k) + 0x40 - mirror_current_layer1_xpos;
   spr_table15c4[k] = (tx >= 0x180);
   if (tx >= 0x180) {
-    return 0xff;
+    return (GetDrawInfoRes) { .idx = 0xff, .x = r0, .y = r1 };
   } else {
     uint8 v2 = (spr_current_status[k] != 9 && (spr_property_bits190f[k] & 0x20) != 0) ? 1 : 0;
     do {
@@ -2783,7 +3052,7 @@ uint8 GetDrawInfo_Bank01_ReturnsTwice(uint8 k) {  // 01a365
       if (ty >= 256)
         spr_yoffscreen_flag[k] |= kGetDrawInfo_DATA_01A363[v2];
     } while ((--v2 & 0x80) == 0);
-    return spr_oamindex[k];
+    return (GetDrawInfoRes) { .idx = spr_oamindex[k], .x = r0, .y = r1 };
   }
 }
 
@@ -2808,12 +3077,12 @@ void CheckNormalSpriteToNormalSpriteCollision(uint8 j) {  // 01a40d
           spr_table1632[j] == (spr_table1632[k] | spr_table15d0[k] | spr_decrementing_table1564[j] | spr_decrementing_table1564[k] |
                                 (spr_property_bits1686[j] | spr_property_bits1686[k]) & 8)) {
         sprites_second_tracked_sprite_index = k;
-        R0_W = GetSprXPos(k);
-        R2_W = GetSprXPos(j);
-        if ((uint16)(R0_W - R2_W + 16) < 0x20) {
-          R0_W = GetSprYPos(k) + kCheckNormalSpriteToNormalSpriteColl_DATA_01A40B[(spr_property_bits1662[k] & 0xF) != 0];
-          R2_W = GetSprYPos(j) + kCheckNormalSpriteToNormalSpriteColl_DATA_01A40B[(spr_property_bits1662[j] & 0xF) != 0];
-          if ((uint16)(R0_W - R2_W + 12) < 0x18)
+        uint16 r0w = GetSprXPos(k);
+        uint16 r2w = GetSprXPos(j);
+        if ((uint16)(r0w - r2w + 16) < 0x20) {
+          r0w = GetSprYPos(k) + kCheckNormalSpriteToNormalSpriteColl_DATA_01A40B[(spr_property_bits1662[k] & 0xF) != 0];
+          r2w = GetSprYPos(j) + kCheckNormalSpriteToNormalSpriteColl_DATA_01A40B[(spr_property_bits1662[j] & 0xF) != 0];
+          if ((uint16)(r0w - r2w + 12) < 0x18)
             CheckNormalSpriteToNormalSpriteColl_01A4BA(k, j);
         }
       }
@@ -2875,18 +3144,18 @@ LABEL_50:
         }
         return;
       }
-LABEL_41:
-      R0_ = GetSprXPos(k) >= GetSprXPos(j);
+LABEL_41:;
+      uint8 r0 = GetSprXPos(k) >= GetSprXPos(j);
       if ((spr_property_bits1686[j] & 0x10) == 0) {
         uint8 v7 = spr_current_slotid;
         uint8 ka = spr_table157c[v7];
-        spr_table157c[v7] = R0_;
+        spr_table157c[v7] = r0;
         if (ka != spr_table157c[v7] && !spr_decrementing_table15ac[v7])
           spr_decrementing_table15ac[v7] = 8;
       }
       if ((spr_property_bits1686[k] & 0x10) == 0) {
         uint8 kb = spr_table157c[k];
-        spr_table157c[k] = R0_ ^ 1;
+        spr_table157c[k] = r0 ^ 1;
         if (kb != spr_table157c[k] && !spr_decrementing_table15ac[k])
           spr_decrementing_table15ac[k] = 8;
       }
@@ -2995,14 +3264,14 @@ void sub_1A685(uint8 k, uint8 j) {  // 01a685
 }
 
 void CheckNormalSpriteToNormalSpriteColl_01A6D9(uint8 k, uint8 j) {  // 01a6d9
-  R0_ = j;
+  uint8 r0 = j;
   if (CheckNormalSpriteLevelColl_Floor(k) && (spr_table1588[j] & 4) != 0 && (spr_property_bits1656[k] & 0x40) != 0 &&
       !(spr_decrementing_table1558[k] | spr_decrementing_table1558[j])) {
-    R2_ = 0;
+    uint16 r2 = 0;
     int8 v2 = spr_xpos_lo[k] - spr_xpos_lo[j];
     if (v2 >= 0)
-      ++R2_;
-    if ((uint8)(v2 + 8) >= 0x10 && spr_table157c[k] == R2_) {
+      ++r2;
+    if ((uint8)(v2 + 8) >= 0x10 && spr_table157c[k] == r2) {
       if (spr_spriteid[k] == 2) {
         spr_decrementing_table163e[k] = 32;
         spr_decrementing_table1558[k] = 32;
@@ -3048,11 +3317,9 @@ uint8 CheckNormalSpriteToNormalSpriteColl_01A77C_ReturnsTwice(uint8 k, uint8 j) 
   if (spr_spriteid[k] == 2 && !spr_table187b[j]) {
     uint8 v2 = spr_table157c[k];
     if (v2 != spr_table157c[j]) {
-      R1_ = j;
       if (!spr_table1534[k]) {
         spr_table1528[k] = 0;
         spr_decrementing_table163e[k] = 0;
-        R0_ = v2;
         SetSprXPos(j, GetSprXPos(k) + PAIR16(kCheckNormalSpriteToNormalSpriteColl_DATA_01A77A[v2], kCheckNormalSpriteToNormalSpriteColl_DATA_01A778[v2]));
         spr_table160e[k] = j;
         spr_table1534[k] = 1;
@@ -3075,11 +3342,9 @@ uint8 CheckPlayerToNormalSpriteColl_ReturnNoContact() {  // 01a7f5
 }
 
 uint8 CheckPlayerToNormalSpriteColl_ProcessInteract(uint8 k) {  // 01a7f7
-  CheckPlayerPositionRelativeToSprite_Bank01_X(k);
-  if ((uint8)(R15_ + 80) >= 0xA0)
+  if ((uint8)(player_current_xpos - GetSprXPos(k) + 80) >= 0xA0)
     return 0;
-  CheckPlayerPositionRelativeToSprite_Bank01_Y(k);
-  if ((uint8)(R14_ + 96) >= 0xC0)
+  if ((uint8)(player_current_ypos - GetSprYPos(k) + 96) >= 0xC0)
     return 0;
   else
     return CheckPlayerToNormalSpriteColl_01A80F(k);
@@ -3087,6 +3352,7 @@ uint8 CheckPlayerToNormalSpriteColl_ProcessInteract(uint8 k) {  // 01a7f7
 
 uint8 CheckPlayerToNormalSpriteColl_01A80F(uint8 k) {  // 01a80f
   uint8 v8;
+  CollInfo ci;
 
   if (player_current_state)
     return 0;
@@ -3095,9 +3361,9 @@ uint8 CheckPlayerToNormalSpriteColl_01A80F(uint8 k) {  // 01a80f
     v2 = spr_table1632[k] ^ player_current_layer_priority;
   if (v2)
     return 0;
-  StandardSpriteToSpriteCollisionChecks_GetMarioClipping();
-  StandardSpriteToSpriteCollisionChecks_GetSpriteClippingA(k);
-  if (!StandardSpriteToSpriteCollisionChecks_CheckContact())
+  StandardSpriteToSpriteCollisionChecks_GetMarioClipping(&ci);
+  StandardSpriteToSpriteCollisionChecks_GetSpriteClippingA(k, &ci);
+  if (!StandardSpriteToSpriteCollisionChecks_CheckContact(&ci))
     return 0;
   if ((spr_property_bits167a[k] & 0x80) != 0)
     return 1;
@@ -3111,11 +3377,8 @@ uint8 CheckPlayerToNormalSpriteColl_01A80F(uint8 k) {  // 01a80f
     CheckPlayerToNormalSpriteColl_01AA42(k);
     return 0;
   }
-  R1_ = 20;
-  R0_ = 2 * R0_ + (R5_ >= 0x14);
-  uint8 v3 = R0_ & 1;
-  R0_ >>= 1;
-  if ((int8)(R11_ - !v3 - (((uint8)(R5_ - 20) < (uint8)player_current_ypos) + HIBYTE(player_current_ypos))) < 0 ||
+  uint8 v3 = (ci.r5 >= 0x14);
+  if ((int8)(ci.r11 - !v3 - (((uint8)(ci.r5 - 20) < (uint8)player_current_ypos) + HIBYTE(player_current_ypos))) < 0 ||
       (player_yspeed & 0x80) != 0 && (spr_property_bits190f[k] & 0x10) == 0 && !counter_consecutive_enemies_stomped ||
       CheckNormalSpriteLevelColl_Floor(k) && !player_in_air_flag) {
 LABEL_27:
@@ -3185,7 +3448,7 @@ LABEL_62:;
           CheckPlayerToNormalSpriteColl_SetStunnedTimer(k);
         else
           CheckPlayerToNormalSpriteColl_01AA0B(k);
-        printf("Unknown return value in carry!\n");
+//        printf("Unknown return value in carry!\n");
         return 0;
       }
       spr_current_status[k] = 2;
@@ -3208,9 +3471,9 @@ LABEL_62:;
       v8 = 2;
     }
     spr_spriteid[k] = v8;
-    R15_ = spr_table15f6[k] & 0xE;
+    uint8 r15 = spr_table15f6[k] & 0xE;
     InitializeNormalSpriteRAMTables_YXPPCCCTAndPropertyTables(k);
-    spr_table15f6[k] = R15_ | spr_table15f6[k] & 0xF1;
+    spr_table15f6[k] = r15 | spr_table15f6[k] & 0xF1;
     spr_yspeed[k] = 0;
     uint8 v9 = spr_spriteid[k];
     if (v9 == 2)
@@ -3312,8 +3575,8 @@ void CheckPlayerToNormalSpriteColl_01AA42(uint8 k) {  // 01aa42
           player_yspeed = 0;
           player_in_air_flag = 0;
           ++misc_player_on_solid_sprite;
-          R0_ = player_riding_yoshi_flag ? 47 : 31;
-          player_ypos = GetSprYPos(k) - R0_;
+          uint8 r0 = player_riding_yoshi_flag ? 47 : 31;
+          player_ypos = GetSprYPos(k) - r0;
           if (spr_spriteid[k] == 62) {
             spr_property_bits167a[k] &= ~0x80;
             io_sound_ch1 = 11;
@@ -3391,7 +3654,6 @@ void SpawnContactEffectFromAbove(uint8 k) {  // 01ab99
 }
 
 void SubOffscreen_Bank01_Entry4(uint8 k) {  // 01ac21
-  R3_ = 6;
   SubOffscreen_Bank01_01AC2D(k, 6);
 }
 
@@ -3404,16 +3666,14 @@ void SubOffscreen_Bank01_Entry2(uint8 k) {  // 01ac2b
 }
 
 void SubOffscreen_Bank01_01AC2D(uint8 k, uint8 a) {  // 01ac2d
-  R3_ = a;
-  SubOffscreen_Bank01_01AC33(k);
+  SubOffscreen_Bank01_01AC33(k, a);
 }
 
 void SubOffscreen_Bank01_Entry1(uint8 k) {  // 01ac31
-  R3_ = 0;
-  SubOffscreen_Bank01_01AC33(k);
+  SubOffscreen_Bank01_01AC33(k, 0);
 }
 
-void SubOffscreen_Bank01_01AC33(uint8 k) {  // 01ac33
+void SubOffscreen_Bank01_01AC33(uint8 k, uint8 r3) {  // 01ac33
   if (CheckIfNormalSpriteOffScreen(k)) {
     if ((misc_level_layout_flags & 1) != 0) {
       if ((spr_property_bits167a[k] & 4) == 0 && !(counter_global_frames & 1)) {
@@ -3424,22 +3684,23 @@ void SubOffscreen_Bank01_01AC33(uint8 k) {  // 01ac33
           if (!v4 || spr_spriteid[k] != 34 && spr_spriteid[k] != 36) {
             uint16 t = PAIR16(kSubOffscreen_Bank01_SpriteOffScreen1_Hi[v4], kSubOffscreen_Bank01_SpriteOffScreen1_Lo[v4]) + 
                 mirror_current_layer1_ypos - GetSprYPos(k);
-            R0_ = (t >> 8) ^ (v4 ? 0x80 : 0);
-            if ((R0_ & 0x80) != 0)
+            uint8 r0 = (t >> 8) ^ (v4 ? 0x80 : 0);
+            if ((r0 & 0x80) != 0)
               SubOffscreen_Bank01_EraseSprite(k);
           }
         }
       }
     } else {
-      uint16 y = GetSprYPos(k) + 80;
-      if (!sign8((y >> 8) - 2)) {
+      uint16 y = GetSprYPos(k);
+      bool want_erase = g_lunar_magic ? LmHook_WantEraseSprite(k, y) : !sign8(((y + 80) >> 8) - 2);
+      if (want_erase) {
         SubOffscreen_Bank01_EraseSprite(k);
       } else if ((spr_property_bits167a[k] & 4) == 0) {
-        uint8 v4 = R3_ | counter_global_frames & 1;
+        uint8 v4 = r3 | counter_global_frames & 1;
         uint16 t = PAIR16(kSubOffscreen_Bank01_SpriteOffScreen2_Hi[v4], kSubOffscreen_Bank01_SpriteOffScreen2_Lo[v4]) +
             mirror_current_layer1_xpos - GetSprXPos(k);
-        R0_ = (t >> 8) ^ (v4 & 1 ? 0x80 : 0);
-        if ((R0_ & 0x80) != 0)
+        uint8 r0 = (t >> 8) ^ (v4 & 1 ? 0x80 : 0);
+        if ((r0 & 0x80) != 0)
           SubOffscreen_Bank01_EraseSprite(k);
       }
     }
@@ -3476,13 +3737,13 @@ uint8 GetRand_01AD07(uint8 j) {  // 01ad07
 
 uint8 CheckPlayerPositionRelativeToSprite_Bank01_X(uint8 k) {  // 01ad30
   int t = player_current_xpos - GetSprXPos(k);
-  R15_ = t;
+//  r15 = t;
   return sign16(t) != 0;
 }
 
 uint8 CheckPlayerPositionRelativeToSprite_Bank01_Y(uint8 k) {  // 01ad42
   int t = player_current_ypos - GetSprYPos(k);
-  R14_ = t;
+//  r14 = t;
   return sign16(t) != 0;
 }
 
@@ -3540,8 +3801,8 @@ void Spr083_LeftFlyingBlock(uint8 k) {  // 01ad6e
     uint8 v7 = spr_table151c[k];
     if (!player_current_power_up)
       v7 += 4;
-    R5_ = kSpr083_LeftFlyingBlock_DATA_01AE88[v7];
-    SpawnBounceSprite_02887D();
+    uint8 r5 = kSpr083_LeftFlyingBlock_DATA_01AE88[v7];
+    SpawnBounceSprite_02887D(r5);
     uint8 v8 = misc_scratch7e185e;
     int v9 = misc_scratch7e185e;
     spr_table1528[misc_scratch7e185e] = 1;
@@ -3549,9 +3810,9 @@ void Spr083_LeftFlyingBlock(uint8 k) {  // 01ad6e
       spr_table00c2[v8] = -1;
     v6 = v12;
   }
-  R0_ = kSpr083_LeftFlyingBlock_DATA_01AE7F[v6 >> 1];
+  uint8 r0 = kSpr083_LeftFlyingBlock_DATA_01AE7F[v6 >> 1];
   OamEnt *v10 = get_OamEnt(oam_buf, spr_oamindex[k]);
-  v10[64].ypos -= R0_;
+  v10[64].ypos -= r0;
   v10[64].charnum = spr_table00c2[k] ? 46 : 42;
 }
 
@@ -3586,10 +3847,11 @@ void Spr026_Thwomp_Waiting(uint8 k) {  // 01aec3
     goto LABEL_6;
   if (!spr_xoffscreen_flag[k]) {
     spr_table157c[k] = CheckPlayerPositionRelativeToSprite_Bank01_X(k);
+    int xx = player_current_xpos - GetSprXPos(k);
     spr_table1528[k] = 0;
-    if ((uint8)(R15_ + 64) < 0x80)
+    if ((uint8)(xx + 64) < 0x80)
       spr_table1528[k] = 1;
-    if ((uint8)(R15_ + 36) < 0x50) {
+    if ((uint8)(xx + 36) < 0x50) {
 LABEL_6:
       spr_table1528[k] = 2;
       ++spr_table00c2[k];
@@ -3625,27 +3887,27 @@ void Spr026_Thwomp_Rising(uint8 k) {  // 01af24
 }
 
 void Spr026_Thwomp_Draw(uint8 k) {  // 01af54
-  uint8 drt;
+  GetDrawInfoRes drt;
 
-  if ((drt = GetDrawInfo_Bank01_ReturnsTwice(k)) == 0xff)
+  if ((drt = GetDrawInfo_Bank01_ReturnsTwice(k)).idx == 0xff)
     return;
-  R2_ = spr_table1528[k];
+  uint8 r2 = spr_table1528[k];
   uint8 v2 = 3;
-  if (R2_)
+  if (r2)
     v2 = 4;
   do {
-    OamEnt *oam = get_OamEnt(oam_buf, drt);
-    oam[64].xpos = kSpr026_Thwomp_XDisp[v2] + R0_;
-    oam[64].ypos = kSpr026_Thwomp_YDisp[v2] + R1_;
+    OamEnt *oam = get_OamEnt(oam_buf, drt.idx);
+    oam[64].xpos = kSpr026_Thwomp_XDisp[v2] + drt.x;
+    oam[64].ypos = kSpr026_Thwomp_YDisp[v2] + drt.y;
     oam[64].flags = sprites_tile_priority | kSpr026_Thwomp_Prop[v2];
     uint8 v4 = kSpr026_Thwomp_Tiles[v2];
     if (v2 == 4) {
-      if (R2_ == 2)
+      if (r2 == 2)
         v4 = -54;
       v2 = 4;
     }
     oam[64].charnum = v4;
-    drt += 4;
+    drt.idx += 4;
   } while ((--v2 & 0x80) == 0);
   NormalSpritePlatformGFXRt_01B37E(k, 4);
 }
@@ -3757,8 +4019,8 @@ LABEL_23:
 }
 
 void SprXXX_FixedMovementCheepCheep_01B10A(uint8 k) {  // 01b10a
-  R0_ = (spr_table1602[k] >> 1) ^ 1;
-  spr_table15f6[k] = R0_ | spr_table15f6[k] & 0xFE;
+  uint8 r0 = (spr_table1602[k] >> 1) ^ 1;
+  spr_table15f6[k] = r0 | spr_table15f6[k] & 0xFE;
   GenericGFXRtDraw1Tile16x16(k);
   SubOffscreen_Bank01_Entry1(k);
   spr_table15f6[k] >>= 1;
@@ -3784,11 +4046,11 @@ void SpawnSparkles_GoalSphereEntry(uint8 k, uint8 a) {  // 01b152
   if (!(flag_sprites_locked | (uint8)(spr_yoffscreen_flag[k] | a))) {
     int8 v3 = (GetRand() & 0xF) - 4;
     uint16 x = GetSprXPos(k) + v3;
-    R2_ = x;
+    uint8 r2 = x;
     if ((uint16)(x - mirror_current_layer1_xpos) < 256) {
       uint8 v5 = (misc_random_byte2 & 0xF) - 2;  // not signed?
-      R0_W = GetSprYPos(k) + v5;
-      SpawnSparkles();
+      uint16 r0w = GetSprYPos(k) + v5;
+      SpawnSparkles(r0w, r2);
     }
   }
 }
@@ -3921,35 +4183,35 @@ void Spr058_VerticalRockPlatform(uint8 k) {  // 01b26c
 }
 
 void NormalSpritePlatformDraw(uint8 k) {  // 01b2d1
-  uint8 drt;
+  GetDrawInfoRes drt;
 
   if (kNormalSpritePlatformGFXRt_DATA_01B2C3[(uint8)(spr_spriteid[k] - 85)]) {
-    if ((drt = GetDrawInfo_Bank01_ReturnsTwice(k)) == 0xff)
+    if ((drt = GetDrawInfo_Bank01_ReturnsTwice(k)).idx == 0xff)
       return;
-    R0_ = spr_spriteid[k] == 94;
-    uint8 v1 = drt;
+    uint8 r0 = spr_spriteid[k] == 94;
+    uint8 v1 = drt.idx;
     int8 v2 = spr_ypos_lo[k] - mirror_current_layer1_ypos;
-    OamEnt *oam = get_OamEnt(oam_buf, drt);
+    OamEnt *oam = get_OamEnt(oam_buf, drt.idx);
     oam[64].ypos = v2;
     oam[66].ypos = v2;
     oam[68].ypos = v2;
-    if (R0_) {
+    if (r0) {
       oam[70].ypos = v2;
       oam[72].ypos = v2;
     }
     int8 v4 = v2 + 16;
     oam[65].ypos = v4;
     oam[67].ypos = v4;
-    if (R0_) {
+    if (r0) {
       oam[69].ypos = v4;
       oam[71].ypos = v4;
     }
     uint8 v5 = 8;
-    if (!R0_)
+    if (!r0)
       v5 = 4;
-    R1_ = v5;
-    R2_ = v5 - 1;
-    R3_ = spr_table15f6[spr_current_slotid];
+    uint8 r1 = v5;
+    uint8 r2 = v5 - 1;
+    uint8 r3 = spr_table15f6[spr_current_slotid];
     int8 v6 = 0;
     if (spr_spriteid[spr_current_slotid] < 0x5B)
       v6 = 9;
@@ -3961,17 +4223,17 @@ void NormalSpritePlatformDraw(uint8 k) {  // 01b2d1
       v9[64].xpos = v7;
       int8 v18 = v7 + 8;
       v9[64].charnum = kNormalSpritePlatformGFXRt_DiagPlatTiles[v8];
-      int8 v10 = R3_ | sprites_tile_priority;
-      if (R1_ < R2_)
+      int8 v10 = r3 | sprites_tile_priority;
+      if (r1 < r2)
         v10 |= 0x40;
       v9[64].flags = v10;
       v7 = v18;
       v1 += 4;
       ++v8;
-    } while ((--R1_ & 0x80) == 0);
+    } while ((--r1 & 0x80) == 0);
     uint8 v11 = spr_current_slotid;
     uint8 v12 = spr_oamindex[spr_current_slotid];
-    if (!R0_) {
+    if (!r0) {
       if (spr_spriteid[spr_current_slotid] >= 0x5B) {
         OamEnt *v14 = get_OamEnt(oam_buf, v12);
         v14[68].charnum = -53;
@@ -3983,7 +4245,7 @@ void NormalSpritePlatformDraw(uint8 k) {  // 01b2d1
       }
     }
     uint8 v15 = 8;
-    if (!R0_)
+    if (!r0)
       v15 = 4;
     NormalSpritePlatformGFXRt_01B37E(v11, v15);
   } else {
@@ -3992,17 +4254,17 @@ void NormalSpritePlatformDraw(uint8 k) {  // 01b2d1
 }
 
 void NormalSpritePlatformGFXRt_DrawFlatPlatform(uint8 k) {  // 01b2df
-  uint8 drt;
+  GetDrawInfoRes drt;
 
-  if ((drt = GetDrawInfo_Bank01_ReturnsTwice(k)) == 0xff)
+  if ((drt = GetDrawInfo_Bank01_ReturnsTwice(k)).idx == 0xff)
     return;
-  R1_ = spr_table1602[k];
+  uint8 r1 = spr_table1602[k];
   int8 v2 = spr_ypos_lo[k] - mirror_current_layer1_ypos;
-  OamEnt *oam = get_OamEnt(oam_buf, drt);
+  OamEnt *oam = get_OamEnt(oam_buf, drt.idx);
   oam[64].ypos = v2;
   oam[65].ypos = v2;
   oam[66].ypos = v2;
-  if (R1_) {
+  if (r1) {
     oam[67].ypos = v2;
     oam[68].ypos = v2;
   }
@@ -4012,13 +4274,13 @@ void NormalSpritePlatformGFXRt_DrawFlatPlatform(uint8 k) {  // 01b2df
   oam[65].xpos = v4;
   int8 v5 = v4 + 16;
   oam[66].xpos = v5;
-  if (R1_) {
+  if (r1) {
     int8 v6 = v5 + 16;
     oam[67].xpos = v6;
     oam[68].xpos = v6 + 16;
   }
   uint8 v7 = spr_current_slotid;
-  if (R1_) {
+  if (r1) {
     oam[64].charnum = -22;
     oam[65].charnum = -21;
     oam[66].charnum = -21;
@@ -4037,9 +4299,9 @@ void NormalSpritePlatformGFXRt_DrawFlatPlatform(uint8 k) {  // 01b2df
   oam[66].flags = v8;
   oam[67].flags = v8;
   oam[68].flags = v8;
-  if (!R1_)
+  if (!r1)
     oam[66].charnum = 98;
-  if (R1_)
+  if (r1)
     NormalSpritePlatformGFXRt_01B37E(v7, 4);
   else
     NormalSpritePlatformGFXRt_01B37E(v7, 2);
@@ -4054,13 +4316,13 @@ uint8 SolidSpriteBlock(uint8 k) {  // 01b457
   if (!r)
     return 0;
   
-  R0_ = spr_ypos_lo[k] - mirror_current_layer1_ypos;
-  if (sign8(player_on_screen_pos_y + 24 - R0_)) {
+  uint8 r0 = spr_ypos_lo[k] - mirror_current_layer1_ypos;
+  if (sign8(player_on_screen_pos_y + 24 - r0)) {
     if ((player_yspeed & 0x80) == 0 && (player_blocked_flags & 8) == 0) {
       player_yspeed = 16;
       misc_player_on_solid_sprite = 1;
-      R1_ = player_riding_yoshi_flag ? 47 : 31;
-      player_ypos = GetSprYPos(k) - R1_;
+      uint8 r1 = player_riding_yoshi_flag ? 47 : 31;
+      player_ypos = GetSprYPos(k) - r1;
       if ((player_blocked_flags & 3) == 0)
         player_xpos += (int8)spr_table1528[k];
       return 1;
@@ -4074,7 +4336,7 @@ uint8 SolidSpriteBlock(uint8 k) {  // 01b457
     v7 = 8;
   if (player_riding_yoshi_flag)
     v7 += 8;
-  if ((uint8)(player_on_screen_pos_y + v7) < R0_)
+  if ((uint8)(player_on_screen_pos_y + v7) < r0)
     return sub_1B505(k);
   if ((player_yspeed & 0x80) == 0)
     return 0;
@@ -4143,9 +4405,9 @@ void SprXXX_BuoyantPlatformsAndMine_01B563(uint8 k) {  // 01b563
     if (sign8(spr_yspeed[k] - 64))
       ++spr_yspeed[k];
     if (spr_table164a[k]) {
-      R0_ = (spr_spriteid[k] >= 0x5D) ? -4 : -8;
+      uint8 r0 = (spr_spriteid[k] >= 0x5D) ? -4 : -8;
       uint8 v2 = spr_yspeed[k];
-      if ((v2 & 0x80) == 0 || v2 >= R0_)
+      if ((v2 & 0x80) == 0 || v2 >= r0)
         spr_yspeed[k] = v2 - 2;
     }
     uint8 v10 = player_yspeed;
@@ -4156,24 +4418,24 @@ void SprXXX_BuoyantPlatformsAndMine_01B563(uint8 k) {  // 01b563
     } else {
       v3 = SolidSpriteBlock(k);
     }
-    R0_ = v10;
+    uint8 r0 = v10;
     misc_scratch7e185e = 0;
     if (v3) {
       if (spr_spriteid[k] >= 0x5D) {
-        R0_ = player_current_power_up ? 3 : 2;
-        if (sign8(spr_yspeed[k] - R0_))
+        r0 = player_current_power_up ? 3 : 2;
+        if (sign8(spr_yspeed[k] - r0))
           spr_yspeed[k] += 2;
       }
       ++misc_scratch7e185e;
-      if (R0_ >= 0x20)
-        spr_yspeed[k] = R0_ >> 2;
+      if (r0 >= 0x20)
+        spr_yspeed[k] = r0 >> 2;
     }
     bool v5 = misc_scratch7e185e == spr_table151c[k];
     spr_table151c[k] = misc_scratch7e185e;
     if (!v5 && !misc_scratch7e185e && (player_yspeed & 0x80) != 0) {
-      R0_ = player_current_power_up ? 8 : 6;
+      r0 = player_current_power_up ? 8 : 6;
       if (sign8(spr_yspeed[k] - 32))
-        spr_yspeed[k] += R0_;
+        spr_yspeed[k] += r0;
     }
     if ((counter_global_frames & 1) == 0) {
       int8 v7 = spr_yspeed[k];
@@ -4183,7 +4445,6 @@ void SprXXX_BuoyantPlatformsAndMine_01B563(uint8 k) {  // 01b563
       if (misc_scratch7e185e) {
         v8 = player_current_power_up ? 5 : 2;
       }
-      R0_ = v8;
       uint16 old_y = GetSprYPos(k);
       SetSprYPos(k, old_y - v8);
       HandleNormalSpriteLevelCollision(k);
@@ -4198,25 +4459,25 @@ void SprXXX_BuoyantPlatformsAndMine_01B563(uint8 k) {  // 01b563
 }
 
 void SprXXX_BuoyantPlatformsAndMine_SpikeBallDraw(uint8 k) {  // 01b666
-  uint8 drt;
+  GetDrawInfoRes drt;
 
-  if ((drt = GetDrawInfo_Bank01_ReturnsTwice(k)) == 0xff)
+  if ((drt = GetDrawInfo_Bank01_ReturnsTwice(k)).idx == 0xff)
     return;
   for (uint8 i = 3; (i & 0x80) == 0; --i) {
-    OamEnt *oam = get_OamEnt(oam_buf, drt);
-    oam[64].xpos = kSprXXX_BuoyantPlatformsAndMine_SpikeBallXDisp[i] + R0_;
-    oam[64].ypos = kSprXXX_BuoyantPlatformsAndMine_SpikeBallYDisp[i] + R1_;
+    OamEnt *oam = get_OamEnt(oam_buf, drt.idx);
+    oam[64].xpos = kSprXXX_BuoyantPlatformsAndMine_SpikeBallXDisp[i] + drt.x;
+    oam[64].ypos = kSprXXX_BuoyantPlatformsAndMine_SpikeBallYDisp[i] + drt.y;
     oam[64].charnum = ((uint8)((counter_local_frames >> 2) & 4) >> 1) - 86;
     oam[64].flags = kSprXXX_BuoyantPlatformsAndMine_SpikeBallProp[i];
-    drt += 4;
+    drt.idx += 4;
   }
   FinishOAMWrite(k, 2, 3);
 }
 
 void SprXXX_TurnBlockBridge_HorizontalAndVerticalTurnBlockBridgeEntry(uint8 k) {  // 01b6a5
   SubOffscreen_Bank01_Entry1(k);
-  SprXXX_TurnBlockBridge_Draw(k);
-  SprXXX_TurnBlockBridge_01B852(k);
+  uint16 t = SprXXX_TurnBlockBridge_Draw(k);
+  SprXXX_TurnBlockBridge_01B852(k, t);
   SprXXX_TurnBlockBridge_01B6B2(k);
 }
 
@@ -4232,8 +4493,8 @@ void SprXXX_TurnBlockBridge_01B6B2(uint8 k) {  // 01b6b2
 
 void SprXXX_TurnBlockBridge_HorizontalTurnBlockBridgeEntry(uint8 k) {  // 01b6da
   SubOffscreen_Bank01_Entry1(k);
-  SprXXX_TurnBlockBridge_Draw(k);
-  SprXXX_TurnBlockBridge_01B852(k);
+  uint16 t = SprXXX_TurnBlockBridge_Draw(k);
+  SprXXX_TurnBlockBridge_01B852(k, t);
   SprXXX_TurnBlockBridge_01B6E7(k);
 }
 
@@ -4247,95 +4508,90 @@ void SprXXX_TurnBlockBridge_01B6E7(uint8 k) {  // 01b6e7
   }
 }
 
-void SprXXX_TurnBlockBridge_Draw(uint8 k) {  // 01b710
-  if (GetDrawInfo_Bank01_ReturnsTwice(k) == 0xff)
-    return;
-  R0_ = 0;
-  R1_ = 0;
-  R2_ = 0;
-  R3_ = 0;
+uint16 SprXXX_TurnBlockBridge_Draw(uint8 k) {  // 01b710
+  GetDrawInfoRes drt;
+
+  if ((drt = GetDrawInfo_Bank01_ReturnsTwice(k)).idx == 0xff)
+    return 0;
+  uint8 arr[4] = { 0 };
   uint8 v1 = spr_table00c2[k] & 2;
   uint8 v2 = spr_table151c[k];
-  *(&R0_ + v1) = v2;
-  *(&R1_ + v1) = v2 >> 1;
+  arr[v1] = v2;
+  arr[v1 + 1] = v2 >> 1;
   int8 v3 = spr_ypos_lo[k] - mirror_current_layer1_ypos;
   OamEnt *oam = get_OamEnt(oam_buf, spr_oamindex[k]);
   oam[68].ypos = v3;
-  oam[66].ypos = v3 - R2_;
-  oam[67].ypos = v3 - R3_;
-  oam[64].ypos = R2_ + v3;
-  oam[65].ypos = R3_ + v3;
+  oam[66].ypos = v3 - arr[2];
+  oam[67].ypos = v3 - arr[3];
+  oam[64].ypos = arr[2] + v3;
+  oam[65].ypos = arr[3] + v3;
   int8 v5 = spr_xpos_lo[k] - mirror_current_layer1_xpos;
   oam[68].xpos = v5;
-  oam[66].xpos = v5 - R0_;
-  oam[67].xpos = v5 - R1_;
-  oam[64].xpos = R0_ + v5;
-  oam[65].xpos = R1_ + v5;
+  oam[66].xpos = v5 - arr[0];
+  oam[67].xpos = v5 - arr[1];
+  oam[64].xpos = arr[0] + v5;
+  oam[65].xpos = arr[1] + v5;
   oam[65].charnum = 64;
   oam[67].charnum = 64;
   oam[68].charnum = 64;
   oam[66].charnum = 64;
   oam[64].charnum = 64;
   uint8 v6 = sprites_tile_priority;
-  oam[67].flags = sprites_tile_priority;
+  oam[67].flags = v6;
   oam[65].flags = v6;
   oam[66].flags = v6;
   oam[68].flags = v6;
   oam[64].flags = v6 | 0x60;
-  uint8 v8 = R0_;
-  uint8 v7 = R2_;
   NormalSpritePlatformGFXRt_01B37E(k, 4);
-  R2_ = v7;
-  R0_ = v8;
+  return arr[0] | arr[2] << 8;
 }
 
 void FinishOAMWrite(uint8 k, uint8 j, uint8 a) {  // 01b7bb
-  R11_ = j;
-  R8_ = a;
+  uint8 r11 = j;
+  uint8 r8 = a;
   uint8 v3 = spr_oamindex[k];
-  R0_W = GetSprYPos(k);
-  R6_ = R0_W - mirror_current_layer1_ypos;
-  R2_W = GetSprXPos(k);
-  R7_ = R2_W - mirror_current_layer1_xpos;
+  uint16 r0w = GetSprYPos(k);
+  uint8 r6 = r0w - mirror_current_layer1_ypos;
+  uint16 r2w = GetSprXPos(k);
+  uint8 r7 = r2w - mirror_current_layer1_xpos;
   do {
     uint8 v4 = v3 >> 2;
-    uint8 v5 = R11_;
-    if ((R11_ & 0x80) != 0)
+    uint8 v5 = r11;
+    if ((r11 & 0x80) != 0)
       v5 = sprites_oamtile_size_buffer[v4 + 64] & 2;
     sprites_oamtile_size_buffer[v4 + 64] = v5;
     OamEnt *oam = get_OamEnt(oam_buf, v3);
-    R4_W = R2_W + (int8)(oam[64].xpos - R7_);
-    if (FinishOAMWrite_01B844())
+    uint16 r4w = r2w + (int8)(oam[64].xpos - r7);
+    if (FinishOAMWrite_01B844(r4w))
       sprites_oamtile_size_buffer[(v3 >> 2) + 64] |= 1;
-    R9_W = R0_W + (int8)(oam[64].ypos - R6_);
-    if (Spr05F_BrownChainedPlatform_01C9BF())
+    if (Spr05F_BrownChainedPlatform_01C9BF(r0w + (int8)(oam[64].ypos - r6)))
       oam[64].ypos = -16;
     v3 += 4;
-  } while ((--R8_ & 0x80) == 0);
+  } while ((--r8 & 0x80) == 0);
 }
 
-uint8 FinishOAMWrite_01B844() {  // 01b844
-  return (uint16)(R4_W - mirror_current_layer1_xpos) >= 0x100;
+uint8 FinishOAMWrite_01B844(uint16 r4w) {  // 01b844
+  return (uint16)(r4w - mirror_current_layer1_xpos) >= 0x100;
 }
 
-void SprXXX_TurnBlockBridge_Return01B851() {  // 01b851
-  ;
-}
+void SprXXX_TurnBlockBridge_01B852(uint8 k, uint16 t) {  // 01b852
+  uint8 R0 = t;
+  uint8 r2 = t >> 8;
+  uint8 r14 = R0;
+  uint8 r13 = r2;
 
-void SprXXX_TurnBlockBridge_01B852(uint8 k) {  // 01b852
-  if (!spr_table15c4[k] && !player_current_state && SprXXX_TurnBlockBridge_01B8FF(k) & 1) {
-    R2_ = spr_ypos_lo[k] - mirror_current_layer1_ypos;
-    R9_ = R2_ - R13_;
-    if ((uint8)(player_on_screen_pos_y + 24) >= (uint8)(R2_ - R13_)) {
-      R2_ += R13_;
+  if (!spr_table15c4[k] && !player_current_state && SprXXX_TurnBlockBridge_01B8FF(k, R0, r2)) {
+    r2 = spr_ypos_lo[k] - mirror_current_layer1_ypos;
+    if ((uint8)(player_on_screen_pos_y + 24) >= (uint8)(r2 - r13)) {
+      r2 += r13;
       int8 v5 = -1;
       if (player_ducking_flag || !player_current_power_up)
         v5 = 8;
-      if ((uint8)(player_on_screen_pos_y + v5) < R2_) {
-        R0_ = R14_ + 16;
+      if ((uint8)(player_on_screen_pos_y + v5) < r2) {
+        uint8 r0 = r14 + 16;
         if ((uint8)(spr_xpos_lo[k] - mirror_current_layer1_xpos) >= (uint8)player_on_screen_pos_x)
-          R0_ = -R0_;
-        player_xpos = GetSprXPos(k) + (int8)R0_;
+          r0 = -r0;
+        player_xpos = GetSprXPos(k) + (int8)r0;
         player_xspeed = 0;
       } else if ((player_yspeed & 0x80) != 0) {
         player_yspeed = 16;
@@ -4343,22 +4599,23 @@ void SprXXX_TurnBlockBridge_01B852(uint8 k) {  // 01b852
     } else if ((player_yspeed & 0x80) == 0) {
       player_yspeed = 0;
       misc_player_on_solid_sprite = 1;
-      R0_ = R13_ + (player_riding_yoshi_flag ? 47 : 31);
-      player_ypos = GetSprYPos(k) - R0_;
+      uint8 r0 = r13 + (player_riding_yoshi_flag ? 47 : 31);
+      player_ypos = GetSprYPos(k) - r0;
       player_xpos += (int8)sprites_position_disp;
     }
   }
 }
 
-uint8 SprXXX_TurnBlockBridge_01B8FF(uint8 k) {  // 01b8ff
-  R14_ = R0_;
-  R13_ = R2_;
-  SetHiLo(&R10_, &R4_, GetSprXPos(k) - R0_);
-  R6_ = 2 * R0_ + 16;
-  SetHiLo(&R11_, &R5_, GetSprYPos(k) - R2_);
-  R7_ = 2 * R2_ + 16;
-  StandardSpriteToSpriteCollisionChecks_GetMarioClipping();
-  return StandardSpriteToSpriteCollisionChecks_CheckContact();
+uint8 SprXXX_TurnBlockBridge_01B8FF(uint8 k, uint16 R0, uint16 r2) {  // 01b8ff
+//  r14 = r0;
+//  r13 = r2;
+  CollInfo ci;
+  SetHiLo(&ci.r10, &ci.r4, GetSprXPos(k) - R0);
+  ci.r6 = 2 * R0 + 16;
+  SetHiLo(&ci.r11, &ci.r5, GetSprYPos(k) - r2);
+  ci.r7 = 2 * r2 + 16;
+  StandardSpriteToSpriteCollisionChecks_GetMarioClipping(&ci);
+  return StandardSpriteToSpriteCollisionChecks_CheckContact(&ci);
 }
 
 void SprXXX_NetKoopas_Init_HorizontalNetKoopaEntry(uint8 k) {  // 01b93e
@@ -4477,9 +4734,10 @@ void Spr054_ClimbingNetDoor(uint8 k) {  // 01bacd
     sprites_player_xspeed_on_swinging_net_door = player_xpos - 16 - spr_xpos_lo[k];
   }
   if (!(spr_decrementing_table154c[k] | spr_decrementing_table1540[k])) {
-    StandardSpriteToSpriteCollisionChecks_GetSpriteClippingA(k);
-    Spr054_ClimbingNetDoor_01BC1D();
-    if (StandardSpriteToSpriteCollisionChecks_CheckContact()) {
+    CollInfo ci;
+    StandardSpriteToSpriteCollisionChecks_GetSpriteClippingA(k, &ci);
+    Spr054_ClimbingNetDoor_01BC1D(&ci);
+    if (StandardSpriteToSpriteCollisionChecks_CheckContact(&ci)) {
       if (timer_display_player_net_punch_pose == 1)
         spr_decrementing_table154c[k] = 6;
     }
@@ -4493,32 +4751,32 @@ void Spr054_ClimbingNetDoor(uint8 k) {  // 01bacd
     if (v1 == 16)
       player_current_layer_priority ^= 1;
     spr_oamindex[k] = 48;
-    R3_ = 48;
+    uint8 r3 = 48;
     uint8 v2 = 48;
-    R0_ = spr_xpos_lo[k] - mirror_current_layer1_xpos;
-    R1_ = spr_ypos_lo[k] - mirror_current_layer1_ypos;
-    R2_ = spr_decrementing_table1540[k] >> 1;
-    uint8 v3 = R2_;
-    R6_ = kSpr054_ClimbingNetDoor_AnimationFrame[R2_];
-    int8 v4 = kSpr054_ClimbingNetDoor_XDisp[R2_] + R0_;
+    uint8 r0 = spr_xpos_lo[k] - mirror_current_layer1_xpos;
+    uint8 r1 = spr_ypos_lo[k] - mirror_current_layer1_ypos;
+    uint8 r2 = spr_decrementing_table1540[k] >> 1;
+    uint8 v3 = r2;
+    uint8 r6 = kSpr054_ClimbingNetDoor_AnimationFrame[r2];
+    int8 v4 = kSpr054_ClimbingNetDoor_XDisp[r2] + r0;
     OamEnt *oam = get_OamEnt(oam_buf, 0x30);
     oam[64].xpos = v4;
     oam[65].xpos = v4;
     oam[66].xpos = v4;
-    if (R6_ != 2) {
-      int8 v6 = R0_ + 32 - kSpr054_ClimbingNetDoor_XDisp[v3];
+    if (r6 != 2) {
+      int8 v6 = r0 + 32 - kSpr054_ClimbingNetDoor_XDisp[v3];
       oam[67].xpos = v6;
       oam[68].xpos = v6;
       oam[69].xpos = v6;
-      if (!R6_) {
-        int8 v7 = R0_ + 16;
-        oam[70].xpos = R0_ + 16;
+      if (!r6) {
+        int8 v7 = r0 + 16;
+        oam[70].xpos = r0 + 16;
         oam[71].xpos = v7;
         oam[72].xpos = v7;
       }
     }
-    uint8 v8 = R1_;
-    oam[64].ypos = R1_;
+    uint8 v8 = r1;
+    oam[64].ypos = r1;
     oam[67].ypos = v8;
     oam[70].ypos = v8;
     v8 += 16;
@@ -4529,15 +4787,14 @@ void Spr054_ClimbingNetDoor(uint8 k) {  // 01bacd
     oam[66].ypos = v8;
     oam[69].ypos = v8;
     oam[72].ypos = v8;
-    R7_ = 8;
-    uint8 v9 = R6_ + __CFSHL__(4 * R6_, 1) + 8 * R6_;
+    uint8 n = 8;
+    uint8 v9 = 9 * r6;
     do {
       get_OamEnt(oam_buf, v2)[64].charnum = kSpr054_ClimbingNetDoor_Tiles[v9];
       v2 += 4;
       ++v9;
-      --R7_;
-    } while ((R7_ & 0x80) == 0);
-    uint8 v10 = R3_;
+    } while ((--n & 0x80) == 0);
+    uint8 v10 = r3;
     for (int8 i = 8; i >= 0; --i) {
       int8 v12 = sprites_tile_priority | 9;
       if ((uint8)i < 6)
@@ -4547,7 +4804,7 @@ void Spr054_ClimbingNetDoor(uint8 k) {  // 01bacd
       get_OamEnt(oam_buf, v10)[64].flags = v12;
       v10 += 4;
     }
-    uint8 v13 = R6_;
+    uint8 v13 = r6;
     NormalSpritePlatformGFXRt_01B37E(spr_current_slotid, 8);
     if (v13) {
       if (v13 == 2) {
@@ -4562,11 +4819,11 @@ void Spr054_ClimbingNetDoor(uint8 k) {  // 01bacd
   }
 }
 
-void Spr054_ClimbingNetDoor_01BC1D() {  // 01bc1d
-  SetHiLo(&R8_, &R0_, player_xpos);
-  SetHiLo(&R9_, &R1_, player_ypos);
-  R2_ = 16;
-  R3_ = 16;
+void Spr054_ClimbingNetDoor_01BC1D(CollInfo *ci) {  // 01bc1d
+  SetHiLo(&ci->r8, &ci->r0, player_xpos);
+  SetHiLo(&ci->r9, &ci->r1, player_ypos);
+  ci->r2 = 16;
+  ci->r3 = 16;
 }
 
 void Spr020_Magic(uint8 k) {  // 01bc38
@@ -4610,25 +4867,25 @@ void Spr020_Magic(uint8 k) {  // 01bc38
 }
 
 void Spr020_Magic_Draw(uint8 k) {  // 01bcf0
-  uint8 drt;
+  GetDrawInfoRes drt;
 
-  if ((drt = GetDrawInfo_Bank01_ReturnsTwice(k)) == 0xff)
+  if ((drt = GetDrawInfo_Bank01_ReturnsTwice(k)).idx == 0xff)
     return;
-  R3_ = (counter_local_frames >> 1) & 0xF;
-  R2_ = (R3_ + 12) & 0xF;
-  R1_ -= 4;
-  R0_ -= 4;
-  OamEnt *oam = get_OamEnt(oam_buf, drt);
-  oam[64].ypos = kSpr020_Magic_Disp[(R3_ + 12) & 0xF] + R1_;
-  oam[64].xpos = kSpr020_Magic_Disp[R3_] + R0_;
-  R2_ = (R2_ + 5) & 0xF;
-  oam[65].ypos = kSpr020_Magic_Disp[R2_] + R1_;
-  R3_ = (R3_ + 5) & 0xF;
-  oam[65].xpos = kSpr020_Magic_Disp[R3_] + R0_;
-  R2_ = (R2_ + 5) & 0xF;
-  oam[66].ypos = kSpr020_Magic_Disp[R2_] + R1_;
-  R3_ = (R3_ + 5) & 0xF;
-  oam[66].xpos = kSpr020_Magic_Disp[R3_] + R0_;
+  uint8 r3 = (counter_local_frames >> 1) & 0xF;
+  uint8 r2 = (r3 + 12) & 0xF;
+  drt.y -= 4;
+  drt.x -= 4;
+  OamEnt *oam = get_OamEnt(oam_buf, drt.idx);
+  oam[64].ypos = kSpr020_Magic_Disp[(r3 + 12) & 0xF] + drt.y;
+  oam[64].xpos = kSpr020_Magic_Disp[r3] + drt.x;
+  r2 = (r2 + 5) & 0xF;
+  oam[65].ypos = kSpr020_Magic_Disp[r2] + drt.y;
+  r3 = (r3 + 5) & 0xF;
+  oam[65].xpos = kSpr020_Magic_Disp[r3] + drt.x;
+  r2 = (r2 + 5) & 0xF;
+  oam[66].ypos = kSpr020_Magic_Disp[r2] + drt.y;
+  r3 = (r3 + 5) & 0xF;
+  oam[66].xpos = kSpr020_Magic_Disp[r3] + drt.x;
   uint8 v3 = spr_current_slotid;
   int8 v4 = sprites_tile_priority | spr_table15f6[spr_current_slotid];
   oam[64].flags = v4;
@@ -4679,8 +4936,7 @@ void Spr01F_MagiKoopa_State00_FindOpenSpace(uint8 k) {  // 01bdf2
       if (r < 0xD1) {
         SetSprYPos(k, (mirror_current_layer1_ypos + r) & ~0xf);
         SetSprXPos(k, (mirror_current_layer1_xpos + GetRand()) & ~0xf);
-        CheckPlayerPositionRelativeToSprite_Bank01_X(k);
-        if ((uint8)(R15_ + 32) >= 0x40) {
+        if ((uint8)(player_current_xpos - GetSprXPos(k) + 32) >= 0x40) {
           spr_yspeed[k] = 0;
           spr_xspeed[k] = 1;
           HandleNormalSpriteLevelCollision(k);
@@ -4771,51 +5027,52 @@ void Spr01F_MagiKoopa_01BF1D(uint8 k) {  // 01bf1d
   SetSprXPos(j, GetSprXPos(k));
   SetSprYPos(j, GetSprYPos(k) + 10);
   InitializeNormalSpriteRAMTables(j);
-  AimTowardsPlayer_Bank01(j, 0x20);
-  spr_yspeed[j] = R0_;
-  spr_xspeed[j] = R1_;
+  PointU8 pt = AimTowardsPlayer_Bank01(j, 0x20);
+  spr_yspeed[j] = pt.y;
+  spr_xspeed[j] = pt.x;
 }
 
-void AimTowardsPlayer_Bank01(uint8 k, uint8 a) {  // 01bf6a
-  R1_ = a;
-  R2_ = CheckPlayerPositionRelativeToSprite_Bank01_Y(k);
-  uint8 v2 = R14_;
-  if ((R14_ & 0x80) != 0)
-    v2 = -R14_;
-  R12_ = v2;
-  R3_ = CheckPlayerPositionRelativeToSprite_Bank01_X(k);
-  uint8 v3 = R15_;
-  if ((R15_ & 0x80) != 0)
-    v3 = -R15_;
-  R13_ = v3;
+PointU8 AimTowardsPlayer_Bank01(uint8 k, uint8 a) {  // 01bf6a
+  uint8 r1 = a;
+  uint8 r2 = CheckPlayerPositionRelativeToSprite_Bank01_Y(k);
+  uint8 v2 = player_current_ypos - GetSprYPos(k);
+  if ((v2 & 0x80) != 0)
+    v2 = -v2;
+  uint8 r12 = v2;
+  uint8 r3 = CheckPlayerPositionRelativeToSprite_Bank01_X(k);
+  uint8 v3 = player_current_xpos - GetSprXPos(k);
+  if ((v3 & 0x80) != 0)
+    v3 = -v3;
+  uint8 r13 = v3;
   int8 v4 = 0;
-  uint8 v5 = R13_;
-  if (R13_ < R12_) {
+  uint8 v5 = r13;
+  if (r13 < r12) {
     v4 = 1;
-    R13_ = R12_;
-    R12_ = v5;
+    r13 = r12;
+    r12 = v5;
   }
-  R11_ = 0;
-  R0_ = 0;
-  uint8 v6 = R1_;
+  uint8 r11 = 0;
+  uint8 r0 = 0;
+  uint8 v6 = r1;
   do {
-    uint8 v7 = R12_ + R11_;
-    if ((uint8)(R12_ + R11_) >= R13_) {
-      v7 -= ((uint8)(R12_ + R11_) < R13_) + R13_;
-      ++R0_;
+    uint8 v7 = r12 + r11;
+    if ((uint8)(r12 + r11) >= r13) {
+      v7 -= ((uint8)(r12 + r11) < r13) + r13;
+      ++r0;
     }
-    R11_ = v7;
+    r11 = v7;
     --v6;
   } while (v6);
   if (v4) {
-    uint8 v8 = R0_;
-    R0_ = R1_;
-    R1_ = v8;
+    uint8 v8 = r0;
+    r0 = r1;
+    r1 = v8;
   }
-  if (R2_)
-    R0_ = -R0_;
-  if (R3_)
-    R1_ = -R1_;
+  if (r2)
+    r0 = -r0;
+  if (r3)
+    r1 = -r1;
+  return (PointU8) {.x = r1, .y = r0 };
 }
 
 bool Spr01F_MagiKoopa_01BFE3_ReturnsTwice(uint8 k) {  // 01bfe3
@@ -4851,12 +5108,12 @@ void Spr01F_MagiKoopa_01C028(uint8 k) {  // 01c028
   unsigned int v4;
 
   uint8 v1 = 16 * (spr_table1570[k] - 1);
-  R0_ = 0;
+  uint8 r0 = 0;
   uint8 v2 = palettes_dynamic_palette_upload_index;
   do {
     palettes_dynamic_palette_colors[v2++] = *((uint8 *)kSpr01F_MagiKoopa_MagiKoopaFadePalettes + v1++);
-    ++R0_;
-  } while (R0_ != 16);
+    ++r0;
+  } while (r0 != 16);
   uint8 v3 = palettes_dynamic_palette_upload_index;
   v4 = palettes_dynamic_palette_upload_index;
   *(&palettes_dynamic_palette_bytes_to_upload + palettes_dynamic_palette_upload_index) = 16;
@@ -4874,9 +5131,11 @@ void Spr07B_GoalTape_Init(uint8 k) {  // 01c075
   SetHiLo(&spr_table151c[k], &spr_table00c2[k], GetSprXPos(k) - 8);
   spr_table1528[k] = spr_ypos_lo[k];
   uint8 v2 = spr_ypos_hi[k];
-  spr_table187b[k] = v2;
-  v2 &= 1;
-  spr_ypos_hi[k] = v2;
+  if (!g_lunar_magic) {
+    spr_table187b[k] = v2;
+    v2 &= 1;
+    spr_ypos_hi[k] = v2;
+  }
   spr_table1534[k] = v2;
 }
 
@@ -4889,9 +5148,8 @@ void Spr07B_GoalTape(uint8 k) {  // 01c098
     }
     spr_yspeed[k] = kSpr07B_GoalTape_YSpeed[spr_table1588[k] & 1];
     UpdateNormalSpritePosition_Y(k);
-    R0_ = spr_table00c2[k];
-    R1_ = spr_table151c[k];
-    if ((uint16)(player_xpos - R0_W) < 0x10 &&
+    uint16 r0w = spr_table00c2[k] | spr_table151c[k] << 8;
+    if ((uint16)(player_xpos - r0w) < 0x10 &&
         (uint8)(spr_table1534[k] & 1) >= (HIBYTE(player_ypos) + (spr_table1528[k] < LOBYTE(player_ypos)))) {
       flag_secret_goal_sprite = spr_table187b[k] >> 2;
       io_music_ch1 = 12;
@@ -4914,7 +5172,7 @@ void Spr07B_GoalTape(uint8 k) {  // 01c098
 }
 
 void Spr07B_GoalTape_Draw(uint8 k) {  // 01c12d
-  uint8 drt;
+  GetDrawInfoRes drt;
 
   if (spr_table160e[k]) {
     if (spr_decrementing_table1540[k])
@@ -4922,16 +5180,16 @@ void Spr07B_GoalTape_Draw(uint8 k) {  // 01c12d
     else
       spr_current_status[k] = 0;
   } else {
-    if ((drt = GetDrawInfo_Bank01_ReturnsTwice(k)) == 0xff)
+    if ((drt = GetDrawInfo_Bank01_ReturnsTwice(k)).idx == 0xff)
       return;
-    int8 v2 = R0_ - 8;
-    OamEnt *oam = get_OamEnt(oam_buf, drt);
-    oam[64].xpos = R0_ - 8;
+    int8 v2 = drt.x - 8;
+    OamEnt *oam = get_OamEnt(oam_buf, drt.idx);
+    oam[64].xpos = drt.x - 8;
     v2 += 8;
     oam[65].xpos = v2;
     oam[66].xpos = v2 + 8;
-    int8 v4 = R1_ + 8;
-    oam[64].ypos = R1_ + 8;
+    int8 v4 = drt.y + 8;
+    oam[64].ypos = drt.y + 8;
     oam[65].ypos = v4;
     oam[66].ypos = v4;
     oam[64].charnum = -44;
@@ -5007,8 +5265,7 @@ void Spr080_Key(uint8 k) {  // 01c1f2
     DrawWingTiles(k);
   }
   if (spr_table00c2[k]) {
-    if (GetDrawInfo_Bank01_ReturnsTwice(k) == 0xff)
-      return;
+    GetDrawInfo_Bank01_ReturnsTwice(k);
     return;
   }
   PowerUpAndItemDraw(k);
@@ -5278,50 +5535,50 @@ void SprXXX_PowerUps_GiveMario1Up(uint8 k) {  // 01c5fe
 }
 
 void PowerUpAndItemDraw(uint8 k) {  // 01c61a
-  uint8 drt;
-  if ((drt = GetDrawInfo_Bank01_ReturnsTwice(k)) == 0xff)
+  GetDrawInfoRes drt;
+  if ((drt = GetDrawInfo_Bank01_ReturnsTwice(k)).idx == 0xff)
     return;
-  R10_ = 0;
+  uint8 r10 = 0;
   if (!flag_reznor_room_oamindex_timer && misc_nmito_use_flag != 0xC1 && (misc_nmito_use_flag & 0x40) != 0) {
     spr_oamindex[k] = 0xD8;
-    drt = 0xD8;
+    drt.idx = 0xD8;
   }
   if (spr_spriteid[k] == 33) {
     PowerUpAndItemGFXRt_DrawCoinSprite(k);
   } else {
     if (spr_spriteid[k] == 118)
-      R10_ = kPowerUpAndItemGFXRt_StarPalValues[(counter_global_frames >> 1) & 3];
-    OamEnt *oam = get_OamEnt(oam_buf, drt);
-    oam[64].xpos = R0_;
-    oam[64].ypos = R1_ - 1;
+      r10 = kPowerUpAndItemGFXRt_StarPalValues[(counter_global_frames >> 1) & 3];
+    OamEnt *oam = get_OamEnt(oam_buf, drt.idx);
+    oam[64].xpos = drt.x;
+    oam[64].ypos = drt.y - 1;
     int8 v3 = 0;
     if (!(spr_table157c[k] & 1))
       v3 = 64;
-    oam[64].flags = R10_ ^ (spr_table15f6[k] | sprites_tile_priority | v3);
+    oam[64].flags = r10 ^ (spr_table15f6[k] | sprites_tile_priority | v3);
     oam[64].charnum = kPowerUpAndItemGFXRt_PowerUpTiles[(uint8)(spr_spriteid[k] - 116)];
     NormalSpritePlatformGFXRt_01B37E(spr_current_slotid, 0);
   }
 }
 
 void PowerUpAndItemGFXRt_DrawCoinSprite(uint8 k) {  // 01c645
-  uint8 drt;
+  GetDrawInfoRes drt;
   uint8 v3;
 
-  if ((drt = GetDrawInfo_Bank01_ReturnsTwice(k)) == 0xff)
+  if ((drt = GetDrawInfo_Bank01_ReturnsTwice(k)).idx == 0xff)
     return;
-  OamEnt *oam = get_OamEnt(oam_buf, drt);
-  oam[64].xpos = R0_;
-  oam[64].ypos = R1_;
+  OamEnt *oam = get_OamEnt(oam_buf, drt.idx);
+  oam[64].xpos = drt.x;
+  oam[64].ypos = drt.y;
   oam[64].charnum = -24;
   oam[64].flags = sprites_tile_priority | spr_table15f6[k];
   if ((((uint8)(counter_local_frames + k) >> 2) & 3) != 0) {
     uint8 ka = k;
     uint8 v4 = ((uint8)(counter_local_frames + k) >> 2) & 3;
-    int8 v5 = R0_ + 4;
-    OamEnt *v6 = get_OamEnt(oam_buf, drt);
-    v6[64].xpos = R0_ + 4;
+    int8 v5 = drt.x + 4;
+    OamEnt *v6 = get_OamEnt(oam_buf, drt.idx);
+    v6[64].xpos = drt.x + 4;
     v6[65].xpos = v5;
-    v6[65].ypos = R1_ + 8;
+    v6[65].ypos = drt.y + 8;
     uint8 v7 = kPowerUpAndItemGFXRt_DrawCoinSprite_Tiles[v4 - 1];
     v6[64].charnum = v7;
     v6[65].charnum = v7;
@@ -5390,119 +5647,105 @@ void Spr05F_BrownChainedPlatform(uint8 k) {  // 01c773
   uint8 v23 = spr_table1528[k];
   spr_table151c[k] = -v24;
   spr_table1528[k] = (2 - ((v24 != 0) + spr_table1528[k])) & 1;
-  Spr05F_BrownChainedPlatform_01CACB(k);
+  CalcTiltPlatformArgs ctpa = Spr05F_BrownChainedPlatform_01CACB(k);
   GetSineAndCosineOfTiltingPlatform();
-  CalculateCircleCoordinatesForTiltingPlaform();
+  PointU16 pt = CalculateCircleCoordinatesForTiltingPlaform(ctpa);
   spr_table1528[k] = v23;
   spr_table151c[k] = v24;
-  sprites_position_disp = temp14b8 - spr_table00c2[k];
-  spr_table00c2[k] = temp14b8;
+  sprites_position_disp = pt.x - spr_table00c2[k];
+  spr_table00c2[k] = pt.x;
   OamEnt *oam = get_OamEnt(oam_buf, spr_oamindex[k]);
-  oam[64].ypos = temp14ba - mirror_current_layer1_ypos - 8;
-  oam[64].xpos = temp14b8 - mirror_current_layer1_xpos - 8;
+  oam[64].ypos = pt.y - mirror_current_layer1_ypos - 8;
+  oam[64].xpos = pt.x - mirror_current_layer1_xpos - 8;
   oam[64].charnum = -94;
   oam[64].flags = 49;
   uint8 v4 = 0;
-  uint8 v5 = temp14ba - temp14b2;
-  if ((int8)(temp14ba - temp14b2) < 0) {
-    v5 = temp14b2 - temp14ba;
+  uint8 v5 = pt.y - ctpa.temp14b2;
+  if ((int8)(pt.y - ctpa.temp14b2) < 0) {
+    v5 = ctpa.temp14b2 - pt.y;
     v4 = 1;
   }
-  R0_ = v4;
-  WriteReg(WRDIVH, v5);
-  WriteReg(WRDIVL, 0);
-  WriteReg(WRDIVB, 5);
-  R2_ = ReadReg(RDDIVL);
-  R6_ = R2_;
-  R3_ = ReadReg(RDDIVH);
-  R7_ = R3_;
+  uint8 r0 = v4;
+  uint16 r2w = SnesDivide(v5 << 8, 5);
+  uint16 r6 = r2w;
   uint8 v6 = 0;
-  uint8 v7 = temp14b8 - temp14b0;
-  if ((int8)(temp14b8 - temp14b0) < 0) {
-    v7 = temp14b0 - temp14b8;
+  uint8 v7 = pt.x - ctpa.temp14b0;
+  if ((int8)(pt.x - ctpa.temp14b0) < 0) {
+    v7 = ctpa.temp14b0 - pt.x;
     v6 = 1;
   }
-  R1_ = v6;
-  WriteReg(WRDIVH, v7);
-  WriteReg(WRDIVL, 0);
-  WriteReg(WRDIVB, 5);
-  R4_ = ReadReg(RDDIVL);
-  R8_ = R4_;
-  R5_ = ReadReg(RDDIVH);
-  R9_ = R5_;
+  uint8 r1 = v6;
+  uint16 r4w = SnesDivide(v7 << 8, 5);
+  uint16 r8w = r4w;
   uint8 v8 = spr_oamindex[k] + 4;
-  R10_ = temp14b2 - mirror_current_layer1_ypos - 8;
+  uint8 r10 = ctpa.temp14b2 - mirror_current_layer1_ypos - 8;
   OamEnt *v9 = get_OamEnt(oam_buf, v8);
-  v9[64].ypos = temp14b2 - mirror_current_layer1_ypos - 8;
-  R11_ = temp14b0 - mirror_current_layer1_xpos - 8;
-  v9[64].xpos = R11_;
+  v9[64].ypos = ctpa.temp14b2 - mirror_current_layer1_ypos - 8;
+  uint8 r11 = ctpa.temp14b0 - mirror_current_layer1_xpos - 8;
+  v9[64].xpos = r11;
   v9[64].charnum = -94;
   v9[64].flags = 49;
   for (int8 i = 3; i >= 0; --i) {
     v8 += 4;
     OamEnt *v12 = get_OamEnt(oam_buf, v8);
-    if (R0_)
-      v12[64].ypos = R10_ - R7_;
+    if (r0)
+      v12[64].ypos = r10 - (r6 >> 8);
     else
-      v12[64].ypos = R7_ + R10_;
-    R6_W += R2_W;
-    if (R1_)
-      v12[64].xpos = R11_ - R9_;
+      v12[64].ypos = (r6 >> 8) + r10;
+    r6 += r2w;
+    if (r1)
+      v12[64].xpos = r11 - (r8w >> 8);
     else
-      v12[64].xpos = R9_ + R11_;
-    R8_W += R4_W;
+      v12[64].xpos = (r8w >> 8) + r11;
+    r8w += r4w;
     v12[64].charnum = -94;
     v12[64].flags = 49;
   }
   for (uint8 j = 3; (j & 0x80) == 0; --j) {
-    R2_ = j;
+//    r2 = j;
     v8 += 4;
     OamEnt *v14 = get_OamEnt(oam_buf, v8);
-    v14[64].ypos = temp14ba - mirror_current_layer1_ypos - 16;
-    v14[64].xpos = kSpr05F_BrownChainedPlatform_PlatformXDisp[j] + temp14b8 - mirror_current_layer1_xpos;
+    v14[64].ypos = pt.y - mirror_current_layer1_ypos - 16;
+    v14[64].xpos = kSpr05F_BrownChainedPlatform_PlatformXDisp[j] + pt.x - mirror_current_layer1_xpos;
     v14[64].charnum = kSpr05F_BrownChainedPlatform_PlatformTiles[j];
     v14[64].flags = 49;
   }
-  R8_ = 9;
-  R0_ = temp14b2 - 8;
-  R1_ = temp14b3 - (temp14b2 < 8);
-  R2_ = temp14b0 - 8;
-  R3_ = temp14b1 - (temp14b0 < 8);
+  uint8 R8 = 9;
+  uint16 r0w = ctpa.temp14b2 - 8;
+  r2w = ctpa.temp14b0 - 8;
   uint8 v15 = spr_oamindex[spr_current_slotid];
   OamEnt *v16 = get_OamEnt(oam_buf, v15);
-  R6_ = v16[65].ypos;
-  R7_ = v16[65].xpos;
+  uint8 ypos = v16[65].ypos;
+  uint8 xpos = v16[65].xpos;
+  PointU16 pt2;
   do {
     sprites_oamtile_size_buffer[(v15 >> 2) + 64] = 2;
     int8 v17 = 0;
     OamEnt *v18 = get_OamEnt(oam_buf, v15);
-    int8 v19 = v18[64].xpos - R7_;
-    R4_W = R2_W + (int8)v19;
-    if (FinishOAMWrite_01B844() & 1)
+    int8 v19 = v18[64].xpos - xpos;
+    uint16 r4w = r2w + (int8)v19;
+    if (FinishOAMWrite_01B844(r4w) & 1)
       sprites_oamtile_size_buffer[(v15 >> 2) + 64] = 3;
-    int8 v21 = v18[64].ypos - R6_;
-    R9_W = R0_W + (int8)v21;
-    if (Spr05F_BrownChainedPlatform_01C9BF() & 1)
+    int8 v21 = v18[64].ypos - ypos;
+    uint16 r9 = r0w + (int8)v21;
+    if (Spr05F_BrownChainedPlatform_01C9BF(r9) & 1)
       v18[64].ypos = -16;
-    if (R8_ == 9) {
-      temp14b8 = R4_;
-      temp14b9 = R5_;
-      temp14ba = R9_;
-      temp14bb = R10_;
+    if (R8 == 9) {
+      pt2.x = r4w;
+      pt2.y = r9;
     }
     v15 += 4;
-    --R8_;
-  } while ((R8_ & 0x80) == 0);
+  } while ((--R8 & 0x80) == 0);
   uint8 v22 = spr_current_slotid;
   get_OamEnt(oam_buf, spr_oamindex[spr_current_slotid])[65].ypos = -16;
   if (!flag_sprites_locked) {
     Spr05F_BrownChainedPlatform_UpdateAngle(v22);
-    sub_1C9EC(v22);
+    sub_1C9EC(v22, pt2);
   }
 }
 
-uint8 Spr05F_BrownChainedPlatform_01C9BF() {  // 01c9bf
-  return (uint16)(*(uint16 *)&R9_ + 16 - mirror_current_layer1_ypos) >= 0x100;
+uint8 Spr05F_BrownChainedPlatform_01C9BF(uint16 r9) {  // 01c9bf
+  return (uint16)(r9 + 16 - mirror_current_layer1_ypos) >= 0x100;
 }
 
 void sub_1C9DA(uint8 k) {  // 01c9da
@@ -5517,24 +5760,24 @@ void Spr05F_BrownChainedPlatform_01C9E2(uint8 k) {  // 01c9e2
   spr_current_slotid = k;
 }
 
-void sub_1C9EC(uint8 k) {  // 01c9ec
-  uint16 t = __PAIR16__(temp14b9, temp14b8) - mirror_current_layer1_xpos + 16;
+void sub_1C9EC(uint8 k, PointU16 pt) {  // 01c9ec
+  uint16 t = pt.x - mirror_current_layer1_xpos + 16;
   uint8 v1 = flag_sprites_locked | (t >= 0x120);
   spr_table15c4[k] = v1;
   if (!v1) {
-    uint8 v2 = Spr05F_BrownChainedPlatform_01CA9C(k);
+    uint8 v2 = Spr05F_BrownChainedPlatform_01CA9C(k, pt);
     spr_table1602[k] = 0;
     if (v2 & 1) {
       spr_table160e[k] = 1;
-      R3_ = temp14ba - mirror_current_layer1_ypos;
-      R14_ = temp14ba - mirror_current_layer1_ypos - 8;
-      if ((uint8)(player_on_screen_pos_y + 24) < R14_) {
+      uint8 r3 = pt.y - mirror_current_layer1_ypos;
+      uint8 r14 = pt.y - mirror_current_layer1_ypos - 8;
+      if ((uint8)(player_on_screen_pos_y + 24) < r14) {
         if ((player_yspeed & 0x80) == 0) {
           player_yspeed = 0;
           misc_player_on_solid_sprite = 3;
           spr_table1602[k] = 3;
-          R15_ = player_riding_yoshi_flag ? 56 : 40;
-          player_ypos = WORD(temp14ba) - R15_;
+          uint8 r15 = player_riding_yoshi_flag ? 56 : 40;
+          player_ypos = pt.y - r15;
           if ((player_blocked_flags & 3) == 0)
             player_xpos += (int8)sprites_position_disp;
           Spr05F_BrownChainedPlatform_01C9E2(k);
@@ -5556,143 +5799,136 @@ void sub_1C9EC(uint8 k) {  // 01c9ec
   }
 }
 
-uint8 Spr05F_BrownChainedPlatform_01CA9C(uint8 k) {  // 01ca9c
-  SetHiLo(&R10_, &R4_, WORD(temp14b8) - 24);
-  R6_ = 64;
-  SetHiLo(&R11_, &R5_, WORD(temp14ba) - 12);
-  R7_ = 19;
-  StandardSpriteToSpriteCollisionChecks_GetMarioClipping();
-  return StandardSpriteToSpriteCollisionChecks_CheckContact();
+uint8 Spr05F_BrownChainedPlatform_01CA9C(uint8 k, PointU16 pt) {  // 01ca9c
+  CollInfo ci;
+  SetHiLo(&ci.r10, &ci.r4, pt.x - 24);
+  ci.r6 = 64;
+  SetHiLo(&ci.r11, &ci.r5, pt.y - 12);
+  ci.r7 = 19;
+  StandardSpriteToSpriteCollisionChecks_GetMarioClipping(&ci);
+  return StandardSpriteToSpriteCollisionChecks_CheckContact(&ci);
 }
 
-void Spr05F_BrownChainedPlatform_01CACB(uint8 k) {  // 01cacb
-  temp14bc = 80;
-  temp14bf = 0;
+CalcTiltPlatformArgs Spr05F_BrownChainedPlatform_01CACB(uint8 k) {  // 01cacb
+  CalcTiltPlatformArgs rv;
+  rv.temp14bc = 80;
+  rv.temp14bf = 0;
   misc_rotating_object_xradius_hi = 0;
-  temp14c0 = 0;
-  WORD(temp14b4) = GetSprXPos(k);
-  WORD(temp14b0) = WORD(temp14b4) - 80;
-  WORD(temp14b6) = GetSprYPos(k);
-  WORD(temp14b2) = WORD(temp14b6);
+  rv.temp14b0 = GetSprXPos(k) - 80;
+  rv.temp14b2 = GetSprYPos(k);
   misc_m7_rotation = PAIR16(spr_table1528[k], spr_table151c[k]);
+  return rv;
 }
 
 void GetSineAndCosineOfTiltingPlatform() {  // 01cb20
   sprites_brown_roating_platform_angle_sign1 = HIBYTE(misc_m7_rotation);
   sprites_brown_rotating_platform_sine = kCircleCoordinates[(uint16)((2 * misc_m7_rotation) & 0x1FF) >> 1];
-  R0_W = misc_m7_rotation + 128;
+  uint16 r0w = misc_m7_rotation + 128;
   sprites_brown_rotating_platform_cosine = kCircleCoordinates[(uint16)((2 * (misc_m7_rotation + 128)) & 0x1FF) >> 1];
-  sprites_brown_roating_platform_angle_sign2 = R1_;
+  sprites_brown_roating_platform_angle_sign2 = r0w >> 8;
 }
 
-void CalculateCircleCoordinatesForTiltingPlaform() {  // 01cb53
+PointU16 CalculateCircleCoordinatesForTiltingPlaform(CalcTiltPlatformArgs inp) {  // 01cb53
   unsigned int v5;
   unsigned int v10;
 
-  R2_W = sprites_brown_rotating_platform_cosine;
-  R0_W = *(uint16 *)&temp14bc;
-  CalculateCircleCoordinatesForTiltingPlaform_01CC28();
+  uint16 r2w = sprites_brown_rotating_platform_cosine;
+  uint16 r0w = inp.temp14bc;
+  uint32 out = CalculateCircleCoordinatesForTiltingPlaform_01CC28(r0w, r2w);
   bool sign = sprites_brown_roating_platform_angle_sign2 & 1;
-  uint16 v0 = R4_W;
+  uint16 v0 = out;
   if (sign)
     v0 = -v0;
-  R8_W = v0;
-  uint16 v1 = R6_W;
+  uint16 r8w = v0;
+  uint16 v1 = out >> 16;
   if (sign)
     v1 = -v1;
-  R10_W = v1;
-  R2_W = sprites_brown_rotating_platform_sine;
-  R0_W = *(uint16 *)&temp14bf;
-  CalculateCircleCoordinatesForTiltingPlaform_01CC28();
+  uint16 r10w = v1;
+  r2w = sprites_brown_rotating_platform_sine;
+  r0w = inp.temp14bf;
+  out = CalculateCircleCoordinatesForTiltingPlaform_01CC28(r0w, r2w);
   sign = sprites_brown_roating_platform_angle_sign1 & 1;
-  uint16 v2 = R4_W;
+  uint16 v2 = out;
   if (sign)
     v2 = -v2;
-  R4_W = v2;
-  uint16 v3 = R6_W;
+  uint16 v3 = out >> 16;
   if (sign)
     v3 = -v3;
-  v5 = __PAIR32__(R10_W, R8_W) + __PAIR32__(v3, R4_W);
-  R4_W = v5;
-  R6_W = v5 >> 16;
-  *(uint16 *)&temp14b8 = *(uint16 *)&temp14b0 + *(uint16 *)&R5_;
-  R2_W = sprites_brown_rotating_platform_cosine;
-  R0_W = *(uint16 *)&temp14bf;
-  CalculateCircleCoordinatesForTiltingPlaform_01CC28();
+  v5 = __PAIR32__(r10w, r8w) + __PAIR32__(v3, v2);
+  uint16 temp14b8_ = inp.temp14b0 + (v5 >> 8);
+  r2w = sprites_brown_rotating_platform_cosine;
+  r0w = inp.temp14bf;
+  out = CalculateCircleCoordinatesForTiltingPlaform_01CC28(r0w, r2w);
   sign = sprites_brown_roating_platform_angle_sign2 & 1;
-  uint16 v6 = R4_W;
+  uint16 v6 = out;
   if (sign)
     v6 = -v6;
-  R8_W = v6;
-  uint16 v7 = R6_W;
+  r8w = v6;
+  uint16 v7 = out >> 16;
   if (sign)
     v7 = -v7;
-  R10_W = v7;
-  R2_W = sprites_brown_rotating_platform_sine;
-  R0_W = *(uint16 *)&temp14bc;
-  CalculateCircleCoordinatesForTiltingPlaform_01CC28();
+  r10w = v7;
+  r2w = sprites_brown_rotating_platform_sine;
+  r0w = inp.temp14bc;
+  out = CalculateCircleCoordinatesForTiltingPlaform_01CC28(r0w, r2w);
   sign = sprites_brown_roating_platform_angle_sign1 & 1;
-  uint16 v8 = R4_W;
+  uint16 v8 = out;
   if (sign)
     v8 = -v8;
-  R4_W = v8;
-  uint16 v9 = R6_W;
+  uint16 v9 = out >> 16;
   if (sign)
     v9 = -v9;
-  v10 = __PAIR32__(v9, R4_W) - __PAIR32__(R10_W, R8_W);
-  R6_W = HIWORD(v10);
-  R4_W = v10;
-  *(uint16 *)&temp14ba = *(uint16 *)&temp14b2 - *(uint16 *)&R5_;
+  v10 = __PAIR32__(v9, v8) - __PAIR32__(r10w, r8w);
+  uint16 temp14ba_ = inp.temp14b2 - (v10 >> 8);
+  return (PointU16) { .x = temp14b8_, .y = temp14ba_ };
 }
 
-void CalculateCircleCoordinatesForTiltingPlaform_01CC28() {  // 01cc28
-  WriteReg(WRMPYA, R0_);
-  WriteReg(WRMPYB, R2_);
-  R4_ = ReadReg(RDMPYL);
-  R5_ = ReadReg(RDMPYH);
+uint32 CalculateCircleCoordinatesForTiltingPlaform_01CC28(uint16 R0_W_, uint16 R2_W_) {  // 01cc28
+  uint8 r4, r5, r6, r7;
 
-  WriteReg(WRMPYA, R0_);
-  WriteReg(WRMPYB, R3_);
-  uint16 t = R5_ + ReadReg(RDMPYL);
-  R5_ = t;
-  R6_ = (t >> 8) + ReadReg(RDMPYH);
+  uint16 mult;
+  
+  mult = Mult8x8(R0_W_, R2_W_);
+  r4 = mult;
+  r5 = mult >> 8;
 
-  WriteReg(WRMPYA, R1_);
-  WriteReg(WRMPYB, R2_);
-  t = R5_ + ReadReg(RDMPYL);
-  R5_ = t;
-  R6_ += (t >> 8) + ReadReg(RDMPYH);
+  mult = Mult8x8(R0_W_, R2_W_ >> 8);
+  uint16 t = r5 + (mult & 0xff);
+  r5 = t;
+  r6 = (t >> 8) + (mult >> 8);
 
-  WriteReg(WRMPYA, R1_);
-  WriteReg(WRMPYB, R3_);
-  t = R6_ + ReadReg(RDMPYL);
-  R6_ = t;
-  R7_ = (t >> 8) + ReadReg(RDMPYH);
+  mult = Mult8x8(R0_W_ >> 8, R2_W_);
+
+  t = r5 + (mult & 0xff);
+  r5 = t;
+  r6 += (t >> 8) + (mult >> 8);
+
+  mult = Mult8x8(R0_W_ >> 8, R2_W_ >> 8);
+
+  t = r6 + (mult & 0xff);
+  r6 = t;
+  r7 = (t >> 8) + (mult >> 8);
+
+  return r7 << 24 | r6 << 16 | r5 << 8 | r4;
 }
 
-uint8 CheckTiltingPlatformCollision() {  // 01cc9d
-  if (temp14b7 | temp14b5)
-    return 0;
-  CheckTiltingPlatformColl_01CCC7();
+CheckPlatformCollRet CheckTiltingPlatformCollision(uint16 temp14b4, uint16 temp14b6) {  // 01cc9d
+  CheckPlatformCollRet rv = { 0 };
+  if (temp14b4 >= 256 || temp14b6 >= 256) {
+    rv.out_of_bounds = true;
+    return rv;
+  }
+  CalcTiltPlatformArgs args = {
+    .temp14b0 = mirror_m7_center_xpos,
+    .temp14b2 = mirror_m7_center_ypos,
+    .temp14bc = temp14b4 - mirror_m7_center_xpos,
+    .temp14bf = temp14b6 - mirror_m7_center_ypos,
+  };
   GetSineAndCosineOfTiltingPlatform();
-  CalculateCircleCoordinatesForTiltingPlaform();
-  R0_ = temp14ba & 0xF0;
-  return sprites_cutscene_sprite_table_0AF6[temp14ba & 0xF0 | (temp14b8 >> 4)] >= 0x15;
-}
-
-void CheckTiltingPlatformColl_01CCC7() {  // 01ccc7
-  *(uint16 *)&temp14b0 = mirror_m7_center_xpos;
-  *(uint16 *)&temp14b2 = mirror_m7_center_ypos;
-  *(uint16 *)&temp14bc = *(uint16 *)&temp14b4 - mirror_m7_center_xpos;
-  *(uint16 *)&temp14bf = *(uint16 *)&temp14b6 - mirror_m7_center_ypos;
-}
-
-void CheckTiltingPlatformColl_Return01CCEA() {  // 01ccea
-  ;
-}
-
-void CheckTiltingPlatformColl_Return01CCEB() {  // 01cceb
-  ;
+  PointU16 pt = CalculateCircleCoordinatesForTiltingPlaform(args);
+  rv.pt = pt;
+  rv.retval = sprites_cutscene_sprite_table_0AF6[pt.y & 0xF0 | (pt.x >> 4) & 0xF] >= 0x15;
+  return rv;
 }
 
 void Spr05F_BrownChainedPlatform_UpdateAngle(uint8 k) {  // 01ccf0
@@ -5735,8 +5971,7 @@ void Spr029_KoopaKids_Init(uint8 k) {  // 01cd2f
 }
 
 void Spr029_KoopaKid_MortonRoyLudwig_GetDrawInfo(uint8 k) {  // 01cda7
-  if (GetDrawInfo_Bank01_ReturnsTwice(k) == 0xff)
-    return;
+  GetDrawInfo_Bank01_ReturnsTwice(k);
 }
 
 void Spr029_KoopaKid_MortonRoyLudwig(uint8 k) {  // 01cdab
@@ -5746,7 +5981,6 @@ void Spr029_KoopaKid_MortonRoyLudwig(uint8 k) {  // 01cdab
     uint8 v2 = kSpr029_KoopaKid_MortonRoyLudwig_DATA_01CDA5[spr_table157c[k]];
     if (spr_decrementing_table15ac[k] < 8)
       v2 ^= 0x80;
-    R0_ = v2;
     v1 = v2 + kSpr029_KoopaKid_MortonRoyLudwig_DATA_01CD9C[spr_table1602[k]] +
          kSpr029_KoopaKid_MortonRoyLudwig_DATA_01CD99[spr_table00c2[k]];
   }
@@ -6021,14 +6255,11 @@ void Spr029_KoopaKid_MortonRoyLudwig_ProcessRoysAttacks(uint8 k) {  // 01d116
       }
     }
   }
-  R5_ = spr_table1534[k];
-  R6_ = R5_;
-  R11_ = R5_;
-  R12_ = R5_;
-  R7_ = spr_table160e[k];
-  R8_ = R7_;
-  R9_ = R7_;
-  R10_ = R7_;
+  uint8 arr[8] = {
+    spr_table1534[k], spr_table1534[k],
+    spr_table160e[k], spr_table160e[k], spr_table160e[k], spr_table160e[k],
+    spr_table1534[k], spr_table1534[k],
+  };
   if ((uint8)(2 * misc_m7_rotation)) {
 LABEL_34:;
     uint8 v12 = spr_table157c[k];
@@ -6048,7 +6279,7 @@ LABEL_34:;
   }
   if (!spr_table157c[k])
     v5 += 4;
-  spr_xpos_lo[k] = *(&R5_ + v5);
+  spr_xpos_lo[k] = arr[v5];
   uint8 v7 = spr_table1594[k];
   uint8 v8 = spr_ypos_lo[k];
   if (v7 != 3) {
@@ -6074,17 +6305,17 @@ LABEL_25:;
   if (!spr_table157c[k])
     v11 ^= 2;
   if (v11 == 2) {
-    CheckPlayerPositionRelativeToSprite_Bank01_X(k);
-    if ((uint8)(R15_ + 16) < 0x20)
+    if ((uint8)(player_current_xpos - GetSprXPos(k) + 16) < 0x20)
       ++spr_table1528[k];
   }
 }
 
 void Spr029_KoopaKid_MortonRoyLudwig_01D2A8(uint8 k) {  // 01d2a8
   if (spr_table151c[k] < 3 && (spr_table187b[k] != 3 || spr_table1528[k] < 3)) {
-    StandardSpriteToSpriteCollisionChecks_GetMarioClipping();
-    Spr029_KoopaKid_MortonRoyLudwig_01D40B(k);
-    if (StandardSpriteToSpriteCollisionChecks_CheckContact()) {
+    CollInfo ci;
+    StandardSpriteToSpriteCollisionChecks_GetMarioClipping(&ci);
+    Spr029_KoopaKid_MortonRoyLudwig_01D40B(k, &ci);
+    if (StandardSpriteToSpriteCollisionChecks_CheckContact(&ci)) {
       if (!spr_decrementing_table1fe2[k]) {
         spr_decrementing_table1fe2[k] = 8;
         if (player_in_air_flag) {
@@ -6155,12 +6386,13 @@ void Spr029_KoopaKid_MortonRoyLudwig_01D3B1(uint8 k) {  // 01d3b1
     for (uint8 i = 10; i != 7; --i) {
       sprites_second_tracked_sprite_index = i;
       if (ext_spr_spriteid[i] == 5) {
-        SetHiLo(&R8_, &R0_, PAIR16(ext_spr_xpos_hi[i], ext_spr_xpos_lo[i]));
-        SetHiLo(&R9_, &R1_, PAIR16(ext_spr_ypos_hi[i], ext_spr_ypos_lo[i]));
-        R2_ = 8;
-        R3_ = 8;
-        Spr029_KoopaKid_MortonRoyLudwig_01D40B(k);
-        if (StandardSpriteToSpriteCollisionChecks_CheckContact()) {
+        CollInfo ci;
+        SetHiLo(&ci.r8, &ci.r0, PAIR16(ext_spr_xpos_hi[i], ext_spr_xpos_lo[i]));
+        SetHiLo(&ci.r9, &ci.r1, PAIR16(ext_spr_ypos_hi[i], ext_spr_ypos_lo[i]));
+        ci.r2 = 8;
+        ci.r3 = 8;
+        Spr029_KoopaKid_MortonRoyLudwig_01D40B(k, &ci);
+        if (StandardSpriteToSpriteCollisionChecks_CheckContact(&ci)) {
           ext_spr_spriteid[i] = 1;
           ext_spr_decrementing_table176f[i] = 15;
           io_sound_ch1 = 1;
@@ -6172,12 +6404,12 @@ void Spr029_KoopaKid_MortonRoyLudwig_01D3B1(uint8 k) {  // 01d3b1
   }
 }
 
-void Spr029_KoopaKid_MortonRoyLudwig_01D40B(uint8 k) {  // 01d40b
-  SetHiLo(&R10_, &R4_, GetSprXPos(k) - 8);
-  R6_ = 16;
-  R7_ = 16;
+void Spr029_KoopaKid_MortonRoyLudwig_01D40B(uint8 k, CollInfo *ci) {  // 01d40b
+  SetHiLo(&ci->r10, &ci->r4, GetSprXPos(k) - 8);
+  ci->r6 = 16;
+  ci->r7 = 16;
   uint8 v2 = (spr_table1602[k] >= 0x69) ? 19 : 8;
-  SetHiLo(&R11_, &R5_, GetSprYPos(k) + v2);
+  SetHiLo(&ci->r11, &ci->r5, GetSprYPos(k) + v2);
 }
 
 void Spr034_LudwigFireball(uint8 k) {  // 01d44e
@@ -6188,14 +6420,15 @@ void Spr034_LudwigFireball(uint8 k) {  // 01d44e
       CheckPlayerToNormalSpriteCollision(k);
     }
     UpdateNormalSpritePosition_X(k);
-    R0_W = GetSprXPos(k) + 32;
-    if (R0_W >= 0x230)
+    uint16 r0w = GetSprXPos(k) + 32;
+    if (r0w >= 0x230)
       spr_current_status[k] = 0;
   }
-  if (GetDrawInfo_Bank01_ReturnsTwice(k) == 0xff)
+  GetDrawInfoRes drt;
+  if ((drt = GetDrawInfo_Bank01_ReturnsTwice(k)).idx == 0xff)
     return;
-  R3_ = 2 * spr_table1602[k];
-  R2_ = 2 * spr_table157c[k];
+  uint8 r3 = 2 * spr_table1602[k];
+  uint8 r2 = 2 * spr_table157c[k];
   uint8 v2 = kSpr034_LudwigFireball_OAMIndexes[k];
   spr_oamindex[k] = v2;
   uint8 v3 = v2;
@@ -6204,13 +6437,13 @@ void Spr034_LudwigFireball(uint8 k) {  // 01d44e
   do {
     v9 = v4;
     int8 v8 = v4;
-    uint8 v5 = R2_ + v4;
+    uint8 v5 = r2 + v4;
     OamEnt *oam = get_OamEnt(oam_buf, v3);
-    oam[64].xpos = kSpr034_LudwigFireball_XDisp[v5] + R0_;
+    oam[64].xpos = kSpr034_LudwigFireball_XDisp[v5] + drt.x;
     uint8 v7 = ((counter_local_frames & 2) != 0) ? 0x80 : 0;
     oam[64].flags = kSpr034_LudwigFireball_Prop[v5] | v7;
-    oam[64].ypos = R1_ + 2;
-    oam[64].charnum = kSpr034_LudwigFireball_Tiles[(uint8)(R3_ + v8)];
+    oam[64].ypos = drt.y + 2;
+    oam[64].charnum = kSpr034_LudwigFireball_Tiles[(uint8)(r3 + v8)];
     v3 += 4;
     v4 = v9 - 1;
   } while (v4 >= 0);
@@ -6248,7 +6481,6 @@ void Spr03F_ParachuteGoomba(uint8 k) {  // 01d4fb
     misc_scratch7e185e = (v6 >> 1) ^ 0xF;
     v5 = misc_scratch7e185e - 16;
   }
-  R0_ = v5;
   uint16 old_y = GetSprYPos(k);
   SetSprYPos(k, old_y + (0xff00 | v5));
   uint8 v14 = spr_table15f6[k];
@@ -6340,11 +6572,11 @@ void SprXXX_LineGuided_Init_BrownLineGuidePlatformEntry(uint8 k) {  // 01d711
 }
 
 void SprXXX_LineGuided_ChainsawEntry(uint8 k) {  // 01d719
-  R2_ = counter_local_frames ^ (4 * k);
-  if (!(flag_sprites_locked | R2_ & 7)) {
-    R0_ = kSprXXX_LineGuided_DATA_01D717[(R2_ & 8) != 0];
-    R1_ = -14;
-    SpawnNormalSpriteTurnAroundSmoke_Entry2(k);
+  uint8 r2 = counter_local_frames ^ (4 * k);
+  if (!(flag_sprites_locked | r2 & 7)) {
+    uint8 r0 = kSprXXX_LineGuided_DATA_01D717[(r2 & 8) != 0];
+    uint8 r1 = -14;
+    SpawnNormalSpriteTurnAroundSmoke_Entry2(k, r0, r1);
   }
   SprXXX_LineGuided_LineGuideGrinderEntry(k);
 }
@@ -6422,9 +6654,9 @@ LABEL_9:
     SprXXX_LineGuided_01D74D(k);
     return;
   }
-  R0_ = spr_table1602[k] ? 40 : 24;
+  uint8 r0 = spr_table1602[k] ? 40 : 24;
   uint16 old_x = GetSprXPos(k), old_y = GetSprYPos(k);
-  AddSprXYPos(k, -R0_, -8);
+  AddSprXYPos(k, -r0, -8);
   NormalSpritePlatformGFXRt_DrawFlatPlatform(k);
   SetSprXPos(k, old_x);
   SetSprYPos(k, old_y);
@@ -6434,8 +6666,8 @@ LABEL_9:
   uint8 v20 = spr_table1528[k];
   spr_table1528[k] = -v7;
   old_x = GetSprXPos(k), old_y = GetSprYPos(k);
-  R0_ = spr_table1602[k] ? 40 : 24;
-  AddSprXYPos(k, -R0_, -8);
+  r0 = spr_table1602[k] ? 40 : 24;
+  AddSprXYPos(k, -r0, -8);
   if (SolidSpriteBlock(k)) {
     if (spr_table1626[k]) {
       spr_table1626[k] = 0;
@@ -6472,23 +6704,30 @@ void SprXXX_LineGuided_State01_OnLineGuide(uint8 k) {  // 01d768
 }
 
 void SprXXX_LineGuided_01D7B0(uint8 k, uint8 j) {  // 01d7b0
-  R4_ = spr_table151c[k];
-  R5_ = spr_table1528[k];
-  R6_ = RomPtr_07(*(uint16 *)&R4_)[j] & 0xF;
-  R7_ = RomPtr_07(*(uint16 *)&R4_)[j] >> 4;
-  spr_ypos_lo[k] = R7_ + (spr_ypos_lo[k] & 0xF0);
-  spr_xpos_lo[k] = R6_ + (spr_xpos_lo[k] & 0xF0);
+  uint16 t = PAIR16(spr_table1528[k], spr_table151c[k]) - 0xF9DB;
+  uint8 tt = kLineGuideSpeedTableData[t + j];
+  uint8 r6 = tt & 0xF;
+  uint8 r7 = tt >> 4;
+  spr_ypos_lo[k] = r7 + (spr_ypos_lo[k] & 0xF0);
+  spr_xpos_lo[k] = r6 + (spr_xpos_lo[k] & 0xF0);
 }
 
+static const uint8 kLineGuideSpeedTable_PtrsLo[32] = { 0xdb, 0xf0, 0x5, 0x1a, 0x2f, 0x3b, 0x4b, 0x5b, 0x6b, 0x7b, 0x87, 0x93, 0xa3, 0xb3, 0xc3, 0xd3, 0xdf, 0xf4, 0x9, 0x19, 0x29, 0x39, 0x49, 0x59, 0x69, 0x79, 0x89, 0x99, 0xa9, 0xb9, 0xc9, 0xde,  };
+static const uint8 kLineGuideSpeedTable_PtrsHi[32] = { 0xf9, 0xf9, 0xfa, 0xfa, 0xfa, 0xfa, 0xfa, 0xfa, 0xfa, 0xfa, 0xfa, 0xfa, 0xfa, 0xfa, 0xfa, 0xfa, 0xfa, 0xfa, 0xfb, 0xfb, 0xfb, 0xfb, 0xfb, 0xfb, 0xfb, 0xfb, 0xfb, 0xfb, 0xfb, 0xfb, 0xfb, 0xfb,  };
+
 void SprXXX_LineGuided_State00_AtEndOfTile(uint8 k) {  // 01d7f4
+  uint8 r4, r5;
   uint8 v1 = 3;
+  int r8 = -1, r10 = -1;
+  r8 = GetSprYPos(k);
+  r10 = GetSprXPos(k);
   do {
     sprites_second_tracked_sprite_index = v1;
-    R2_W = GetSprXPos(k) + PAIR16(kSprXXX_LineGuided_DATA_01D7E5[v1], kSprXXX_LineGuided_DATA_01D7E1[v1]);
-    R0_W = GetSprYPos(k) + PAIR16(kSprXXX_LineGuided_DATA_01D7ED[v1], kSprXXX_LineGuided_DATA_01D7E9[v1]);
-    if (spr_decrementing_table1540[k] || (R4_ = R0_ & 0xF0, (spr_ypos_lo[k] & 0xF0) != (R0_ & 0xF0)) ||
-        (R5_ = R2_ & 0xF0, (spr_xpos_lo[k] & 0xF0) != (R2_ & 0xF0))) {
-      if (SprXXX_LineGuided_01D94D())
+    uint16 r2w = GetSprXPos(k) + PAIR16(kSprXXX_LineGuided_DATA_01D7E5[v1], kSprXXX_LineGuided_DATA_01D7E1[v1]);
+    uint16 r0w = GetSprYPos(k) + PAIR16(kSprXXX_LineGuided_DATA_01D7ED[v1], kSprXXX_LineGuided_DATA_01D7E9[v1]);
+    if (spr_decrementing_table1540[k] || (r4 = r0w & 0xF0, (spr_ypos_lo[k] & 0xF0) != (r0w & 0xF0)) ||
+        (r5 = r2w & 0xF0, (spr_xpos_lo[k] & 0xF0) != (r2w & 0xF0))) {
+      if (SprXXX_LineGuided_01D94D(r0w, r2w))
         goto LABEL_22;
       if (blocks_currently_processed_map16_tile_lo == 0x94) {
         if (flag_on_off_switch)
@@ -6503,10 +6742,8 @@ void SprXXX_LineGuided_State00_AtEndOfTile(uint8 k) {  // 01d7f4
 LABEL_22:
         v7 = spr_table160e[k];
       } else {
-        R8_W = GetSprYPos(k);
-        R10_W = GetSprXPos(k);
-        SetSprYPos(k, R0_W);
-        SetSprXPos(k, R2_W);
+        SetSprYPos(k, r0w);
+        SetSprXPos(k, r2w);
       }
       spr_table151c[k] = kLineGuideSpeedTable_PtrsLo[v7];
       spr_table1528[k] = kLineGuideSpeedTable_PtrsHi[v7];
@@ -6526,15 +6763,15 @@ LABEL_22:
       }
       if ((v8 & 0xF) >= 0xA && spr_table00c2[k] != 2)
         spr_table157c[k] = 1;
-      R12_ = spr_ypos_lo[k];
-      R13_ = spr_xpos_lo[k];
+      uint8 r12 = spr_ypos_lo[k];
+      uint8 r13 = spr_xpos_lo[k];
       SprXXX_LineGuided_State01_OnLineGuide(k);
-      if ((uint8)(R12_ - spr_ypos_lo[k] + 8) < 0x10 && (uint8)(R13_ - spr_xpos_lo[k] + 8) < 0x10) {
+      if ((uint8)(r12 - spr_ypos_lo[k] + 8) < 0x10 && (uint8)(r13 - spr_xpos_lo[k] + 8) < 0x10) {
         spr_table00c2[k] = 1;
         return;
       }
-      SetSprYPos(k, R8_W);
-      SetSprXPos(k, R10_W);
+      SetSprYPos(k, r8);
+      SetSprXPos(k, r10);
     }
 LABEL_13:
     v1 = sprites_second_tracked_sprite_index - 1;
@@ -6553,22 +6790,19 @@ LABEL_13:
   }
 }
 
-uint8 SprXXX_LineGuided_01D94D() {  // 01d94d
-
-  R6_ = R0_ & 0xF0;
-  uint8 v4 = R2_ >> 4;
-  uint8 v3 = R0_ & 0xF0 | (R2_ >> 4);
+uint8 SprXXX_LineGuided_01D94D(uint16 r0w, uint16 r2w) {  // 01d94d
+  uint8 r2 = r2w;
+  uint8 r3 = r2w >> 8;
+  uint8 v4 = r2 >> 4;
+  uint8 v3 = r0w & 0xF0 | (r2 >> 4);
+  uint16 r5;
   if ((misc_level_layout_flags & 1) != 0) {
-    WORD(R5_) = PAIR16(kLevelDataLayoutTables_EightBitHi_Vertical[R1_], kLevelDataLayoutTables_EightBitLo_Vertical[R1_]) + PAIR16(R3_, v3);
+    r5 = GetLevelLayoutPtr_Vertical(r0w >> 8) + PAIR16(r2w >> 8, v3);
   } else {
-    WORD(R5_) = PAIR16(kLevelDataLayoutTables_EightBitHi[R3_], kLevelDataLayoutTables_EightBitLo[R3_]) + PAIR16(R1_, v3);
+    r5 = GetLevelLayoutPtr_Horizontal(r2w >> 8) + PAIR16(r0w >> 8, v3);
   }
-  R7_ = 126;
-  blocks_currently_processed_map16_tile_lo = *IndirPtr(&R5_, 0);
-  ++R7_;
-  uint8 v1 = *IndirPtr(&R5_, 0);
-  R5_ = v4;
-  return kSprXXX_LineGuided_DATA_018000[v4 & 7] & v1;
+  blocks_currently_processed_map16_tile_lo = g_ram[r5];
+  return kSprXXX_LineGuided_DATA_018000[v4 & 7] & g_ram[r5 + 0x10000];
 }
 
 void SprXXX_LineGuided_01DA90(uint8 a) {  // 01da90
@@ -6600,17 +6834,17 @@ void Spr0B4_NonLineGuideGrinder(uint8 k) {  // 01db5c
 }
 
 void Spr0B4_NonLineGuideGrinder_Draw(uint8 k) {  // 01dba2
-  uint8 drt;
+  GetDrawInfoRes drt;
 
-  if ((drt = GetDrawInfo_Bank01_ReturnsTwice(k)) == 0xff)
+  if ((drt = GetDrawInfo_Bank01_ReturnsTwice(k)).idx == 0xff)
     return;
   for (uint8 i = 3; (i & 0x80) == 0; --i) {
-    OamEnt *oam = get_OamEnt(oam_buf, drt);
-    oam[64].xpos = kSpr0B4_NonLineGuideGrinder_XDisp[i] + R0_;
-    oam[64].ypos = kSpr0B4_NonLineGuideGrinder_YDisp[i] + R1_;
+    OamEnt *oam = get_OamEnt(oam_buf, drt.idx);
+    oam[64].xpos = kSpr0B4_NonLineGuideGrinder_XDisp[i] + drt.x;
+    oam[64].ypos = kSpr0B4_NonLineGuideGrinder_YDisp[i] + drt.y;
     oam[64].charnum = counter_local_frames & 2 | 0x6C;
     oam[64].flags = kSpr0B4_NonLineGuideGrinder_Prop[i];
-    drt += 4;
+    drt.idx += 4;
   }
   FinishOAMWrite(k, 2, 3);
 }
@@ -6627,43 +6861,44 @@ void SprXXX_LineGuided_01DBD4(uint8 k) {  // 01dbd4
 }
 
 void SprXXX_LineGuided_01DC0B(uint8 k) {  // 01dc0b
-  uint8 drt;
+  GetDrawInfoRes drt;
 
-  if ((drt = GetDrawInfo_Bank01_ReturnsTwice(k)) == 0xff)
+  if ((drt = GetDrawInfo_Bank01_ReturnsTwice(k)).idx == 0xff)
     return;
   for (uint8 i = 3; (i & 0x80) == 0; --i) {
-    OamEnt *oam = get_OamEnt(oam_buf, drt);
-    oam[64].xpos = kSprXXX_LineGuided_DATA_01DC3B[i] + R0_;
-    oam[64].ypos = kSprXXX_LineGuided_DATA_01DC3F[i] + R1_;
+    OamEnt *oam = get_OamEnt(oam_buf, drt.idx);
+    oam[64].xpos = kSprXXX_LineGuided_DATA_01DC3B[i] + drt.x;
+    oam[64].ypos = kSprXXX_LineGuided_DATA_01DC3F[i] + drt.y;
     oam[64].charnum = counter_local_frames & 2 | 0x6C;
     oam[64].flags = kSprXXX_LineGuided_DATA_01DC43[i];
-    drt += 4;
+    drt.idx += 4;
   }
   FinishOAMWrite(k, 2, 3);
 }
 
 void SprXXX_LineGuided_01DC54(uint8 k) {  // 01dc54
-  if (GetDrawInfo_Bank01_ReturnsTwice(k) == 0xff)
+  GetDrawInfoRes drt; 
+  if ((drt = GetDrawInfo_Bank01_ReturnsTwice(k)).idx == 0xff)
     return;
-  R0_ -= 8;
-  R1_ -= 8;
-  R2_ = ((uint8)(counter_local_frames ^ (4 * k)) >> 3) & 3;
+  drt.x -= 8;
+  drt.y -= 8;
+  uint8 r2 = ((uint8)(counter_local_frames ^ (4 * k)) >> 3) & 3;
   uint8 v1 = 5;
   if (k >= 6 && sprites_sprite_memory_setting)
     v1 = 9;
-  R3_ = v1;
+  uint8 r3 = v1;
   uint8 v2 = spr_oamindex[k];
   uint8 v3 = 0;
   do {
     OamEnt *oam = get_OamEnt(oam_buf, v2);
-    oam[64].xpos = R0_;
-    uint8 v5 = R1_;
-    oam[64].ypos = R1_;
-    R1_ = v5 + 16;
-    oam[64].charnum = v3 ? kSprXXX_LineGuided_LineGuideRopeTiles[v3] : kSprXXX_LineGuided_RopeMotorTiles[R2_];
+    oam[64].xpos = drt.x;
+    uint8 v5 = drt.y;
+    oam[64].ypos = drt.y;
+    drt.y = v5 + 16;
+    oam[64].charnum = v3 ? kSprXXX_LineGuided_LineGuideRopeTiles[v3] : kSprXXX_LineGuided_RopeMotorTiles[r2];
     oam[64].flags = v3 ? 49 : 55;
     v2 += 4;
-  } while (++v3 != R3_);
+  } while (++v3 != r3);
   get_OamEnt(oam_buf, v2)[63].charnum = -34;
   uint8 v8 = (spr_current_slotid >= 6 && sprites_sprite_memory_setting) ? 8 : 4;
   FinishOAMWrite(spr_current_slotid, 2, v8);
@@ -6677,10 +6912,10 @@ void Spr082_BonusGame_Init(uint8 k) {  // 01ddac
     do {
       spr_current_status[v1] = 8;
       spr_spriteid[v1] = -126;
-      SetSprXYPos(v1, kSpr082_BonusGame_Init_DATA_01DD90[v1], 
-        (int8)kSpr082_BonusGame_Init_DATA_01DD99[v1] + 256);
+      SetSprXYPos(v1, kSpr082_BonusGame_Init_DATA_01DD90[v1 - 1], 
+        (int8)kSpr082_BonusGame_Init_DATA_01DD99[v1 - 1] + 256);
       InitializeNormalSpriteRAMTables(v1);
-      spr_table157c[v1] = kSpr082_BonusGame_Init_DATA_01DDA2[v1];
+      spr_table157c[v1] = kSpr082_BonusGame_Init_DATA_01DDA2[v1 - 1];
       spr_table1570[v1] = (counter_global_frames + v1) & 7;
       --v1;
     } while (v1);
@@ -6739,7 +6974,7 @@ void Spr082_BonusGame(uint8 k) {  // 01de2a
 }
 
 void Spr082_BonusGame_01DF19(uint8 k) {  // 01df19
-  R0_ = kSpr082_BonusGame_DATA_01DF10[spr_decrementing_table1540[k] >> 1];
+  uint8 r0 = kSpr082_BonusGame_DATA_01DF10[spr_decrementing_table1540[k] >> 1];
   uint8 v1 = spr_oamindex[k];
   int8 v2 = spr_xpos_lo[k] - mirror_current_layer1_xpos;
   OamEnt *oam = get_OamEnt(oam_buf, v1);
@@ -6752,7 +6987,7 @@ void Spr082_BonusGame_01DF19(uint8 k) {  // 01df19
   uint8 t4 = spr_decrementing_table154c[k];
   uint8 t5 = t4 ? (t4 & 0x10) != 0 : 0;
 
-  int8 v4 = spr_ypos_lo[k] - R0_ - mirror_current_layer1_ypos;
+  int8 v4 = spr_ypos_lo[k] - r0 - mirror_current_layer1_ypos;
   oam[68].ypos = v4;
   if (!t5) {
     oam[64].ypos = v4;
@@ -6782,29 +7017,30 @@ void Spr082_BonusGame_01DF19(uint8 k) {  // 01df19
 }
 
 void Spr082_BonusGame_01DFD9() {  // 01dfd9
-  R0_ = 7;
+  uint8 arr7[3], arr4[3];
+  uint8 r0 = 7;
   do {
     for (uint8 i = 2; (i & 0x80) == 0; --i) {
-      R1_ = i;
-      uint8 v1 = kSpr082_BonusGame_DATA_01DFC1[(uint8)(i + R0_ + __CFSHL__(R0_, 1) + 2 * R0_)];
-      R2_ = kSpr082_BonusGame_Init_DATA_01DD99[v1 + 1];
-      R3_ = kSpr082_BonusGame_Init_DATA_01DD90[v1 + 1];
+      uint8 r1 = i;
+      uint8 v1 = kSpr082_BonusGame_DATA_01DFC1[(uint8)(i + 3 * r0)];
+      uint8 r2 = kSpr082_BonusGame_Init_DATA_01DD99[v1];
+      uint8 r3 = kSpr082_BonusGame_Init_DATA_01DD90[v1];
       uint8 j;
       for (j = 9; j != 1; --j) {
-        if (spr_ypos_lo[j] == R2_ && spr_xpos_lo[j] == R3_)
+        if (spr_ypos_lo[j] == r2 && spr_xpos_lo[j] == r3)
           break;
       }
-      *(&R4_ + i) = spr_table1570[j];
-      *(&R7_ + i) = j;
+      arr4[i] = spr_table1570[j];
+      arr7[i] = j;
     }
-    if (R4_ == R5_ && R4_ == R6_) {
+    if (arr4[0] == arr4[1] && arr4[0] == arr4[2]) {
       ++counter_number_of_bonus_game1ups_to_spawn;
-      spr_decrementing_table154c[R7_] = 112;
-      spr_decrementing_table154c[R8_] = 112;
-      spr_decrementing_table154c[R9_] = 112;
+      spr_decrementing_table154c[arr7[0]] = 112;
+      spr_decrementing_table154c[arr7[1]] = 112;
+      spr_decrementing_table154c[arr7[2]] = 112;
     }
-    --R0_;
-  } while ((R0_ & 0x80) == 0);
+    --r0;
+  } while ((r0 & 0x80) == 0);
   uint8 v3 = 41;
   counter_remaining_bonus_game1ups = counter_number_of_bonus_game1ups_to_spawn;
   if (!counter_number_of_bonus_game1ups_to_spawn) {
@@ -6895,12 +7131,12 @@ void Spr033_Podoboo(uint8 k) {  // 01e093
 void Spr033_Podoboo_01E0E2(uint8 k) {  // 01e0e2
   uint8 v1 = spr_ypos_lo[k];
   bool v2 = v1 < spr_table1528[k];
-  R0_ = v1 - spr_table1528[k];
+  uint8 r0 = v1 - spr_table1528[k];
   int8 v3 = 0;
   if ((spr_ypos_hi[k] - (v2 + spr_table151c[k])) & 1)
     v3 = 0x80;
-  R0_ = (R0_ >> 1) + v3;
-  int8 v4 = kSpr033_Podoboo_DATA_01E07B[R0_ >> 3];
+  r0 = (r0 >> 1) + v3;
+  int8 v4 = kSpr033_Podoboo_DATA_01E07B[r0 >> 3];
   if (v4 >= 0) {
     spr_decrementing_table1564[k] = v4;
     v4 = 0x80;
@@ -6913,38 +7149,39 @@ void Spr00E_Keyhole_Init(uint8 k) {  // 01e1b8
 }
 
 void Spr00E_Keyhole(uint8 k) {  // 01e1c8
-  uint8 drt;
+  GetDrawInfoRes drt;
   uint8 i;
+  CollInfo ci;
   for (i = 11; (i & 0x80) == 0; --i) {
     if (spr_current_status[i] >= 8 && spr_spriteid[i] == 0x80)
       break;
   }
   if (player_riding_yoshi_flag && yoshi_key_in_mouth_flag) {
-    StandardSpriteToSpriteCollisionChecks_GetMarioClipping();
+    StandardSpriteToSpriteCollisionChecks_GetMarioClipping(&ci);
   } else {
     spr_table151c[k] = i;
     if ((i & 0x80) != 0 || spr_current_status[i] != 11)
       goto LABEL_15;
-    StandardSpriteToSpriteCollisionChecks_GetSpriteClippingB(i);
+    StandardSpriteToSpriteCollisionChecks_GetSpriteClippingB(i, &ci);
   }
-  StandardSpriteToSpriteCollisionChecks_GetSpriteClippingA(k);
-  if (StandardSpriteToSpriteCollisionChecks_CheckContact() && !spr_decrementing_table154c[k]) {
+  StandardSpriteToSpriteCollisionChecks_GetSpriteClippingA(k, &ci);
+  if (StandardSpriteToSpriteCollisionChecks_CheckContact(&ci) && !spr_decrementing_table154c[k]) {
     timer_end_level_via_keyhole = 48;
     io_music_ch1 = 16;
     ++player_freeze_player_flag;
     ++flag_sprites_locked;
-    WORD(temp1436) = GetSprXPos(k);
-    WORD(temp1438) = GetSprYPos(k);
+    player_on_tilting_platform_xpos = GetSprXPos(k);
+    player_on_tilting_platform_ypos = GetSprYPos(k);
     spr_decrementing_table154c[k] = 48;
   }
 LABEL_15:
-  if ((drt = GetDrawInfo_Bank01_ReturnsTwice(k)) == 0xff)
+  if ((drt = GetDrawInfo_Bank01_ReturnsTwice(k)).idx == 0xff)
     return;
-  OamEnt *oam = get_OamEnt(oam_buf, drt);
-  oam[64].xpos = R0_;
-  oam[65].xpos = R0_;
-  oam[64].ypos = R1_;
-  oam[65].ypos = R1_ + 8;
+  OamEnt *oam = get_OamEnt(oam_buf, drt.idx);
+  oam[64].xpos = drt.x;
+  oam[65].xpos = drt.x;
+  oam[64].ypos = drt.y;
+  oam[65].ypos = drt.y + 8;
   oam[64].charnum = -21;
   oam[65].charnum = -5;
   oam[64].flags = 48;
@@ -6981,16 +7218,14 @@ void Spr04E_LedgeMontyMole(uint8 k) {  // 01e2cf
 }
 
 void SprXXX_SmallMontyMole_State00_Invisible(uint8 k) {  // 01e2e0
-  CheckPlayerPositionRelativeToSprite_Bank01_X(k);
-  if ((uint8)(R15_ + 96) < 0xC0 && !spr_xoffscreen_flag[k]) {
+  if ((uint8)(player_current_xpos - GetSprXPos(k) + 96) < 0xC0 && !spr_xoffscreen_flag[k]) {
     ++spr_table00c2[k];
     uint8 v1 = 104;
     if (ow_players_map[player_current_character] != 1)
       v1 = 32;
     spr_decrementing_table1540[k] = v1;
   }
-  if (GetDrawInfo_Bank01_ReturnsTwice(k) == 0xff)
-    return;
+  GetDrawInfo_Bank01_ReturnsTwice(k);
 }
 
 void SprXXX_SmallMontyMole_State01_AboutToEmerge(uint8 k) {  // 01e309
@@ -7230,9 +7465,9 @@ void Spr02F_PortableSpringboard(uint8 k) {  // 01e623
     uint8 v4 = kSpr02F_PortableSpringboard_PlayerYDisp[v2 >> 1];
     if (player_riding_yoshi_flag)
       v4 += 18;
-    R0_ = v4;
+    uint8 r0 = v4;
     spr_table1602[k] = kSpr02F_PortableSpringboard_AnimationFrames[v3];
-    player_ypos = GetSprYPos(k) - R0_;
+    player_ypos = GetSprYPos(k) - r0;
     player_in_air_flag = 0;
     player_xspeed = 0;
     misc_player_on_solid_sprite = 2;
@@ -7282,17 +7517,17 @@ void Spr02F_PortableSpringboard_01E6F0(uint8 k) {  // 01e6f0
 }
 
 void GenericSmushedSpriteDraw(uint8 k) {  // 01e700
-  uint8 drt;
+  GetDrawInfoRes drt;
 
-  if ((drt = GetDrawInfo_Bank01_ReturnsTwice(k)) == 0xff)
+  if ((drt = GetDrawInfo_Bank01_ReturnsTwice(k)).idx == 0xff)
     return;
   if (!CheckIfNormalSpriteOffScreen(k)) {
-    uint8 v2 = R0_;
-    OamEnt *oam = get_OamEnt(oam_buf, drt);
-    oam[64].xpos = R0_;
+    uint8 v2 = drt.x;
+    OamEnt *oam = get_OamEnt(oam_buf, drt.idx);
+    oam[64].xpos = drt.x;
     oam[65].xpos = v2 + 8;
-    int8 v4 = R1_ + 8;
-    oam[64].ypos = R1_ + 8;
+    int8 v4 = drt.y + 8;
+    oam[64].ypos = drt.y + 8;
     oam[65].ypos = v4;
     uint8 v5 = spr_spriteid[k];
     int8 v6 = -2;
@@ -7309,7 +7544,7 @@ void GenericSmushedSpriteDraw(uint8 k) {  // 01e700
     int8 v7 = spr_table15f6[k] | sprites_tile_priority;
     oam[64].flags = v7;
     oam[65].flags = v7 | 0x40;
-    uint8 v8 = drt >> 2;
+    uint8 v8 = drt.idx >> 2;
     sprites_oamtile_size_buffer[v8 + 64] = 0;
     sprites_oamtile_size_buffer[v8 + 65] = 0;
   }
@@ -7346,9 +7581,9 @@ LABEL_2:
       if (spr_current_status[i] == 8 && spr_spriteid[i] == 30) {
         spr_table160e[k] = i;
         Spr087_LakituCloud_01E98D(k);
-        R0_ = kSpr087_LakituCloud_CloudYPosOffset[(counter_local_frames >> 3) & 7];
+        uint8 r0 = kSpr087_LakituCloud_CloudYPosOffset[(counter_local_frames >> 3) & 7];
         SetSprXPos(i, GetSprXPos(k));
-        SetSprYPos(i, GetSprYPos(k) - R0_);
+        SetSprYPos(i, GetSprYPos(k) - r0);
         spr_decrementing_table154c[k] = 16;
         Spr087_LakituCloud_Draw(k);
         return;
@@ -7388,25 +7623,24 @@ LABEL_2:
 }
 
 void Spr087_LakituCloud_Draw(uint8 k) {  // 01e8ca
-  if (GetDrawInfo_Bank01_ReturnsTwice(k) == 0xff)
+  GetDrawInfoRes drt;
+  if ((drt = GetDrawInfo_Bank01_ReturnsTwice(k)).idx == 0xff)
     return;
   if (!spr_yoffscreen_flag[k]) {
-    R12_ = -8;
-    R13_ = -4;
     uint8 v1 = 0;
     if (!spr_table00c2[k])
       v1 = 48;
-    R14_ = v1;
     misc_scratch7e18b6 = v1;
-    R15_ = v1 | 4;
-    temp14b0 = R0_;
-    temp14b2 = R1_;
-    R2_ = (counter_local_frames >> 2) & 0xC;
-    R3_ = 3;
+    uint8 oam_idxs[4] = { 0xf8, 0xfc, v1, v1 | 4 };
+
+    uint8 temp14b0 = drt.x;
+    uint8 temp14b2 = drt.y;
+    uint8 r2 = (counter_local_frames >> 2) & 0xC;
+    uint8 r3 = 3;
     do {
-      uint8 v2 = R2_ + R3_;
-      OamEnt *oam = get_OamEnt(oam_buf, *(&R12_ + R3_));
-      oam[64].xpos = temp14b0 + kSpr087_LakituCloud_XDisp[(uint8)(R2_ + R3_)];
+      uint8 v2 = r2 + r3;
+      OamEnt *oam = get_OamEnt(oam_buf, oam_idxs[r3]);
+      oam[64].xpos = temp14b0 + kSpr087_LakituCloud_XDisp[(uint8)(r2 + r3)];
       oam[64].ypos = temp14b2 + kSpr087_LakituCloud_YDisp[v2];
       uint8 v4 = spr_current_slotid;
       oam[64].charnum = 96;
@@ -7414,8 +7648,7 @@ void Spr087_LakituCloud_Draw(uint8 k) {  // 01e8ca
       if (v5)
         oam[64].charnum = kSpr087_LakituCloud_EvaporatingCloudTiles[v5 >> 3];
       oam[64].flags = sprites_tile_priority;
-      --R3_;
-    } while ((R3_ & 0x80) == 0);
+    } while ((--r3 & 0x80) == 0);
     uint8 v6 = spr_current_slotid;
     spr_oamindex[spr_current_slotid] = -8;
     FinishOAMWrite(v6, 2, 1);
@@ -7436,10 +7669,10 @@ void Spr087_LakituCloud_01E98D(uint8 k) {  // 01e98d
   if (!flag_sprites_locked) {
     uint8 v1 = CheckPlayerPositionRelativeToSprite_Bank01_X(k);
     spr_table157c[spr_table160e[k]] = v1;
-    R0_ = v1;
-    uint8 v2 = R0_;
+    uint8 r0 = v1;
+    uint8 v2 = r0;
     if (timer_disappearing_sprite) {
-      uint8 v10 = R0_;
+      uint8 v10 = r0;
       uint8 ka = k;
       uint8 v3 = spr_table160e[k];
       SubOffscreen_Bank01_Entry1(v3);
@@ -7609,10 +7842,9 @@ void Spr035_Yoshi(uint8 k) {  // 01ebca
       if (v1 == 1) {
         flag_sprites_locked = 0;
         player_freeze_player_flag = 0;
-        v1 = misc_intro_level_flag | flag_yoshi_saved | (ow_players_map[player_current_character] - 1);
-        if (!v1) {
+        uint8 tt = misc_intro_level_flag | flag_yoshi_saved | (ow_players_map[player_current_character] - 1);
+        if (!tt) {
           ++flag_yoshi_saved;
-          v1 = 3;
           misc_display_message = 3;
         }
       }
@@ -7645,12 +7877,13 @@ LABEL_27:
       SetFacingDirectionBasedOnSpeed(k);
       if (CheckNormalSpriteLevelColl_Wall(k))
         ChangeNormalSpriteDirection_FlipXSpeedAndDirection(k);
-      SetHiLo(&R10_, &R4_, GetSprXPos(k) + 4);
-      SetHiLo(&R11_, &R5_, GetSprYPos(k) + 19);
-      R7_ = 8;
-      R6_ = 8;
-      StandardSpriteToSpriteCollisionChecks_GetMarioClipping();
-      if (StandardSpriteToSpriteCollisionChecks_CheckContact() && player_in_air_flag &&
+      CollInfo ci;
+      SetHiLo(&ci.r10, &ci.r4, GetSprXPos(k) + 4);
+      SetHiLo(&ci.r11, &ci.r5, GetSprYPos(k) + 19);
+      ci.r7 = 8;
+      ci.r6 = 8;
+      StandardSpriteToSpriteCollisionChecks_GetMarioClipping(&ci);
+      if (StandardSpriteToSpriteCollisionChecks_CheckContact(&ci) && player_in_air_flag &&
           !(player_riding_yoshi_flag | player_carrying_something_flag1) && (player_yspeed & 0x80) == 0) {
         Spr035_Yoshi_01EDCE(k, 1);
         player_xspeed = 0;
@@ -7697,11 +7930,11 @@ LABEL_27:
     if ((slot & 0x80) == 0) {
       spr_current_status[slot] = 9;
       spr_spriteid[slot] = 44;
-      R15_ = spr_table157c[k];
+      uint8 r15 = spr_table157c[k];
       SetSprXPos(slot, GetSprXPos(k) + PAIR16(kSpr035_Yoshi_YoshiEggInitialXOffsetHi[spr_table157c[k]], kSpr035_Yoshi_YoshiEggInitialXOffsetLo[spr_table157c[k]]));
       SetSprYPos(slot, GetSprYPos(k) + 8);
       InitializeNormalSpriteRAMTables(slot);
-      spr_xspeed[slot] = kSpr035_Yoshi_YoshiEggInitialXSpeed[R15_];
+      spr_xspeed[slot] = kSpr035_Yoshi_YoshiEggInitialXSpeed[r15];
       spr_yspeed[slot] = -16;
       spr_decrementing_table154c[slot] = 16;
       spr_table151c[slot] = yoshi_laid_egg_contents;
@@ -7733,18 +7966,16 @@ void Spr035_Yoshi_HandleOffYoshi(uint8 k) {  // 01ee61
   }
   if (yoshi_in_pipe == 2)
     spr_table1602[k] = 3;
-  Spr035_Yoshi_01EF18(k);
-  OamEnt *oam = get_OamEnt(oam_buf, R14_);
-  R0_ = oam[64].charnum;
-  R1_ = 0;
+  uint8 r14 = Spr035_Yoshi_01EF18(k);
+  OamEnt *oam = get_OamEnt(oam_buf, r14);
+  uint16 r0w = oam[64].charnum;
   oam[64].charnum = 6;
   OamEnt *v2 = get_OamEnt(oam_buf, spr_oamindex[k]);
-  R2_ = v2[64].charnum;
-  R3_ = 0;
+  uint16 r2w = v2[64].charnum;
   v2[64].charnum = 8;
-  *(uint16 *)&graphics_dynamic_sprite_pointers_top_lo[6] = 32 * R0_W + 0x8500;
+  *(uint16 *)&graphics_dynamic_sprite_pointers_top_lo[6] = 32 * r0w + 0x8500;
   *(uint16 *)&graphics_dynamic_sprite_pointers_bottom_lo[6] = *(uint16 *)&graphics_dynamic_sprite_pointers_top_lo[6] + 512;
-  *(uint16 *)&graphics_dynamic_sprite_pointers_top_lo[8] = 32 * R2_W + 0x8500;
+  *(uint16 *)&graphics_dynamic_sprite_pointers_top_lo[8] = 32 * r2w + 0x8500;
   *(uint16 *)&graphics_dynamic_sprite_pointers_bottom_lo[8] = *(uint16 *)&graphics_dynamic_sprite_pointers_top_lo[8] + 512;
   spr_table1602[k] = v6;
   Spr035_Yoshi_01F0A2(k);
@@ -7766,12 +7997,15 @@ void Spr035_Yoshi_HandleOffYoshi(uint8 k) {  // 01ee61
   }
 }
 
-void Spr035_Yoshi_01EF18(uint8 k) {  // 01ef18
+uint8 Spr035_Yoshi_01EF18(uint8 k) {  // 01ef18
+  static const uint8 kSpr035_Yoshi_YoshiThroatXDisp[40] = { 0xc, 0xc, 0xc, 0xc, 0xc, 0xc, 0xd, 0xd, 0xd, 0xd, 0xfc, 0xfc, 0xfc, 0xfc, 0xfc, 0xfc, 0xfb, 0xfb, 0xfb, 0xfb, 0xc, 0xc, 0xc, 0xc, 0xc, 0xc, 0xd, 0xd, 0xd, 0xd, 0xfc, 0xfc, 0xfc, 0xfc, 0xfc, 0xfc, 0xfb, 0xfb, 0xfb, 0xfb,  };
+  static const uint8 kSpr035_Yoshi_YoshiThroatYDisp[40] = { 0xe, 0xe, 0xe, 0xd, 0xd, 0xd, 0xc, 0xc, 0xb, 0xb, 0xe, 0xe, 0xe, 0xd, 0xd, 0xd, 0xc, 0xc, 0xb, 0xb, 0x12, 0x12, 0x12, 0x11, 0x11, 0x11, 0x10, 0x10, 0xf, 0xf, 0x12, 0x12, 0x12, 0x11, 0x11, 0x11, 0x10, 0x10, 0xf, 0xf,  };
+
   int8 v9, v11;
 
   uint8 v1 = spr_table1602[k];
   misc_scratch7e185e = v1;
-  R15_ = spr_table1602[k] = kSpr035_Yoshi_YoshiHeadTiles[v1];
+  uint8 r15 = spr_table1602[k] = kSpr035_Yoshi_YoshiHeadTiles[v1];
   uint16 old_x = GetSprXPos(k), old_y = GetSprYPos(k);
   AddSprYPos(k, kSpr035_Yoshi_YoshiPositionY[v1]);
   uint8 v4 = v1 + (spr_table157c[k] ? 13 : 0);
@@ -7779,7 +8013,7 @@ void Spr035_Yoshi_01EF18(uint8 k) {  // 01ef18
   uint8 v15 = spr_oamindex[k];
   if (yoshi_in_pipe | spr_decrementing_table15ac[k])
     spr_oamindex[k] = 4;
-  R14_ = spr_oamindex[k];
+  uint8 r14 = spr_oamindex[k];
   GenericGFXRtDraw1Tile16x16(k);
   OamEnt *oam = get_OamEnt(oam_buf, spr_oamindex[k]);
   oam[64].ypos += kSpr035_Yoshi_YoshiHeadYDisp[misc_scratch7e185e];
@@ -7789,9 +8023,9 @@ void Spr035_Yoshi_01EF18(uint8 k) {  // 01ef18
   AddSprYPos(k, 16);
   GenericGFXRtDraw1Tile16x16(k);
   SetSprYPos(k, old_y);
-  uint8 v7 = R14_;
-  if ((R15_ & 0x80) != 0)
-    get_OamEnt(oam_buf, R14_)[64].ypos = -16;
+  uint8 v7 = r14;
+  if ((r15 & 0x80) != 0)
+    get_OamEnt(oam_buf, r14)[64].ypos = -16;
   uint8 v8 = spr_table00c2[k];
   if (!v8) {
     if ((counter_local_frames & 0x30) == 0) {
@@ -7825,15 +8059,13 @@ LABEL_33:
   }
   v10 = spr_decrementing_table1564[k];
   if (!v10)
-    return;
+    return r14;
   v11 = 0;
   if (v10 >= 0xF) {
     if (v10 >= 0x1C) {
       if (v10 == 28) {
-        uint8 v20 = R14_;
         Spr035_Yoshi_ChangeBerryIntoBushTile();
         Spr035_Yoshi_HandleYoshiSwallowingSomething();
-        R14_ = v20;
       }
       ++player_freeze_player_flag;
       v10 = 0;
@@ -7843,25 +8075,26 @@ LABEL_33:
     goto LABEL_33;
   }
 LABEL_34:
-  get_OamEnt(oam_buf, R14_)[64].charnum = v11;
+  get_OamEnt(oam_buf, r14)[64].charnum = v11;
   if (v10 < 0xF && v10 >= 5) {
     uint8 v12 = v10 - 5;
     if (spr_table157c[k])
       v12 += 10;
     if (spr_table1602[k] == 10)
       v12 += 20;
-    R2_ = v12;
+    uint8 r2 = v12;
     if (!CheckIfNormalSpriteOffScreen(k)) {
-      R0_ = spr_xpos_lo[k] - mirror_current_layer1_xpos;
-      R1_ = spr_ypos_lo[k] - mirror_current_layer1_ypos;
+      uint8 r0 = spr_xpos_lo[k] - mirror_current_layer1_xpos;
+      uint8 r1 = spr_ypos_lo[k] - mirror_current_layer1_ypos;
       OamEnt *v14 = get_OamEnt(oam_buf, 0);
-      v14[64].xpos = kSpr035_Yoshi_YoshiThroatXDisp[R2_] + R0_;
-      v14[64].ypos = kSpr035_Yoshi_YoshiThroatYDisp[R2_] + R1_;
+      v14[64].xpos = kSpr035_Yoshi_YoshiThroatXDisp[r2] + r0;
+      v14[64].ypos = kSpr035_Yoshi_YoshiThroatYDisp[r2] + r1;
       v14[64].charnum = 63;
       v14[64].flags = get_OamEnt(oam_buf, spr_oamindex[k])[64].flags | 1;
       sprites_oamtile_size_buffer[64] = 0;
     }
   }
+  return r14;
 }
 
 void Spr035_Yoshi_01F0A2(uint8 k) {  // 01f0a2
@@ -7922,8 +8155,8 @@ void Spr035_Yoshi_MouthState00(uint8 k) {  // 01f14b
     if (v2 < 0xD) {
       uint8 v3 = 3;
       if (!spr_table187b[v1]) {
-        R0_ = 4 * kSpr035_Yoshi_YoshiAbilityIndex[(spr_table15f6[k] >> 1) & 7];
-        v3 = kSpr035_Yoshi_YoshiShellAbility[R0_ | kSpr035_Yoshi_YoshiAbilityIndex[(spr_table15f6[v1] >> 1) & 7]];
+        uint8 r0 = 4 * kSpr035_Yoshi_YoshiAbilityIndex[(spr_table15f6[k] >> 1) & 7];
+        v3 = kSpr035_Yoshi_YoshiShellAbility[r0 | kSpr035_Yoshi_YoshiAbilityIndex[(spr_table15f6[v1] >> 1) & 7]];
       }
       yoshi_yoshi_has_wings = v3 & 2;
       yoshi_stomp_ground_flag = v3 & 1;
@@ -7957,10 +8190,9 @@ void Spr035_Yoshi_MouthState00(uint8 k) {  // 01f14b
         spr_table160e[k] = -1;
         if (spr_spriteid[j] < 0xD && (spr_table187b[j] || (spr_table15f6[j] & 0xE) == 8 || (spr_table15f6[k] & 0xE) == 8)) {
           spr_current_status[j] = 0;
-          R0_ = 2;
-          Spr035_Yoshi_01F295(j);
-          Spr035_Yoshi_01F295(j);
-          Spr035_Yoshi_01F295(j);
+          Spr035_Yoshi_01F295(j, 2);
+          Spr035_Yoshi_01F295(j, 1);
+          Spr035_Yoshi_01F295(j, 0);
           io_sound_ch3 = 23;
         } else {
           Spr035_Yoshi_01F2DF(j);
@@ -7977,19 +8209,18 @@ void Spr035_Yoshi_MouthState00(uint8 k) {  // 01f14b
   }
 }
 
-void Spr035_Yoshi_01F295(uint8 k) {  // 01f295
+void Spr035_Yoshi_01F295(uint8 k, uint8 r0) {  // 01f295
   uint8 j = CheckAvailableExtendedSpriteSlot(k);
   ext_spr_spriteid[j] = 17;
   SetHiLo(&ext_spr_xpos_hi[j], &ext_spr_xpos_lo[j], GetSprXPos(k));
   SetHiLo(&ext_spr_ypos_hi[j], &ext_spr_ypos_lo[j], GetSprYPos(k));
   ext_spr_table1779[j] = 0;
   uint8 v2 = spr_table157c[k] & 1;
-  uint8 v3 = R0_;
-  uint8 v4 = kSpr035_Yoshi_YoshiFireballInitialXSpeed[R0_];
+  uint8 v3 = r0;
+  uint8 v4 = kSpr035_Yoshi_YoshiFireballInitialXSpeed[r0];
   ext_spr_xspeed[j] = v2 ? -v4 : v4;
   ext_spr_yspeed[j] = kSpr035_Yoshi_YoshiFireballInitialYSpeed[v3];
   ext_spr_decrementing_table176f[j] = -96;
-  --R0_;
 }
 
 void Spr035_Yoshi_01F2DF(uint8 j) {  // 01f2df
@@ -8012,8 +8243,8 @@ void Spr035_Yoshi_MouthState01_ExtendTongue(uint8 k) {  // 01f314
     spr_decrementing_table1558[k] = 8;
     ++spr_table1594[k];
   }
-  Spr035_Yoshi_01F3FE(k);
-  Spr035_Yoshi_01F4B2(k);
+  uint8 r13 = Spr035_Yoshi_01F3FE(k);
+  Spr035_Yoshi_01F4B2(k, r13);
 }
 
 void Spr035_Yoshi_MouthState02_RetractTongue(uint8 k) {  // 01f332
@@ -8035,7 +8266,7 @@ void Spr035_Yoshi_MouthState02_RetractTongue(uint8 k) {  // 01f332
           spr_current_status[v2] = 0;
           spr_decrementing_table1564[k] = 27;
           spr_table160e[k] = -1;
-          R0_ = v2;
+          uint8 r0 = v2;
           if (spr_spriteid[v2] == 0x9D && spr_table00c2[v2] == 3) {
             spr_spriteid[v2] = 116;
             spr_property_bits167a[v2] |= 0x40;
@@ -8043,9 +8274,9 @@ void Spr035_Yoshi_MouthState02_RetractTongue(uint8 k) {  // 01f332
           uint8 v3 = spr_spriteid[v2];
           if (v3 == 0x81) {
             v3 = kSprXXX_PowerUps_ChangingItemSprite[(spr_table187b[v2] >> 6) & 3];
-            spr_spriteid[R0_] = v3;
+            spr_spriteid[r0] = v3;
           }
-          uint8 v4 = R0_;
+          uint8 v4 = r0;
           if (spr_property_bits167a[v4] & 0x40) {
             spr_table00c2[v4] = 0;
             SprXXX_PowerUps_01C4BF(v4);
@@ -8065,90 +8296,86 @@ void Spr035_Yoshi_MouthState02_RetractTongue(uint8 k) {  // 01f332
       spr_table151c[k] = v1;
     }
   }
-  Spr035_Yoshi_01F3FE(k);
-  Spr035_Yoshi_01F4B2(k);
+  uint8 r13 = Spr035_Yoshi_01F3FE(k);
+  Spr035_Yoshi_01F4B2(k, r13);
 }
 
-void Spr035_Yoshi_Return01F3FD() {  // 01f3fd
-  ;
+uint8 Spr035_Yoshi_01F3FE(uint8 k) {  // 01f3fe
+  uint8 r13 = 0;
+  if (yoshi_in_pipe | spr_yoffscreen_flag[k] | spr_xoffscreen_flag[k])
+    return r13;
+  uint8 v1 = spr_table1602[k];
+  misc_scratch7e185e = kSpr035_Yoshi_DATA_01F61A[v1];
+  uint8 r1 = spr_ypos_lo[k] + misc_scratch7e185e - mirror_current_layer1_ypos;
+  if (!spr_table157c[k])
+    v1 += 8;
+  r13 = kSpr035_Yoshi_DATA_01F60A[v1];
+  int t = (uint8)(spr_xpos_lo[k] - mirror_current_layer1_xpos) + r13;
+  uint8 r0 = t;
+  if (spr_table157c[k] ? !(t & 0x100) : (t & 0x100))
+    return r13;
+  uint8 r7 = spr_table157c[k];
+  uint8 Reg = SnesDivide(spr_table151c[k] << 8, 4) >> 8;
+  if (r7 & 1)
+    Reg = -Reg;
+  uint8 r5 = Reg;
+  uint8 n = 4;
+  uint8 v3 = 12;
+  do {
+    OamEnt *oam = get_OamEnt(oam_buf, v3);
+    oam->xpos = r0;
+    uint16 t = r5 + r0;
+    r0 = t;
+    if (sign8(r5) ? (t & 0x100) == 0 : (t & 0x100) != 0)
+      break;
+    oam->ypos = r1;
+    int8 v6 = 118;
+    if (!n)
+      v6 = 102;
+    oam->charnum = v6;
+    int8 v7 = 9;
+    if (!(r7 & 1))
+      v7 = 73;
+    oam->flags = sprites_tile_priority | v7;
+    sprites_oamtile_size_buffer[v3 >> 2] = 0;
+    v3 += 4;
+    --n;
+  } while ((n & 0x80) == 0);
+  return r13;
 }
 
-void Spr035_Yoshi_01F3FE(uint8 k) {  // 01f3fe
-  if (!(yoshi_in_pipe | (uint8)(spr_yoffscreen_flag[k] | spr_xoffscreen_flag[k]))) {
-    uint8 v1 = spr_table1602[k];
-    misc_scratch7e185e = kSpr035_Yoshi_DATA_01F61A[v1];
-    R1_ = spr_ypos_lo[k] + misc_scratch7e185e - mirror_current_layer1_ypos;
-    if (!spr_table157c[k])
-      v1 += 8;
-    R13_ = kSpr035_Yoshi_DATA_01F60A[v1];
-    int t = (uint8)(spr_xpos_lo[k] - mirror_current_layer1_xpos) + R13_;
-    R0_ = t;
-    if (spr_table157c[k] ? !(t & 0x100) : (t & 0x100))
-      return;
-    WriteReg(WRDIVH, spr_table151c[k]);
-    WriteReg(WRDIVL, 0);
-    WriteReg(WRDIVB, 4);
-    R7_ = spr_table157c[k];
-    uint8 Reg = ReadReg(RDDIVH);
-    if (R7_ & 1)
-      Reg = -Reg;
-    R5_ = Reg;
-    R6_ = 4;
-    uint8 v3 = 12;
-    do {
-      OamEnt *oam = get_OamEnt(oam_buf, v3);
-      oam->xpos = R0_;
-      uint16 t = R5_ + R0_;
-      R0_ = t;
-      if (sign8(R5_) ? (t & 0x100) == 0 : (t & 0x100) != 0)
-        break;
-      oam->ypos = R1_;
-      int8 v6 = 118;
-      if (!R6_)
-        v6 = 102;
-      oam->charnum = v6;
-      int8 v7 = 9;
-      if (!(R7_ & 1))
-        v7 = 73;
-      oam->flags = sprites_tile_priority | v7;
-      sprites_oamtile_size_buffer[v3 >> 2] = 0;
-      v3 += 4;
-      --R6_;
-    } while ((R6_ & 0x80) == 0);
-  }
-}
-
-void Spr035_Yoshi_01F4B2(uint8 k) {  // 01f4b2
+void Spr035_Yoshi_01F4B2(uint8 k, uint8 r13) {  // 01f4b2
   int8 v8;
+  CollInfo ci;
 
   if ((spr_table160e[k] & 0x80) != 0) {
-    if ((R13_ & 0x80) != 0)
-      v8 = R13_ - spr_table151c[k];
+    if ((r13 & 0x80) != 0)
+      v8 = r13 - spr_table151c[k];
     else
-      v8 = spr_table151c[k] + R13_;
-    SetHiLo(&R8_, &R0_, GetSprXPos(k) + (int8)v8);
-    SetHiLo(&R9_, &R1_, GetSprYPos(k) + (uint8)(misc_scratch7e185e + 2));
-    R2_ = 8;
-    R3_ = 4;
+      v8 = spr_table151c[k] + r13;
+    SetHiLo(&ci.r8, &ci.r0, GetSprXPos(k) + (int8)v8);
+    SetHiLo(&ci.r9, &ci.r1, GetSprYPos(k) + (uint8)(misc_scratch7e185e + 2));
+    ci.r2 = 8;
+    ci.r3 = 4;
     for (uint8 i = 11; (i & 0x80) == 0; --i) {
       sprites_second_tracked_sprite_index = i;
       if (i != spr_current_slotid && (spr_table160e[k] & 0x80) != 0 && spr_current_status[i] >= 8 && !spr_table1632[i]) {
-        Spr035_Yoshi_TryEatSprite(k, i);
+        Spr035_Yoshi_TryEatSprite(k, i, &ci);
       }
     }
-    CheckBerryTileCollisionWithYoshiTongue();
+    CheckBerryTileCollisionWithYoshiTongue(&ci);
   } else {
     uint8 v2;
-    if ((R13_ & 0x80) != 0)
-      v2 = R13_ - spr_table151c[k];
+    if ((r13 & 0x80) != 0)
+      v2 = r13 - spr_table151c[k];
     else
-      v2 = spr_table151c[k] + R13_;
+      v2 = spr_table151c[k] + r13;
     uint8 j = spr_table160e[k];
     SetSprXPos(j, GetSprXPos(k) + (int8)(v2 - 4));
-    R0_ = -4;
+    uint8 r0 = -4;
     if ((spr_property_bits1662[j] & 0x40) == 0 && (spr_property_bits190f[j] & 0x20) != 0)
-      R0_ = -8;
-    uint8 v6 = misc_scratch7e185e + R0_;
+      r0 = -8;
+    uint8 v6 = misc_scratch7e185e + r0;
     SetSprYPos(j, GetSprYPos(k) + (int8)v6);
     spr_yspeed[j] = 0;
     spr_xspeed[j] = 0;
@@ -8156,25 +8383,25 @@ void Spr035_Yoshi_01F4B2(uint8 k) {  // 01f4b2
   }
 }
 
-void Spr035_Yoshi_TryEatSprite(uint8 k, uint8 j) {  // 01f58e
-  StandardSpriteToSpriteCollisionChecks_GetSpriteClippingA(j);
-  if (StandardSpriteToSpriteCollisionChecks_CheckContact()) {
+void Spr035_Yoshi_TryEatSprite(uint8 k, uint8 j, CollInfo *ci) {  // 01f58e
+  StandardSpriteToSpriteCollisionChecks_GetSpriteClippingA(j, ci);
+  if (StandardSpriteToSpriteCollisionChecks_CheckContact(ci)) {
     if (spr_property_bits1686[j] & 1) {
       io_sound_ch1 = 1;
       return;
     }
     if (spr_spriteid[j] == 112) {
       misc_scratch7e185e = j;
-      Spr070_Pokey_RemovePokeySegment(j, R1_ - spr_ypos_lo[j]);
+      uint8 r13 = Spr070_Pokey_RemovePokeySegment(j, ci->r1 - spr_ypos_lo[j]);
       j = FindFreeNormalSpriteSlot_HighPriority();
       if ((j & 0x80) != 0)
         return;
       spr_current_status[j] = 8;
       spr_spriteid[j] = 112;
-      SetSprXPos(j, PAIR16(R8_, R0_));
-      SetSprYPos(j, PAIR16(R9_, R1_));
+      SetSprXPos(j, PAIR16(ci->r8, ci->r0));
+      SetSprYPos(j, PAIR16(ci->r9, ci->r1));
       InitializeNormalSpriteRAMTables(j);
-      spr_table00c2[j] = R13_ & spr_table00c2[misc_scratch7e185e];
+      spr_table00c2[j] = r13 & spr_table00c2[misc_scratch7e185e];
       spr_table1534[j] = 1;
     }
     spr_table160e[k] = j;
@@ -8198,11 +8425,13 @@ void Spr035_Yoshi_01F622(uint8 k) {  // 01f622
 }
 
 void Spr035_Yoshi_01F668(uint8 k, uint8 j) {  // 01f668
+  CollInfo ci;
   uint8 v6;
   uint8 ka = k;
-  StandardSpriteToSpriteCollisionChecks_GetSpriteClippingB(j);
-  StandardSpriteToSpriteCollisionChecks_GetSpriteClippingA(k);
-  if (StandardSpriteToSpriteCollisionChecks_CheckContact()) {
+  uint8 r0;
+  StandardSpriteToSpriteCollisionChecks_GetSpriteClippingB(j, &ci);
+  StandardSpriteToSpriteCollisionChecks_GetSpriteClippingA(k, &ci);
+  if (StandardSpriteToSpriteCollisionChecks_CheckContact(&ci)) {
     uint8 v2 = spr_spriteid[j];
     if (v2 != 0x9D) {
       if (v2 == 21 || v2 == 22) {
@@ -8225,9 +8454,9 @@ LABEL_9:
             }
             Spr035_Yoshi_01F6CD(j);
           }
-        } else if ((v3 != 78 && v3 != 77 || spr_table00c2[j] >= 2) && !sign8(R5_ + 13 - R1_)) {
+        } else if ((v3 != 78 && v3 != 77 || spr_table00c2[j] >= 2) && !sign8(ci.r5 + 13 - ci.r1)) {
           if (spr_current_status[j] != 10 ||
-              (R0_ = CheckPlayerPositionRelativeToSprite_Bank01_X(j), v6 = spr_xspeed[j], k = ka, ((4 * v6 + __CFSHL__(v6, 1)) & 1) == R0_)) {
+              (r0 = CheckPlayerPositionRelativeToSprite_Bank01_X(j), v6 = spr_xspeed[j], k = ka, ((4 * v6 + __CFSHL__(v6, 1)) & 1) == r0)) {
             if (!timer_star_power) {
               spr_decrementing_table163e[k] = 16;
               io_sound_ch2 = 3;
@@ -8270,8 +8499,7 @@ void PrepareToHatchNormalSpriteYoshiEgg(uint8 k) {  // 01f751
 void Spr02C_YoshiEgg(uint8 k) {  // 01f764
   if (spr_table187b[k]) {
     if (!CheckIfNormalSpriteOffScreen(k)) {
-      CheckPlayerPositionRelativeToSprite_Bank01_X(k);
-      if ((uint8)(R15_ + 32) < 0x40) {
+      if ((uint8)(player_current_xpos - GetSprXPos(k) + 32) < 0x40) {
         spr_table187b[k] = 0;
         PrepareToHatchNormalSpriteYoshiEgg(k);
         spr_table151c[k] = yoshi_stray_yoshi_flag ? 120 : 45;
@@ -8287,7 +8515,6 @@ void Spr02C_YoshiEgg(uint8 k) {  // 01f764
       uint8 v7 = kSpr02C_YoshiEgg_DATA_01F75C[v3];
       GenericGFXRtDraw1Tile16x16(k);
       uint8 v4 = spr_oamindex[k];
-      R0_ = v7;
       OamEnt *oam = get_OamEnt(oam_buf, v4);
       oam[64].flags = v7 | oam[64].flags & 0xFE;
       oam[64].charnum = v8;
@@ -8302,7 +8529,6 @@ void Spr02C_YoshiEgg(uint8 k) {  // 01f764
         spr_current_status[k] = 9;
         uint8 v9 = spr_table15f6[k] & 0xE;
         InitializeNormalSpriteRAMTables(k);
-        R0_ = v9;
         spr_table15f6[k] = v9 | spr_table15f6[k] & 0xF1;
       } else {
         InitializeNormalSpriteRAMTables(k);
@@ -8313,17 +8539,17 @@ void Spr02C_YoshiEgg(uint8 k) {  // 01f764
 
 void Spr02C_YoshiEgg_01F7C8(uint8 k) {  // 01f7c8
   if (!CheckIfNormalSpriteOffScreen(k)) {
-    R0_ = spr_xpos_lo[k];
-    R2_W = GetSprYPos(k);
+    uint8 r0 = spr_xpos_lo[k];
+    uint16 r2w = GetSprYPos(k);
     uint8 v1 = 3;
     uint8 j = 11;
     while (1) {
       if (!mextspr_spriteid[j]) {
 LABEL_8:
         mextspr_spriteid[j] = 3;
-        mextspr_xpos_lo[j] = kSpr02C_YoshiEgg_EggShellInitialXPosLo[v1] + R0_;
-        mextspr_ypos_lo[j] = kSpr02C_YoshiEgg_EggShellInitialYPosLo[v1] + R2_;
-        mextspr_ypos_hi[j] = R3_;
+        mextspr_xpos_lo[j] = kSpr02C_YoshiEgg_EggShellInitialXPosLo[v1] + r0;
+        mextspr_ypos_lo[j] = kSpr02C_YoshiEgg_EggShellInitialYPosLo[v1] + r2w;
+        mextspr_ypos_hi[j] = r2w >> 8;
         mextspr_yspeed[j] = kSpr02C_YoshiEgg_EggShellInitialYSpeed[v1];
         mextspr_xspeed[j] = kSpr02C_YoshiEgg_EggShellInitialXSpeed[v1];
         mextspr_timer[j] = (v1-- << 6) | 0x28;
@@ -8393,11 +8619,11 @@ void sub_1F8E1(uint8 k, uint8 a) {  // 01f8e1
     uint8 v2 = CheckPlayerPositionRelativeToSprite_Bank01_X(k);
     if (!spr_decrementing_table1540[k]) {
       spr_decrementing_table1540[k] = 32;
-      if (spr_table00c2[k] && (uint8)(R15_ + 10) < 0x14)
+      if (spr_table00c2[k] && (uint8)(player_current_xpos - GetSprXPos(k) + 10) < 0x14)
         goto LABEL_13;
       spr_table00c2[k] = (v2 == player_facing_direction);
     }
-    if ((uint8)(R15_ + 10) >= 0x14) {
+    if ((uint8)(player_current_xpos - GetSprXPos(k) + 10) >= 0x14) {
       uint8 v3 = spr_decrementing_table15ac[k];
       if (v3) {
 LABEL_25:
@@ -8494,19 +8720,19 @@ LABEL_33:
 
 void Spr0A7_IggyBall(uint8 k) {  // 01fa58
   GenericGFXRtDraw1Tile16x16(k);
-  R0_ = kSpr0A7_IggyBall_XFlip[spr_table157c[k]];
+  uint8 r0 = kSpr0A7_IggyBall_XFlip[spr_table157c[k]];
   uint8 v1 = spr_oamindex[k];
   uint8 v2 = (counter_local_frames >> 2) & 3;
   OamEnt *oam = get_OamEnt(oam_buf, v1);
   oam[64].charnum = kSpr0A7_IggyBall_Tiles[v2];
-  oam[64].flags = R0_ ^ kSpr0A7_IggyBall_Prop[v2];
+  oam[64].flags = r0 ^ kSpr0A7_IggyBall_Prop[v2];
   if (!flag_sprites_locked) {
     spr_xspeed[k] = kSpr0A7_IggyBall_XSpeed[spr_table157c[k]];
     UpdateNormalSpritePosition_X(k);
     UpdateNormalSpritePosition_Y(k);
     if (sign8(spr_yspeed[k] - 64))
       spr_yspeed[k] += 4;
-    if (Spr0A7_IggyBall_CheckTiltingPlatformCollision(k) & 1)
+    if (Spr0A7_IggyBall_CheckTiltingPlatformCollision(k).retval)
       spr_yspeed[k] = -16;
     CheckPlayerToNormalSpriteCollision(k);
     if (spr_ypos_lo[k] >= 0x44 && spr_ypos_lo[k] < 0x50)
@@ -8519,9 +8745,10 @@ void Spr029_KoopaKids(uint8 k) {  // 01fac1
 }
 
 void Spr029_KoopaKid_IggyLarry(uint8 k) {  // 01faf5
+  PointU16 pt;
   if (!(spr_decrementing_table154c[k] | flag_sprites_locked)) {
-    R0_ = CheckPlayerPositionRelativeToSprite_Bank01_X(k);
-    if (((4 * (uint8)misc_m7_rotation + __CFSHL__(misc_m7_rotation, 1)) & 1) == R0_ && (++spr_table1534[k] & 0x7F) == 0)
+    uint8 r0 = CheckPlayerPositionRelativeToSprite_Bank01_X(k);
+    if (((4 * (uint8)misc_m7_rotation + __CFSHL__(misc_m7_rotation, 1)) & 1) == r0 && (++spr_table1534[k] & 0x7F) == 0)
       spr_decrementing_table1564[k] = 127;
   }
   spr_xoffscreen_flag[k] = 0;
@@ -8547,8 +8774,7 @@ void Spr029_KoopaKid_IggyLarry(uint8 k) {  // 01faf5
         spr_decrementing_table163e[k] = 80;
         DespawnNonBossSprites();
       }
-      temp14b8 = spr_xpos_lo[k];
-      temp14ba = spr_ypos_lo[k];
+      pt = (PointU16){ .x = spr_xpos_lo[k] , .y = spr_ypos_lo[k] };
       goto LABEL_35;
     }
     UpdateNormalSpritePosition_X(k);
@@ -8560,15 +8786,15 @@ void Spr029_KoopaKid_IggyLarry(uint8 k) {  // 01faf5
     }
     spr_yspeed[k] = 0;
     spr_xspeed[k] = 0;
-    R0_ = (uint8)(misc_m7_rotation + ((misc_m7_rotation & 0x80) != 0 ? 8 : 0)) >> 4;
-    R1_ = -R0_ & 0xF;
+    uint8 r0 = (uint8)(misc_m7_rotation + ((misc_m7_rotation & 0x80) != 0 ? 8 : 0)) >> 4;
+    uint8 r1 = -r0 & 0xF;
     uint8 v2;
     if (spr_decrementing_table154c[k]) {
       uint8 v3;
       if (HIBYTE(misc_m7_rotation))
-        v3 = kSpr029_KoopaKid_IggyLarry_HurtXSpeed[R1_ + 8];
+        v3 = kSpr029_KoopaKid_IggyLarry_HurtXSpeed[r1 + 8];
       else
-        v3 = -kSpr029_KoopaKid_IggyLarry_HurtXSpeed[R0_ + 8];
+        v3 = -kSpr029_KoopaKid_IggyLarry_HurtXSpeed[r0 + 8];
       v2 = 4 * v3;
     } else if (HIBYTE(misc_m7_rotation)) {
       if (spr_xpos_lo[k] >= 0x78)
@@ -8586,16 +8812,17 @@ void Spr029_KoopaKid_IggyLarry(uint8 k) {  // 01faf5
       ++spr_table1570[k];
     spr_table1602[k] = kSpr029_KoopaKid_IggyLarry_WalkingAnimationFrames[(spr_table1570[k] >> 2) & 0xF];
   }
-  Spr029_KoopaKid_IggyLarry_01FD50(k);
-  Spr029_KoopaKid_IggyLarry_01FC62(k);
+  pt = Spr029_KoopaKid_IggyLarry_01FD50(k);
+
+  Spr029_KoopaKid_IggyLarry_01FC62(k, pt);
 LABEL_35:;
   uint8 v4 = spr_decrementing_table154c[k];
   if (v4) {
     if (v4 >= 0x10 || v4 < 8) {
       spr_table1602[k] = 3;
-      Spr029_KoopaKid_IggyLarry_Draw(k);
+      Spr029_KoopaKid_IggyLarry_Draw(k, pt);
     } else {
-      Spr029_KoopaKid_IggyLarry_InShellDraw(k);
+      Spr029_KoopaKid_IggyLarry_InShellDraw(k, pt);
     }
   } else {
     uint8 v9 = spr_table157c[k];
@@ -8610,33 +8837,29 @@ LABEL_35:;
       uint8 v7 = spr_decrementing_table1564[k];
       spr_table1602[k] = kSpr029_KoopaKid_IggyLarry_ThrowingAnimationFrames[v6 >> 3];
       if (v7 == 40 && !flag_sprites_locked)
-        Spr029_KoopaKid_IggyLarry_ThrowBall(k);
+        Spr029_KoopaKid_IggyLarry_ThrowBall(k, pt);
     }
-    Spr029_KoopaKid_IggyLarry_Draw(k);
+    Spr029_KoopaKid_IggyLarry_Draw(k, pt);
     spr_table157c[k] = v9;
   }
 }
 
-void Spr029_KoopaKid_IggyLarry_01FC62(uint8 k) {  // 01fc62
+void Spr029_KoopaKid_IggyLarry_01FC62(uint8 k, PointU16 pt) {  // 01fc62
   if (!player_current_state && !spr_table160e[k]) {
     if (spr_xpos_lo[k] < 0x20 || spr_xpos_lo[k] >= 0xD8) {
-      spr_xpos_lo[k] = temp14b8;
-      spr_ypos_lo[k] = temp14ba;
+      spr_xpos_lo[k] = pt.x;
+      spr_ypos_lo[k] = pt.y;
       ++spr_table160e[k];
     }
-    R0_ = temp14b8 - 8;
-    R1_ = temp14ba + 96;
-    R2_ = 15;
-    R3_ = 12;
-    R8_ = 0;
-    R9_ = 0;
-    R4_ = player_on_screen_pos_x + 2;
-    R5_ = player_on_screen_pos_y + 16;
-    R6_ = 12;
-    R7_ = 14;
-    R10_ = 0;
-    R11_ = 0;
-    if (StandardSpriteToSpriteCollisionChecks_CheckContact()) {
+    CollInfo ci = { 
+      .r0 = pt.x - 8,
+      .r1 = pt.y + 96,
+      .r2 = 15,
+      .r3 = 12,
+      .r4 = player_on_screen_pos_x + 2,
+      .r5 = player_on_screen_pos_y + 16,
+      .r6 = 12, .r7 = 14, .r8 = 0, .r9 = 0, .r10 = 0, .r11 = 0 };
+    if (StandardSpriteToSpriteCollisionChecks_CheckContact(&ci)) {
       if (!spr_decrementing_table1558[k]) {
         spr_decrementing_table1558[k] = 8;
         if (player_in_air_flag) {
@@ -8644,8 +8867,8 @@ void Spr029_KoopaKid_IggyLarry_01FC62(uint8 k) {  // 01fc62
           BoostMarioSpeed();
           uint8 v3 = spr_xpos_lo[k];
           uint8 v2 = spr_ypos_lo[k];
-          spr_xpos_lo[k] = temp14b8 - 8;
-          spr_ypos_lo[k] = temp14ba - 16;
+          spr_xpos_lo[k] = pt.x - 8;
+          spr_ypos_lo[k] = pt.y - 16;
           spr_xoffscreen_flag[k] = 0;
           SpawnContactEffectFromAbove(k);
           spr_ypos_lo[k] = v2;
@@ -8660,13 +8883,15 @@ void Spr029_KoopaKid_IggyLarry_01FC62(uint8 k) {  // 01fc62
       for (uint8 i = 10; i != 7; --i) {
         sprites_second_tracked_sprite_index = i;
         if (ext_spr_spriteid[i] == 5) {
-          R4_ = ext_spr_xpos_lo[i] - mirror_current_layer1_xpos;
-          R10_ = 0;
-          R5_ = ext_spr_ypos_lo[i] - mirror_current_layer1_ypos;
-          R11_ = 0;
-          R6_ = 8;
-          R7_ = 8;
-          if (StandardSpriteToSpriteCollisionChecks_CheckContact()) {
+          uint8 r4 = ext_spr_xpos_lo[i] - mirror_current_layer1_xpos;
+          uint8 r5 = ext_spr_ypos_lo[i] - mirror_current_layer1_ypos;
+          ci = (CollInfo){ 
+            .r0 = pt.x - 8,
+            .r1 = pt.y + 96,
+            .r2 = 15,
+            .r3 = 12,
+            .r4 = r4, .r5 = r5, .r6 = 8, .r7 = 8, .r8 = 0, .r9 = 0, .r10 = 0, .r11 = 0 };
+          if (StandardSpriteToSpriteCollisionChecks_CheckContact(&ci)) {
             ext_spr_spriteid[i] = 1;
             ext_spr_decrementing_table176f[i] = 15;
             io_sound_ch1 = 1;
@@ -8678,15 +8903,19 @@ void Spr029_KoopaKid_IggyLarry_01FC62(uint8 k) {  // 01fc62
   }
 }
 
-void Spr029_KoopaKid_IggyLarry_01FD50(uint8 k) {  // 01fd50
-  WORD(temp14b4) = GetSprXPos(k) + 8;
-  WORD(temp14b6) = GetSprYPos(k) + 47;
+PointU16 Spr029_KoopaKid_IggyLarry_01FD50(uint8 k) {  // 01fd50
+  uint16 temp14b4 = GetSprXPos(k) + 8;
+  uint16 temp14b6 = GetSprYPos(k) + 47;
   misc_m7_rotation = ((misc_m7_rotation ^ 0x1FF) + 1) & 0x1FF;
-  CheckTiltingPlatformCollision();
+  CheckPlatformCollRet cpcr = CheckTiltingPlatformCollision(temp14b4, temp14b6);
   misc_m7_rotation = ((misc_m7_rotation ^ 0x1FF) + 1) & 0x1FF;
+  if (cpcr.out_of_bounds) {
+    cpcr.pt = (PointU16){ .x = spr_xpos_lo[k] , .y = spr_ypos_lo[k] };
+  }
+  return cpcr.pt;
 }
 
-void Spr029_KoopaKid_IggyLarry_ThrowBall(uint8 k) {  // 01fda7
+void Spr029_KoopaKid_IggyLarry_ThrowBall(uint8 k, PointU16 pt) {  // 01fda7
   uint8 j = 5;
   while (spr_current_status[j]) {
     if ((--j & 0x80) != 0)
@@ -8698,14 +8927,14 @@ void Spr029_KoopaKid_IggyLarry_ThrowBall(uint8 k) {  // 01fda7
   InitializeNormalSpriteRAMTables(j);
   uint8 v2 = spr_table157c[k];
   spr_table157c[j] = v2;
-  SetSprXPos(j, (uint8)(kSpr029_KoopaKid_IggyLarry_BallXDisp[v2] + temp14b8 - 8));
-  SetSprYPos(j, temp14ba - 24);
+  SetSprXPos(j, (uint8)(kSpr029_KoopaKid_IggyLarry_BallXDisp[v2] + (uint8)pt.x - 8));
+  SetSprYPos(j, (uint8)pt.y - 24);
 }
 
-void Spr029_KoopaKid_IggyLarry_Draw(uint8 k) {  // 01febc
+void Spr029_KoopaKid_IggyLarry_Draw(uint8 k, PointU16 pt) {  // 01febc
   uint8 v1 = spr_table00c2[k];
-  R13_ = *((uint8 *)kSpr029_KoopaKid_IggyLarry_TileSize + v1 + 1);
-  R5_ = v1;
+  uint8 r13 = *((uint8 *)kSpr029_KoopaKid_IggyLarry_TileSize + v1 + 1);
+  uint8 r5 = v1;
   uint8 v2 = spr_oamindex[k];
   uint8 v3 = spr_table157c[k];
   int8 v4 = v3 & 1;
@@ -8713,27 +8942,27 @@ void Spr029_KoopaKid_IggyLarry_Draw(uint8 k) {  // 01febc
   int8 v6 = 0;
   if (v4)
     v6 = 0x80;
-  R2_ = ((uint8)((v5 >> 1) + v6) >> 1) & 0x40 ^ 0x40;
-  R3_ = 4 * spr_table1602[k];
+  uint8 r2 = ((uint8)((v5 >> 1) + v6) >> 1) & 0x40 ^ 0x40;
+  uint8 r3 = 4 * spr_table1602[k];
   int8 v7 = 3;
   int8 v13;
   do {
     v13 = v7;
-    uint8 v8 = R3_ + v7;
+    uint8 v8 = r3 + v7;
     uint8 v12 = v8;
-    if (R2_)
+    if (r2)
       v8 += 48;
     OamEnt *oam = get_OamEnt(oam_buf, v2);
-    oam[64].xpos = kSpr029_KoopaKid_IggyLarry_XDisp[v8] + temp14b8 - 8;
-    oam[64].ypos = kSpr029_KoopaKid_IggyLarry_YDisp[v12] + temp14ba + 96;
+    oam[64].xpos = kSpr029_KoopaKid_IggyLarry_XDisp[v8] + pt.x - 8;
+    oam[64].ypos = kSpr029_KoopaKid_IggyLarry_YDisp[v12] + pt.y + 96;
     uint8 v10 = kSpr029_KoopaKid_IggyLarry_Tiles[v12];
     oam[64].charnum = v10;
-    if (R5_ == 3 && v10 < 5)
+    if (r5 == 3 && v10 < 5)
       oam[64].charnum = kSpr029_KoopaKid_IggyLarry_IggyTiles[v10 >> 1];
-    uint8 v11 = R13_;
+    uint8 v11 = r13;
     if (oam[64].charnum >= 0x4A)
       v11 = 53;
-    oam[64].flags = R2_ | v11;
+    oam[64].flags = r2 | v11;
     sprites_oamtile_size_buffer[(v2 >> 2) + 64] = *((uint8 *)kSpr029_KoopaKid_IggyLarry_TileSize + (v12 & 3));
     v2 += 4;
     v7 = v13 - 1;
@@ -8741,19 +8970,19 @@ void Spr029_KoopaKid_IggyLarry_Draw(uint8 k) {  // 01febc
   FinishOAMWrite(k, 0xFF, 3);
 }
 
-void Spr029_KoopaKid_IggyLarry_InShellDraw(uint8 k) {  // 01ff5b
-  R13_ = *((uint8 *)kSpr029_KoopaKid_IggyLarry_TileSize + spr_table00c2[k] + 1);
+void Spr029_KoopaKid_IggyLarry_InShellDraw(uint8 k, PointU16 pt) {  // 01ff5b
+  uint8 r13 = *((uint8 *)kSpr029_KoopaKid_IggyLarry_TileSize + spr_table00c2[k] + 1);
   OamEnt *oam = get_OamEnt(oam_buf, 0x70);
-  oam[64].xpos = temp14b8 - 8;
-  oam[64].ypos = temp14ba + 96;
+  oam[64].xpos = pt.x - 8;
+  oam[64].ypos = pt.y + 96;
   uint8 v2 = (counter_local_frames >> 1) & 3;
   oam[64].charnum = kSpr029_KoopaKid_IggyLarry_InShellTiles[v2];
-  oam[64].flags = R13_ | kSpr029_KoopaKid_IggyLarry_InShellProp[v2] | 0x30;
+  oam[64].flags = r13 | kSpr029_KoopaKid_IggyLarry_InShellProp[v2] | 0x30;
   sprites_oamtile_size_buffer[92] = 2;
 }
 
-uint8 Spr0A7_IggyBall_CheckTiltingPlatformCollision(uint8 k) {  // 01ff98
-  WORD(temp14b4) = GetSprXPos(k) + 8;
-  WORD(temp14b6) = GetSprYPos(k) + 15;
-  return CheckTiltingPlatformCollision();
+CheckPlatformCollRet Spr0A7_IggyBall_CheckTiltingPlatformCollision(uint8 k) {  // 01ff98
+  uint16 temp14b4 = GetSprXPos(k) + 8;
+  uint16 temp14b6 = GetSprYPos(k) + 15;
+  return CheckTiltingPlatformCollision(temp14b4, temp14b6);
 }

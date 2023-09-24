@@ -2,6 +2,7 @@
 #include "funcs.h"
 #include "smw_rtl.h"
 #include "variables.h"
+#include "assets/smw_assets.h"
 
 static FuncV *const kInitAndMainLoop_GameModePtrs[42] = {
     &GameMode00_LoadNintendoPresents,
@@ -21,7 +22,7 @@ static FuncV *const kInitAndMainLoop_GameModePtrs[42] = {
     &GameMode0E_ShowOverworld,
     &GameModeXX_FadeInOrOut_MosaicFade,
     &GameMode10_BufferLevelLoadMessage,
-    &GameMode11_LoadSublevel_SA1Pack_OptimizeThisRoutine1,
+    &GameMode11_LoadSublevel_0096D5,
     &GameMode12_PrepareLevel,
     &GameModeXX_FadeInOrOut_MosaicFade,
     &GameMode14_InLevel,
@@ -47,7 +48,9 @@ static FuncV *const kInitAndMainLoop_GameModePtrs[42] = {
     &GameMode28_ShowTheEnd,
     &GameMode29_DoNothingOnTheEndScreen,
 };
-static FuncV *const kGenerateTile_TileGenerationPtr[27] = {
+
+typedef void TileGenFunc(GenTileArgs *gta);
+static TileGenFunc *const kGenerateTile_TileGenerationPtr[27] = {
     &sub_C074,
     &sub_C077,
     &sub_C077,
@@ -93,15 +96,216 @@ static FuncV *const kGameMode14_InLevel_PlayerStatePtrs[14] = {
     &GameMode14_InLevel_Return00C592,
 };
 
-void Vector_Reset() {
-  WriteReg(NMITIMEN, 0);
-  WriteReg(HDMAEN, 0);
-  WriteReg(MDMAEN, 0);
-  WriteReg(APUI00, 0);
-  WriteReg(APUI01, 0);
-  WriteReg(APUI02, 0);
-  WriteReg(APUI03, 0);
-  WriteReg(INIDISP, 0x80);
+static const uint8 kCompressOAMTileSizeBuffer_DATA_008475[31] = { 0x0, 0x0, 0x8, 0x0, 0x10, 0x0, 0x18, 0x0, 0x20, 0x0, 0x28, 0x0, 0x30, 0x0, 0x38, 0x0, 0x40, 0x0, 0x48, 0x0, 0x50, 0x0, 0x58, 0x0, 0x60, 0x0, 0x68, 0x0, 0x70, 0x0, 0x78,  };
+static const uint16 kManipulateMode7Image_DATA_008AB4[4] = { 0x0, 0xfe, 0x0, 0xfe,  };
+static const uint16 kManipulateMode7Image_DATA_008ABC[4] = { 0x0, 0x2, 0x0, 0x2,  };
+static const uint16 kManipulateMode7Image_DATA_008B57[149] = { 0x0, 0x3, 0x6, 0x9, 0xc, 0xf, 0x12, 0x15, 0x19, 0x1c, 0x1f, 0x22, 0x25, 0x28, 0x2b, 0x2e, 0x31, 0x35, 0x38, 0x3b, 0x3e, 0x41, 0x44, 0x47, 0x4a, 0x4d, 0x50, 0x53, 0x56, 0x59, 0x5c, 0x5f, 0x61, 0x64, 0x67, 0x6a, 0x6d, 0x70, 0x73, 0x75, 0x78, 0x7b, 0x7e, 0x80, 0x83, 0x86, 0x88, 0x8b, 0x8e, 0x90, 0x93, 0x95, 0x98, 0x9b, 0x9d, 0x9f, 0xa2, 0xa4, 0xa7, 0xa9, 0xab, 0xae, 0xb0, 0xb2, 0xb5, 0xb7, 0xb9, 0xbb, 0xbd, 0xbf, 0xc1, 0xc3, 0xc5, 0xc7, 0xc9, 0xcb, 0xcd, 0xcf, 0xd1, 0xd3, 0xd4, 0xd6, 0xd8, 0xd9, 0xdb, 0xdd, 0xde, 0xe0, 0xe1, 0xe3, 0xe4, 0xe6, 0xe7, 0xe8, 0xea, 0xeb, 0xec, 0xed, 0xee, 0xef, 0xf1, 0xf2, 0xf3, 0xf4, 0xf4, 0xf5, 0xf6, 0xf7, 0xf8, 0xf9, 0xf9, 0xfa, 0xfb, 0xfb, 0xfc, 0xfc, 0xfd, 0xfd, 0xfe, 0xfe, 0xfe, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x100, 0x3cb7, 0xbcb7, 0x3cb8, 0x3cb9, 0x3cba, 0x3cbb, 0x3cba, 0xbcba, 0x3cbc, 0x3cbd, 0x3cbe, 0x3cbf, 0x3cc0, 0xbcb7, 0x3cc1, 0x3cb9, 0x3cc2, 0xbcc2, 0x3cb7, 0xfcc0,  };
+static const uint8 kStatusBarTilemap_SecondRow[118] = { 0x30, 0x28, 0x31, 0x28, 0x32, 0x28, 0x33, 0x28, 0x34, 0x28, 0xfc, 0x38, 0xfc, 0x3c, 0xfc, 0x3c, 0xfc, 0x3c, 0xfc, 0x3c, 0xfc, 0x38, 0xfc, 0x38, 0x4a, 0x38, 0xfc, 0x38, 0xfc, 0x38, 0x4a, 0x78, 0xfc, 0x38, 0x3d, 0x3c, 0x3e, 0x3c, 0x3f, 0x3c, 0xfc, 0x38, 0xfc, 0x38, 0xfc, 0x38, 0x2e, 0x3c, 0x26, 0x38, 0xfc, 0x38, 0xfc, 0x38, 0x0, 0x38, 0x26, 0x38, 0xfc, 0x38, 0x0, 0x38, 0xfc, 0x38, 0xfc, 0x38, 0xfc, 0x38, 0x64, 0x28, 0x26, 0x38, 0xfc, 0x38, 0xfc, 0x38, 0xfc, 0x38, 0x4a, 0x38, 0xfc, 0x38, 0xfc, 0x38, 0x4a, 0x78, 0xfc, 0x38, 0xfe, 0x3c, 0xfe, 0x3c, 0x0, 0x3c, 0xfc, 0x38, 0xfc, 0x38, 0xfc, 0x38, 0xfc, 0x38, 0xfc, 0x38, 0xfc, 0x38, 0xfc, 0x38, 0x0, 0x38, 0x3a, 0xb8, 0x3b, 0xb8, 0x3b, 0xb8, 0x3a, 0xf8,  };
+static const uint8 kUpdateStatusBarCounters_DATA_008DF5[5] = { 0x40, 0x41, 0x42, 0x43, 0x44,  };
+static const uint8 kUpdateStatusBarCounters_ItemBoxItemTile[4] = { 0x24, 0x26, 0x48, 0xe,  };
+static const uint8 kUpdateStatusBarCounters_StarPaletteFrames[4] = { 0x0, 0x2, 0x4, 0x2,  };
+static const uint8 kUpdateStatusBarCounters_ItemBoxItemProperties[4] = { 0x8, 0xa, 0x0, 0x4,  };
+static const uint8 kUpdateStatusBarCounters_BonusStarCounterNumberTiles[20] = { 0xb7, 0xc3, 0xb8, 0xb9, 0xba, 0xbb, 0xba, 0xbf, 0xbc, 0xbd, 0xbe, 0xbf, 0xc0, 0xc3, 0xc1, 0xb9, 0xc2, 0xc4, 0xb7, 0xc5,  };
+static const uint16 kUpdateStatusBarCounters_DATA_008FFA[12] = { 0x1, 0x86a0, 0x0, 0x2710, 0x0, 0x3e8, 0x0, 0x64, 0x0, 0xa, 0x0, 0x1,  };
+
+static const uint8 kGameMode00_LoadNintendoPresents_XDisp[4] = { 0x60, 0x70, 0x80, 0x90,  };
+static const uint8 kGameMode00_LoadNintendoPresents_Tiles[4] = { 0x2, 0x4, 0x6, 0x8,  };
+const uint8 kGameMode19_Cutscene_SkyColorSetting[8] = { 0x2, 0x0, 0x4, 0x1, 0x0, 0x6, 0x4, 0x3,  };
+static const uint8 kGameMode19_Cutscene_BGPaletteSetting[8] = { 0x6, 0x5, 0x6, 0x3, 0x3, 0x6, 0x6, 0x3,  };
+static const uint8 kGameMode19_Cutscene_BGToUse[7] = { 0xff, 0xff, 0xc9, 0xf, 0xff, 0xcc, 0xc9,  };
+static const uint16 kUploadMode7KoopaBossesAndLavaAnimation_VRAMAddressToUpload[12] = { 0x129e, 0x121e, 0x119e, 0x111e, 0x161e, 0x159e, 0x151e, 0x149e, 0x141e, 0x139e, 0x131e, 0x169e,  };
+static const uint8 kHandleMenuCursor_DATA_009AC8[3] = { 0x1, 0xff, 0xff,  };
+static const uint8 kGameMode09_EraseFile_DATA_009B17[3] = { 0x4, 0x2, 0x1,  };
+// todo: oob
+static const uint8 kGameMode07_TitleScreenDemo_ItrCntrlrSqnc[70] = { 0x41, 0xf, 0xc1, 0x30, 0x0, 0x10, 0x42, 0x20, 0x41, 0x70, 0x81, 0x11, 0x0, 0x80, 0x82, 0xc, 0x0, 0x30, 0xc1, 0x30, 0x41, 0x60, 0xc1, 0x10, 0x0, 0x40, 0x1, 0x30, 0xe1, 0x1, 0x0, 0x60, 0x41, 0x4e, 0x80, 0x10, 0x0, 0x30, 0x41, 0x58, 0x0, 0x20, 0x60, 0x1, 0x0, 0x30, 0x60, 0x1, 0x0, 0x30, 0x60, 0x1, 0x0, 0x30, 0x60, 0x1, 0x0, 0x30, 0x60, 0x1, 0x0, 0x30, 0x41, 0x1a, 0xc1, 0x30, 0x0, 0x30, 0xff, 0x20 };
+static const uint8 kSaveFileLocations_Hi[3] = { 0x0, 0x0, 0x1,  };
+static const uint8 kSaveFileLocations_Lo[3] = { 0x0, 0x8f, 0x1e,  };
+static const uint16 kHandleMenuCursor_DATA_009E6A[5] = { 0x2, 0x4, 0x2, 0x2, 0x4,  };
+static const uint16 kHandleMenuCursor_DATA_009E74[5] = { 0x51cb, 0x51e8, 0x5208, 0x51c4, 0x51e5,  };
+static const uint8 kHandleMenuCursor_DATA_009E7E[4] = { 0x1, 0x2, 0x4, 0x8,  };
+static const uint16 kInitializeSaveData_InitialLevelFlags[8] = { 0x328, 0x14d, 0x152, 0x153, 0x85b, 0x25c, 0x457, 0x130,  };
+const uint8 kGameModeXX_FadeInOrOut_DATA_009F2F[2] = { 0x1, 0xff,  };
+const uint8 kGameModeXX_FadeInOrOut_DATA_009F31[2] = { 0xf0, 0x10,  };
+const uint8 kGameModeXX_FadeInOrOut_DATA_009F33[2] = { 0xf, 0x0,  };
+static const uint8 kInitializeLevelLayer3_DATA_009F88[48] = { 0x1, 0x2, 0xc0, 0x1, 0x80, 0x81, 0x1, 0x2, 0xc0, 0x1, 0x2, 0x81, 0x1, 0x2, 0x80, 0x1, 0x2, 0x81, 0x1, 0x2, 0x81, 0x1, 0x2, 0xc0, 0x1, 0x2, 0xc0, 0x1, 0x2, 0x81, 0x1, 0x2, 0x80, 0x1, 0x2, 0x80, 0x1, 0x2, 0x80, 0x1, 0x2, 0x81, 0x1, 0x2, 0x81, 0x1, 0x2, 0x80,  };
+static const uint16 kGameMode0C_LoadOverworld_DATA_00A06B[7] = { 0x0, 0xffef, 0xffef, 0xffef, 0xf0, 0xf0, 0xf0,  };
+static const uint16 kGameMode0C_LoadOverworld_DATA_00A079[7] = { 0x0, 0xffd8, 0x80, 0x128, 0xffd8, 0x80, 0x128,  };
+static const uint8 kGameMode14_InLevel_GrndShakeDispYLo[4] = { 0xfe, 0x0, 0x2, 0x0,  };
+static const uint8 kGameMode14_InLevel_GrndShakeDispYHi[4] = { 0xff, 0x0, 0x0, 0x0,  };
+static const uint8 kUploadOverworldLayer1And2Tilemaps_DATA_00A521[4] = { 0x0, 0x4, 0x8, 0xc,  };
+static const uint8 kUploadOverworldLayer1And2Tilemaps_DATA_00A525[4] = { 0x0, 0x8, 0x10, 0x18,  };
+static const uint8 kInitializeLevelRAM_DATA_00A60D[4] = { 0x0, 0x1, 0x1, 0x1,  };
+static const uint16 kInitializeLevelRAM_DATA_00A611[4] = { 0xd, 0xfff3, 0xfffe, 0xfffe,  };
+static const uint16 kInitializeLevelRAM_DATA_00A619[4] = { 0x0, 0x0, 0xa, 0  };
+static const uint8 kInitializeLevelRAM_DATA_00A621[4] = { 0x1A,0x1A, 0xA, 0xA,  };
+static const uint8 kInitializeLevelRAM_DATA_00A625[16] = { 0x0, 0x80, 0x40, 0x0, 0x1, 0x2, 0x40, 0x0, 0x40, 0x0, 0x0, 0x0, 0x0, 0x2, 0x0, 0x0,  };
+static const uint8 kUploadGraphicsFiles_SpriteGFXList[104] = {
+  0x0, 0x1, 0x13, 0x2,
+  0x0, 0x1, 0x12, 0x3,
+  0x0, 0x1, 0x13, 0x5,
+  0x0, 0x1, 0x13, 0x4,
+  0x0, 0x1, 0x13, 0x6,
+  0x0, 0x1, 0x13, 0x9,
+  0x0, 0x1, 0x13, 0x4, 0x0, 0x1, 0x6, 0x11, 0x0, 0x1, 0x13, 0x20, 0x0, 0x1, 0x13, 0xf, 0x0, 0x1, 0x13, 0x23, 0x0, 0x1, 0xd, 0x14, 0x0, 0x1, 0x24, 0xe, 0x0, 0x1, 0xa, 0x22, 0x0, 0x1, 0x13, 0xe, 0x0, 0x1, 0x13, 0x14, 0x0, 0x0, 0x0, 0x8, 0x10, 0xf, 0x1c, 0x1d, 0x0, 0x1, 0x24, 0x22, 0x0, 0x1, 0x25, 0x22, 0x0, 0x22, 0x13, 0x2d, 0x0, 0x1, 0xf, 0x22, 0x0, 0x26, 0x2e, 0x22, 0x21, 0xb, 0x25, 0xa, 0x0, 0xd, 0x24, 0x22, 0x2c, 0x30, 0x2d, 0xe,  };
+static const uint8 kUploadGraphicsFiles_FGAndBGGFXList[104] = { 0x14, 0x17, 0x19, 0x15, 0x14, 0x17, 0x1b, 0x18, 0x14, 0x17, 0x1b, 0x16, 0x14, 0x17, 0xc, 0x1a, 0x14, 0x17, 0x1b, 0x8, 0x14, 0x17, 0xc, 0x7, 0x14, 0x17, 0xc, 0x16, 0x14, 0x17, 0x1b, 0x15, 0x14, 0x17, 0x19, 0x16, 0x14, 0x17, 0xd, 0x1a, 0x14, 0x17, 0x1b, 0x8, 0x14, 0x17, 0x1b, 0x18, 0x14, 0x17, 0x19, 0x1f, 0x14, 0x17, 0xd, 0x7, 0x14, 0x17, 0x19, 0x1a, 0x14, 0x17, 0x14, 0x14, 0xe, 0xf, 0x17, 0x17, 0x1c, 0x1d, 0x8, 0x1e, 0x1c, 0x1d, 0x8, 0x1e, 0x1c, 0x1d, 0x8, 0x1e, 0x1c, 0x1d, 0x8, 0x1e, 0x1c, 0x1d, 0x8, 0x1e, 0x1c, 0x1d, 0x8, 0x1e, 0x1c, 0x1d, 0x8, 0x1e, 0x14, 0x17, 0x19, 0x2c, 0x19, 0x17, 0x1b, 0x18,  };
+static const uint8 kUploadGraphicsFiles_DATA_00A9D2[4] = { 0x78, 0x70, 0x68, 0x60,  };
+static const uint8 kBufferPalettesRoutines_DATA_00ABD3[12] = { 0x0, 0x18, 0x30, 0x48, 0x60, 0x78, 0x90, 0xa8, 0x0, 0x14, 0x28, 0x3c,  };
+static const uint8 kBufferPalettesRoutines_DATA_00AD1E[7] = { 0x1, 0x0, 0x3, 0x4, 0x3, 0x5, 0x2,  };
+static const uint8 kUpdatePaletteFromIndexedTable_DATA_00AE41[3] = { 0x0, 0x5, 0xa,  };
+static const uint8 kUpdatePaletteFromIndexedTable_DATA_00AE44[3] = { 0x20, 0x40, 0x80,  };
+static const uint16 kHandlePaletteFades_DATA_00AE65[3] = { 0x1f, 0x3e0, 0x7c00,  };
+static const uint16 kHandlePaletteFades_DATA_00AE6B[3] = { 0xffff, 0xffe0, 0xfc00,  };
+static const uint16 kHandlePaletteFades_DATA_00AE71[3] = { 0x1, 0x20, 0x400,  };
+static const uint16 kHandlePaletteFades_DATA_00AE77[64] = { 0x0, 0x0, 0x1, 0x0, 0x8000, 0x8000, 0x8020, 0x400, 0x8080, 0x8080, 0x8208, 0x1040, 0x8420, 0x8420, 0x8844, 0x2210, 0x8888, 0x8888, 0x9122, 0x4488, 0x9248, 0x9248, 0xa492, 0x4924, 0xa4a4, 0xa4a4, 0xa949, 0x5294, 0xaaaa, 0x5294, 0xaaaa, 0x5554, 0xaaaa, 0xaaaa, 0xd5aa, 0xaaaa, 0xd5aa, 0xd5aa, 0xd6b5, 0xad6a, 0xdada, 0xdada, 0xdb6d, 0xb6da, 0xedb6, 0xedb6, 0xeedd, 0xbb76, 0xeeee, 0xeeee, 0xf7bb, 0xddee, 0xfbde, 0xfbde, 0xfdf7, 0xefbe, 0xfefe, 0xfefe, 0xffdf, 0xfbfe, 0xfffe, 0xfffe, 0xffff, 0xfffe,  };
+static const uint16 kHandlePaletteFades_DATA_00AEF7[16] = { 0x8000, 0x4000, 0x2000, 0x1000, 0x800, 0x400, 0x200, 0x100, 0x80, 0x40, 0x20, 0x10, 0x8, 0x4, 0x2, 0x1,  };
+static const uint16 kGlobalPalettes_BowserEnd[6] = { 0x0, 0x63fb, 0x30c, 0x20b, 0x1535, 0x1a5f,  };
+static const uint16 kGlobalPalettes_B3CC[6] = { 0x0, 0x3434, 0x443a, 0x659f, 0x116, 0x27f,  };
+static const uint16 kGlobalPalettes_EndingLuigi[6] = { 0x44c4, 0x320, 0x4adf, 0x200, 0x13b, 0x4e08,  };
+static const uint16 kGlobalPalettes_EndingMario[6] = { 0x44c4, 0x391f, 0x4adf, 0x2874, 0x13f, 0x4e08,  };
+static const uint16 kGlobalPalettes_EndingToadstool[6] = { 0x28d2, 0x551e, 0x635f, 0x7b1f, 0x1fb, 0x2de,  };
+static const uint16 kSetItemMemoryBit_DATA_00BFFF[3] = { 0x0, 0x80, 0x100,  };
+static const uint8 kSetItemMemoryBit_DATA_00C005[8] = { 0x80, 0x40, 0x20, 0x10, 0x8, 0x4, 0x2, 0x1,  };
+static const uint8 kGenericPage00Tile_Map16Page00TileLo[9] = { 0x25, 0x25, 0x25, 0x6, 0x49, 0x48, 0x2b, 0xa2, 0xc6,  };
+static const uint8 kGenericPage01Tile_Map16Page01TileLo[15] = { 0x52, 0x1b, 0x23, 0x1e, 0x32, 0x13, 0x15, 0x16, 0x2b, 0x2c, 0x12, 0x68, 0x69, 0x32, 0x5e,  };
+static const uint8 kGameMode14_InLevel_DATA_00C470[4] = { 0x90, 0x0, 0x90, 0x0,  };
+static const uint8 kGameMode14_InLevel_DATA_00C474[4] = { 0x4, 0xfc, 0x4, 0xfc,  };
+static const uint8 kGameMode14_InLevel_DATA_00C478[6] = { 0x30, 0x33, 0x33, 0x30, 0x1, 0x0,  };
+static const uint8 kPlayerState0C_CastleDestructionMoves_DATA_00C5E1[9] = { 0x10, 0x30, 0x31, 0x32, 0x33, 0x34, 0xe, 0x26, 0x11};
+static const uint8 kPlayerState0C_CastleDestructionMoves_CastleDestructionMovementData[247] = { 0x26, 0x11, 0x2, 0x48, 0x0, 0x60, 0x1, 0x9, 0x80, 0x8, 0x0, 0x20, 0x4, 0x60, 0x0, 0x1, 0xff, 0x1, 0x2, 0x48, 0x0, 0x60, 0x41, 0x2c, 0xc1, 0x4, 0x27, 0x4, 0x2f, 0x8, 0x25, 0x1, 0x2f, 0x4, 0x27, 0x4, 0x0, 0x8, 0x41, 0x1b, 0xc1, 0x4, 0x27, 0x4, 0x2f, 0x8, 0x25, 0x1, 0x2f, 0x4, 0x27, 0x4, 0x0, 0x4, 0x1, 0x8, 0x20, 0x1, 0x1, 0x10, 0x0, 0x8, 0x41, 0x12, 0x81, 0xa, 0x0, 0x40, 0x82, 0x10, 0x2, 0x20, 0x0, 0x30, 0x1, 0x1, 0x0, 0x50, 0x22, 0x1, 0xff, 0x1, 0x2, 0x48, 0x0, 0x60, 0x1, 0x9, 0x80, 0x8, 0x0, 0x20, 0x4, 0x60, 0x0, 0x20, 0x10, 0x20, 0x1, 0x58, 0x0, 0x2c, 0x31, 0x1, 0x3a, 0x10, 0x31, 0x1, 0x3a, 0x10, 0x31, 0x1, 0x3a, 0x20, 0x28, 0xa0, 0x28, 0x40, 0x29, 0x4, 0x28, 0x4, 0x29, 0x4, 0x28, 0x4, 0x29, 0x4, 0x28, 0x40, 0x22, 0x1, 0xff, 0x1, 0x2, 0x48, 0x0, 0x60, 0x1, 0x9, 0x80, 0x8, 0x0, 0x20, 0x4, 0x60, 0x10, 0x20, 0x31, 0x1, 0x18, 0x60, 0x31, 0x1, 0x3b, 0x80, 0x31, 0x1, 0x3c, 0x40, 0xff, 0x1, 0x2, 0x48, 0x0, 0x60, 0x2, 0x30, 0x1, 0x84, 0x0, 0x20, 0x23, 0x1, 0x1, 0x16, 0x2, 0x20, 0x20, 0x1, 0x1, 0x20, 0x2, 0x20, 0x1, 0x2, 0x0, 0x80, 0xff, 0x1, 0x2, 0x48, 0x0, 0x60, 0x2, 0x28, 0x1, 0x83, 0x0, 0x28, 0x24, 0x1, 0x2, 0x1, 0x0, 0xff, 0x0, 0x40, 0x20, 0x1, 0x0, 0x40, 0x2, 0x60, 0x0, 0x30, 0xff, 0x1, 0x2, 0x48, 0x0, 0x60, 0x1, 0x4e, 0x0, 0x40, 0x26, 0x1, 0x0, 0x1e, 0x20, 0x1, 0x0, 0x20, 0x8, 0x10, 0x20, 0x1, 0x2d, 0x18, 0x0, 0xa0, 0x20, 0x1, 0x2e, 0x1, 0xff,  };
+static const uint8 kPlayerState0C_CastleDestructionMoves_DATA_00C5E9[16] = { 0x11, 0x2, 0x48, 0x0, 0x60, 0x1, 0x9, 0x80, 0x8, 0x0, 0x20, 0x4, 0x60, 0x0, 0x1, 0xff,  };
+static const uint8 kPlayerState0C_CastleDestructionMoves_UNK_00C6DF[8] = { 0x1, 0x0, 0x10, 0xa0, 0x84, 0x50, 0xbc, 0xd8,  };
+static const uint16 kPlayerState08_WarpToYoshiWingsBonus_DATA_00C7F9[2] = { 0xffc0, 0xa0,  };
+// todo: oob read
+static const uint8 kPlayerState0A_NoYoshiCutscene_DATA_00C848[41] = { 0x1, 0x5f, 0x0, 0x30, 0x8, 0x30, 0x0, 0x20, 0x40, 0x1, 0x0, 0x30, 0x1, 0x80, 0xff, 0x1, 0x3f, 0x0, 0x30, 0x20, 0x1, 0x80, 0x6, 0x0, 0x3a, 0x1, 0x38, 0x0, 0x30, 0x8, 0x30, 0x0, 0x20, 0x40, 0x1, 0x0, 0x30, 0x1, 0x80, 0xff, 0x9c };
+static const uint8 kPlayerState00_FreeMovementDebugPlayerSpeed[12] = { 0x0, 0x0, 0x0, 0x0, 0x2, 0x0, 0x6, 0x0, 0xfe, 0xff, 0xfa, 0xff,  };
+static const uint8 kPlayerState_OnYoshiAnimations[4] = { 0x20, 0x21, 0x27, 0x28,  };
+static const uint8 kSetPlayerPose_DATA_00CE79[6] = { 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f,  };
+static const uint8 kSetPlayerPose_DATA_00CE7F[26] = { 0x2c, 0x2c, 0x2c, 0x2b, 0x2b, 0x2c, 0x2c, 0x2b, 0x2b, 0x2c, 0x2d, 0x2a, 0x2a, 0x2d, 0x2d, 0x2a, 0x2a, 0x2d, 0x2d, 0x2a, 0x2a, 0x2d, 0x2e, 0x2a, 0x2a, 0x2e,  };
+static const uint8 kSetPlayerPose_DATA_00CE99[8] = { 0x0, 0x0, 0x25, 0x44, 0x0, 0x0, 0xf, 0x45,  };
+static const uint8 kSetPlayerPose_DATA_00CEA1[8] = { 0x0, 0x0, 0x0, 0x0, 0x1, 0x1, 0x1, 0x1,  };
+static const uint8 kSetPlayerPose_DATA_00CEA9[8] = { 0x2, 0x7, 0x6, 0x9, 0x2, 0x7, 0x6, 0x9,  };
+static const uint16 kInitializeCapeSwingOrNetPunch_DATA_00D034[4] = { 0xc, 0xfff4, 0x8, 0xfff8,  };
+static const uint16 kInitializeCapeSwingOrNetPunch_DATA_00D03C[4] = { 0x10, 0x10, 0x2, 0x2,  };
+static const uint8 kPlayerStateXX_PowerupAnims_GrowingAniImgs[12] = { 0x0, 0x3d, 0x0, 0x3d, 0x0, 0x3d, 0x46, 0x3d, 0x46, 0x3d, 0x46, 0x3d,  };
+static const uint8 kPlayerStateXX_EnterPipe_PipeXSpeed[2] = { 0xf8, 0x8,  };
+static const uint8 kPlayerStateXX_EnterPipe_PipeYSpeed[4] = { 0x0, 0x0, 0xf0, 0x10,  };
+static const uint8 kPlayerStateXX_EnterPipe_HIDEPIPESETS[4] = { 0x0, 0x63, 0x1c, 0x0,  };
+static const uint8 kPlayerStateXX_EnterPipe_PipeCntrBoundryX[2] = { 0xa, 0x6,  };
+static const uint8 kPlayerStateXX_EnterPipe_PipeCntringSpeed[2] = { 0xff, 0x1,  };
+static const uint8 kHandlePlayerPhysics_JumpHeightTable[16] = { 0xb0, 0xb6, 0xae, 0xb4, 0xab, 0xb2, 0xa9, 0xb0, 0xa6, 0xae, 0xa4, 0xab, 0xa1, 0xa9, 0x9f, 0xa6,  };
+static const uint16 kHandlePlayerPhysics_DATA_00D2CD[30] = { 0xff00, 0x100, 0xff00, 0x100, 0xff00, 0x100, 0xfe80, 0xc0, 0xff40, 0x180, 0xfe00, 0x40, 0xffc0, 0x200, 0xfe00, 0x40, 0xfe00, 0x40, 0xffc0, 0x200, 0xffc0, 0x200, 0xfc00, 0xff00, 0x100, 0x400, 0xff00, 0x100, 0xff00, 0x100,  };
+static const uint16 kHandlePlayerPhysics_DATA_00D309[30] = { 0xffe0, 0x20, 0xffe0, 0x20, 0xffe0, 0x20, 0xffc0, 0x20, 0xffe0, 0x40, 0xff80, 0x20, 0xffe0, 0x80, 0xff80, 0x20, 0xff80, 0x20, 0xffe0, 0x80, 0xffe0, 0x80, 0xfe00, 0xff80, 0x80, 0x200, 0xff00, 0x100, 0xff00, 0x100,  };
+static const uint16 kHandlePlayerPhysics_MarioAccel[124] = { 0xfe80, 0xfe80, 0x180, 0x180, 0xfe80, 0xfe80, 0x180, 0x180, 0xfe80, 0xfe80, 0x180, 0x180, 0xfe80, 0xfe80, 0x140, 0x140, 0xfec0, 0xfec0, 0x180, 0x180, 0xfe80, 0xfe80, 0x100, 0x100, 0xff00, 0xff00, 0x180, 0x180, 0xfe80, 0xfe80, 0x100, 0x100, 0xfe80, 0xfe80, 0x100, 0x100, 0xff00, 0xff00, 0x180, 0x180, 0xff00, 0xff00, 0x180, 0x180, 0xfc00, 0xfc00, 0xfd00, 0xfd00, 0x300, 0x300, 0x400, 0x400, 0xfc00, 0xfc00, 0x600, 0x600, 0xfa00, 0xfa00, 0x400, 0x400, 0xff80, 0x80, 0xff00, 0x100, 0xfe80, 0x180, 0xfe80, 0xfe80, 0x180, 0x180, 0xfe80, 0x280, 0xfd80, 0xfb00, 0x280, 0x500, 0xfd80, 0xfb00, 0x280, 0x500, 0xfd80, 0xfb00, 0x280, 0x500, 0xfd40, 0xfa80, 0x240, 0x480, 0xfdc0, 0xfb80, 0x2c0, 0x580, 0xfd00, 0xfa00, 0x200, 0x400, 0xfe00, 0xfc00, 0x300, 0x600, 0xfd00, 0xfa00, 0x200, 0x400, 0xfd00, 0xfa00, 0x200, 0x400, 0xfe00, 0xfc00, 0x300, 0x600, 0xfe00, 0xfc00, 0x300, 0x600, 0xfd00, 0xfa00, 0xfd00, 0xfa00, 0x300, 0x600, 0x300, 0x600,  };
+static const uint16 kHandlePlayerPhysics_DATA_00D43D[124] = { 0xff80, 0xfe80, 0x80, 0x180, 0xff80, 0xfe80, 0x80, 0x180, 0xff80, 0xfe80, 0x80, 0x180, 0xfe80, 0xfe80, 0x80, 0x140, 0xff80, 0xfec0, 0x180, 0x180, 0xfe80, 0xfe80, 0x80, 0x100, 0xff80, 0xff00, 0x180, 0x180, 0xfe80, 0xfe80, 0x80, 0x100, 0xfe80, 0xfe80, 0x80, 0x100, 0xff80, 0xff00, 0x180, 0x180, 0xff80, 0xff00, 0x180, 0x180, 0xfc00, 0xfc00, 0xfe00, 0xfd00, 0x300, 0x300, 0x400, 0x400, 0xfc00, 0xfc00, 0x80, 0x80, 0xff80, 0xff80, 0x400, 0x400, 0xff80, 0x80, 0xff00, 0x100, 0xfe80, 0x180, 0xfe80, 0xfe80, 0x180, 0x180, 0xfe80, 0x280, 0xffc0, 0xfd80, 0x40, 0x280, 0xffc0, 0xfd80, 0x40, 0x280, 0xffc0, 0xfd80, 0x40, 0x280, 0xff80, 0xfd40, 0x40, 0x240, 0xffc0, 0xfdc0, 0x80, 0x2c0, 0xfd00, 0xfd00, 0x40, 0x200, 0xffc0, 0xfe00, 0x300, 0x300, 0xfd00, 0xfd00, 0x40, 0x200, 0xfd00, 0xfd00, 0x40, 0x200, 0xffc0, 0xfe00, 0x300, 0x300, 0xffc0, 0xfe00, 0x300, 0x300, 0xfd00, 0xfd00, 0xfd00, 0xfd00, 0x300, 0x300, 0x300, 0x300,  };
+static const uint8 kHandlePlayerPhysics_DATA_00D535[148] = { 0xec, 0x14, 0xdc, 0x24, 0xdc, 0x24, 0xd0, 0x30, 0xec, 0x14, 0xdc, 0x24, 0xdc, 0x24, 0xd0, 0x30, 0xec, 0x14, 0xdc, 0x24, 0xdc, 0x24, 0xd0, 0x30, 0xe8, 0x12, 0xdc, 0x20, 0xdc, 0x20, 0xd0, 0x2c, 0xee, 0x18, 0xe0, 0x24, 0xe0, 0x24, 0xd4, 0x30, 0xdc, 0x10, 0xdc, 0x1c, 0xdc, 0x1c, 0xd0, 0x28, 0xf0, 0x24, 0xe4, 0x24, 0xe4, 0x24, 0xd8, 0x30, 0xdc, 0x10, 0xdc, 0x1c, 0xdc, 0x1c, 0xd0, 0x28, 0xdc, 0x10, 0xdc, 0x1c, 0xdc, 0x1c, 0xd0, 0x28, 0xf0, 0x24, 0xe4, 0x24, 0xe4, 0x24, 0xd8, 0x30, 0xf0, 0x24, 0xe4, 0x24, 0xe4, 0x24, 0xd8, 0x30, 0xdc, 0xf0, 0xdc, 0xf8, 0xdc, 0xf8, 0xd0, 0xfc, 0x10, 0x24, 0x8, 0x24, 0x8, 0x24, 0x4, 0x30, 0xd0, 0x8, 0xd0, 0x8, 0xd0, 0x8, 0xd0, 0x8, 0xf8, 0x30, 0xf8, 0x30, 0xf8, 0x30, 0xf8, 0x30, 0xf8, 0x8, 0xf0, 0x10, 0xf4, 0x4, 0xe8, 0x8, 0xf0, 0x10, 0xe0, 0x20, 0xec, 0xc, 0xd8, 0x18, 0xd8, 0x28, 0xd4, 0x2c, 0xd0, 0x30, 0xd0, 0xd0, 0x30, 0x30, 0xe0, 0x20,  };
+static const uint16 kHandlePlayerPhysics_DATA_00D5C9[17] = { 0x0, 0x0, 0x0, 0x0, 0x0, 0xf000, 0x1000, 0x0, 0x0, 0x0, 0x0, 0xe000, 0x2000, 0x0, 0x0, 0xf000, 0xf800,  };
+static const uint8 kHandlePlayerPhysics_DATA_00D5EB[3] = { 0xff, 0xff, 0x2,  };
+static const uint8 kHandlePlayerPhysics_DATA_00D5EE[2] = { 0x68, 0x70,  };
+static const uint8 kHandlePlayerPhysics_DATA_00D5F0[2] = { 0x1c, 0xc,  };
+static const uint8 kHandlePlayerPhysics_DATA_00D7A5[10] = { 0x6, 0x3, 0x4, 0x10, 0xf4, 0x1, 0x3, 0x4, 0x5, 0x6,  };
+static const uint8 kHandlePlayerPhysics_DATA_00D7AF[10] = { 0x40, 0x40, 0x20, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,  };
+static const uint8 kHandlePlayerPhysics_DATA_00D7B9[15] = { 0x10, 0xc8, 0xe0, 0x2, 0x3, 0x3, 0x4, 0x3, 0x2, 0x0, 0x1, 0x0, 0x0, 0x0, 0x0,  };
+static const uint8 kHandlePlayerPhysics_DATA_00D7C8[7] = { 0x1, 0x10, 0x30, 0x30, 0x38, 0x38, 0x40,  };
+static const uint8 kHandlePlayerPhysics_CapeSpeed[5] = { 0xff, 0x1, 0x1, 0xff, 0xff,  };
+static const uint8 kHandlePlayerPhysics_DATA_00D7D4[5] = { 0x1, 0x6, 0x3, 0x1, 0x0,  };
+static const uint8 kHandlePlayerPhysics_DATA_00D7D9[11] = { 0x0, 0x0, 0x0, 0xf8, 0xf8, 0xf8, 0xf4, 0xf0, 0xc8, 0x2, 0x1,  };
+static const uint8 kHandlePlayerPhysics_SwimPoses[4] = { 0x16, 0x1a, 0x1a, 0x18,  };
+static const uint8 kHandlePlayerPhysics_SwimYSpeed[4] = { 0xe8, 0xf8, 0xd0, 0xd0,  };
+static const uint8 kHandlePlayerPhysics_ClimbingSpeed[4] = { 0x10, 0x8, 0xf0, 0xf8,  };
+static const uint8 kHandlePlayerPhysics_JumpFromVineYSpeed[2] = { 0xb0, 0xf0,  };
+static const uint8 kHandlePlayerPhysics_DATA_00DABD[16] = { 0x0, 0x1, 0x0, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1,  };
+static const uint8 kHandlePlayerPhysics_SwingOnNetDoorPoses[14] = { 0x22, 0x15, 0x22, 0x15, 0x21, 0x1f, 0x20, 0x20, 0x20, 0x20, 0x1f, 0x21, 0x1f, 0x21,  };
+static const uint8 kHandlePlayerPhysics_ClimbingPoses[2] = { 0x15, 0x22,  };
+static const uint8 kHandlePlayerPhysics_NetPunchingPoses[2] = { 0x1e, 0x23,  };
+static const uint8 kHandlePlayerPhysics_DATA_00DADF[18] = { 0x10, 0xf, 0xe, 0xd, 0xc, 0xb, 0xa, 0x9, 0x8, 0x7, 0x6, 0x5, 0x5, 0x5, 0x5, 0x5, 0x5, 0x5,  };
+static const uint16 kHandlePlayerPhysics_DATA_00DAF1[18] = { 0x120, 0x140, 0x12a, 0x12a, 0x130, 0x133, 0x132, 0x134, 0x136, 0x138, 0x13a, 0x13b, 0x145, 0x145, 0x145, 0x145, 0x145, 0x145,  };
+static const uint8 kSetPlayerPose_AnimationSpeedTable[112] = { 0xa, 0x8, 0x6, 0x4, 0x3, 0x2, 0x1, 0x1, 0xa, 0x8, 0x6, 0x4, 0x3, 0x2, 0x1, 0x1, 0xa, 0x8, 0x6, 0x4, 0x3, 0x2, 0x1, 0x1, 0x8, 0x6, 0x4, 0x3, 0x2, 0x1, 0x1, 0x1, 0x8, 0x6, 0x4, 0x3, 0x2, 0x1, 0x1, 0x1, 0x5, 0x4, 0x3, 0x2, 0x1, 0x1, 0x1, 0x1, 0x5, 0x4, 0x3, 0x2, 0x1, 0x1, 0x1, 0x1, 0x5, 0x4, 0x3, 0x2, 0x1, 0x1, 0x1, 0x1, 0x5, 0x4, 0x3, 0x2, 0x1, 0x1, 0x1, 0x1, 0x5, 0x4, 0x3, 0x2, 0x1, 0x1, 0x1, 0x1, 0x5, 0x4, 0x3, 0x2, 0x1, 0x1, 0x1, 0x1, 0x4, 0x3, 0x2, 0x1, 0x1, 0x1, 0x1, 0x1, 0x4, 0x3, 0x2, 0x1, 0x1, 0x1, 0x1, 0x1, 0x2, 0x2, 0x2, 0x2, 0x2, 0x2, 0x2, 0x2,  };
+static const uint8 kPlayerGFXRt_PlayerXYDispIndexIndex[70] = { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x2, 0x4, 0x4, 0x4, 0xe, 0x8, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8, 0x0, 0x0, 0x0, 0x0, 0xc, 0x10, 0x12, 0x14, 0x16, 0x18, 0x1a, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x6, 0x0, 0x0, 0x0, 0x0, 0x0, 0xa, 0x0, 0x0,  };
+static const uint8 kPlayerGFXRt_PlayerXYDispIndex[28] = { 0x0, 0x8, 0x10, 0x14, 0x18, 0x1e, 0x24, 0x24, 0x28, 0x30, 0x38, 0x3e, 0x44, 0x4a, 0x50, 0x54, 0x58, 0x58, 0x5c, 0x60, 0x64, 0x68, 0x6c, 0x70, 0x74, 0x78, 0x7c, 0x80,  };
+static const uint16 kPlayerGFXRt_XDisp[114] = { 0x0, 0x0, 0x10, 0x10, 0x0, 0x0, 0xfff8, 0xfff8, 0xe, 0x6, 0xfff2, 0xfffa, 0x17, 0x7, 0xf, 0xffea, 0xfffa, 0xfffa, 0x0, 0x0, 0x0, 0x0, 0x10, 0x10, 0x0, 0x0, 0xfff8, 0xfff8, 0x0, 0xfff8, 0x8, 0x0, 0x8, 0xfff8, 0x0, 0x0, 0xfff8, 0x0, 0x0, 0x10, 0x2, 0x0, 0xfffe, 0x0, 0x0, 0x0, 0xfffc, 0x5, 0x4, 0xfffb, 0xfffb, 0x6, 0x5, 0xfffa, 0xfff9, 0x9, 0x7, 0xfff7, 0xfffd, 0xfffd, 0x3, 0x3, 0xffff, 0x7, 0x1, 0xfff9, 0xa, 0xfff6, 0x8, 0xfff8, 0x8, 0xfff8, 0x0, 0x4, 0xfffc, 0xfffe, 0x2, 0xb, 0xfff5, 0x14, 0xffec, 0xe, 0xfff3, 0x8, 0xfff8, 0xc, 0x14, 0xfffd, 0xfff4, 0xfff4, 0xb, 0xb, 0x3, 0x13, 0xfff5, 0x5, 0xfff5, 0x9, 0x1, 0x1, 0xfff7, 0x7, 0x7, 0x5, 0xd, 0xd, 0xfffb, 0xfffb, 0xfffb, 0xffff, 0xf, 0x1, 0xfff9, 0x0,  };
+static const uint16 kPlayerGFXRt_YDisp[114] = { 0x1, 0x11, 0x11, 0x19, 0x1, 0x11, 0x11, 0x19, 0xc, 0x14, 0xc, 0x14, 0x18, 0x18, 0x28, 0x18, 0x18, 0x28, 0x6, 0x16, 0x1, 0x11, 0x9, 0x11, 0x1, 0x11, 0x9, 0x11, 0x1, 0x11, 0x11, 0x1, 0x11, 0x11, 0x1, 0x11, 0x11, 0x1, 0x11, 0x11, 0x1, 0x11, 0x1, 0x11, 0x11, 0x5, 0x4, 0x14, 0x4, 0x14, 0xc, 0x14, 0xc, 0x14, 0x10, 0x10, 0x10, 0x10, 0x10, 0x0, 0x10, 0x0, 0x10, 0x0, 0x10, 0x0, 0xb, 0xb, 0x11, 0x11, 0xffff, 0xffff, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x15, 0x15, 0x25, 0x25, 0x4, 0x4, 0x4, 0x14, 0x14, 0x4, 0x14, 0x14, 0x4, 0x4, 0x14, 0x4, 0x4, 0x14, 0x0, 0x8, 0x0, 0x0, 0x8, 0x0, 0x0, 0x10, 0x18, 0x0, 0x10, 0x18, 0x0, 0x10, 0x0, 0x10, 0xfff8,  };
+static const uint8 kPlayerGFXRt_PowerupTilesetIndex[4] = { 0x0, 0x46, 0x83, 0x46,  };
+static const uint8 kPlayerGFXRt_Tiles[50] = { 0x0, 0x2, 0x80, 0x80, 0x0, 0x2, 0xc, 0x80, 0x0, 0x2, 0x1a, 0x1b, 0x0, 0x2, 0xd, 0x80, 0x0, 0x2, 0x22, 0x23, 0x0, 0x2, 0x32, 0x33, 0x0, 0x2, 0xa, 0xb, 0x0, 0x2, 0x30, 0x31, 0x0, 0x2, 0x20, 0x21, 0x0, 0x2, 0x7e, 0x80, 0x0, 0x2, 0x2, 0x80, 0x4, 0x7f, 0x4a, 0x5b, 0x4B, 0x5A };
+static const uint8 kPlayerGFXRt_TilesIndex[192] = { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x28, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x4, 0x4, 0x4, 0x0, 0x0, 0x0, 0x0, 0x0, 0x8, 0x0, 0x0, 0x0, 0x0, 0xc, 0xc, 0xc, 0x0, 0x0, 0x10, 0x10, 0x14, 0x14, 0x18, 0x18, 0x0, 0x0, 0x1c, 0x0, 0x0, 0x0, 0x0, 0x20, 0x0, 0x0, 0x0, 0x0, 0x24, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x4, 0x4, 0x4, 0x0, 0x0, 0x0, 0x0, 0x0, 0x8, 0x0, 0x0, 0x0, 0x0, 0xc, 0xc, 0xc, 0x0, 0x0, 0x10, 0x10, 0x14, 0x14, 0x18, 0x18, 0x0, 0x0, 0x1c, 0x0, 0x0, 0x0, 0x0, 0x20, 0x0, 0x0, 0x0, 0x0, 0x24, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,  };
+static const uint8 kPlayerGFXRt_TileXFlip[2] = { 0x0, 0x40,  };
+static const uint8 kPlayerGFXRt_DATA_00E18E[70] = { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0xd, 0x0, 0x10, 0x13, 0x22, 0x25, 0x28, 0x0, 0x16, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x8, 0x19, 0x1c, 0x4, 0x1f, 0x10, 0x10, 0x0, 0x16, 0x10, 0x6, 0x4, 0x8, 0x2b, 0x30, 0x35, 0x3a, 0x3f, 0x43, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x16, 0x16, 0x0, 0x0, 0x8, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x10, 0x4, 0x0,  };
+// todo: oob
+static const uint8 kPlayerGFXRt_DATA_00E1D4[72] = { 0x6, 0x0, 0x6, 0x0, 0x86, 0x2, 0x6, 0x3, 0x6, 0x1, 0x6, 0xce, 0x6, 0x6, 0x40, 0x0, 0x6, 0x2c, 0x6, 0x6, 0x44, 0xe, 0x86, 0x2c, 0x6, 0x86, 0x2c, 0xa, 0x86, 0x84, 0x8, 0x6, 0xa, 0x2, 0x6, 0xac, 0x10, 0x6, 0xcc, 0x10, 0x6, 0xae, 0x10, 0x0, 0x8c, 0x14, 0x80, 0x2e, 0x0, 0xca, 0x16, 0x91, 0x2f, 0x0, 0x8e, 0x18, 0x81, 0x30, 0x0, 0xeb, 0x1a, 0x90, 0x31, 0x4, 0xed, 0x1c, 0x82, 0x6, 0x92, 0x1e, 0x84,0x86, };
+static const uint8 kPlayerGFXRt_CapeXYDispIndex[32] = { 0x84, 0x86, 0x88, 0x8a, 0x8c, 0x8e, 0x90, 0x90, 0x92, 0x94, 0x96, 0x98, 0x9a, 0x9c, 0x9e, 0xa0, 0xa2, 0xa4, 0xa6, 0xa8, 0xaa, 0xb0, 0xb6, 0xbc, 0xc2, 0xc8, 0xce, 0xd4, 0xda, 0xde, 0xe2, 0xe2,  };
+static const uint8 kPlayerGFXRt_CapeTilePointerIndex[44] = { 0xa, 0xa, 0x84, 0xa, 0x88, 0x88, 0x88, 0x88, 0x8a, 0x8a, 0x8a, 0x8a, 0x44, 0x44, 0x44, 0x44, 0x42, 0x42, 0x42, 0x42, 0x40, 0x40, 0x40, 0x40, 0x22, 0x22, 0x22, 0x22, 0xa4, 0xa4, 0xa4, 0xa4, 0xa6, 0xa6, 0xa6, 0xa6, 0x86, 0x86, 0x86, 0x86, 0x6e, 0x6e, 0x6e, 0x6e,  };
+static const uint8 kPlayerGFXRt_DATA_00E266[44] = { 0x2, 0x2, 0x2, 0xc, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x4, 0x12, 0x4, 0x4, 0x4, 0x12, 0x4, 0x4, 0x4, 0x12, 0x4, 0x4, 0x4, 0x12, 0x4, 0x4,  };
+static const uint8 kPlayerGFXRt_DATA_00E292[16] = { 0x1, 0x1, 0x1, 0x1, 0x2, 0x2, 0x2, 0x2, 0x4, 0x4, 0x4, 0x4, 0x8, 0x8, 0x8, 0x8,  };
+static const uint16 kPlayerGFXRt_PalettePointers[8] = { 0xb2c8, 0xb2dc, 0xb2c8, 0xb2dc, 0xb2c8, 0xb2dc, 0xb2f0, 0xb304,  };
+static const uint8 kPlayerGFXRt_PlayerStartingOAMIndex[4] = { 0x10, 0xd4, 0x10, 0xe8,  };
+static const uint8 kPlayerGFXRt_CapeStartingOAMIndex[4] = { 0x8, 0xcc, 0x8, 0xe0,  };
+static const uint8 kPlayerGFXRt_TilePriority[3] = { 0x10, 0x10, 0x30,  };
+static const uint8 kSlopeDataTables_Player[33] = { 0x8, 0x8, 0x8, 0x8, 0x10, 0x10, 0x10, 0x10, 0x18, 0x18, 0x20, 0x20, 0x28, 0x30, 0x8, 0x10, 0x0, 0x0, 0x28, 0x0, 0x0, 0x0, 0x0, 0x0, 0x38, 0x50, 0x48, 0x40, 0x58, 0x58, 0x60, 0x60, 0x0,  };
+static const uint8 kSlopeDataTables_Player_StationaryYSpeed[33] = { 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x20, 0x20, 0x20, 0x20, 0x30, 0x30, 0x40, 0x30, 0x30, 0x30, 0x30, 0x0, 0x0, 0x0, 0x0, 0x0, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40, 0x40, 0x40, 0x0,  };
+static const uint8 kSlopeDataTables_Player_TowardsPeakYSpeed[33] = { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0xec, 0xec, 0xee, 0xee, 0xda, 0xda, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0xda, 0xda, 0xda, 0xda, 0x0, 0x0, 0x0, 0x0, 0x0,  };
+static const uint8 kSlopeDataTables_Player_SnapToSlopeDistance[33] = { 0x8, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8, 0x9, 0x9, 0x9, 0x9, 0xb, 0xb, 0xb, 0xb, 0xb, 0xb, 0xb, 0x0, 0x0, 0x0, 0x0, 0x0, 0xb, 0xb, 0xb, 0xb, 0x14, 0x14, 0x14, 0x14, 0x6,  };
+const uint8 kSlopeDataTables_SlopeType[33] = { 0xff, 0xff, 0xff, 0xff, 0x1, 0x1, 0x1, 0x1, 0xfe, 0xfe, 0x2, 0x2, 0xfd, 0x3, 0xfd, 0x3, 0xfd, 0x3, 0xfd, 0x0, 0x0, 0x0, 0x0, 0x0, 0x8, 0x8, 0xf8, 0xf8, 0xfc, 0xfc, 0x4, 0x4, 0x0,  };
+const uint8 kSlopeDataTables_ShapeOfSlope[512] = { 0xf, 0xf, 0xf, 0xf, 0xe, 0xe, 0xe, 0xe, 0xd, 0xd, 0xd, 0xd, 0xc, 0xc, 0xc, 0xc, 0xb, 0xb, 0xb, 0xb, 0xa, 0xa, 0xa, 0xa, 0x9, 0x9, 0x9, 0x9, 0x8, 0x8, 0x8, 0x8, 0x7, 0x7, 0x7, 0x7, 0x6, 0x6, 0x6, 0x6, 0x5, 0x5, 0x5, 0x5, 0x4, 0x4, 0x4, 0x4, 0x3, 0x3, 0x3, 0x3, 0x2, 0x2, 0x2, 0x2, 0x1, 0x1, 0x1, 0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x1, 0x1, 0x1, 0x2, 0x2, 0x2, 0x2, 0x3, 0x3, 0x3, 0x3, 0x4, 0x4, 0x4, 0x4, 0x5, 0x5, 0x5, 0x5, 0x6, 0x6, 0x6, 0x6, 0x7, 0x7, 0x7, 0x7, 0x8, 0x8, 0x8, 0x8, 0x9, 0x9, 0x9, 0x9, 0xa, 0xa, 0xa, 0xa, 0xb, 0xb, 0xb, 0xb, 0xc, 0xc, 0xc, 0xc, 0xd, 0xd, 0xd, 0xd, 0xe, 0xe, 0xe, 0xe, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xe, 0xe, 0xd, 0xd, 0xc, 0xc, 0xb, 0xb, 0xa, 0xa, 0x9, 0x9, 0x8, 0x8, 0x7, 0x7, 0x6, 0x6, 0x5, 0x5, 0x4, 0x4, 0x3, 0x3, 0x2, 0x2, 0x1, 0x1, 0x0, 0x0, 0x0, 0x0, 0x1, 0x1, 0x2, 0x2, 0x3, 0x3, 0x4, 0x4, 0x5, 0x5, 0x6, 0x6, 0x7, 0x7, 0x8, 0x8, 0x9, 0x9, 0xa, 0xa, 0xb, 0xb, 0xc, 0xc, 0xd, 0xd, 0xe, 0xe, 0xf, 0xf, 0xf, 0xe, 0xd, 0xc, 0xb, 0xa, 0x9, 0x8, 0x7, 0x6, 0x5, 0x4, 0x3, 0x2, 0x1, 0x0, 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf, 0xf, 0xe, 0xd, 0xc, 0xb, 0xa, 0x9, 0x8, 0x7, 0x6, 0x5, 0x4, 0x3, 0x2, 0x1, 0x0, 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf, 0x8, 0x6, 0x4, 0x3, 0x2, 0x2, 0x1, 0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x1, 0x2, 0x2, 0x3, 0x4, 0x6, 0x8, 0xff, 0xfe, 0xfd, 0xfc, 0xfb, 0xfa, 0xf9, 0xf8, 0xf7, 0xf6, 0xf5, 0xf4, 0xf3, 0xf2, 0xf1, 0xf0, 0xf0, 0xf1, 0xf2, 0xf3, 0xf4, 0xf5, 0xf6, 0xf7, 0xf8, 0xf9, 0xfa, 0xfb, 0xfc, 0xfd, 0xfe, 0xff, 0xff, 0xff, 0xfe, 0xfe, 0xfd, 0xfd, 0xfc, 0xfc, 0xfb, 0xfb, 0xfa, 0xfa, 0xf9, 0xf9, 0xf8, 0xf8, 0xf7, 0xf7, 0xf6, 0xf6, 0xf5, 0xf5, 0xf4, 0xf4, 0xf3, 0xf3, 0xf2, 0xf2, 0xf1, 0xf1, 0xf0, 0xf0, 0xf0, 0xf0, 0xf1, 0xf1, 0xf2, 0xf2, 0xf3, 0xf3, 0xf4, 0xf4, 0xf5, 0xf5, 0xf6, 0xf6, 0xf7, 0xf7, 0xf8, 0xf8, 0xf9, 0xf9, 0xfa, 0xfa, 0xfb, 0xfb, 0xfc, 0xfc, 0xfd, 0xfd, 0xfe, 0xfe, 0xff, 0xff, 0xf, 0xe, 0xd, 0xc, 0xb, 0xa, 0x9, 0x8, 0x7, 0x6, 0x5, 0x4, 0x3, 0x2, 0x1, 0x0, 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf, 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf, 0xf, 0xe, 0xd, 0xc, 0xb, 0xa, 0x9, 0x8, 0x7, 0x6, 0x5, 0x4, 0x3, 0x2, 0x1, 0x0, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0xe, 0xc, 0xa, 0x8, 0x6, 0x4, 0x2, 0x0, 0xe, 0xc, 0xa, 0x8, 0x6, 0x4, 0x2, 0x0, 0xfe, 0xfc, 0xfa, 0xf8, 0xf6, 0xf4, 0xf2, 0xf0, 0x0, 0x2, 0x4, 0x6, 0x8, 0xa, 0xc, 0xe, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0xf0, 0xf2, 0xf4, 0xf6, 0xf8, 0xfa, 0xfc, 0xfe, 0x0, 0x2, 0x4, 0x6, 0x8, 0xa, 0xc, 0xe,  };
+static const uint16 kGetPlayerLevelCollisionMap16ID_DATA_00E832[54] = { 0x8, 0xe, 0xe, 0x8, 0x5, 0xb, 0x8, 0x2, 0x2, 0x8, 0xb, 0x5, 0x8, 0xe, 0xe, 0x8, 0x5, 0xb, 0x8, 0x2, 0x2, 0x8, 0xb, 0x5, 0x8, 0xe, 0xe, 0x8, 0x5, 0xb, 0x8, 0x2, 0x2, 0x8, 0xb, 0x5, 0x8, 0xe, 0xe, 0x8, 0x5, 0xb, 0x8, 0x2, 0x2, 0x8, 0xb, 0x5, 0x10, 0x20, 0x7, 0x0, 0xfff0, 0x8, };
+// todo: buffer read overflow
+static const uint16 kGetPlayerLevelCollisionMap16ID_DATA_00E89C[54] = { 0x18, 0x1a, 0x16, 0x10, 0x20, 0x20, 0x18, 0x1a, 0x16, 0x10, 0x20, 0x20, 0x12, 0x1a, 0xf, 0x8, 0x20, 0x20, 0x12, 0x1a, 0xf, 0x8, 0x20, 0x20, 0x1d, 0x28, 0x19, 0x13, 0x30, 0x30, 0x1d, 0x28, 0x19, 0x13, 0x30, 0x30, 0x1a, 0x28, 0x16, 0x10, 0x30, 0x30, 0x1a, 0x28, 0x16, 0x10, 0x30, 0x30, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18,};
+static const uint8 kHandlePlayerLevelColl_DATA_00E90A[3] = { 0x1, 0x2, 0x11,  };
+static const uint8 kHandlePlayerLevelColl_DATA_00E90D[4] = { 0xff, 0xff, 0x1, 0x0,  };
+static const uint8 kHandlePlayerLevelColl_DATA_00E911[2] = { 0x2, 0xd,  };
+static const uint16 kHandlePlayerLevelColl_DATA_00E913[6] = { 0x1, 0xffff, 0x1, 0x1, 0xffff, 0xffff,  };
+static const uint16 kHandlePlayerLevelColl_DATA_00E91F[6] = { 0x0, 0x0, 0xffff, 0x1, 0xffff, 0x1,  };
+static const uint8 kRunPlayerBlockCode_DATA_00EAB9[2] = { 0xde, 0x23,  };
+static const uint8 kRunPlayerBlockCode_DATA_00EABB[2] = { 0x20, 0xe0,  };
+static const uint16 kRunPlayerBlockCode_DATA_00EABD[2] = { 0x8, 0xfff8,  };
+static const uint8 kRunPlayerBlockCode_WaterSlopeMap16Numbers[26] = { 0x71, 0x72, 0x76, 0x77, 0x7b, 0x7c, 0x81, 0x86, 0x8a, 0x8b, 0x8f, 0x90, 0x94, 0x95, 0x99, 0x9a, 0x9e, 0x9f, 0xa3, 0xa4, 0xa8, 0xa9, 0xad, 0xae, 0xb2, 0xb3,  };
+static const uint8 kCheckIfBlockWasHit_DATA_00F05C[36] = { 0x1, 0x5, 0x1, 0x2, 0x1, 0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x6, 0x2, 0x2, 0x2, 0x2, 0x2, 0x2, 0x2, 0x2, 0x2, 0x2, 0x2, 0x3, 0x3, 0x4, 0x2, 0x2, 0x2, 0x1, 0x1, 0x7, 0x11, 0x10,  };
+static const uint8 kCheckIfBlockWasHit_DATA_00F080[36] = { 0x80, 0x0, 0x0, 0x1e, 0x0, 0x0, 0x5, 0x9, 0x6, 0x81, 0xe, 0xc, 0x14, 0x0, 0x5, 0x9, 0x6, 0x7, 0xe, 0xc, 0x16, 0x18, 0x1a, 0x1a, 0x0, 0x9, 0x0, 0x0, 0xff, 0xc, 0xa, 0x0, 0x0, 0x0, 0x8, 0x2,  };
+static const uint8 kCheckIfBlockWasHit_DATA_00F0A4[36] = { 0xc, 0x8, 0xc, 0x8, 0xc, 0xf, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8, 0x3, 0x3, 0x8, 0x8, 0x8, 0x8, 0x8, 0x8, 0x4, 0x8, 0x8,  };
+static const uint8 kCheckIfBlockWasHit_DATA_00F0C8[36] = { 0xe, 0x13, 0xe, 0xd, 0xe, 0x10, 0xd, 0xd, 0xd, 0xd, 0xa, 0xd, 0xd, 0xc, 0xd, 0xd, 0xd, 0xd, 0xb, 0xd, 0xd, 0x16, 0xd, 0xd, 0xd, 0x11, 0x11, 0x12, 0xd, 0xd, 0xd, 0xe, 0xf, 0xc, 0xd, 0xd,  };
+static const uint8 kCheckIfBlockWasHit_DATA_00F0EC[12] = { 0x8, 0x1, 0x2, 0x4, 0xed, 0xf6, 0x0, 0x7d, 0xbe, 0x0, 0x6f, 0xb7,  };
+static const uint8 kCheckIfBlockWasHit_DATA_00F0F8[8] = { 0x40, 0x50, 0x0, 0x70, 0x80, 0x0, 0xa0, 0xb0,  };
+static const uint8 kCheckIfBlockWasHit_DATA_00F100[32] = { 0x5, 0x9, 0x6, 0x5, 0x9, 0x6, 0x5, 0x9, 0x6, 0x5, 0x9, 0x6, 0x5, 0x9, 0x6, 0x5, 0x7, 0xa, 0x10, 0x7, 0xa, 0x10, 0x7, 0xa, 0x10, 0x7, 0xa, 0x10, 0x7, 0xa, 0x10, 0x7,  };
+static const uint8 kRunPlayerBlockCode_DATA_00F3E3[2] = { 0xa, 0xff,  };
+static const uint8 kRunPlayerBlockCode_PIPE_BUTTONS[4] = { 0x2, 0x1, 0x8, 0x4,  };
+static const uint16 kHandleStandardLevelCameraScroll_DATA_00F69F[2] = { 0x64, 0x7c,  };
+static const uint16 kHandleStandardLevelCameraScroll_DATA_00F6A3[2] = { 0x0, 0xffff,  };
+static const uint16 kHandleStandardLevelCameraScroll_DATA_00F6A7[3] = { 0xfffd, 0x5, 0xfffa,  };
+static const uint16 kHandleStandardLevelCameraScroll_DATA_00F6AD[3] = { 0x0, 0x0, 0xc0,  };
+static const uint16 kHandleStandardLevelCameraScroll_DATA_00F6B3[6] = { 0x90, 0x60, 0x0, 0x0, 0x0, 0x0,  };
+static const uint16 kHandleStandardLevelCameraScroll_DATA_00F6BF[6] = { 0x0, 0xfffe, 0x2, 0x0, -2, 2 };
+static const uint16 kHandleStandardLevelCameraScroll_DATA_00F6CB[8] = { 0x0, 0x20, 0xd0, 0x0, 0x20, 0xd0,      1,     -1 };
+static const uint8 kPlayerState00_DATA_00F8DF[9] = { 0xc, 0xc, 0x8, 0x0, 0x20, 0x4, 0xa, 0xd, 0xd,  };
+static const uint16 kPlayerState00_DATA_00F8E8[5] = { 0x2a, 0x2a, 0x12, 0x0, 0xffed,  };
+static const uint8 kSpr07B_GoalTape_DATA_00FADF[28] = { 0x74, 0x74, 0x77, 0x75, 0x76, 0xe0, 0xf0, 0x74, 0x74, 0x77, 0x75, 0x76, 0xe0, 0xf1, 0xf0, 0xf0, 0xf0, 0xf0, 0xf1, 0xe0, 0xf2, 0xe0, 0xe0, 0xe0, 0xe0, 0xf1, 0xe0, 0xe4,  };
+static const uint8 kSpr07B_GoalTape_DATA_00FAFB[5] = { 0xff, 0x74, 0x75, 0x76, 0x77,  };
+static const uint8 kSprStatus06_GoalCoins_SmokeTiles[4] = { 0x66, 0x64, 0x62, 0x60,  };
+static const uint8 kSpawnPlayerBreathBubble_xlo[2] = { 0x2, 0xa,  };
+static const uint8 kSpawnPlayerWaterSplashAndBubbles_YLo[4] = { 0x8, 0xfc, 0x10, 0x4,  };
+static const uint8 kSpawnPlayerWaterSplashAndBubbles_YHi[4] = { 0x0, 0xff, 0x0, 0x0,  };
+static const uint8 kSpawnPlayerWaterSplashAndBubbles_Bubble_YLo[4] = { 0x10, 0x16, 0x13, 0x1c,  };
+static const uint8 kSpawnPlayerWaterSplashAndBubbles_Bubble_XLo[4] = { 0x0, 0x4, 0xa, 0x7,  };
+static const uint8 kSpawnPlayerFireball_InitialXSpeed[2] = { 0xfd, 0x3,  };
+static const uint8 kSpawnPlayerFireball_xlo[6] = { 0x0, 0x8, 0xf8, 0x10, 0xf8, 0x10,  };
+static const uint8 kSpawnPlayerFireball_xhi[6] = { 0x0, 0x0, 0xff, 0x0, 0xff, 0x0,  };
+static const uint8 kSpawnPlayerFireball_ylo[6] = { 0x8, 0x8, 0xc, 0xc, 0x14, 0x14,  };
+
+static const uint8 kUpdateHDMAWindowBuffer_CircleHDMAData[] = {
+  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xfe, 0xfe, 0xfe, 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0xfc, 0xfc, 0xfc, 0xfb, 0xfb, 0xfb, 0xfa, 0xfa, 0xf9, 0xf9, 0xf8, 0xf8, 0xf7, 0xf7, 0xf6, 0xf6, 0xf5, 0xf5, 0xf4, 0xf3, 0xf3, 0xf2, 0xf1, 0xf1, 0xf0, 0xef, 0xee, 0xee, 0xed, 0xec, 0xeb, 0xea, 0xe9, 0xe9, 0xe8, 0xe7, 0xe6, 0xe5, 0xe4, 0xe3, 0xe2, 0xe1, 0xdf, 0xde, 0xdd, 0xdc, 0xdb, 0xda, 0xd8, 0xd7, 0xd6, 0xd5, 0xd3, 0xd2, 0xd0, 0xcf, 0xcd, 0xcc, 0xca, 0xc9, 0xc7, 0xc6, 0xc4, 0xc2, 0xc1, 0xbf, 0xbd, 0xbb, 0xb9, 0xb7, 0xb6, 0xb4, 0xb1, 0xaf, 0xad, 0xab, 0xa9, 0xa7, 0xa4, 0xa2, 0x9f, 0x9d, 0x9a, 0x97, 0x95, 0x92, 0x8f, 0x8c, 0x89, 0x86, 0x82, 0x7f, 0x7b, 0x78, 0x74, 0x70, 0x6c, 0x67, 0x63, 0x5e, 0x59, 0x53, 0x4d, 0x46, 0x3f, 0x37, 0x2d, 0x1f, 0x00
+};
+
+static const uint8 kUpdateHDMAWindowBuffer_KeyholeHDMAData[] = {
+  0x54, 0x53, 0x52, 0x52, 0x51, 0x50, 0x50, 0x4f, 0x4e, 0x4e, 0x4d, 0x4c, 0x4c, 0x4b, 0x4a, 0x4a, 0x4b, 0x48, 0x48, 0x47, 0x46, 0x46, 0x45, 0x44, 0x44, 0x43, 0x42, 0x42, 0x41, 0x40, 0x40, 0x3f, 0x3e, 0x3e, 0x3d, 0x3c, 0x3c, 0x3b, 0x3a, 0x3a, 0x39, 0x38, 0x38, 0x37, 0x36, 0x36, 0x35, 0x34, 0x34, 0x33, 0x32, 0x32, 0x31, 0x33, 0x35, 0x38, 0x3a, 0x3c, 0x3e, 0x3f, 0x41, 0x43, 0x44, 0x45, 0x47, 0x48, 0x49, 0x4a, 0x4b, 0x4c, 0x4d, 0x4e, 0x4e, 0x4f, 0x50, 0x50, 0x51, 0x51, 0x52, 0x52, 0x53, 0x53, 0x53, 0x53, 0x53, 0x53, 0x53, 0x53, 0x53, 0x53, 0x53, 0x53, 0x53, 0x52, 0x52, 0x51, 0x51, 0x50, 0x50, 0x4f, 0x4e, 0x4e, 0x4d, 0x4c, 0x4b, 0x4a, 0x49, 0x48, 0x47, 0x45, 0x44, 0x43, 0x41, 0x3f, 0x3e, 0x3c, 0x3a, 0x38, 0x35, 0x33, 0x30, 0x2d, 0x2a, 0x26, 0x23, 0x1e, 0x18, 0x11, 0x00
+};
+
+
+
+void SmwVectorReset() {
+//  xWriteReg(NMITIMEN, 0);
+//  xWriteReg(HDMAEN, 0);
+  RtlApuWrite(APUI00, 0);
+  RtlApuWrite(APUI01, 0);
+  RtlApuWrite(APUI02, 0);
+  RtlApuWrite(APUI03, 0);
+  RtlPpuWrite(INIDISP, 0x80);
   *(uint16 *)reset_sprites_y_function_in_ram = 0xf0a9;
   uint16 v0 = 381;
   int16 v1 = 0x3fd;
@@ -118,11 +322,11 @@ void Vector_Reset() {
   InitializeFirst8KBOfRAM();
   HandleSPCUploads_UploadSamples();
   SetupHDMAWindowingEffects();
-  WriteReg(OBSEL, 3);
+  RtlPpuWrite(OBSEL, 3);
   ++waiting_for_vblank;
 }
 
-void RunOneFrameOfGame_Internal() {
+void SmwRunOneFrameOfGame_Internal() {
   assert(waiting_for_vblank != 0);
   ++counter_global_frames;
   InitAndMainLoop_ProcessGameMode();
@@ -134,88 +338,27 @@ void ResetSpritesFunc(int wh) {
     g_ram[0x201 + wh * 4] = 0xf0;
 }
 
-void HandleSPCUploads_SPC700UploadLoop() {  // 008079
-  int16 v1;
-
-  uint16 v0 = 0;
-  while (ReadRegWord(APUI00) != 0xBBAA)
-    ;
-  LOBYTE(v1) = -52;
-  while (1) {
-    uint8 *v9 = IndirPtr(&R0_W, v0);
-    uint16 v10 = v0 + 2;
-    int16 v4 = *(uint16 *)v9;
-    uint8 *v11 = IndirPtr(&R0_W, v10);
-    uint16 v12 = v10 + 2;
-    WriteRegWord(APUI02, *(uint16 *)v11);
-    WriteReg(APUI01, v4 != 0);
-    WriteReg(APUI00, v1);
-    while ((uint8)v1 != ReadReg(APUI00))
-      ;
-    if (Unreachable())
-      break;
-    uint8 *v2 = IndirPtr(&R0_, v12);
-    v0 = v12 + 1;
-    HIBYTE(v1) = *v2;
-    for (LOBYTE(v1) = 0;; LOBYTE(v1) = v1 + 1) {
-      WriteRegWord(APUI00, v1);
-      if (!--v4)
-        break;
-      uint8 *v3 = IndirPtr(&R0_, v0++);
-      HIBYTE(v1) = *v3;
-      while ((uint8)v1 != ReadReg(APUI00))
-        ;
-    }
-    uint8 Reg;
-    bool v6;
-    do {
-      Reg = ReadReg(APUI00);
-      v6 = (uint8)v1 >= Reg;
-    } while ((uint8)v1 != Reg);
-    do {
-      bool v8 = v6;
-      v6 = ((uint8)v6 + (uint8)v1 >= 256);
-      int8 v7 = v8 + v1;
-      v6 |= ((uint8)v7 + 3 >= 256);
-      LOBYTE(v1) = v7 + 3;
-    } while (!(uint8)v1);
-  }
-  WriteReg(APUI00, 0);
-  WriteReg(APUI01, 0);
-  WriteReg(APUI02, 0);
-  WriteReg(APUI03, 0);
-}
-
 void HandleSPCUploads_UploadSPCEngine() {  // 0080e8
-  R0_ = 0;
-  R1_ = 0x80;
-  R2_ = 14;
-  HandleSPCUploads_UploadDataToSPC();
+  HandleSPCUploads_UploadDataToSPC(kSpcEngine);
 }
 
-void HandleSPCUploads_UploadDataToSPC() {  // 0080f7
-  // HandleSPCUploads_SPC700UploadLoop();
+void HandleSPCUploads_UploadDataToSPC(const uint8 *p) {  // 0080f7
+  if (g_use_my_apu_code)
+    RtlApuUpload(p);
 }
 
 void HandleSPCUploads_UploadSamples() {  // 0080fd
-  R0_ = 0;
-  R1_ = 0x80;
-  R2_ = 15;
-  HandleSPCUploads_StrtSPCMscUpld();
+  HandleSPCUploads_StrtSPCMscUpld(kSpcSamples);
 }
 
 void HandleSPCUploads_UploadOverworldMusicBank() {  // 00810e
-  R0_ = -79;
-  R1_ = -104;
-  R2_ = 14;
-  HandleSPCUploads_StrtSPCMscUpld();
+  HandleSPCUploads_StrtSPCMscUpld(kSpcOverworldMusicBank);
 }
 
-void HandleSPCUploads_StrtSPCMscUpld() {  // 00811d
-  WriteReg(APUI01, 0xFF);
-  HandleSPCUploads_UploadDataToSPC();
+void HandleSPCUploads_StrtSPCMscUpld(const uint8 *p) {  // 00811d
+  HandleSPCUploads_UploadDataToSPC(p);
   for (uint8 i = 3; (i & 0x80) == 0; --i) {
-    WriteReg((SnesRegs)(i + APUI00), 0);
+    RtlApuWrite((SnesRegs)(i + APUI00), 0);
     *(&io_sound_ch1 + i) = 0;
     *(&unusedram_7e1dfd + i) = 0;
   }
@@ -224,101 +367,65 @@ void HandleSPCUploads_StrtSPCMscUpld() {  // 00811d
 void HandleSPCUploads_008134() {  // 008134
   if (flag_active_bonus_game || misc_intro_level_flag == 0xE9 ||
       !(flag_show_player_start | (uint8)(counter_sublevels_entered | misc_intro_level_flag))) {
-    R0_ = -42;
-    R1_ = -82;
-    R2_ = 14;
-    HandleSPCUploads_StrtSPCMscUpld();
+    HandleSPCUploads_StrtSPCMscUpld(kSpcLevelMusicBank);
   }
 }
 
 void HandleSPCUploads_UploadCreditsMusicBank() {  // 008159
-  R0_ = 0;
-  R1_ = -28;
-  R2_ = 3;
-  HandleSPCUploads_StrtSPCMscUpld();
+  HandleSPCUploads_StrtSPCMscUpld(kSpcCreditsMusicBank);
 }
 
-void Vector_NMI() {
-  uint8 v2;
-  uint8 v3;
-  ReadReg(RDNMI);
+void SmwVectorNMI() {
+  int trigger_line = -1;
   uint8 v0 = io_music_ch1;
-  if (io_music_ch1 || ReadReg(APUI02) == io_copy_of_music_ch1) {
-    WriteReg(APUI02, v0);
+  if (io_music_ch1  || g_ram[kSmwRam_APUI02] == io_copy_of_music_ch1) {
+    RtlApuWrite(APUI02, v0);
     io_copy_of_music_ch1 = v0;
     io_music_ch1 = 0;
   }
-  WriteReg(APUI00, io_sound_ch1);
-  WriteReg(APUI01, io_sound_ch2);
-  WriteReg(APUI03, io_sound_ch3);
+  RtlApuWrite(APUI00, io_sound_ch1);
+  RtlApuWrite(APUI01, io_sound_ch2);
+  RtlApuWrite(APUI03, io_sound_ch3);
   io_sound_ch1 = 0;
   io_sound_ch2 = 0;
   io_sound_ch3 = 0;
-  WriteReg(INIDISP, 0x80);
-  WriteReg(HDMAEN, 0);
-  WriteReg(W12SEL, mirror_bg1_and2_window_mask_settings);
-  WriteReg(W34SEL, mirror_bg3_and4_window_mask_settings);
-  WriteReg(WOBJSEL, mirror_object_and_color_window_settings);
-  WriteReg(CGWSEL, mirror_color_math_initial_settings);
+  RtlPpuWrite(W12SEL, mirror_bg1_and2_window_mask_settings);
+  RtlPpuWrite(W34SEL, mirror_bg3_and4_window_mask_settings);
+  RtlPpuWrite(WOBJSEL, mirror_object_and_color_window_settings);
+  RtlPpuWrite(CGWSEL, mirror_color_math_initial_settings);
   if ((misc_nmito_use_flag & 0x80) == 0) {
-    WriteReg(CGADSUB, mirror_color_math_select_and_enable & 0xFB);
-    WriteReg(BGMODE, 9);
+    RtlPpuWrite(CGADSUB, mirror_color_math_select_and_enable & 0xFB);
+    RtlPpuWrite(BGMODE, 9);
     if (waiting_for_vblank) {
-      if (misc_nmito_use_flag >> 1) {
+      if (misc_nmito_use_flag & ~1) {
 LABEL_25:
-        v2 = 0x81;
         if (misc_currently_active_boss_end_cutscene == 8) {
-          WriteReg(INIDISP, mirror_screen_display_register);
-          WriteReg(HDMAEN, mirror_hdmaenable);
-          WriteReg(NMITIMEN, 0x81);
-          WriteReg(BG3HOFS, mirror_layer3_xpos);
-          WriteReg(BG3HOFS, HIBYTE(mirror_layer3_xpos));
-          WriteReg(BG3VOFS, mirror_layer3_ypos);
-          WriteReg(BG3VOFS, HIBYTE(mirror_layer3_ypos));
-          WriteReg(BGMODE, mirror_bgmode_and_tile_size_setting);
-          WriteReg(CGADSUB, mirror_color_math_select_and_enable);
-          return;
+          RtlPpuWriteTwice(BG3HOFS, mirror_layer3_xpos);
+          RtlPpuWriteTwice(BG3VOFS, mirror_layer3_ypos);
+          RtlPpuWrite(BGMODE, mirror_bgmode_and_tile_size_setting);
+          RtlPpuWrite(CGADSUB, mirror_color_math_select_and_enable);
+          goto exit_routine;
         }
         goto LABEL_29;
       }
       goto LABEL_24;
     }
-    ++waiting_for_vblank;
+    waiting_for_vblank = 1;
     UpdatePaletteFromIndexedTable();
-    if (misc_nmito_use_flag >> 1) {
+    if (misc_nmito_use_flag & ~1) {
       if (pointer_current_overworld_process == 10 && (uint8)(ow_submap_switch_process - 2) < 4) {
         UploadOverworldLayer1And2Tilemaps(ow_submap_switch_process - 2);
 LABEL_23:
         PollJoypadInputs();
 LABEL_24:
-        WriteReg(BG1HOFS, mirror_current_layer1_xpos);
-        WriteReg(BG1HOFS, HIBYTE(mirror_current_layer1_xpos));
-        uint16 voffs1;
-        voffs1 = shaking_layer1_disp_y + mirror_current_layer1_ypos;
-        WriteReg(BG1VOFS, voffs1);
-        WriteReg(BG1VOFS, voffs1 >> 8);
-        WriteReg(BG2HOFS, mirror_current_layer2_xpos);
-        WriteReg(BG2HOFS, HIBYTE(mirror_current_layer2_xpos));
-        WriteReg(BG2VOFS, mirror_current_layer2_ypos);
-        WriteReg(BG2VOFS, HIBYTE(mirror_current_layer2_ypos));
+        RtlPpuWriteTwice(BG1HOFS, mirror_current_layer1_xpos);
+        RtlPpuWriteTwice(BG1VOFS, shaking_layer1_disp_y + mirror_current_layer1_ypos);
+        RtlPpuWriteTwice(BG2HOFS, mirror_current_layer2_xpos);
+        RtlPpuWriteTwice(BG2VOFS, mirror_current_layer2_ypos);
         if (misc_nmito_use_flag)
           goto LABEL_25;
-        v3 = 36;
-LABEL_28:
-        ReadReg(TIMEUP);
-        WriteReg(VTIMEL, v3);
-        WriteReg(VTIMEH, 0);
-        flag_irqto_use = 0;
-        v2 = 0xa1;
-LABEL_29:
-        WriteReg(NMITIMEN, v2);
-        WriteReg(BG3HOFS, 0);
-        WriteReg(BG3HOFS, 0);
-        WriteReg(BG3VOFS, 0);
-        WriteReg(BG3VOFS, 0);
-        WriteReg(INIDISP, mirror_screen_display_register);
-        WriteReg(HDMAEN, mirror_hdmaenable);
-        return;
+        trigger_line = 36;
+        goto LABEL_28_EnableVtimeL;
       }
       UploadOverworldExAnimationData();
       UploadPlayerGFX();
@@ -330,7 +437,10 @@ LABEL_29:
           UpdateCreditsBackground();
         goto LABEL_17;
       }
-      UploadLevelLayer1And2Tilemaps();
+      if (g_lunar_magic)
+        LmHook_UploadLevelLayer1And2Tilemaps();
+      else
+        UploadLevelLayer1And2Tilemaps();
       if (!flag_upload_load_screen_letters_tovram) {
         UploadLevelExAnimationData();
 LABEL_17:
@@ -365,94 +475,68 @@ LABEL_36:
     UploadOAMBuffer();
     PollJoypadInputs();
   }
-  WriteReg(BGMODE, 9);
-  uint16 m7x = mirror_m7_center_xpos + 0x80;
-  WriteReg(M7X, m7x);
-  WriteReg(M7X, m7x >> 8);
-  uint16 m7y = mirror_m7_center_ypos + 0x80;
-  WriteReg(M7Y, m7y);
-  WriteReg(M7Y, m7y >> 8);
-  WriteReg(M7A, mirror_m7_matrix_alo);
-  WriteReg(M7A, mirror_m7_matrix_ahi);
-  WriteReg(M7B, mirror_m7_matrix_blo);
-  WriteReg(M7B, mirror_m7_matrix_bhi);
-  WriteReg(M7C, mirror_m7_matrix_clo);
-  WriteReg(M7C, mirror_m7_matrix_chi);
-  WriteReg(M7D, mirror_m7_matrix_dlo);
-  WriteReg(M7D, mirror_m7_matrix_dhi);
+  RtlPpuWrite(BGMODE, 9);
+  RtlPpuWriteTwice(M7X, mirror_m7_center_xpos + 0x80);
+  RtlPpuWriteTwice(M7Y, mirror_m7_center_ypos + 0x80);
+  RtlPpuWriteTwice(M7A, WORD(mirror_m7_matrix_alo));
+  RtlPpuWriteTwice(M7B, WORD(mirror_m7_matrix_blo));
+  RtlPpuWriteTwice(M7C, WORD(mirror_m7_matrix_clo));
+  RtlPpuWriteTwice(M7D, WORD(mirror_m7_matrix_dlo));
   SetMode7PPUPointersAndLayer1Scroll();
   if (!(misc_nmito_use_flag & 1)) {
-    v3 = 36;
+    trigger_line = 36;
     if ((misc_nmito_use_flag & 0x40) != 0 && kPlayerState00_DATA_00F8E8[misc_currently_active_boss] == 42) {
-      v3 = 45;
+      trigger_line = 45;
     }
-    goto LABEL_28;
+  LABEL_28_EnableVtimeL:
+    flag_irqto_use = 0;
+  LABEL_29:
+    RtlPpuWriteTwice(BG3HOFS, 0);
+    RtlPpuWriteTwice(BG3VOFS, 0);
+  } else {
+    RtlPpuWrite(BGMODE, 7);
+    RtlPpuWriteTwice(BG1HOFS, mirror_m7_xpos);
+    RtlPpuWriteTwice(BG1VOFS, mirror_m7_ypos);
   }
-  WriteReg(INIDISP, mirror_screen_display_register);
-  WriteReg(HDMAEN, mirror_hdmaenable);
-  WriteReg(NMITIMEN, 0x81);
-  WriteReg(BGMODE, 7);
-  WriteReg(BG1HOFS, mirror_m7_xpos);
-  WriteReg(BG1HOFS, HIBYTE(mirror_m7_xpos));
-  WriteReg(BG1VOFS, mirror_m7_ypos);
-  WriteReg(BG1VOFS, HIBYTE(mirror_m7_ypos));
+exit_routine:
+  RtlPpuWrite(INIDISP, mirror_screen_display_register);
+  RtlEnableVirq(trigger_line);
+//  xWriteReg(HDMAEN, mirror_hdmaenable);
 }
 
-void Vector_IRQ() {
-  if ((ReadReg(TIMEUP) & 0x80) == 0)
-    return;
-  uint8 v0 = 0x81;
+void SmwVectorIRQ() {
+  int trigger_line = -1;
   if ((misc_nmito_use_flag & 0x80) != 0) {
     if ((misc_nmito_use_flag & 0x40) != 0) {
       if (flag_irqto_use) {
-        WriteReg(NMITIMEN, 0x81);
         SetMode7PPUPointersAndLayer1Scroll();
         goto LABEL_4;
       }
-      ++flag_irqto_use;
-      ReadReg(TIMEUP);
-      WriteReg(VTIMEL, -82 - shaking_layer1_disp_y);
-      WriteReg(VTIMEH, 0);
-      v0 = 0xA1;
+      flag_irqto_use = 1;
+      trigger_line = (-82 - shaking_layer1_disp_y) & 0xff;
     }
     if (!timer_end_level || timer_level_end_fade < 0x40) {
-      WriteReg(NMITIMEN, v0);
-      WriteReg(BGMODE, 7);
-      WriteReg(BG1HOFS, mirror_m7_xpos);
-      WriteReg(BG1HOFS, HIBYTE(mirror_m7_xpos));
-      WriteReg(BG1VOFS, mirror_m7_ypos);
-      WriteReg(BG1VOFS, HIBYTE(mirror_m7_ypos));
-      return;
+      RtlPpuWrite(BGMODE, 7);
+      RtlPpuWriteTwice(BG1HOFS, mirror_m7_xpos);
+      RtlPpuWriteTwice(BG1VOFS, mirror_m7_ypos);
+      goto out;
     }
   }
-  WriteReg(NMITIMEN, 0x81);
-  WriteReg(BG3HOFS, mirror_layer3_xpos);
-  WriteReg(BG3HOFS, HIBYTE(mirror_layer3_xpos));
-  WriteReg(BG3VOFS, mirror_layer3_ypos);
-  WriteReg(BG3VOFS, HIBYTE(mirror_layer3_ypos));
+  RtlPpuWriteTwice(BG3HOFS, mirror_layer3_xpos);
+  RtlPpuWriteTwice(BG3VOFS, mirror_layer3_ypos);
 LABEL_4:
-  WriteReg(BGMODE, mirror_bgmode_and_tile_size_setting);
-  WriteReg(CGADSUB, mirror_color_math_select_and_enable);
+  RtlPpuWrite(BGMODE, mirror_bgmode_and_tile_size_setting);
+  RtlPpuWrite(CGADSUB, mirror_color_math_select_and_enable);
+out:
+  RtlEnableVirq(trigger_line);
 }
 
 void SetMode7PPUPointersAndLayer1Scroll() {  // 008416
-  WriteReg(BG1SC, 0x59);
-  WriteReg(BG12NBA, 7);
-  WriteReg(BG1HOFS, mirror_current_layer1_xpos);
-  WriteReg(BG1HOFS, HIBYTE(mirror_current_layer1_xpos));
-  WriteReg(BG1VOFS, shaking_layer1_disp_y + mirror_current_layer1_ypos);
-  WriteReg(BG1VOFS, HIBYTE(mirror_current_layer1_ypos));
-}
-
-void UploadOAMBuffer() {  // 008449
-  WriteReg(DMAP0, 0);
-  WriteRegWord(OAMADDL, 0);
-  WriteRegWord(BBAD0, 4);
-  WriteRegWord(A1T0H, 2);
-  WriteRegWord(DAS0L, 0x220);
-  WriteReg(MDMAEN, 1);
-  WriteReg(OAMADDH, 0x80);
-  WriteReg(OAMADDL, mirror_oamaddress_lo);
+  RtlPpuWrite(BG1SC, 0x59);
+  RtlPpuWrite(BG12NBA, 7);
+  RtlPpuWriteTwice(BG1HOFS, mirror_current_layer1_xpos);
+  RtlPpuWrite(BG1VOFS, shaking_layer1_disp_y + mirror_current_layer1_ypos);
+  RtlPpuWrite(BG1VOFS, HIBYTE(mirror_current_layer1_ypos));
 }
 
 void CompressOamEntExt() {  // 008494
@@ -468,10 +552,10 @@ void CompressOamEntExt() {  // 008494
 }
 
 void LoadStripeImage() {  // 0085d2
-  R0_ = *((uint8 *)&kLoadStripeImage_StripeImagePtrs[0].addr + graphics_stripe_image_to_upload);
-  R1_ = *((uint8 *)&kLoadStripeImage_StripeImagePtrs[0].addr + graphics_stripe_image_to_upload + 1);
-  R2_ = *(&kLoadStripeImage_StripeImagePtrs[0].bank + graphics_stripe_image_to_upload);
-  LoadStripeImage_UploadToVRAM(R2_);
+  if (graphics_stripe_image_to_upload)
+    graphics_stripe_image_to_upload += 0;
+  const uint8 *p = (graphics_stripe_image_to_upload == 0) ? stripe_image_upload_data : kLoadStripeImagePtrs(graphics_stripe_image_to_upload / 3).ptr;
+  LoadStripeImage_UploadToVRAM(p);
   if (!graphics_stripe_image_to_upload) {
     LOBYTE(stripe_image_upload) = graphics_stripe_image_to_upload;
     HIBYTE(stripe_image_upload) = graphics_stripe_image_to_upload;
@@ -482,21 +566,7 @@ void LoadStripeImage() {  // 0085d2
 
 void ClearLayer3Tilemap() {  // 0085fa
   TurnOffIO();
-  R0_ = -4;
-  WriteReg(VMAIN, 0);
-  WriteReg(VMADDL, 0);
-  WriteReg(VMADDH, 0x50);
-  for (uint8 i = 6; (i & 0x80) == 0; --i)
-    WriteReg((SnesRegs)(i + 0x4310), kClearLayer3Tilemap_PARAMS_008649[i]);
-  WriteReg(MDMAEN, 2);
-  R0_ = 56;
-  WriteReg(VMAIN, 0x80);
-  WriteReg(VMADDL, 0);
-  WriteReg(VMADDH, 0x50);
-  for (uint8 j = 6; (j & 0x80) == 0; --j)
-    WriteReg((SnesRegs)(j + 0x4310), kClearLayer3Tilemap_PARAMS_008649[j]);
-  WriteReg(BBAD1, 0x19);
-  WriteReg(MDMAEN, 2);
+  SmwClearVram(0x5000, 0x38fc, 0x1000);
   mirror_oamaddress_lo = 0;
   ResetSpritesFunc(0);
   UploadOAMBuffer();
@@ -530,157 +600,34 @@ void GameMode14_InLevel_0086C7() {  // 0086c7
   ResetSpritesFunc(100);
 }
 
-void LoadStripeImage_UploadToVRAM(uint8 a) {  // 00871e
-  int16 v5;
-
-  WriteReg(A1B1, a);
-  uint16 v1 = 0;
-  while (1) {
-    uint8 *v2 = IndirPtr(&R0_, v1);
-    if ((*v2 & 0x80) != 0)
-      break;
-    R4_ = *v2;
-    v1 = v1 + 1;
-    R3_ = *IndirPtr(&R0_, v1++);
-    R7_ = __CFSHL__(*IndirPtr(&R0_, v1), 1);
-    WriteReg(BBAD1, 0x18);
-    R5_ = (uint8)(*IndirPtr(&R0_, v1) & 0x40) >> 3;
-    R6_ = 0;
-    WriteReg(DMAP1, R5_ | 1);
-    WriteRegWord(VMADDL, *(uint16 *)&R3_);
-    uint8 *v4 = IndirPtr(&R0_W, v1);
-    LOBYTE(v5) = HIBYTE(*(uint16 *)v4);
-    HIBYTE(v5) = *(uint16 *)v4;
-    uint16 v6 = (v5 & 0x3FFF) + 1;
-    v1 = v1 + 2;
-    WriteRegWord(A1T1L, R0_W + v1);
-    WriteRegWord(DAS1L, v6);
-    if (*(uint16 *)&R5_) {
-      WriteReg(VMAIN, R7_);
-      WriteReg(MDMAEN, 2);
-      WriteReg(BBAD1, 0x19);
-      WriteRegWord(VMADDL, *(uint16 *)&R3_);
-      WriteRegWord(A1T1L, R0_W + v1 + 1);
-      WriteRegWord(DAS1L, v6);
-      v6 = 2;
-    }
-    *(uint16 *)&R3_ = v6;
-    v1 = v6 + v1;
-    WriteReg(VMAIN, R7_ | 0x80);
-    WriteReg(MDMAEN, 2);
-  }
-}
 
 void UploadLevelLayer1And2Tilemaps() {  // 0087ad
   if ((uint8)blocks_layer1_vramupload_address) {
     if ((misc_level_layout_flags & 1) != 0) {
-      WriteReg(VMAIN, 0x80);
-      WriteReg(VMADDL, HIBYTE(blocks_layer1_vramupload_address));
-      WriteReg(VMADDH, blocks_layer1_vramupload_address);
-      for (uint8 i = 6; (i & 0x80) == 0; --i)
-        WriteReg((SnesRegs)(i + 0x4310), kUploadLevelLayer1And2Tilemaps_PARAMS_008A16[i]);
-      WriteReg(MDMAEN, 2);
-      WriteReg(VMAIN, 0x80);
-      WriteReg(VMADDL, HIBYTE(blocks_layer1_vramupload_address));
-      WriteReg(VMADDH, blocks_layer1_vramupload_address + 4);
-      for (uint8 j = 6; (j & 0x80) == 0; --j)
-        WriteReg((SnesRegs)(j + 0x4310), kUploadLevelLayer1And2Tilemaps_PARAMS_008A1D[j]);
-      WriteReg(DAS1L, 0x40);
-      WriteReg(MDMAEN, 2);
-      WriteReg(VMAIN, 0x80);
-      WriteReg(VMADDL, HIBYTE(blocks_layer1_vramupload_address) + 32);
-      WriteReg(VMADDH, blocks_layer1_vramupload_address);
-      for (uint8 k = 6; (k & 0x80) == 0; --k)
-        WriteReg((SnesRegs)(k + 0x4310), kUploadLevelLayer1And2Tilemaps_PARAMS_008A24[k]);
-      WriteReg(MDMAEN, 2);
-      WriteReg(VMAIN, 0x80);
-      WriteReg(VMADDL, HIBYTE(blocks_layer1_vramupload_address) + 32);
-      WriteReg(VMADDH, blocks_layer1_vramupload_address + 4);
-      for (uint8 m = 6; (m & 0x80) == 0; --m)
-        WriteReg((SnesRegs)(m + 0x4310), kUploadLevelLayer1And2Tilemaps_PARAMS_008A2B[m]);
-      WriteReg(DAS1L, 0x40);
-      WriteReg(MDMAEN, 2);
+      SmwCopyToVram(swap16(blocks_layer1_vramupload_address), g_ram + 0x1be6, 0x40);
+      SmwCopyToVram(swap16(blocks_layer1_vramupload_address) + 0x400, g_ram + 0x1c26, 0x40);
+      SmwCopyToVram(swap16(blocks_layer1_vramupload_address) + 0x20, g_ram + 0x1c66, 0x40);
+      SmwCopyToVram(swap16(blocks_layer1_vramupload_address) + 0x420, g_ram + 0x1cA6, 0x40);
     } else {
-      WriteReg(VMAIN, 0x81);
-      WriteReg(VMADDL, HIBYTE(blocks_layer1_vramupload_address));
-      WriteReg(VMADDH, blocks_layer1_vramupload_address);
-      for (uint8 n = 6; (n & 0x80) == 0; --n)
-        WriteReg((SnesRegs)(n + 0x4310), kUploadLevelLayer1And2Tilemaps_PARAMS_008A16[n]);
-      WriteReg(MDMAEN, 2);
-      WriteReg(VMAIN, 0x81);
-      WriteReg(VMADDL, HIBYTE(blocks_layer1_vramupload_address));
-      WriteReg(VMADDH, blocks_layer1_vramupload_address + 8);
-      for (uint8 ii = 6; (ii & 0x80) == 0; --ii)
-        WriteReg((SnesRegs)(ii + 0x4310), kUploadLevelLayer1And2Tilemaps_PARAMS_008A1D[ii]);
-      WriteReg(MDMAEN, 2);
-      WriteReg(VMAIN, 0x81);
-      WriteReg(VMADDL, HIBYTE(blocks_layer1_vramupload_address) + 1);
-      WriteReg(VMADDH, blocks_layer1_vramupload_address);
-      for (uint8 jj = 6; (jj & 0x80) == 0; --jj)
-        WriteReg((SnesRegs)(jj + 0x4310), kUploadLevelLayer1And2Tilemaps_PARAMS_008A24[jj]);
-      WriteReg(MDMAEN, 2);
-      WriteReg(VMAIN, 0x81);
-      WriteReg(VMADDL, HIBYTE(blocks_layer1_vramupload_address) + 1);
-      WriteReg(VMADDH, blocks_layer1_vramupload_address + 8);
-      for (uint8 kk = 6; (kk & 0x80) == 0; --kk)
-        WriteReg((SnesRegs)(kk + 0x4310), kUploadLevelLayer1And2Tilemaps_PARAMS_008A2B[kk]);
-      WriteReg(MDMAEN, 2);
+      SmwCopyToVramPitch32(swap16(blocks_layer1_vramupload_address), g_ram + 0x1be6, 0x40);
+      SmwCopyToVramPitch32(swap16(blocks_layer1_vramupload_address) + 0x800, g_ram + 0x1c26, 0x2c);
+      SmwCopyToVramPitch32(swap16(blocks_layer1_vramupload_address) + 1, g_ram + 0x1c66, 0x40);
+      SmwCopyToVramPitch32(swap16(blocks_layer1_vramupload_address) + 0x801, g_ram + 0x1cA6, 0x2c);
     }
   }
   LOBYTE(blocks_layer1_vramupload_address) = 0;
   if ((uint8)blocks_layer2_vramupload_address) {
+    uint8 size = g_lunar_magic ? 0x40 : 0x2c;
     if ((misc_level_layout_flags & 2) != 0) {
-      WriteReg(VMAIN, 0x80);
-      WriteReg(VMADDL, HIBYTE(blocks_layer2_vramupload_address));
-      WriteReg(VMADDH, blocks_layer2_vramupload_address);
-      for (uint8 mm = 6; (mm & 0x80) == 0; --mm)
-        WriteReg((SnesRegs)(mm + 0x4310), kUploadLevelLayer1And2Tilemaps_PARAMS_008A32[mm]);
-      WriteReg(MDMAEN, 2);
-      WriteReg(VMAIN, 0x80);
-      WriteReg(VMADDL, HIBYTE(blocks_layer2_vramupload_address));
-      WriteReg(VMADDH, blocks_layer2_vramupload_address + 4);
-      for (uint8 nn = 6; (nn & 0x80) == 0; --nn)
-        WriteReg((SnesRegs)(nn + 0x4310), kUploadLevelLayer1And2Tilemaps_PARAMS_008A39[nn]);
-      WriteReg(DAS1L, 0x40);
-      WriteReg(MDMAEN, 2);
-      WriteReg(VMAIN, 0x80);
-      WriteReg(VMADDL, HIBYTE(blocks_layer2_vramupload_address) + 32);
-      WriteReg(VMADDH, blocks_layer2_vramupload_address);
-      for (uint8 i1 = 6; (i1 & 0x80) == 0; --i1)
-        WriteReg((SnesRegs)(i1 + 0x4310), kUploadLevelLayer1And2Tilemaps_PARAMS_008A40[i1]);
-      WriteReg(MDMAEN, 2);
-      WriteReg(VMAIN, 0x80);
-      WriteReg(VMADDL, HIBYTE(blocks_layer2_vramupload_address) + 32);
-      WriteReg(VMADDH, blocks_layer2_vramupload_address + 4);
-      for (uint8 i2 = 6; (i2 & 0x80) == 0; --i2)
-        WriteReg((SnesRegs)(i2 + 0x4310), kUploadLevelLayer1And2Tilemaps_PARAMS_008A47[i2]);
-      WriteReg(DAS1L, 0x40);
-      WriteReg(MDMAEN, 2);
+      SmwCopyToVram(swap16(blocks_layer2_vramupload_address), g_ram + 0x1ce8, 0x40);
+      SmwCopyToVram(swap16(blocks_layer2_vramupload_address) + 0x400, g_ram + 0x1d28, 0x40);
+      SmwCopyToVram(swap16(blocks_layer2_vramupload_address) + 0x20, g_ram + 0x1d68, 0x40);
+      SmwCopyToVram(swap16(blocks_layer2_vramupload_address) + 0x420, g_ram + 0x1da8, 0x40);
     } else {
-      WriteReg(VMAIN, 0x81);
-      WriteReg(VMADDL, HIBYTE(blocks_layer2_vramupload_address));
-      WriteReg(VMADDH, blocks_layer2_vramupload_address);
-      for (uint8 i3 = 6; (i3 & 0x80) == 0; --i3)
-        WriteReg((SnesRegs)(i3 + 0x4310), kUploadLevelLayer1And2Tilemaps_PARAMS_008A32[i3]);
-      WriteReg(MDMAEN, 2);
-      WriteReg(VMAIN, 0x81);
-      WriteReg(VMADDL, HIBYTE(blocks_layer2_vramupload_address));
-      WriteReg(VMADDH, blocks_layer2_vramupload_address + 8);
-      for (uint8 i4 = 6; (i4 & 0x80) == 0; --i4)
-        WriteReg((SnesRegs)(i4 + 0x4310), kUploadLevelLayer1And2Tilemaps_PARAMS_008A39[i4]);
-      WriteReg(MDMAEN, 2);
-      WriteReg(VMAIN, 0x81);
-      WriteReg(VMADDL, HIBYTE(blocks_layer2_vramupload_address) + 1);
-      WriteReg(VMADDH, blocks_layer2_vramupload_address);
-      for (uint8 i5 = 6; (i5 & 0x80) == 0; --i5)
-        WriteReg((SnesRegs)(i5 + 0x4310), kUploadLevelLayer1And2Tilemaps_PARAMS_008A40[i5]);
-      WriteReg(MDMAEN, 2);
-      WriteReg(VMAIN, 0x81);
-      WriteReg(VMADDL, HIBYTE(blocks_layer2_vramupload_address) + 1);
-      WriteReg(VMADDH, blocks_layer2_vramupload_address + 8);
-      for (uint8 i6 = 6; (i6 & 0x80) == 0; --i6)
-        WriteReg((SnesRegs)(i6 + 0x4310), kUploadLevelLayer1And2Tilemaps_PARAMS_008A47[i6]);
-      WriteReg(MDMAEN, 2);
+      SmwCopyToVramPitch32(swap16(blocks_layer2_vramupload_address), g_ram + 0x1ce8, 0x40);
+      SmwCopyToVramPitch32(swap16(blocks_layer2_vramupload_address) + 0x800, g_ram + 0x1d28, size);
+      SmwCopyToVramPitch32(swap16(blocks_layer2_vramupload_address) + 1, g_ram + 0x1d68, 0x40);
+      SmwCopyToVramPitch32(swap16(blocks_layer2_vramupload_address) + 0x801, g_ram + 0x1dA8, size);
     }
   }
   LOBYTE(blocks_layer2_vramupload_address) = 0;
@@ -689,7 +636,7 @@ void UploadLevelLayer1And2Tilemaps() {  // 0087ad
 void InitializeFirst8KBOfRAM() {  // 008a4e
   uint16 v0 = 0x1ffe;
   do {
-    *(uint16 *)((int8 *)&R0_W + v0) = 0;
+    WORD(g_ram[v0]) = 0;
     do
       v0 -= 2;
     while ((int16)(v0 - 511) < 0 && (int16)(v0 - 256) >= 0);
@@ -700,87 +647,65 @@ void InitializeFirst8KBOfRAM() {  // 008a4e
 }
 
 void SetStandardPPUSettings() {  // 008a79
-  WriteReg(SETINI, 0);
-  WriteReg(MOSAIC, 0);
-  WriteReg(BG1SC, 0x23);
-  WriteReg(BG2SC, 0x33);
-  WriteReg(BG3SC, 0x53);
-  WriteReg(BG12NBA, 0);
-  WriteReg(BG34NBA, 4);
+  RtlPpuWrite(SETINI, 0);
+  RtlPpuWrite(MOSAIC, 0);
+  RtlPpuWrite(BG1SC, 0x23);
+  RtlPpuWrite(BG2SC, 0x33);
+  RtlPpuWrite(BG3SC, 0x53);
+  RtlPpuWrite(BG12NBA, 0);
+  RtlPpuWrite(BG34NBA, 4);
   mirror_bg1_and2_window_mask_settings = 0;
   mirror_bg3_and4_window_mask_settings = 0;
   mirror_object_and_color_window_settings = 0;
-  WriteReg(WBGLOG, 0);
-  WriteReg(WOBJLOG, 0);
-  WriteReg(TMW, 0);
-  WriteReg(TSW, 0);
+  RtlPpuWrite(WBGLOG, 0);
+  RtlPpuWrite(WOBJLOG, 0);
+  RtlPpuWrite(TMW, 0);
+  RtlPpuWrite(TSW, 0);
   mirror_color_math_initial_settings = 2;
-  WriteReg(M7SEL, 0x80);
+  RtlPpuWrite(M7SEL, 0x80);
 }
 
 void ManipulateMode7Image() {  // 008acd
-  R0_ = HIBYTE(misc_m7_angle);
-  ManipulateMode7Image_008AE8();
-  R0_W = misc_m7_angle;
+  uint8 r0 = HIBYTE(misc_m7_angle);
+  ManipulateMode7Image_008AE8(r0);
+  r0 = misc_m7_angle;
   *(uint16 *)&mirror_m7_matrix_dlo = *(uint16 *)&mirror_m7_matrix_alo;
   *(uint16 *)&mirror_m7_matrix_clo = -*(uint16 *)&mirror_m7_matrix_blo;
-  ManipulateMode7Image_008AE8();
+  ManipulateMode7Image_008AE8(r0);
 }
 
-void ManipulateMode7Image_008AE8() {  // 008ae8
+void ManipulateMode7Image_008AE8(uint8 r0) {  // 008ae8
   uint16 v0 = 2 * ((misc_m7_rotation >> 7) & 3);
   int16 v2 = kManipulateMode7Image_DATA_008ABC[v0 >> 1] + (kManipulateMode7Image_DATA_008AB4[v0 >> 1] ^ (uint8)(2 * misc_m7_rotation));
   int16 v1 = v2;
-  v2 = ManipulateMode7Image_008B2B(v2);
+  v2 = ManipulateMode7Image_008B2B(v2, r0);
   if (v0 >= 4)
     v2 = -v2;
   *(uint16 *)&mirror_m7_matrix_blo = v2;
   int16 v3 = ((v1 ^ 0xFE) + 2) & 0x1FF;
-  v3 = ManipulateMode7Image_008B2B(v3);
+  v3 = ManipulateMode7Image_008B2B(v3, r0);
   if ((uint16)(v0 - 2) < 4)
     v3 = -v3;
   *(uint16 *)&mirror_m7_matrix_alo = v3;
 }
 
-uint16 ManipulateMode7Image_008B2B(uint16 k) {  // 008b2b
-  uint16 v2;
-
+uint16 ManipulateMode7Image_008B2B(uint16 k, uint8 r0) {  // 008b2b
   uint8 v1 = *((uint8 *)kManipulateMode7Image_DATA_008B57 + k + 1);
   if (v1)
-    v1 = R0_;
-  R1_ = v1;
-  WriteReg(WRMPYA, *((uint8 *)kManipulateMode7Image_DATA_008B57 + k));
-  WriteReg(WRMPYB, R0_);
-  HIBYTE(v2) = R1_ + ReadReg(RDMPYH);
-  LOBYTE(v2) = ReadReg(RDMPYL);
+    v1 = r0;
+  uint8 r1 = v1;
+  uint16 v2 = (r1 << 8) + Mult8x8(*((uint8 *)kManipulateMode7Image_DATA_008B57 + k), r0);
   return v2 >> 5;
 }
 
+static const uint8 kStatusBarTilemap_TopRow[8] = { 0x3A,0x38,0x3B,0x38,0x3B,0x38,0x3A,0x78 };
+static const uint8 kStatusBarTilemap_SomeRow[8] = { 0x3A,0xB8,0x3B,0xB8,0x3B,0xB8,0x3A,0xF8 };
+
 void InitializeStatusBarTilemap() {  // 008cff
-  WriteReg(VMAIN, 0x80);
-  WriteReg(VMADDL, 0x2E);
-  WriteReg(VMADDH, 0x50);
-  for (uint8 i = 6; (i & 0x80) == 0; --i)
-    WriteReg((SnesRegs)(i + 0x4310), kInitializeStatusBarTilemap_PARAMS_008D90[i]);
-  WriteReg(MDMAEN, 2);
-  WriteReg(VMAIN, 0x80);
-  WriteReg(VMADDL, 0x42);
-  WriteReg(VMADDH, 0x50);
-  for (uint8 j = 6; (j & 0x80) == 0; --j)
-    WriteReg((SnesRegs)(j + 0x4310), kInitializeStatusBarTilemap_PARAMS_008D97[j]);
-  WriteReg(MDMAEN, 2);
-  WriteReg(VMAIN, 0x80);
-  WriteReg(VMADDL, 0x63);
-  WriteReg(VMADDH, 0x50);
-  for (uint8 k = 6; (k & 0x80) == 0; --k)
-    WriteReg((SnesRegs)(k + 0x4310), kInitializeStatusBarTilemap_PARAMS_008D9E[k]);
-  WriteReg(MDMAEN, 2);
-  WriteReg(VMAIN, 0x80);
-  WriteReg(VMADDL, 0x8E);
-  WriteReg(VMADDH, 0x50);
-  for (uint8 m = 6; (m & 0x80) == 0; --m)
-    WriteReg((SnesRegs)(m + 0x4310), kInitializeStatusBarTilemap_PARAMS_008DA5[m]);
-  WriteReg(MDMAEN, 2);
+  SmwCopyToVram(0x502e, kStatusBarTilemap_TopRow, 8);
+  SmwCopyToVram(0x5042, kStatusBarTilemap_SecondRow, 0x38);
+  SmwCopyToVram(0x5063, kStatusBarTilemap_SecondRow + 0x38, 0x36);
+  SmwCopyToVram(0x508e, kStatusBarTilemap_SomeRow, 8);
   int8 v4 = 54;
   uint8 v5 = 108;
   do {
@@ -792,18 +717,8 @@ void InitializeStatusBarTilemap() {  // 008cff
 }
 
 void UploadStatusBarTilemap() {  // 008dac
-  WriteReg(VMAIN, 0);
-  WriteReg(VMADDL, 0x42);
-  WriteReg(VMADDH, 0x50);
-  for (uint8 i = 6; (i & 0x80) == 0; --i)
-    WriteReg((SnesRegs)(i + 0x4310), kUploadStatusBarTilemap_PARAMS_StBr1[i]);
-  WriteReg(MDMAEN, 2);
-  WriteReg(VMAIN, 0);
-  WriteReg(VMADDL, 0x63);
-  WriteReg(VMADDH, 0x50);
-  for (uint8 j = 6; (j & 0x80) == 0; --j)
-    WriteReg((SnesRegs)(j + 0x4310), kUploadStatusBarTilemap_PARAMS_StBr2[j]);
-  WriteReg(MDMAEN, 2);
+  SmwCopyToVramLow(0x5042, g_ram + 0xef9, 0x1c);
+  SmwCopyToVramLow(0x5063, g_ram + 0xf15, 0x1b);
 }
 
 void UpdateStatusBarCounters() {  // 008e1a
@@ -831,30 +746,21 @@ void UpdateStatusBarCounters() {  // 008e1a
     misc_status_bar_tilemap[v2++ + 28] = -4;
   }
   for (uint8 k = 3; (k & 0x80) == 0; k -= 3) {
-    R0_ = *(&player_mario_score_hi + k);
-    R1_ = 0;
-    if (__PAIR32__(R0_W, *(uint16 *)(&player_mario_score_lo + k)) >= 0xF423F) {
+    uint16 r0w = *(&player_mario_score_hi + k);
+    if (__PAIR32__(r0w, *(uint16 *)(&player_mario_score_lo + k)) >= 0xF423F) {
       *(&player_mario_score_hi + k) = 15;
       *(&player_mario_score_mid + k) = 66;
       *(&player_mario_score_lo + k) = 63;
     }
   }
-  R0_ = player_mario_score_hi;
-  R1_ = 0;
-  R3_ = player_mario_score_mid;
-  R2_ = player_mario_score_lo;
-  UpdateStatusBarCounters_Loop2(0x14, 0);
+  UpdateStatusBarCounters_Loop2(0x14, 0, player_mario_score_hi, PAIR16(player_mario_score_mid, player_mario_score_lo));
   for (uint8 m = 0; m != 6; ++m) {
     if (misc_status_bar_tilemap[m + 48])
       break;
     misc_status_bar_tilemap[m + 48] = -4;
   }
   if (player_current_character) {
-    R0_ = player_luigi_score_hi;
-    R1_ = 0;
-    R3_ = player_luigi_score_mid;
-    R2_ = player_luigi_score_lo;
-    UpdateStatusBarCounters_Loop2(0x14, 0);
+    UpdateStatusBarCounters_Loop2(0x14, 0, player_luigi_score_hi, PAIR16(player_luigi_score_mid, player_luigi_score_lo));
     for (uint8 n = 0; n != 6; ++n) {
       if (misc_status_bar_tilemap[n + 48])
         break;
@@ -886,11 +792,10 @@ void UpdateStatusBarCounters() {  // 008e1a
     v10 = -4;
   misc_status_bar_tilemap[27] = v9.first;
   misc_status_bar_tilemap[26] = v10;
-  R0_ = 0;
-  R1_ = 0;
-  R3_ = 0;
-  R2_ = *(&player_mario_bonus_stars + player_current_character);
-  UpdateStatusBarCounters_009051(9, 0x10);
+//  r0 = 0;
+//  r1 = 0;
+  uint16 r2w = *(&player_mario_bonus_stars + player_current_character);
+  UpdateStatusBarCounters_009051(9, 0x10, r2w);
   uint8 ii;
   for (ii = 0; ii != 1; ++ii) {
     if (misc_status_bar_tilemap[ii + 37])
@@ -911,28 +816,28 @@ void UpdateStatusBarCounters() {  // 008e1a
   uint8 v14 = counter_yoshi_coins_to_display;
   if (counter_yoshi_coins_to_display >= 5)
     v14 = 0;
-  R0_ = v14 - 1;
+  uint8 r0 = v14 - 1;
   for (uint8 kk = 0; kk != 4; ++kk) {
     uint8 v16 = -4;
-    if ((R0_ & 0x80) == 0)
+    if ((r0 & 0x80) == 0)
       v16 = 46;
     misc_status_bar_tilemap[kk + 6] = v16;
-    --R0_;
+    --r0;
   }
 }
 
-void UpdateStatusBarCounters_Loop2(uint8 k, uint8 j) {  // 009012
+void UpdateStatusBarCounters_Loop2(uint8 k, uint8 j, uint16 r0w, uint16 r2w) {  // 009012
   do {
     for (misc_status_bar_tilemap[k + 28] = 0;; ++misc_status_bar_tilemap[k + 28]) {
       int v2 = j >> 1;
-      bool v3 = R2_W >= kUpdateStatusBarCounters_DATA_008FFA[v2 + 1];
-      R6_W = R2_W - kUpdateStatusBarCounters_DATA_008FFA[v2 + 1];
+      bool v3 = r2w >= kUpdateStatusBarCounters_DATA_008FFA[v2 + 1];
+      uint16 r6 = r2w - kUpdateStatusBarCounters_DATA_008FFA[v2 + 1];
       uint16 v4 = !v3 + kUpdateStatusBarCounters_DATA_008FFA[v2];
-      R4_W = R0_W - v4;
-      if (R0_W < v4)
+      uint16 r4 = r0w - v4;
+      if (r0w < v4)
         break;
-      R2_W = R6_W;
-      R0_W = R4_W;
+      r2w = r6;
+      r0w = r4;
     }
     ++k;
     j += 4;
@@ -948,15 +853,15 @@ PairU16 HexToDec(uint8 a) {  // 009045
   return MakePairU16_AX(a, v1);
 }
 
-void UpdateStatusBarCounters_009051(uint8 k, uint8 j) {  // 009051
+void UpdateStatusBarCounters_009051(uint8 k, uint8 j, uint16 r2w) {  // 009051
   do {
     for (misc_status_bar_tilemap[k + 28] = 0;; ++misc_status_bar_tilemap[k + 28]) {
       int v2 = j >> 1;
-      bool v3 = R2_W >= kUpdateStatusBarCounters_DATA_008FFA[v2 + 1];
-      R6_W = R2_W - kUpdateStatusBarCounters_DATA_008FFA[v2 + 1];
+      bool v3 = r2w >= kUpdateStatusBarCounters_DATA_008FFA[v2 + 1];
+      uint16 r6 = r2w - kUpdateStatusBarCounters_DATA_008FFA[v2 + 1];
       if (!v3)
         break;
-      R2_W = R6_W;
+      r2w = r6;
     }
     ++k;
     j += 4;
@@ -970,16 +875,16 @@ void UpdateStatusBarCounters_DrawItemBoxItem() {  // 009079
     if (misc_nmito_use_flag != 0xC1)
       get_OamEnt(oam_buf, 0)->ypos = -16;
   }
-  R1_ = v0;
+  uint8 r1 = v0;
   if (player_current_item_box) {
-    R0_ = kUpdateStatusBarCounters_ItemBoxItemProperties[player_current_item_box - 1];
+    uint8 r0 = kUpdateStatusBarCounters_ItemBoxItemProperties[player_current_item_box - 1];
     if (player_current_item_box == 3)
-      R0_ = kUpdateStatusBarCounters_StarPaletteFrames[(counter_global_frames >> 1) & 3];
-    uint8 v1 = R1_;
-    OamEnt *oam = get_OamEnt(oam_buf, R1_);
+      r0 = kUpdateStatusBarCounters_StarPaletteFrames[(counter_global_frames >> 1) & 3];
+    uint8 v1 = r1;
+    OamEnt *oam = get_OamEnt(oam_buf, r1);
     oam->xpos = 120;
     oam->ypos = 15;
-    oam->flags = R0_ | 0x30;
+    oam->flags = r0 | 0x30;
     oam->charnum = kUpdateStatusBarCounters_ItemBoxItemTile[player_current_item_box - 1];
     sprites_oamtile_size_buffer[v1 >> 2] = 2;
   }
@@ -1004,11 +909,10 @@ void DrawLoadingLetters() {  // 0091b1
     v0 = 38;
     v1 = -92;
   }
-  R0_ = v1;
-  R1_ = 0;
+  uint16 r0w = v1;
   uint8 v2 = 112;
   do {
-    DrawLoadingLetters_Draw(v0++, v2);
+    r0w = DrawLoadingLetters_Draw(v0++, v2, r0w);
     if (v0 == 8 && player_current_character)
       v0 = 14;
     v2 -= 8;
@@ -1016,20 +920,16 @@ void DrawLoadingLetters() {  // 0091b1
   CompressOamEntExt();
 }
 
-void DrawLoadingLetters_Draw(uint8 k, uint8 j) {  // 0091e9
+uint16 DrawLoadingLetters_Draw(uint8 k, uint8 j, uint16 r0w) {  // 0091e9
   OamEnt *oam = get_OamEnt(oam_buf, j);
   oam[66].flags = kDrawLoadingLetters_TileData_TopProp[k];
   oam[67].flags = kDrawLoadingLetters_TileData_BottomProp[k];
-  uint8 v3 = R0_;
-  oam[66].xpos = R0_;
-  oam[67].xpos = v3;
-  R0_ = v3 - 8;
-  if (v3 < 8)
-    --R1_;
+  oam[66].xpos = r0w;
+  oam[67].xpos = r0w;
+  r0w -= 8;
   uint8 v4 = j >> 2;
-  uint8 v5 = R1_ & 1;
-  sprites_oamtile_size_buffer[v4 + 66] = R1_ & 1;
-  sprites_oamtile_size_buffer[v4 + 67] = v5;
+  sprites_oamtile_size_buffer[v4 + 66] = (r0w >> 8) & 1;
+  sprites_oamtile_size_buffer[v4 + 67] = (r0w >> 8) & 1;
   int8 v6 = kDrawLoadingLetters_TileData[k];
   if (v6 >= 0) {
     OamEnt *v7 = get_OamEnt(oam_buf, j);
@@ -1038,20 +938,16 @@ void DrawLoadingLetters_Draw(uint8 k, uint8 j) {  // 0091e9
     v7[66].ypos = 104;
     v7[67].ypos = 112;
   }
+  return r0w;
 }
 
 void UpdateEntirePalette() {  // 00922f
   palettes_palette_mirror[0] = 0;
-  WriteReg(CGADD, 0);
-  for (uint8 i = 6; (i & 0x80) == 0; --i)
-    WriteReg((SnesRegs)(i + DMAP2), kUpdateEntirePalette_PARAMS_009249[i]);
-  WriteReg(MDMAEN, 4);
+  RtlUpdatePalette(palettes_palette_mirror, 0, 0x100);
 }
 
 void SetupHDMAWindowingEffects() {  // 009250
-  for (uint8 i = 4; (i & 0x80) == 0; --i)
-    WriteReg((SnesRegs)(i + DMAP7), kSetupHDMAWindowingEffects_PARAMS_009277[i]);
-  WriteReg(DAS70, 0);
+  RtlHdmaSetup(7, 0x41, 0x26, 0x927c, 0);
   SetupHDMAWindowingEffects_EndHDMA();
 }
 
@@ -1085,6 +981,7 @@ void SetupHDMAWindowingEffects_0092A8() {  // 0092a8
   sub_9291(0x198);
 }
 
+
 void SetEnemyRollcallParallaxHDMA_Init() {  // 0092b2
   misc_hdmawindow_effect_table[0] = 88;
   misc_hdmawindow_effect_table[10] = 88;
@@ -1092,15 +989,10 @@ void SetEnemyRollcallParallaxHDMA_Init() {  // 0092b2
   misc_hdmawindow_effect_table[9] = 0;
   misc_hdmawindow_effect_table[19] = 0;
   misc_hdmawindow_effect_table[29] = 0;
-  for (uint8 i = 4; (i & 0x80) == 0; --i) {
-    WriteReg((SnesRegs)(i + 0x4350), kSetEnemyRollcallParallaxHDMA_PARAMS_009313[i]);
-    WriteReg((SnesRegs)(i + 0x4360), kSetEnemyRollcallParallaxHDMA_PARAMS_009318[i]);
-    WriteReg((SnesRegs)(i + 0x4370), kSetEnemyRollcallParallaxHDMA_PARAMS_00931D[i]);
-  }
-  WriteReg(DAS50, 0);
-  WriteReg(DAS60, 0);
-  WriteReg(DAS70, 0);
-  mirror_hdmaenable = -32;
+  RtlHdmaSetup(5, 0x2, 0xd, 0x4a0, 0);
+  RtlHdmaSetup(6, 0x2, 0xf, 0x4aa, 0);
+  RtlHdmaSetup(7, 0x2, 0x11, 0x4b4, 0);
+  mirror_hdmaenable = 0xE0;
   SetEnemyRollcallParallaxHDMA();
 }
 
@@ -1122,9 +1014,9 @@ void InitAndMainLoop_ProcessGameMode() {  // 009322
 }
 
 void TurnOffIO() {  // 00937d
-  WriteReg(NMITIMEN, 0);
-  WriteReg(HDMAEN, 0);
-  WriteReg(INIDISP, 0x80);
+//  WriteReg(NMITIMEN, 0);
+//  WriteReg(HDMAEN, 0);
+  RtlPpuWrite(INIDISP, 0x80);
 }
 
 void GameMode00_LoadNintendoPresents() {  // 009391
@@ -1160,40 +1052,23 @@ void GameMode00_LoadNintendoPresents_0093CA() {  // 0093ca
 void GameMode00_LoadNintendoPresents_0093EA(uint8 k, uint8 j) {  // 0093ea
   misc_nmito_use_flag = 1;
   SetVisibleLayers(0x20, k, j);
-  GameMode00_LoadNintendoPresents_0093F4();
-}
-
-void GameMode00_LoadNintendoPresents_0093F4() {  // 0093f4
   ++misc_game_mode;
-  GameMode00_LoadNintendoPresents_Mode04Finish();
-}
-
-void GameMode00_LoadNintendoPresents_Mode04Finish() {  // 0093f7
-  WriteReg(NMITIMEN, 0x81);
 }
 
 void SetVisibleLayers(uint8 a, uint8 k, uint8 j) {  // 0093fd
-  WriteReg(CGADSUB, a);
+  RtlPpuWrite(CGADSUB, a);
   mirror_color_math_select_and_enable = a;
-  WriteReg(TM, k);
-  WriteReg(TS, j);
-  WriteReg(TMW, 0);
-  WriteReg(TSW, 0);
+  RtlPpuWrite(TM, k);
+  RtlPpuWrite(TS, j);
+  RtlPpuWrite(TMW, 0);
+  RtlPpuWrite(TSW, 0);
 }
 
 void GameMode01_ShowNintendoPresents() {  // 00940f
   if (!--timer_title_screen_input_timer) {
     GraphicsDecompressionRoutines_DecompressGFX32And33();
-    GameMode01_ShowNintendoPresents_009417();
+    ++misc_game_mode;
   }
-}
-
-void GameMode01_ShowNintendoPresents_009417() {  // 009417
-  ++misc_game_mode;
-}
-
-void GameMode01_ShowNintendoPresents_Return00941A() {  // 00941a
-  ;
 }
 
 void GameMode06_CircleEffect() {  // 00941b
@@ -1207,7 +1082,7 @@ void GameMode06_CircleEffect() {  // 00941b
     if ((uint8)(timer_hdmawindow_scaling_factor + 4) < 0xF0)
       GameMode06_CircleEffect_009440(timer_hdmawindow_scaling_factor + 4);
     else
-      GameMode01_ShowNintendoPresents_009417();
+      ++misc_game_mode;
   }
 }
 
@@ -1217,10 +1092,9 @@ void GameMode06_CircleEffect_009440(uint8 a) {  // 009440
 }
 
 void GameMode06_CircleEffect_009443() {  // 009443
-  UpdateHDMAWindowBuffer_SetCircleHDMAPointer();
-  R0_ = 0x80;
-  R1_ = 112;
-  UpdateHDMAWindowBuffer_KeyholeEntry(0x70);
+  uint8 r0 = 0x80;
+  uint8 r1 = 112;
+  UpdateHDMAWindowBuffer_KeyholeEntry(UpdateHDMAWindowBuffer_SetCircleHDMAPointer(), r0, r1);
 }
 
 void GameMode19_Cutscene() {  // 009468
@@ -1286,17 +1160,9 @@ void GameMode19_Cutscene_GameMode1BEntry() {  // 0094fd
 }
 
 void UploadBigLayer3LettersToVRAM() {  // 00955e
-  GraphicsDecompressionRoutines(0x2F);
-  WriteReg(VMAIN, 0x80);
-  WriteRegWord(VMADDL, 0x4600);
-  int16 v0 = 512;
-  do {
-    uint8 *v1 = IndirPtr(&R0_W, 0);
-    WriteRegWord(VMDATAL, *(uint16 *)v1);
-    ++R0_W;
-    ++R0_W;
-    --v0;
-  } while (v0);
+  const uint8 *p0 = GraphicsDecompress(0x2F);
+  const uint8 *v1 = &p0[0];
+  SmwCopyToVram(0x4600, v1, 512 * 2);
 }
 
 void GameMode1D_LoadYoshisHouse() {  // 009583
@@ -1318,7 +1184,7 @@ void GameMode1D_LoadYoshisHouse_GameMode1FEntry() {  // 0095ab
   ResetSpritesFunc(0);
   GameMode1D_LoadYoshisHouse_Bank0C();
   ++counter_local_frames;
-  HandleLevelTileAnimations();
+  LmHook_LevelTileAnimations();
   CompressOamEntExt();
 }
 
@@ -1410,7 +1276,6 @@ void GameMode10_BufferLevelLoadMessage() {  // 00968e
 }
 
 void GameMode11_LoadSublevel_GameMode03Entry() {  // 0096ae
-  WriteReg(NMITIMEN, 0);
   InitializeFirst8KBOfRAM();
   for (int8 i = 7; i >= 0; --i)
     misc_currently_loaded_sprite_graphics_files[(uint8)i] = -1;
@@ -1424,24 +1289,29 @@ void GameMode11_LoadSublevel_GameMode03Entry() {  // 0096ae
 void GameMode11_LoadSublevel_0096CF(uint8 j, uint8 a) {  // 0096cf
   misc_intro_level_flag = a;
   ow_players_map[0] = j;
-  GameMode11_LoadSublevel_SA1Pack_OptimizeThisRoutine1();
+  GameMode11_LoadSublevel_0096D5();
 }
 
-void GameMode11_LoadSublevel_SA1Pack_OptimizeThisRoutine1() {  // 0096d5
-  WriteReg(NMITIMEN, 0);
+void GameMode11_LoadSublevel_0096D5() {  // 0096d5
   DamagePlayer_DisableButtons();
   if (!counter_sublevels_entered && flag_show_player_start)
     LoadOverworldLayer1AndEvents();
   flag_disable_layer3_scroll = 0;
   pointer_current_overworld_process = 0;
   timer_wait_before_score_tally = 80;
-  SpecifySublevelToLoad();
+  if (LoadLevel())
+    return;
   for (uint8 i = 7; (i & 0x80) == 0; --i)
     LOBYTE(get_PointU16(misc_layer1_pos, i)->x) = *((uint8 *)&mirror_current_layer1_xpos + i);
   HandleSPCUploads_008134();
   InitializeLevelRAM();
-  camera_last_screen_horiz = 32;
-  GameMode11_LoadSublevel_00A796();
+  bool skip_it = false;
+  if (g_lunar_magic)
+    skip_it = LmHook_GameMode11_LoadSublevel();
+  else
+    camera_last_screen_horiz = 32;
+  if (!skip_it)
+    GameMode11_LoadSublevel_00A796();
   ++flag_scroll_up_to_player;
   HandleStandardLevelCameraScroll();
   LoadSublevel();
@@ -1461,7 +1331,6 @@ LABEL_14:
   mirror_screen_display_register = 0;
   misc_mosaic_direction = 0;
   ++misc_game_mode;
-  GameMode00_LoadNintendoPresents_Mode04Finish();
 }
 
 PairU16 OwPrompt03_OverworldLifeExchanger_00974C(uint8 a) {  // 00974c
@@ -1486,7 +1355,7 @@ void GameMode17_ShowDeathMessage() {  // 009759
       if (((players_lives[1] | players_lives[0]) & 0x80) != 0) {
         for (uint8 i = 12; (i & 0x80) == 0; --i) {
           flag_collected5_yoshi_coins[i] = 0;
-          *(&R6_ + i) = 0;
+          g_ram[6 + i] = 0;
           flag_collected_moons[i] = 0;
         }
         ++flag_show_continue_and_end;
@@ -1496,16 +1365,14 @@ void GameMode17_ShowDeathMessage() {  // 009759
     return;
   }
   timer_display_death_message_animation = v0;
-  R0_ = v0 - 96;
-  R1_ = 2 * R1_ + (v0 >= 0x60);
+  uint16 r0w = v0 + 0xa0;
   uint8 v2 = misc_death_message_to_display;
   uint8 v3 = 72;
   do {
-    if (v3 == 40) {
-      R0_ = 120 - timer_display_death_message_animation;
-      R1_ = (2 * (120 - timer_display_death_message_animation) + (timer_display_death_message_animation <= 0x78)) ^ 1;
-    }
-    DrawLoadingLetters_Draw(v2++, v3);
+    if (v3 == 40)
+      r0w = 120 - timer_display_death_message_animation;
+    DrawLoadingLetters_Draw(v2++, v3, r0w);
+    r0w -= 8;
     v3 -= 8;
   } while (v3);
   CompressOamEntExt();
@@ -1520,7 +1387,7 @@ void GameMode12_PrepareLevel_PrepareMode7Level() {  // 0097bc
   misc_m7_angle = 0x2020;
   LOBYTE(shaking_layer1_disp_y) = 0;
   ClearLayer3Tilemap();
-  misc_level_tileset_setting = -1;
+  misc_level_tileset_setting = 0xff;
   GameMode12_PrepareLevel_UploadTiltingPlatformTilemap();
   if ((misc_nmito_use_flag & 0x40) == 0) {
     BufferPalettesRoutines_IggyLarryPlatform();
@@ -1557,9 +1424,9 @@ LABEL_6:
 LABEL_9:
   graphics_level_sprite_graphics_setting = v0;
   UploadGraphicsFiles();
-  WriteReg(TMW, 0x11);
-  WriteReg(TS, 0);
-  WriteReg(TSW, 0);
+  RtlPpuWrite(TMW, 0x11);
+  RtlPpuWrite(TS, 0);
+  RtlPpuWrite(TSW, 0);
   mirror_bg1_and2_window_mask_settings = 2;
   mirror_object_and_color_window_settings = 50;
   mirror_color_math_initial_settings = 32;
@@ -1597,13 +1464,7 @@ void UploadMode7KoopaBossesAndLavaAnimation() {  // 0098a9
   int8 v0 = misc_nmito_use_flag & 1;
   if (!(misc_nmito_use_flag & 1)) {
     uint8 v1 = (counter_local_frames >> 2) & 6;
-    WriteReg(VMAIN, 0x80);
-    WriteRegWord(DMAP2, 0x1801);
-    WriteRegWord(VMADDL, 0x7800);
-    WriteRegWord(A1T2L, kLevelTileAnimations_FrameData_Local1_Frame5[v1 >> 1]);
-    WriteReg(A1B2, 0x7E);
-    WriteRegWord(DAS2L, 0x80);
-    WriteReg(MDMAEN, 4);
+    SmwCopyToVram(0x7800, g_ram + kLevelTileAnimations_FrameData[(v1 + 0xa0) >> 1], 0x80);    
     v0 = 0;
   }
   uint16 v2 = 4;
@@ -1612,18 +1473,12 @@ void UploadMode7KoopaBossesAndLavaAnimation() {  // 0098a9
     v2 = 8;
     v3 = 22;
   }
-  R0_W = v2;
-  R2_W = 0xc680;
-  WriteRegWord(VMAIN, 0);
-  WriteRegWord(DMAP2, 0x1800);
-  WriteReg(A1B2, 0x7E);
+  uint16 r0w = v2;
+  uint16 r2w = 0xc680;
   do {
-    WriteRegWord(VMADDL, kUploadMode7KoopaBossesAndLavaAnimation_VRAMAddressToUpload[v3 >> 1]);
-    uint16 v4 = R2_W;
-    WriteRegWord(A1T2L, R2_W);
-    R2_W = R0_W + v4;
-    WriteRegWord(DAS2L, R0_W);
-    WriteReg(MDMAEN, 4);
+    SmwCopyToVramLow(kUploadMode7KoopaBossesAndLavaAnimation_VRAMAddressToUpload[v3 >> 1],
+        g_ram + r2w, r0w);
+    r2w += r0w;
     v3 -= 2;
   } while ((v3 & 0x80) == 0);
 }
@@ -1654,7 +1509,7 @@ void GameMode12_PrepareLevel_PrepareNonIggyLarryRoom() {  // 009925
       v3 = 0xfb80;
     if (v4 == 18)
       v3 = 800;
-    R0_W = v3;
+    uint16 r0w = v3;
     uint16 v5 = 0;
     int16 v6 = 0xc05a;
     do {
@@ -1667,7 +1522,7 @@ void GameMode12_PrepareLevel_PrepareNonIggyLarryRoom() {  // 009925
       LOBYTE(v7) = HIBYTE(v7);
       HIBYTE(v7) = v9;
       *(uint16 *)&stripe_image_upload_data[v5 + 132] = v7;
-      v10 = __PAIR16__(v7, v9) - R0_W;
+      v10 = __PAIR16__(v7, v9) - r0w;
       int8 v11 = v10;
       LOBYTE(v10) = HIBYTE(v10);
       HIBYTE(v10) = v11;
@@ -1732,14 +1587,9 @@ void GameMode12_PrepareLevel_009A3D(uint8 k) {  // 009a3d
 }
 
 void CheckWhichControllersArePluggedIn() {  // 009a74
-  uint8 v1 = ReadReg(JOYA);
-  uint8 Reg = ReadReg(JOYB);
-  uint8 v2 = (2 * Reg + v1) & 3;
-  if (v2) {
-    if (v2 == 3)
-      v2 = -125;
-    --v2;
-  }
+  uint8 v2 = my_flags & 3;
+  if (v2)
+    v2 += ((v2 == 3) ? 0x80 : 0) - 1;
   io_controllers_plugged_in = v2;
 }
 
@@ -1760,7 +1610,6 @@ void GameMode04_PrepareTitleScreen() {  // 009a8b
   mirror_color_math_initial_settings = 18;
   GameMode06_CircleEffect_009443();
   timer_title_screen_input_timer = 16;
-  GameMode00_LoadNintendoPresents_Mode04Finish();
 }
 
 uint8 HandleMenuCursor_Main_ReturnsTwice(uint8 j) {  // 009ad0
@@ -1778,8 +1627,8 @@ uint8 HandleMenuCursor_Main_ReturnsTwice(uint8 j) {  // 009ad0
       counter_blinking_cursor_frame = 0;
       uint8 v2 = misc_blinking_cursor_pos + kHandleMenuCursor_DATA_009AC8[(what >> 2) - 1];
       if ((int8)v2 < 0)
-        v2 = temp8a - 1;
-      if (v2 >= temp8a)
+        v2 = player_collision_var8a - 1;
+      if (v2 >= player_collision_var8a)
         misc_blinking_cursor_pos = 0;
       else
         misc_blinking_cursor_pos = v2;
@@ -1792,7 +1641,7 @@ void GameMode09_EraseFile() {  // 009b1a
   uint8 v0;
   uint16 v3;
 
-  FileSelectColorMath(0x39C9, 0x60);
+  FileSelectColorMath(g_lunar_magic ? palettes_background_color : 0x39C9, 0x60);
   if (((io_controller_press2 | io_controller_press1) & 0x40) != 0) {
     Gamemode_9_A_Common();
   } else {
@@ -1821,8 +1670,7 @@ void GameMode09_EraseFile() {  // 009b1a
     } else {
       misc_blinking_cursor_pos = v0;
       misc_which_file_to_erase |= kGameMode09_EraseFile_DATA_009B17[v0];
-      R5_ = misc_which_file_to_erase;
-      BufferFileSelectText_Entry3(0);
+      BufferFileSelectText_Entry3(0, misc_which_file_to_erase);
     }
   }
 }
@@ -1871,13 +1719,13 @@ void SaveGame() {  // 009bc9
   uint16 v0 = PAIR16(kSaveFileLocations_Hi[misc_current_save_file], kSaveFileLocations_Lo[misc_current_save_file]);
   for (int k = v0; ; k += 288) {
     uint16 j = 0;
-    WORD(temp8a) = 0;
+    uint16 sum = 0;
     do {
       uint8 v3 = ow_save_buffer[j];
       g_sram[k++] = v3;
-      WORD(temp8a) += v3;
+      sum += v3;
     } while (++j < 0x8D);
-    WORD(g_sram[k]) = 0x5a5a - *(uint16 *)&temp8a;
+    WORD(g_sram[k]) = 0x5a5a - sum;
     if (k >= 0x1ad)
       break;
   }
@@ -1896,12 +1744,22 @@ void GameMode07_TitleScreenDemo() {  // 009c64
     GameMode07_TitleScreenDemo_InitializeFileSelect();
   } else {
     DamagePlayer_DisableButtons();
+
+    if (HAS_LM_FEATURE(kLmFeature_CustomTitleScreenDemo)) {
+      if (LmHook_CustomTitleScreenDemo())
+        GameMode14_InLevel();
+      else
+        misc_game_mode = 2;
+      return;
+    }
+
     uint8 v0 = misc_title_screen_movement_data_index;
     if (!--timer_title_screen_input_timer) {
       timer_title_screen_input_timer = kGameMode07_TitleScreenDemo_ItrCntrlrSqnc[misc_title_screen_movement_data_index + 1];
       v0 = misc_title_screen_movement_data_index + 2;
       misc_title_screen_movement_data_index += 2;
     }
+    assert(v0 != 0);
     if (kGameMode07_TitleScreenDemo_ItrCntrlrSqnc[v0 - 2] == 0xFF) {
       GameMode07_TitleScreenDemo_FadeOutToTitleScreen();
     } else {
@@ -1921,8 +1779,13 @@ void GameMode07_TitleScreenDemo_FadeOutToTitleScreen() {  // 009c89
 
 void GameMode07_TitleScreenDemo_InitializeFileSelect() {  // 009c9f
   ResetSpritesFunc(0);
-  WriteReg(TM, 4);
-  WriteReg(TS, 0x13);
+  RtlPpuWrite(TM, 4);
+  RtlPpuWrite(TS, 0x13);
+
+  // Ensure the black thing goes away at the intro
+  RtlPpuWrite(WH0, 0);
+  RtlPpuWrite(WH1, 0xff);
+
   mirror_hdmaenable = 0;
   GameMode07_TitleScreenDemo_InitializeSaveData();
 }
@@ -1931,7 +1794,7 @@ void GameMode07_TitleScreenDemo_InitializeSaveData() {  // 009cb0
   misc_intro_level_flag = -23;
   InitializeSaveData();
   BufferFileSelectText();
-  GameMode01_ShowNintendoPresents_009417();
+  ++misc_game_mode;
 }
 
 uint8 GameMode07_TitleScreenDemo_009CBE() {  // 009cbe
@@ -1944,7 +1807,7 @@ uint8 GameMode07_TitleScreenDemo_009CBE() {  // 009cbe
 void GameMode08_FileSelect() {  // 009cd1
   uint8 v0;
 
-  FileSelectColorMath(0x7393, 0x20);
+  FileSelectColorMath(g_lunar_magic ? palettes_background_color : 0x7393, 0x20);
   CheckWhichControllersArePluggedIn();
   if ((v0 = HandleMenuCursor_Main_ReturnsTwice(2)) == 0xff)
     return;
@@ -1952,8 +1815,7 @@ void GameMode08_FileSelect() {  // 009cd1
   ++*(uint16 *)&misc_game_mode;
   if (v0 == 3) {
     misc_which_file_to_erase = 0;
-    R5_ = 0;
-    BufferFileSelectText_Entry3(0);
+    BufferFileSelectText_Entry3(0, 0);
   } else {
     misc_current_save_file = v0;
     PairU16 v1 = BufferFileSelectText_009DB5(v0);
@@ -1962,11 +1824,11 @@ void GameMode08_FileSelect() {  // 009cd1
     if (first != 0xffff) {
       uint16 v6 = first;
       misc_intro_level_flag = 0;
-      R0_ = -113;
+      uint8 r0 = -113;
       do {
         g_sram[second++] = g_sram[first++];
-        --R0_;
-      } while (R0_);
+        --r0;
+      } while (r0);
       uint16 v4 = v6;
       for (uint16 i = 0; i < 0x8D; ++i)
         ow_save_buffer[i] = g_sram[v4++];
@@ -1989,11 +1851,11 @@ void FileSelectColorMath(uint16 a, uint8 j) {  // 009d30
 }
 
 void BufferFileSelectText() {  // 009d38
-  R5_ = 0;
-  BufferFileSelectText_Entry3(0xCB);
+  BufferFileSelectText_Entry3(0xCB, 0);
 }
 
-void BufferFileSelectText_Entry3(uint8 k) {  // 009d3c
+
+void BufferFileSelectText_Entry3(uint8 k, uint8 r5) {  // 009d3c
   uint16 kk = k;
 
   int16 v1 = k;
@@ -2001,12 +1863,11 @@ void BufferFileSelectText_Entry3(uint8 k) {  // 009d3c
     stripe_image_upload_data[i] = kFileSelectText_EraseFile[kk];
     kk = kk + 1;
   }
-  R0_ = -124;
+  uint8 r0 = 0x84;
   uint8 v3 = 2;
   do {
-    R4_ = v3;
-    int8 v4 = R5_ & 1;
-    R5_ >>= 1;
+    int8 v4 = r5 & 1;
+    r5 >>= 1;
     if (!v4) {
       uint16 first = BufferFileSelectText_009DB5(v3).first;
       if (first != 0xffff) {
@@ -2016,13 +1877,13 @@ void BufferFileSelectText_Entry3(uint8 k) {  // 009d3c
           v7 = v8.first;
           second = v8.second;
         } else {
-          second = -121;
-          v7 = -120;
+          second = 0x87;
+          v7 = 0x88;
         }
-        uint8 v9 = R0_;
-        stripe_image_upload_data[R0_ + 4] = v7;
+        uint8 v9 = r0;
+        stripe_image_upload_data[r0 + 4] = v7;
         if (!second)
-          second = -4;
+          second = 0xfc;
         stripe_image_upload_data[v9 + 2] = second;
         stripe_image_upload_data[v9 + 3] = 56;
         stripe_image_upload_data[v9 + 5] = 56;
@@ -2034,9 +1895,8 @@ void BufferFileSelectText_Entry3(uint8 k) {  // 009d3c
         } while (v10);
       }
     }
-    R0_ -= 36;
-    v3 = R4_ - 1;
-  } while ((int8)(R4_ - 1) >= 0);
+    r0 -= 36;
+  } while ((int8)--v3 >= 0);
 }
 
 PairU16 BufferFileSelectText_009DB5(uint8 k) {  // 009db5
@@ -2049,13 +1909,13 @@ PairU16 BufferFileSelectText_009DB5(uint8 k) {  // 009db5
   for (;;) {
     uint16 v9 = v2;
     uint16 v8 = i;
-    WORD(temp8a) = *(uint16 *)&g_sram[v2 + 141];
+    uint16 sum = WORD(g_sram[v2 + 141]);
     uint16 v4 = 141;
     do {
-      WORD(temp8a) += g_sram[v2++];
+      sum += g_sram[v2++];
     } while (--v4);
 
-    if (WORD(temp8a) == 0x5A5A)
+    if (sum == 0x5A5A)
       return MakePairU16(v9, v8);
     if (v9 >= 428)
       return MakePairU16(v9 == 428 ? v9 : 0xffff, v8);
@@ -2112,37 +1972,29 @@ void GameMode0A_PlayerSelect_009E62() {  // 009e62
 }
 
 void HandleMenuCursor_009E82(uint8 j) {  // 009e82
-  int16 v5;
-
   uint8 v1 = kHandleMenuCursor_DATA_009E7E[misc_blinking_cursor_pos];
   if (((counter_blinking_cursor_frame ^ 0x1F) & 0x18) == 0)
     v1 = 0;
-  R0_ = v1;
+  uint8 r0w = v1;
   uint8 v2 = stripe_image_upload;
   int v3 = j >> 1;
-  *(uint16 *)&temp8a = kHandleMenuCursor_DATA_009E6A[v3];
-  R2_W = *(uint16 *)&temp8a;
+  *(uint16 *)&player_collision_var8a = kHandleMenuCursor_DATA_009E6A[v3];
+  uint16 r2w = *(uint16 *)&player_collision_var8a;
   uint16 v4 = kHandleMenuCursor_DATA_009E74[v3];
   do {
-    int8 v6 = v4;
-    LOBYTE(v5) = HIBYTE(v4);
-    HIBYTE(v5) = v6;
-    *(uint16 *)&stripe_image_upload_data[v2] = v5;
-    int8 v7 = v5;
-    LOBYTE(v5) = v6;
-    HIBYTE(v5) = v7;
-    uint16 v10 = v5 + 64;
-    *(uint16 *)&stripe_image_upload_data[v2 + 2] = 256;
+    WORD(stripe_image_upload_data[v2]) = swap16(v4);
+    uint16 v10 = v4 + 64;
+    WORD(stripe_image_upload_data[v2 + 2]) = 256;
     int16 v8 = 0x38fc;
-    int8 v9 = R0_W & 1;
-    R0_W >>= 1;
+    int8 v9 = r0w & 1;
+    r0w >>= 1;
     if (v9)
       v8 = 0x3d2e;
-    *(uint16 *)&stripe_image_upload_data[v2 + 4] = v8;
+    WORD(stripe_image_upload_data[v2 + 4]) = v8;
     v4 = v10;
     v2 += 6;
-    --R2_W;
-  } while (R2_W);
+    --r2w;
+  } while (r2w);
   HandleMenuCursor_009ED4(v2);
 }
 
@@ -2152,12 +2004,10 @@ void HandleMenuCursor_009ED4(uint8 k) {  // 009ed4
 }
 
 void InitializeSaveData() {  // 009f06
-  uint8 v0 = -115;
-  do
-    ow_save_buffer[--v0] = 0;
-  while (v0);
+  memset(ow_save_buffer, 0, 141);
   for (uint8 i = 7; (i & 0x80) == 0; --i)
     ow_save_buffer[LOBYTE(kInitializeSaveData_InitialLevelFlags[i])] = HIBYTE(kInitializeSaveData_InitialLevelFlags[i]);
+  LmHook_InitializeSaveData();
   for (uint8 j = 21; (j & 0x80) == 0; --j)
     ow_save_buffer[j + 111] = kInitializeSaveData_InitialOWPlayerPos[j];
 }
@@ -2193,7 +2043,7 @@ void GameModeXX_FadeInOrOut_GMMosaic() {  // 009f5b
 }
 
 void GameModeXX_FadeInOrOut_009F66() {  // 009f66
-  WriteReg(MOSAIC, mirror_mosaic_size_and_bgenable | 3);
+  RtlPpuWrite(MOSAIC, mirror_mosaic_size_and_bgenable | 3);
 }
 
 void GameModeXX_FadeInOrOut() {  // 009f6f
@@ -2214,11 +2064,15 @@ void GameMode28_ShowTheEnd() {  // 009f7c
   }
 }
 
+const uint8 *GetLayer3ImagePtr(int i) {
+  return kLayer3ImagePtrs(i).ptr;
+}
+
 void InitializeLevelLayer3() {  // 009fb8
   uint8 v4;
-  R0_ = 3 * misc_level_tileset_setting;
+  uint8 r0 = 3 * misc_level_tileset_setting;
   if (misc_level_layer3_settings) {
-    uint8 v0 = R0_ + misc_level_layer3_settings - 1;
+    uint8 v0 = r0 + misc_level_layer3_settings - 1;
     int8 v1 = kInitializeLevelLayer3_DATA_009F88[v0];
     if (v1 >= 0) {
       flag_layer3_tide_level = kInitializeLevelLayer3_DATA_009F88[v0];
@@ -2248,16 +2102,16 @@ LABEL_15:
   mirror_color_math_select_and_enable &= ~4;
 LABEL_16:
   if (misc_level_layer3_settings) {
-    R1_ = R0_ + misc_level_layer3_settings - 1;
-    uint8 v6 = R1_;
-    R0_ = *((uint8 *)&kInitializeLevelLayer3_Layer3ImagePtrs[0].addr + (uint8)(3 * R1_));
-    R1_ = *((uint8 *)&kInitializeLevelLayer3_Layer3ImagePtrs[0].addr + (uint8)(3 * R1_) + 1);
-    R2_ = kInitializeLevelLayer3_Layer3ImagePtrs[v6].bank;
-    LoadStripeImage_UploadToVRAM(R2_);
+    uint8 v6 = r0 + misc_level_layer3_settings - 1;
+    LoadStripeImage_UploadToVRAM(GetLayer3ImagePtr(v6));
   }
 }
 
 void InitializeLevelLayer3_GenerateInteractiveTideWater() {  // 00a045
+  if (HAS_LM_FEATURE(kLmFeature_TideWaterTweak)) {
+    LmHook_InitializeLevelLayer3_GenerateInteractiveTideWater();
+    return;
+  }
   for (uint16 i = 256; i < 0x1B00; i += 256) {
     int16 v1 = 88;
     do {
@@ -2276,10 +2130,10 @@ void GameMode0C_LoadOverworld() {  // 00a087
   ClearOverworldAndCutsceneRAM();
   if (misc_intro_level_flag) {
     timer_title_screen_input_timer = -80;
-    ow_players_map[0] = 0;
+    if (!HAS_LM_FEATURE(kLmFeature_DontResetOwPlayersMap))
+      ow_players_map[0] = 0;
     mirror_mosaic_size_and_bgenable = -16;
     misc_game_mode = 16;
-    GameMode00_LoadNintendoPresents_Mode04Finish();
     return;
   }
   ClearLayer3Tilemap();
@@ -2304,7 +2158,7 @@ void GameMode0C_LoadOverworld() {  // 00a087
     LoadSaveBufferData();
     if (!counter_events_triggered) {
       GameMode07_TitleScreenDemo_FadeOutToTitleScreen();
-      GameMode00_LoadNintendoPresents_0093F4();
+      ++misc_game_mode;
       return;
     }
     LoadOverworldLayer2AndEventsTilemaps();
@@ -2315,16 +2169,18 @@ void GameMode0C_LoadOverworld() {  // 00a087
     v3 = 23;
   }
   SetVisibleLayers(v2, v3, 2);
-  WriteReg(TMW, v3);
-  WriteReg(TSW, 2);
+  RtlPpuWrite(TMW, v3);
+  RtlPpuWrite(TSW, 2);
   LoadOverworldLayer1AndEvents();
   int v4 = (uint8)(2 * ow_players_map[player_current_character]) >> 1;
   mirror_current_layer1_xpos = kGameMode0C_LoadOverworld_DATA_00A06B[v4];
   mirror_current_layer2_xpos = mirror_current_layer1_xpos;
   mirror_current_layer1_ypos = kGameMode0C_LoadOverworld_DATA_00A079[v4];
   mirror_current_layer2_ypos = mirror_current_layer1_ypos;
+  if (g_lunar_magic)
+    LmHook_GameMode0C_LoadOverworld(v4);
   UploadGraphicsFiles();
-  GraphicsDecompressionRoutines(0x14);
+  LmHook_OwGraphicsDecompress();
   BufferPalettesRoutines_Overworld();
   UpdateEntirePalette();
   graphics_stripe_image_to_upload = 6;
@@ -2344,7 +2200,7 @@ void GameMode0C_LoadOverworld() {  // 00a087
     misc_hdmawindow_effect_table[i + 1] = -1;
   }
   SetupHDMAWindowingEffects_0092A0();
-  GameMode00_LoadNintendoPresents_0093F4();
+  ++misc_game_mode;
 }
 
 void LoadSaveBufferData() {  // 00a195
@@ -2412,7 +2268,9 @@ void GameMode14_InLevel() {  // 00a1da
         HandleStandardLevelCameraScroll();
         HandleScrollSpriteAndLayer3Scrolling();
         CheckIfLevelTilemapsNeedScrollUpdate();
-        HandleLevelTileAnimations();
+        if (HAS_HACK(kHack_Walljump))
+          HackHandleWalljump();
+        LmHook_LevelTileAnimations();
       } else {
         GameMode14_InLevel_InMode7Level();
       }
@@ -2442,133 +2300,83 @@ void UpdateCurrentPlayerPositionRAM() {  // 00a2f3
   player_current_ypos = player_ypos;
 }
 
+const uint16 *GetPlayerPalette() {
+  return kPlayerPalettes + ((pointer_player_palette - 0xb2c8) >> 1);
+}
+
 void UploadPlayerGFX() {  // 00a300
   if (player_number_of_tiles_to_update) {
-    WriteReg(CGADD, 0x86);
-    WriteRegWord(DMAP2, 0x2200);
-    WriteRegWord(A1T2L, pointer_player_palette);
-    WriteReg(A1B2, 0);
-    WriteRegWord(DAS2L, 0x14);
-    WriteReg(MDMAEN, 4);
+    RtlUpdatePalette(GetPlayerPalette(), 0x86, 10);
   }
-  WriteReg(VMAIN, 0x80);
-  WriteRegWord(DMAP2, 0x1801);
-  WriteRegWord(VMADDL, 0x67F0);
-  WriteRegWord(A1T2L, graphics_dynamic_sprite_tile7 ? graphics_dynamic_sprite_tile7 : 0x2000);
-  WriteReg(A1B2, 0x7E);
-  WriteRegWord(DAS2L, 0x20);
-  WriteReg(MDMAEN, 4);
-  WriteRegWord(VMADDL, 0x6000);
+  SmwCopyToVram(0x67f0, g_ram + (graphics_dynamic_sprite_tile7 ? graphics_dynamic_sprite_tile7 : 0x2000), 0x20);
+
   uint8 v0 = 0;
   do {
     uint16 t = *(uint16 *)&graphics_dynamic_sprite_pointers_top_lo[v0];
-    WriteRegWord(A1T2L, t ? t : 0x2000);  // bugfix to make predictable behavior
-    WriteRegWord(DAS2L, 0x40);
-    WriteReg(MDMAEN, 4);
+    SmwCopyToVram(0x6000 + v0 * 0x10, g_ram + (t ? t : 0x2000), 0x40);
     v0 += 2;
   } while (v0 < player_number_of_tiles_to_update);
-  WriteRegWord(VMADDL, 0x6100);
+
   uint8 v1 = 0;
   do {
     uint16 t = *(uint16 *)&graphics_dynamic_sprite_pointers_bottom_lo[v1];
-    WriteRegWord(A1T2L, t ? t : 0x2000);  // bugfix to make predictable behavior
-    WriteRegWord(DAS2L, 0x40);
-    WriteReg(MDMAEN, 4);
+    // bugfix to make predictable behavior
+    SmwCopyToVram(0x6100 + v1 * 0x10, g_ram + (t ? t : 0x2000), 0x40);
     v1 += 2;
   } while (v1 < player_number_of_tiles_to_update);
 }
 
 void UploadLevelExAnimationData() {  // 00a390
-  WriteReg(VMAIN, 0x80);
-  WriteRegWord(DMAP2, 0x1801);
-  WriteReg(A1B2, 0x7E);
-  if (graphics_tile_anim_vramaddress3) {
-    WriteRegWord(VMADDL, graphics_tile_anim_vramaddress3);
-    WriteRegWord(A1T2L, graphics_tile_anim_source_address3);
-    WriteRegWord(DAS2L, 0x80);
-    WriteReg(MDMAEN, 4);
-  }
-  if (graphics_tile_anim_vramaddress2) {
-    WriteRegWord(VMADDL, graphics_tile_anim_vramaddress2);
-    WriteRegWord(A1T2L, graphics_tile_anim_source_address2);
-    WriteRegWord(DAS2L, 0x80);
-    WriteReg(MDMAEN, 4);
-  }
+  if (graphics_tile_anim_vramaddress3)
+    SmwCopyToVram(graphics_tile_anim_vramaddress3, g_ram + graphics_tile_anim_source_address3, 0x80);
+  if (graphics_tile_anim_vramaddress2)
+    SmwCopyToVram(graphics_tile_anim_vramaddress2, g_ram + graphics_tile_anim_source_address2, 0x80);
   uint16 v0 = graphics_tile_anim_vramaddress1;
   if (graphics_tile_anim_vramaddress1) {
-    WriteRegWord(VMADDL, graphics_tile_anim_vramaddress1);
-    WriteRegWord(A1T2L, graphics_tile_anim_source_address1);
     if (v0 == 0x800) {
-      WriteRegWord(DAS2L, 0x40);
-      WriteReg(MDMAEN, 4);
-      WriteRegWord(VMADDL, 0x900);
-      WriteRegWord(A1T2L, graphics_tile_anim_source_address1 + 64);
-      WriteRegWord(DAS2L, 0x40);
+      SmwCopyToVram(graphics_tile_anim_vramaddress1, g_ram + graphics_tile_anim_source_address1, 0x40);
+      SmwCopyToVram(0x900, g_ram + graphics_tile_anim_source_address1 + 64, 0x40);
     } else {
-      WriteRegWord(DAS2L, 0x80);
+      SmwCopyToVram(graphics_tile_anim_vramaddress1, g_ram + graphics_tile_anim_source_address1, 0x80);
     }
-    WriteReg(MDMAEN, 4);
   }
+  if (g_lunar_magic)
+    LmHook_UploadLevelAnimations();
   UploadLevelAnimations_YellowFlash(0x64);
 }
 
 void UploadLevelAnimations_YellowFlash(uint8 a) {  // 00a41c
-  R0_ = 0;
-  UploadLevelAnimations_RedFlash(a);
+  UploadLevelAnimations_RedFlash(a, 0);
 }
 
-void UploadLevelAnimations_RedFlash(uint8 a) {  // 00a41e
-  WriteReg(CGADD, a);
-  uint8 v1 = R0_ + ((uint8)(counter_local_frames & 0x1C) >> 1);
-  WriteReg(CGDATA, *((uint8 *)kGlobalPalettes_Flashing + v1));
-  WriteReg(CGDATA, *((uint8 *)kGlobalPalettes_Flashing + v1 + 1));
+void UploadLevelAnimations_RedFlash(uint8 a, uint8 r0) {  // 00a41e
+  RtlPpuWrite(CGADD, a);
+  uint8 v1 = r0 + ((uint8)(counter_local_frames & 0x1C) >> 1);
+  RtlPpuWrite(CGDATA, *((uint8 *)kGlobalPalettes_Flashing + v1));
+  RtlPpuWrite(CGDATA, *((uint8 *)kGlobalPalettes_Flashing + v1 + 1));
 }
 
 void RestoreSP1AfterMarioStart() {  // 00a436
-  if (flag_restoresp1_tiles_after_mario_start) {
+  if (flag_restoresp1_tiles_after_mario_start && !g_lunar_magic) {
     flag_restoresp1_tiles_after_mario_start = 0;
-    WriteReg(VMAIN, 0x80);
-    WriteRegWord(VMADDL, 0x64A0);
-    WriteRegWord(DMAP2, 0x1801);
-    WriteRegWord(A1T2L, 0xBF6);
-    WriteReg(A1B2, 0);
-    WriteRegWord(DAS2L, 0xC0);
-    WriteReg(MDMAEN, 4);
-    WriteRegWord(VMADDL, 0x65A0);
-    WriteRegWord(A1T2L, 0xCB6);
-    WriteRegWord(DAS2L, 0xC0);
-    WriteReg(MDMAEN, 4);
+    SmwCopyToVram(0x64a0, g_ram + 0xbf6, 0xc0);
+    SmwCopyToVram(0x65a0, g_ram + 0xcb6, 0xc0);
   }
 }
 
-void UpdatePaletteFromIndexedTable() {  // 00a488
-  uint16 v1;
+static const uint16 kUpdatePaletteFromIndexedTable_DATA_00A47F[3] = {
+  0x682, 0x0905, 0x0703
+};
 
+void UpdatePaletteFromIndexedTable() {  // 00a488
   if (palettes_palette_upload_table_index == 0xff)
     return;
 
-  uint16 v0 = kUpdatePaletteFromIndexedTable_DATA_00A47F[palettes_palette_upload_table_index + 2];
-  R2_ = v0;
-  R1_ = 0;
-  R0_ = 0;
-  R4_ = 0;
-  v1 = WORD(kUpdatePaletteFromIndexedTable_DATA_00A47F[palettes_palette_upload_table_index]);
-  uint16 v2 = v1;
-  while (1) {
-    uint8 v3 = *IndirPtr(&R0_, v2);
-    if (!v3)
-      break;
-    WriteRegWord(A1B2, v0);
-    WriteReg(DAS2L, v3);
-    R3_ = v3;
-    WriteReg(DAS2H, 0);
-    uint16 v4 = v2 + 1;
-    uint8 *v5 = IndirPtr(&R0_, v4);
-    WriteReg(CGADD, *v5);
-    WriteRegWord(DMAP2, 0x2200);
-    WriteRegWord(A1T2L, ++v4);
-    v2 = *(uint16 *)&R3_ + v4;
-    WriteReg(MDMAEN, 4);
+  const uint8 *p = g_ram + kUpdatePaletteFromIndexedTable_DATA_00A47F[palettes_palette_upload_table_index / 3];
+  int n;
+  while ((n = p[0]) != 0) {
+    RtlUpdatePalette((uint16 *)(p + 2), p[1], n >> 1);
+    p += 2 + n;
   }
   UpdatePaletteFromIndexedTable_00AE47();
   if (!palettes_palette_upload_table_index) {
@@ -2579,49 +2387,37 @@ void UpdatePaletteFromIndexedTable() {  // 00a488
 }
 
 void UploadOverworldExAnimationData() {  // 00a4e3
-  WriteReg(VMAIN, 0x80);
-  WriteRegWord(VMADDL, 0x750);
-  WriteRegWord(DMAP2, 0x1801);
-  WriteRegWord(A1T2L, 0xAF6);
-  WriteReg(A1B2, 0);
-  WriteRegWord(DAS2L, 0x160);
-  WriteReg(MDMAEN, 4);
+  SmwCopyToVram(0x750, g_ram + 0xaf6, 0x160);
   if (pointer_current_overworld_process != 10) {
     UploadLevelAnimations_YellowFlash(0x6D);
-    R0_ = 16;
-    UploadLevelAnimations_RedFlash(0x7D);
+    UploadLevelAnimations_RedFlash(0x7D, 16);
   }
 }
 
 void UploadOverworldLayer1And2Tilemaps(uint8 j) {  // 00a529
-  WriteReg(VMAIN, 0x80);
-  WriteReg(VMADDL, 0);
-  WriteReg(VMADDH, kUploadOverworldLayer1And2Tilemaps_DATA_00A521[j] + 48);
-  for (uint8 i = 6; (i & 0x80) == 0; --i)
-    WriteReg((SnesRegs)(i + 0x4310), kUploadOverworldLayer1And2Tilemaps_PARAMS_00A586[i]);
-  if (ow_players_map[(uint8)player_current_characterx4 >> 2])
-    WriteReg(A1T1H, 0x60);
-  uint8 Reg = ReadReg(A1T1H);
-  WriteReg(A1T1H, kUploadOverworldLayer1And2Tilemaps_DATA_00A525[j] + Reg);
-  WriteReg(MDMAEN, 2);
-  WriteReg(VMAIN, 0x80);
-  WriteReg(VMADDL, 0);
-  WriteReg(VMADDH, kUploadOverworldLayer1And2Tilemaps_DATA_00A521[j] + 32);
-  for (uint8 k = 6; (k & 0x80) == 0; --k)
-    WriteReg((SnesRegs)(k + 0x4310), kUploadOverworldLayer1And2Tilemaps_PARAMS_00A58D[k]);
-  WriteReg(MDMAEN, 2);
+  uint32 ram = ow_players_map[(uint8)player_current_characterx4 >> 2] ? 0x16000 : 0x14000;
+  ram += kUploadOverworldLayer1And2Tilemaps_DATA_00A525[j] << 8;
+  SmwCopyToVram(
+      (kUploadOverworldLayer1And2Tilemaps_DATA_00A521[j] + 48) << 8,
+      g_ram + ram, 0x800);
+  SmwCopyToVram((kUploadOverworldLayer1And2Tilemaps_DATA_00A521[j] + 32) << 8, g_ram + 0xe400, 0x800);
 }
 
 void GameMode12_PrepareLevel() {  // 00a59c
   ClearLayer3Tilemap();
   DamagePlayer_DisableButtons();
   flag_upload_load_screen_letters_tovram = 0;
-  SetStandardPPUSettings();
+  if (g_lunar_magic)
+    LmHook_SetStandardPPUSettings();
+  else
+    SetStandardPPUSettings();
   InitializeStatusBarTilemap();
   InitializeLevelLayer1And2Tilemaps();
   if ((misc_nmito_use_flag & 0x80) == 0) {
     UploadGraphicsFiles();
     BufferPalettesRoutines_Levels();
+    if (g_lunar_magic)
+      LmHook_PrepareLevel();
     GameMode12_PrepareLevel_InitializeLayer3RAM();
     InitializeLevelLayer3();
     InitializeLevelTileAnimations();
@@ -2635,28 +2431,32 @@ void GameMode12_PrepareLevel() {  // 00a59c
   UpdateStatusBarCounters();
   uint8 *v0 = g_ram + 0x905;
   uint8 *v1 = g_ram + 0x703;
-  MemCpy(v0, v1, 0x1F0);
+  if (HAS_LM_FEATURE(kLmFeature_Copy512colors) && misc_nmito_use_flag != 0x80)
+    MemCpy(v0, v1, 0x200);
+  else
+    MemCpy(v0, v1, 0x1F0);
   palettes_copy_of_background_color = palettes_background_color;
   GameMode12_PrepareLevel_00919B();
   CompressOamEntExt();
-  GameMode00_LoadNintendoPresents_0093F4();
+  ++misc_game_mode;
 }
 
 void InitializeLevelTileAnimations() {  // 00a5f9
   counter_local_frames &= 0x18;
   do {
-    HandleLevelTileAnimations();
+    LmHook_LevelTileAnimations();
     UploadLevelExAnimationData();
     ++counter_local_frames;
   } while ((counter_local_frames & 7) != 0);
 }
 
 void InitializeLevelRAM() {  // 00a635
+  int8 v0 = 0;
   if (spr45_directional_coins_despawn_timer | timer_silver_pswitch | timer_blue_pswitch)
     goto LABEL_4;
   if (!timer_star_power)
     goto LABEL_6;
-  int8 v0 = misc_music_register_backup;
+  v0 = misc_music_register_backup;
   if ((misc_music_register_backup & 0x80) != 0)
 LABEL_4:
     v0 = misc_music_register_backup & 0x7F;
@@ -2674,7 +2474,7 @@ LABEL_6:
                                           blocks_give_life_in_bonus_flags_row1;
   uint8 v1 = 35;
   do
-    *(&ptr_hi_map16_data_bank + v1--) = 0;
+    g_ram[0x70 + v1--] = 0;
   while (v1);
   uint8 v2 = 55;
   do
@@ -2692,6 +2492,11 @@ LABEL_6:
       InitializeLevelRAM_00A6CC(1);
     } else {
       player_in_air_flag = 0;
+      if (g_lunar_magic) {
+        lm_var13CD = 0;
+        flag_got_midpoint = 0;
+        lunar_magic_FE = 0;
+      }
       player_facing_direction = 1;
       player_pipe_action = 1;
       if (yoshi_carry_over_levels_flag)
@@ -2727,8 +2532,8 @@ LABEL_8:
     flag_sprites_locked = 0;
     if (timer_end_level_via_keyhole) {
       misc_music_register_backup |= 0x7F;
-      temp1436 = player_xpos | 4;
-      temp1438 = player_ypos + 16;
+      LOBYTE(player_on_tilting_platform_xpos) = player_xpos | 4;
+      LOBYTE(player_on_tilting_platform_ypos) = player_ypos + 16;
     }
     if (in_yoshi_wings_bonus_area) {
       player_current_state = 8;
@@ -2754,7 +2559,7 @@ LABEL_8:
   }
   player_pipe_action = v1 + 3;
   yoshi_in_pipe = ((uint8)(v1 + 3) >> 1) - 1;
-  player_facing_direction = kInitializeLevelRAM_DATA_00A60D[(uint8)(v1 + 3) - 4];
+  player_facing_direction = kInitializeLevelRAM_DATA_00A60D[v1 - 1];
   uint8 v3 = 5;
   if ((uint8)(v1 + 3) < 6 ||
       (LOBYTE(player_xpos) = player_xpos | 8, v3 = 6, v4 = 30, (uint8)(v1 + 3) >= 7) && (v4 = 15, player_current_power_up)) {
@@ -2763,9 +2568,9 @@ LABEL_8:
   player_yspeed = v4;
   InitializeLevelRAM_00A6C7(v3, v4);
   if (player_riding_yoshi_flag) {
-    player_timer_pipe_warping += kInitializeLevelRAM_DATA_00A61D[player_pipe_action];
-    player_xpos += *(uint16 *)&kInitializeLevelRAM_DATA_00A60D[(uint8)(2 * player_pipe_action) - 4];
-    player_ypos += kInitializeLevelRAM_DATA_00A611[player_pipe_action];
+    player_timer_pipe_warping += kInitializeLevelRAM_DATA_00A621[player_pipe_action - 4];
+    player_xpos += kInitializeLevelRAM_DATA_00A611[player_pipe_action - 4];
+    player_ypos += kInitializeLevelRAM_DATA_00A619[player_pipe_action - 4];
   }
 }
 
@@ -2786,177 +2591,142 @@ void GameMode11_LoadSublevel_00A796() {  // 00a796
 }
 
 void UploadLoadingLettersTiles() {  // 00a7c2
-  WriteReg(VMAIN, 0x80);
-  WriteRegWord(VMADDL, 0x6000);
-  WriteRegWord(DMAP2, 0x1801);
-  WriteRegWord(A1T2L, 0x977B);
-  WriteReg(A1B2, 0x7F);
-  WriteRegWord(DAS2L, 0xC0);
-  WriteReg(MDMAEN, 4);
-  WriteRegWord(VMADDL, 0x6100);
-  WriteRegWord(A1T2L, 0x983B);
-  WriteRegWord(DAS2L, 0xC0);
-  WriteReg(MDMAEN, 4);
-  WriteRegWord(VMADDL, 0x64A0);
-  WriteRegWord(A1T2L, 0x98FB);
-  WriteRegWord(DAS2L, 0xC0);
-  WriteReg(MDMAEN, 4);
-  WriteRegWord(VMADDL, 0x65A0);
-  WriteRegWord(A1T2L, 0x99BB);
-  WriteRegWord(DAS2L, 0xC0);
-  WriteReg(MDMAEN, 4);
+  SmwCopyToVram(0x6000, g_ram + 0x1977b, 0xc0);
+  SmwCopyToVram(0x6100, g_ram + 0x1983B, 0xc0);
+  SmwCopyToVram(0x64a0, g_ram + 0x198fB, 0xc0);
+  SmwCopyToVram(0x65a0, g_ram + 0x199bb, 0xc0);
 }
 
 void BufferLoadingLetterTiles() {  // 00a82d
-  GraphicsDecompressionRoutines(0xF);
+  uint8 *p0 = LmHook_GraphicsDecompress(0xF);
   if (flag_active_bonus_game)
-    R0_W += 48;
+    p0 += 48;
   uint16 v0 = 0;
   do {
     int16 v1 = 8;
     do {
-      *(uint16 *)&graphics_decompressed_loading_letters[v0] = *(uint16 *)IndirPtr(&R0_W, 0);
+      *(uint16 *)&graphics_decompressed_loading_letters[v0] = WORD(*p0);
       v0 += 2;
-      ++R0_W;
-      ++R0_W;
+      p0 += 2;
       --v1;
     } while (v1);
     int16 v2 = 8;
     do {
-      *(uint16 *)&graphics_decompressed_loading_letters[v0] = *IndirPtr(&R0_W, 0);
+      *(uint16 *)&graphics_decompressed_loading_letters[v0] = p0[0];
       v0 += 2;
-      ++R0_W;
+      p0 += 1;
       --v2;
     } while (v2);
   } while (v0 < 0x300);
-  GraphicsDecompressionRoutines(0);
-  R0_W = 0xb3f0;
-  *(uint16 *)&R1_ = 0x7eb3;
-  uint16 v3 = 0;
-  do {
-    int16 v4 = 8;
+  if (!g_lunar_magic) {
+    LmHook_GraphicsDecompress(0);
+    p0 = g_ram + 0xb3f0;
+    uint16 v3 = 0;
     do {
-      decompressed_gfx_plus_256[v3 >> 1] = *(uint16 *)IndirPtr(&R0_W, 0);
-      v3 += 2;
-      ++R0_W;
-      ++R0_W;
-      --v4;
-    } while (v4);
-    int16 v5 = 8;
-    do {
-      decompressed_gfx_plus_256[v3 >> 1] = *IndirPtr(&R0_W, 0);
-      v3 += 2;
-      ++R0_W;
-      --v5;
-    } while (v5);
-    if (v3 == 192)
-      R0_W = 0xb570;
-  } while (v3 < 0x180);
+      int16 v4 = 8;
+      do {
+        decompressed_gfx_plus_256[v3 >> 1] = WORD(p0[0]);
+        v3 += 2;
+        p0 += 2;
+        --v4;
+      } while (v4);
+      int16 v5 = 8;
+      do {
+        decompressed_gfx_plus_256[v3 >> 1] = p0[0];
+        v3 += 2;
+        p0 += 1;
+        --v5;
+      } while (v5);
+      if (v3 == 192)
+        p0 = &g_ram[0xb570];
+    } while (v3 < 0x180);
+  }
   flag_upload_load_screen_letters_tovram = 1;
   flag_restoresp1_tiles_after_mario_start = 1;
 }
 
 void UploadGraphicsFiles_Layer3() {  // 00a993
-  WriteReg(VMADDL, 0);
-  WriteReg(VMADDH, 0x40);
-  R15_ = 3;
-  R14_ = 40;
-  do {
-    GraphicsDecompressionRoutines(R14_);
-    int16 v0 = 0x3ff;
-    uint16 v1 = 0;
-    do {
-      uint8 *v2 = IndirPtr(&R0_W, v1);
-      WriteRegWord(VMDATAL, *(uint16 *)v2);
-      v1 += 2;
-      --v0;
-    } while (v0 >= 0);
-    ++R14_;
-    --R15_;
-  } while ((R15_ & 0x80) == 0);
-  WriteReg(VMADDL, 0);
-  WriteReg(VMADDH, 0x60);
-  UploadGraphicsFiles_UploadGFXFile(0);
+  for(int i = 0; i < 4; i++) {
+    const uint8 *p0 = GraphicsDecompress(40 + i);
+    SmwCopyToVram(0x4000 + i * 0x400, p0, 0x800);
+  }
+  UploadGraphicsFiles_UploadGFXFile(0x6000, 0, 0);
 }
 
 void UploadGraphicsFiles() {  // 00a9da
-  WriteReg(VMAIN, 0x80);
-  int8 v0 = 3;
-  uint8 v1 = 4 * graphics_level_sprite_graphics_setting;
-  do
-    *(&R4_ + (uint8)v0--) = kUploadGraphicsFiles_SpriteGFXList[v1++];
-  while (v0 >= 0);
-  R15_ = 3;
-  do {
-    uint8 v2 = R15_;
-    WriteReg(VMADDL, 0);
-    WriteReg(VMADDH, kUploadGraphicsFiles_DATA_00A9D2[v2]);
-    if (misc_currently_loaded_sprite_graphics_files[v2] != *(&R4_ + v2))
-      UploadGraphicsFiles_UploadGFXFile(*(&R4_ + v2));
-    --R15_;
-  } while ((R15_ & 0x80) == 0);
-  for (uint8 i = 3; (i & 0x80) == 0; --i)
-    misc_currently_loaded_sprite_graphics_files[i] = *(&R4_ + i);
+  uint8 arr[4];
+
+  bool lunar_magic_upload_hack = HAS_LM_FEATURE(kLmFeature_GfxUpload);
+
+  for (int i = 0; i < 4; i++)
+    arr[3 - i] = kUploadGraphicsFiles_SpriteGFXList[4 * graphics_level_sprite_graphics_setting + i];
+  for(int i = 3; i >= 0; i--) {
+    uint16 vmaddr = kUploadGraphicsFiles_DATA_00A9D2[i] << 8;
+    if (lunar_magic_upload_hack || misc_currently_loaded_sprite_graphics_files[i] != arr[i])
+      UploadGraphicsFiles_UploadGFXFile(vmaddr, arr[i], i + 8);
+  }
+  memcpy(misc_currently_loaded_sprite_graphics_files, arr, 4);
   if (misc_level_tileset_setting >= 0xFE) {
     if (misc_level_tileset_setting != 0xFE)
-      ConvertGFX27IntoNormallFormat();
-    for (int8 j = 3; j >= 0; --j)
-      misc_currently_loaded_sprite_graphics_files[(uint8)j + 4] = 0x80;
+      ConvertGFX27IntoNormallFormat(RtlGetVramAddr());
+    for(int i = 0; i < 4; i++)
+      misc_currently_loaded_sprite_graphics_files[i + 4] = 0x80;
   } else {
-    int8 v4 = 3;
-    uint8 v5 = 4 * misc_level_tileset_setting;
-    do
-      *(&R4_ + (uint8)v4--) = kUploadGraphicsFiles_FGAndBGGFXList[v5++];
-    while (v4 >= 0);
-    R15_ = 3;
-    do {
-      uint8 v6 = R15_;
-      WriteReg(VMADDL, 0);
-      WriteReg(VMADDH, kUploadGraphicsFiles_DATA_00A9D6[v6]);
-      if (misc_currently_loaded_sprite_graphics_files[v6 + 4] != *(&R4_ + v6))
-        UploadGraphicsFiles_UploadGFXFile(*(&R4_ + v6));
-      --R15_;
-    } while ((R15_ & 0x80) == 0);
-    for (uint8 k = 3; (k & 0x80) == 0; --k)
-      misc_currently_loaded_sprite_graphics_files[k + 4] = *(&R4_ + k);
+    for (int i = 0; i < 4; i++)
+      arr[3 - i] = kUploadGraphicsFiles_FGAndBGGFXList[4 * misc_level_tileset_setting + i];
+
+    static const uint8 kBgVramAddrs[6] = { 0x28,0x20,0x18,0x10,   8,   0 };
+    if (lunar_magic_upload_hack && lm_var9 == 0x42) {
+      for(int i = 5; i >= 0; i--)
+        UploadGraphicsFiles_UploadGFXFile(kBgVramAddrs[i] << 8, (i < 2) ? 0xff : arr[i - 2], i + 2);
+    } else {
+      for(int i = 3; i >= 0; i--) {
+        if (lunar_magic_upload_hack || misc_currently_loaded_sprite_graphics_files[i + 4] != arr[i])
+          UploadGraphicsFiles_UploadGFXFile(kBgVramAddrs[i + 2] << 8, arr[i], i + 4);
+      }
+    }
+    memcpy(&misc_currently_loaded_sprite_graphics_files[4], arr, 4);
+    if (lunar_magic_upload_hack)
+      LmHook_UploadGraphicsFiles();
   }
 }
 
-void UploadGraphicsFiles_UploadGFXFile(uint8 j) {  // 00aa6b
+void UploadGraphicsFiles_UploadGFXFile(uint16 dst_addr, uint8 j, uint8 index) {  // 00aa6b
   uint16 v4;
-  int16 v8;
   uint16 v11;
-  int16 v15;
+  uint16 *dst = RtlGetVramAddr() + dst_addr;
+  const uint8 *p0;
 
-  GraphicsDecompressionRoutines(j);
+  bool lunar_magic_upload_hack = HAS_LM_FEATURE(kLmFeature_GfxUpload);
+
+  p0 = lunar_magic_upload_hack ? LmHook_UploadGFXFile(j, index) : GraphicsDecompress(j);
   if (j == 1 && (ow_level_tile_settings[73] & 0x80) != 0) {
-    GraphicsDecompressionRoutines(0x31);
+    p0 = GraphicsDecompress(0x31);
     j = 1;
   }
-  if (misc_level_tileset_setting >= 0x11 && j == 8 || j == 30) {
-    R10_W = -256;
+
+  bool lm_flag = HAS_LM_FEATURE(kLmFeature_4bppgfx);
+  bool lm_flag2 = HAS_LM_FEATURE(kLmFeature_NonStdGfxAA8D);
+
+  if (misc_level_tileset_setting >= 0x11 && j == (lm_flag2 ? 0x32 : 8) || j == (lm_flag2 ? 0x32 : 30)) {
+    uint16 r10w = -256;
     for (int8 i = 127; i >= 0; --i) {
       for (int8 k = 7; k >= 0; --k) {
-        v11 = *(uint16 *)IndirPtr(&R0_W, 0);
-        WriteRegWord(VMDATAL, v11);
-        int8 v12 = v11;
-        LOBYTE(v11) = HIBYTE(v11);
-        HIBYTE(v11) = v12;
-        *(uint16 *)&graphics_3_bppto4_bppbuffer[(uint8)k] = *(uint16 *)IndirPtr(&R0_W, 0) | v11;
-        ++R0_W;
-        ++R0_W;
+        v11 = WORD(*p0);
+        *dst++ = v11;
+        *(uint16 *)&graphics_3_bppto4_bppbuffer[(uint8)k] = WORD(p0[0]) | swap16(v11);
+        p0 += 2;
       }
+      int step = lm_flag ? 2 : 1;
       for (int8 m = 7; m >= 0; --m) {
-        R12_W = *IndirPtr(&R0_W, 0);
-        uint8 *v14 = IndirPtr(&R0_W, 0);
-        LOBYTE(v15) = HIBYTE(*(uint16 *)v14);
-        HIBYTE(v15) = *(uint16 *)v14;
-        WriteRegWord(VMDATAL, R12_W | R10_W & (*(uint16 *)&graphics_3_bppto4_bppbuffer[(uint8)m] | v15));
-        ++R0_W;
+        const uint8 *v14 = p0;
+        uint16 r12w = *v14;
+        *dst++ = r12w | r10w & (*(uint16 *)&graphics_3_bppto4_bppbuffer[(uint8)m] | swap16(*(uint16 *)v14));
+        p0 += step;
       }
     }
   } else {
-    R10_W = 0;
+    uint16 r10w = 0;
     int16 v1 = -1;
     if (j != 1 && j != 23)
       v1 = 0;
@@ -2964,176 +2734,120 @@ void UploadGraphicsFiles_UploadGFXFile(uint8 j) {  // 00aa6b
     for (int8 n = 127; n >= 0; --n) {
       if (*(uint16 *)flag_alter3_bppto4_bppconversion) {
         if ((uint8)n >= 0x7E || (uint8)n >= 0x6E && (uint8)n < 0x70)
-          R10_W = -256;
+          r10w = -256;
         else
-          R10_W = 0;
+          r10w = 0;
       }
-      for (int8 ii = 7; ii >= 0; --ii) {
-        v4 = *(uint16 *)IndirPtr(&R0_W, 0);
-        WriteRegWord(VMDATAL, v4);
-        int8 v5 = v4;
-        LOBYTE(v4) = HIBYTE(v4);
-        HIBYTE(v4) = v5;
-        *(uint16 *)&graphics_3_bppto4_bppbuffer[(uint8)ii] = *(uint16 *)IndirPtr(&R0_W, 0) | v4;
-        ++R0_W;
-        ++R0_W;
-      }
-      for (int8 jj = 7; jj >= 0; --jj) {
-        R12_W = *IndirPtr(&R0_W, 0);
-        uint8 *v7 = IndirPtr(&R0_W, 0);
-        LOBYTE(v8) = HIBYTE(*(uint16 *)v7);
-        HIBYTE(v8) = *(uint16 *)v7;
-        WriteRegWord(VMDATAL, R12_W | R10_W & (*(uint16 *)&graphics_3_bppto4_bppbuffer[(uint8)jj] | v8));
-        ++R0_W;
+      if (lm_flag) {
+        for (int8 ii = 15; ii >= 0; --ii) {
+          v4 = WORD(*p0);
+          *dst++ = v4;
+          p0 += 2;
+        }
+      } else {
+        for (int8 ii = 7; ii >= 0; --ii) {
+          v4 = WORD(*p0);
+          *dst++ = v4;
+          *(uint16 *)&graphics_3_bppto4_bppbuffer[(uint8)ii] = WORD(p0[0]) | swap16(v4);
+          p0 += 2;
+        }
+        for (int8 jj = 7; jj >= 0; --jj) {
+          uint16 r12w = p0[0];
+          const uint8 *v7 = p0;
+          *dst++ = r12w | r10w & (*(uint16 *)&graphics_3_bppto4_bppbuffer[(uint8)jj] | swap16(*(uint16 *)v7));
+          ++p0;
+        }
       }
     }
   }
 }
 
-void ConvertGFX27IntoNormallFormat() {  // 00ab42
-  GraphicsDecompressionRoutines(0x27);
-  uint8 *p = IndirPtr(&R0_, 0);
+void ConvertGFX27IntoNormallFormat(uint16 *dst) {  // 00ab42
+  const uint8 *p = GraphicsDecompress(0x27);
   for (int i = 0x3ff; i >= 0; --i) {
     uint32 d = p[0] << 16 | p[1] << 8 | p[2];
-    WriteReg(VMDATAH, (d >> 21) & 7);
-    WriteReg(VMDATAH, (d >> 18) & 7);
-    WriteReg(VMDATAH, (d >> 15) & 7);
-    WriteReg(VMDATAH, (d >> 12) & 7);
-    WriteReg(VMDATAH, (d >> 9) & 7);
-    WriteReg(VMDATAH, (d >> 6) & 7);
-    WriteReg(VMDATAH, (d >> 3) & 7);
-    WriteReg(VMDATAH, (d >> 0) & 7);
+    HIBYTE(*dst++) = (d >> 21) & 7;
+    HIBYTE(*dst++) = (d >> 18) & 7;
+    HIBYTE(*dst++) = (d >> 15) & 7;
+    HIBYTE(*dst++) = (d >> 12) & 7;
+    HIBYTE(*dst++) = (d >> 9) & 7;
+    HIBYTE(*dst++) = (d >> 6) & 7;
+    HIBYTE(*dst++) = (d >> 3) & 7;
+    HIBYTE(*dst++) = (d >> 0) & 7;
     p += 3;
   }
   int v11 = 0x2000;
   do {
-    WriteReg(VMDATAH, 0);
+    HIBYTE(*dst++) = 0;
   } while (--v11);
 }
 
+
 void BufferPalettesRoutines_Levels() {  // 00abed
-  R4_W = 0x7fdd;
-  BufferPalettesRoutines_LoadColorInVerticalStrip(2);
-  R4_W = 0x7FFF;
-  BufferPalettesRoutines_LoadColorInVerticalStrip(0x102);
-  R0_W = 0xb170;
-  R4_W = 16;
-  R6_W = 7;
-  R8_W = 1;
-  BufferPalettesRoutines_LoadColors();
-  R0_W = 0xb250;
-  R4_W = 132;
-  R6_W = 5;
-  R8_W = 9;
-  BufferPalettesRoutines_LoadColors();
-  palettes_background_color = *(uint16 *)((int8 *)&kGlobalPalettes_Sky + (uint16)(2 * (misc_background_color_setting & 0xF)));
-  R0_W = 0xb190;
-  R0_W = kBufferPalettesRoutines_DATA_00ABD3[misc_fgpalette_setting & 0xF] + 0xb190;
-  R4_W = 68;
-  R6_W = 5;
-  R8_W = 1;
-  BufferPalettesRoutines_LoadColors();
-  R0_W = 0xb318;
-  R0_W = kBufferPalettesRoutines_DATA_00ABD3[misc_sprite_palette_setting & 0xF] + 0xb318;
-  R4_W = 452;
-  R6_W = 5;
-  R8_W = 1;
-  BufferPalettesRoutines_LoadColors();
-  R0_W = 0xb0b0;
-  R0_W = kBufferPalettesRoutines_DATA_00ABD3[misc_bgpalette_setting & 0xF] + 0xb0b0;
-  R4_W = 4;
-  R6_W = 5;
-  R8_W = 1;
-  BufferPalettesRoutines_LoadColors();
-  R0_W = 0xb674;
-  R4_W = 82;
-  R6_W = 6;
-  R8_W = 2;
-  BufferPalettesRoutines_LoadColors();
-  R0_W = 0xb674;
-  R4_W = 306;
-  R6_W = 6;
-  R8_W = 2;
-  BufferPalettesRoutines_LoadColors();
+  BufferPalettesRoutines_LoadColorInVerticalStrip(2, 0x7fdd);
+  BufferPalettesRoutines_LoadColorInVerticalStrip(0x102, 0x7FFF);
+  BufferPalettesRoutines_LoadColors(kGlobalPalettes_Layer3, 16, 7, 1);
+  BufferPalettesRoutines_LoadColors(kGlobalPalettes_Objects, 132, 5, 9);
+  palettes_background_color = kGlobalPalettes_Sky[misc_background_color_setting & 0xF];
+  BufferPalettesRoutines_LoadColors((kBufferPalettesRoutines_DATA_00ABD3[misc_fgpalette_setting & 0xF] >> 1) + kGlobalPalettes_Foreground, 68, 5, 1);
+  BufferPalettesRoutines_LoadColors((kBufferPalettesRoutines_DATA_00ABD3[misc_sprite_palette_setting & 0xF] >> 1) + kGlobalPalettes_Sprites, 452, 5, 1);
+  BufferPalettesRoutines_LoadColors((kBufferPalettesRoutines_DATA_00ABD3[misc_bgpalette_setting & 0xF] >> 1) + kGlobalPalettes_Background, 4, 5, 1);
+  BufferPalettesRoutines_LoadColors(kGlobalPalettes_YoshiBerry, 82, 6, 2);
+  BufferPalettesRoutines_LoadColors(kGlobalPalettes_YoshiBerry, 306, 6, 2);
 }
 
-void BufferPalettesRoutines_LoadColorInVerticalStrip(uint16 k) {  // 00aced
+void BufferPalettesRoutines_LoadColorInVerticalStrip(uint16 k, uint16 r4) {  // 00aced
   for (int16 i = 7; i >= 0; --i) {
-    palettes_palette_mirror[k >> 1] = R4_W;
+    palettes_palette_mirror[k >> 1] = r4;
     k += 32;
   }
 }
 
-void BufferPalettesRoutines_LoadColors() {  // 00acff
+void BufferPalettesRoutines_LoadColors(const uint16 *r0, uint16 r4, uint16 r6, uint16 r8) {  // 00acff
   do {
-    uint16 v0 = R4_W;
-    int16 v1 = R6_W;
+    uint16 v0 = r4;
+    int16 v1 = r6;
     do {
-      palettes_palette_mirror[v0 >> 1] = *(uint16 *)RomPtr_00(R0_W);
-      ++R0_W;
-      ++R0_W;
+      palettes_palette_mirror[v0 >> 1] = *r0++;
       v0 += 2;
-      --v1;
-    } while (v1 >= 0);
-    R4_W += 32;
-    --R8_W;
-  } while ((R8_W & 0x8000) == 0);
+    } while (--v1 >= 0);
+    r4 += 32;
+  } while ((--r8 & 0x8000) == 0);
 }
 
 void BufferPalettesRoutines_Overworld() {  // 00ad25
-  uint16 v0 = 0xb3d8;
-  if (*(int16 *)&ow_level_tile_settings[72] < 0)
-    v0 = 0xb732;
-  R0_W = v0;
-  R0_W = v0 + kBufferPalettesRoutines_DATA_00ABDF
-                  [(uint16)(2 * kBufferPalettesRoutines_DATA_00AD1E[(uint16)((misc_level_tileset_setting & 0xF) - 1)]) >> 1];
-  R4_W = 130;
-  R6_W = 6;
-  R8_W = 3;
-  BufferPalettesRoutines_LoadColors();
-  R0_W = 0xb528;
-  R4_W = 82;
-  R6_W = 6;
-  R8_W = 5;
-  BufferPalettesRoutines_LoadColors();
-  R0_W = 0xb57c;
-  R4_W = 258;
-  R6_W = 6;
-  R8_W = 7;
-  BufferPalettesRoutines_LoadColors();
-  R0_W = 0xb5ec;
-  R4_W = 16;
-  R6_W = 7;
-  R8_W = 1;
-  BufferPalettesRoutines_LoadColors();
+  if (HAS_LM_FEATURE(kLmFeature_OwPalette)) {
+    LmHook_OverworldPalette();
+    return;
+  }
+
+  int tt = kBufferPalettesRoutines_DATA_00AD1E[(misc_level_tileset_setting & 0xF) - 1];
+  const uint16 *v0 = &kGlobalPalettes_OW_Areas[tt * 28];
+  if (ow_level_tile_settings[73] & 0x80)
+    v0 = &kGlobalPalettes_OW_AreasPassed[tt * 28];
+  BufferPalettesRoutines_LoadColors(v0, 130, 6, 3);
+  BufferPalettesRoutines_LoadColors(kGlobalPalettes_OW_Objects, 82, 6, 5);
+  BufferPalettesRoutines_LoadColors(kGlobalPalettes_OW_Sprites, 258, 6, 7);
+  BufferPalettesRoutines_LoadColors(kGlobalPalettes_B5EC, 16, 7, 1);
 }
 
+static const uint16 kGlobalPalettes_TS_Layer3[] = {0x437F,     0,0x7F60,0x173F,0x437F,     0,0x1CFF, 0x320};
+static const uint16 kGlobalPalettes_DATA_00B63C[] = {0x437F,     0, 0x320,0x7F60,0x437F,0x5BBF,0x327B, 0x8E7};
+
 void BufferPalettesRoutines_TitleScreen() {  // 00ada6
-  R0_W = 0xb63c;
-  R4_W = 16;
-  R6_W = 7;
-  R8_W = 0;
-  BufferPalettesRoutines_LoadColors();
-  R0_W = 0xb62c;
-  R4_W = 48;
-  R6_W = 7;
-  R8_W = 0;
-  BufferPalettesRoutines_LoadColors();
+  BufferPalettesRoutines_LoadColors(kGlobalPalettes_DATA_00B63C, 16, 7, 0);
+  BufferPalettesRoutines_LoadColors(kGlobalPalettes_TS_Layer3, 48, 7, 0);
 }
+
+static const uint16 kGlobalPalettes_IggyLarryPlatform[] = {
+  0x0, 0x1ce0, 0x3de8, 0x5ef0, 0x7ff8, 0x7fff, 0x1685, 0x2f4b,
+};
 
 void BufferPalettesRoutines_IggyLarryPlatform() {  // 00add9
   BufferPalettesRoutines_Levels();
   palettes_background_color = 23;
-  R0_W = 0xb170;
-  R4_W = 16;
-  R6_W = 7;
-  R8_W = 1;
-  BufferPalettesRoutines_LoadColors();
-  R0_W = 0xb65c;
-  R4_W = 0;
-  R6_W = 7;
-  R8_W = 0;
-  BufferPalettesRoutines_LoadColors();
+  BufferPalettesRoutines_LoadColors(kGlobalPalettes_Layer3, 16, 7, 1);
+  BufferPalettesRoutines_LoadColors(kGlobalPalettes_IggyLarryPlatform, 0, 7, 0);
 }
 
 void BufferPalettesRoutines_ReznorAndMode7KoopaBosses() {  // 00ae15
@@ -3141,11 +2855,7 @@ void BufferPalettesRoutines_ReznorAndMode7KoopaBosses() {  // 00ae15
   misc_fgpalette_setting = 7;
   BufferPalettesRoutines_Levels();
   palettes_background_color = 23;
-  R0_W = 0xb5f4;
-  R4_W = 24;
-  R6_W = 3;
-  R8_W = 0;
-  BufferPalettesRoutines_LoadColors();
+  BufferPalettesRoutines_LoadColors(kGlobalPalettes_B5EC + 4, 24, 3, 0);
 }
 
 void UpdatePaletteFromIndexedTable_00AE47() {  // 00ae47
@@ -3154,7 +2864,7 @@ void UpdatePaletteFromIndexedTable_00AE47() {  // 00ae47
     uint8 v2 = kUpdatePaletteFromIndexedTable_DATA_00AE41[i];
     while ((--v2 & 0x80) == 0)
       v1 >>= 1;
-    WriteReg(COLDATA, kUpdatePaletteFromIndexedTable_DATA_00AE44[i] | v1 & 0x1F);
+    RtlPpuWrite(COLDATA, kUpdatePaletteFromIndexedTable_DATA_00AE44[i] | v1 & 0x1F);
   }
 }
 
@@ -3170,75 +2880,127 @@ void HandlePaletteFades() {  // 00af17
     mirror_bgmode_and_tile_size_setting = 9;
     ProcessLevelEndRoutines();
   }
-  HandlePaletteFades_00AF35();
+  HandlePaletteFades_00AF35(false);
 }
 
-void HandlePaletteFades_00AF35() {  // 00af35
+void HandlePaletteFades_00AF35(bool run_code_at_end) {  // 00af35
   if ((counter_global_frames & 3) == 0 && timer_level_end_fade < 0x40) {
-    HandlePaletteFades_00AFA3(timer_level_end_fade);
+    uint8 a = timer_level_end_fade;
+    timer_level_end_fade = a + 2;
+    uint8 r12 = (a >> 4) & 2;
+    uint16 r14 = kHandlePaletteFades_DATA_00AEF7[(a & 0x1E) >> 1];
+    uint16 r2w;
+
     palettes_copy_of_palette_mirror[0] = 510;
-    for (uint16 i = 238; (i & 0x8000) == 0; i -= 18) {
-      R0_W = 7;
-      do {
-        int v1 = i >> 1;
-        R2_W = palettes_copy_of_palette_mirror[v1];
-        HandlePaletteFades_00AFC0(palettes_palette_mirror[v1]);
-        palettes_copy_of_palette_mirror[v1] = R4_W;
+    if (!g_lunar_magic) {
+      for (uint16 i = 0xee; (i & 0x8000) == 0; i -= 18) {
+        uint16 r0w = 7;
+        do {
+          int v1 = i >> 1;
+          r2w = palettes_copy_of_palette_mirror[v1];
+          palettes_copy_of_palette_mirror[v1] = HandlePaletteFades_00AFC0(palettes_palette_mirror[v1], r2w, r12, r14);
+          i -= 2;
+        } while (--r0w);
+      }
+      for (uint16 j = 4; (j & 0x8000) == 0; j -= 2) {
+        int v3 = j >> 1;
+        r2w = palettes_copy_of_palette_mirror[v3 + 13];
+        palettes_copy_of_palette_mirror[v3 + 13] = HandlePaletteFades_00AFC0(palettes_palette_mirror[v3 + 13], r2w, r12, r14);
+      }
+
+    } else if (HAS_LM_FEATURE(kLmFeature_WeirdPalette)) {
+      for (uint16 i = 0xfe; (i & 0x8000) == 0;) {
+        uint16 r0w = 0xf;
+        do {
+          int v1 = i >> 1;
+          r2w = palettes_copy_of_palette_mirror[v1];
+          palettes_copy_of_palette_mirror[v1] = HandlePaletteFades_00AFC0(palettes_palette_mirror[v1], r2w, r12, r14);
+          i -= 2;
+        } while (--r0w);
         i -= 2;
-        --R0_W;
-      } while (R0_W);
+      }
+      palettes_copy_of_palette_mirror[9] = palettes_palette_mirror[9];
+      palettes_copy_of_palette_mirror[10] = palettes_palette_mirror[10];
+      palettes_copy_of_palette_mirror[11] = palettes_palette_mirror[11];
+      palettes_copy_of_palette_mirror[25] = palettes_palette_mirror[25];
+      palettes_copy_of_palette_mirror[26] = palettes_palette_mirror[26];
+      palettes_copy_of_palette_mirror[27] = palettes_palette_mirror[27];
+      palettes_copy_of_palette_mirror[29] = palettes_palette_mirror[29];
+      palettes_copy_of_palette_mirror[30] = palettes_palette_mirror[30];
+      palettes_copy_of_palette_mirror[31] = palettes_palette_mirror[31];
+    } else {
+      for (uint16 i = 0xfe; (i & 0x8000) == 0; ) {
+        uint16 r0w = 1;
+        do {
+          int v1 = i >> 1;
+          r2w = palettes_copy_of_palette_mirror[v1];
+          palettes_copy_of_palette_mirror[v1] = HandlePaletteFades_00AFC0(palettes_palette_mirror[v1], r2w, r12, r14);
+          i -= 2;
+        } while (--r0w);
+        if (i == 0x3e || i == 0x1e)
+          i -= 16;
+      }
     }
-    for (uint16 j = 4; (j & 0x8000) == 0; j -= 2) {
-      int v3 = j >> 1;
-      R2_W = palettes_copy_of_palette_mirror[v3 + 13];
-      HandlePaletteFades_00AFC0(palettes_palette_mirror[v3 + 13]);
-      palettes_copy_of_palette_mirror[v3 + 13] = R4_W;
-    }
-    R2_W = palettes_background_color;
-    HandlePaletteFades_00AFC0(palettes_copy_of_background_color);
-    palettes_background_color = R4_W;
+    r2w = palettes_background_color;
+    palettes_background_color = HandlePaletteFades_00AFC0(palettes_copy_of_background_color, r2w, r12, r14);
     LOBYTE(palettes_copy_of_palette_mirror[128]) = 0;
     palettes_palette_upload_table_index = 3;
+
+    if (run_code_at_end) {
+      const uint8 *p0 = (const uint8 *)GetPlayerPalette();
+      for (uint16 i = 20; (i & 0x8000) == 0; i -= 2)
+        palettes_copy_of_palette_mirror[(i >> 1) + 134] = WORD(p0[i]);
+      palettes_copy_of_palette_mirror[128] = 0x81ee;
+      for (uint16 j = 206; (j & 0x8000) == 0; j -= 18) {
+        uint16 r0w = 7;
+        do {
+          int v2 = j >> 1;
+          r2w = palettes_copy_of_palette_mirror[v2 + 144];
+          palettes_copy_of_palette_mirror[v2 + 144] = HandlePaletteFades_00AFC0(palettes_palette_mirror[v2 + 144], r2w, r12, r14);
+          j -= 2;
+        } while (--r0w);
+      }
+      unused_byte_7E0AF5 = 0;
+    }
   }
 }
 
-void HandlePaletteFades_00AFA3(uint8 a) {  // 00afa3
-  timer_level_end_fade = a + 2;
-  R12_W = (a >> 4) & 2;
-  R14_W = kHandlePaletteFades_DATA_00AEF7[(uint8)(a & 0x1E) >> 1];
-}
-
-void HandlePaletteFades_00AFC0(uint16 a) {  // 00afc0
-  R10_W = a;
-  R6_W = 4 * (a & 0x1F);
-  R8_W = (a & 0x3E0) >> 3;
-  R10_W = R11_ & 0x7C;
-  R4_W = 0;
+uint16 HandlePaletteFades_00AFC0(uint16 a, uint16 r2w, uint16 r12, uint16 r14) {  // 00afc0
+  uint16 arr[3] = {
+    4 * (a & 0x1F),
+    (a & 0x3E0) >> 3,
+    (a >> 8) & 0x7C
+  };
+  uint16 r4w = 0;
   for (uint16 i = 4; (i & 0x8000) == 0; i -= 2) {
-    uint16 t = R12_W | *(uint16 *)((uint8 *)&R6_W + i);
-    uint16 v2 = R14_W & kHandlePaletteFades_DATA_00AE77[t >> 1];
+    uint16 t = r12 | arr[i >> 1];
+    uint16 v2 = r14 & kHandlePaletteFades_DATA_00AE77[t >> 1];
     if (v2) {
       int v3 = i >> 1;
       v2 = kHandlePaletteFades_DATA_00AE6B[v3];
       if (*(int8 *)&palettes_level_end_color_fade_direction < 0)
         v2 = kHandlePaletteFades_DATA_00AE71[v3];
     }
-    R4_W |= kHandlePaletteFades_DATA_00AE65[i >> 1] & (uint16)(R2_W + v2);
+    r4w |= kHandlePaletteFades_DATA_00AE65[i >> 1] & (uint16)(r2w + v2);
   }
+  return r4w;
 }
 
 void OwEventProcess04_FadeInLayer2Tile_00B006(uint8 a) {  // 00b006
-  HandlePaletteFades_00AFA3(a);
+  timer_level_end_fade = a + 2;
+  uint8 r12 = (a >> 4) & 2;
+  uint16 r14 = kHandlePaletteFades_DATA_00AEF7[(a & 0x1E) >> 1];
+
   for (uint16 i = 110; (i & 0x8000) == 0; i -= 16) {
     int16 v2 = 8;
     int16 v4;
     do {
       int v3 = i >> 1;
-      R2_W = palettes_copy_of_palette_mirror[v3 + 1];
+      uint16 r2w = palettes_copy_of_palette_mirror[v3 + 1];
       v4 = v2;
-      HandlePaletteFades_00AFC0(palettes_palette_mirror[v3 + 64]);
-      palettes_copy_of_palette_mirror[v3 + 1] = R4_W;
-      palettes_copy_of_palette_mirror[v3 + 58] = palettes_palette_mirror[v3 + 64] - R4_W;
+      uint16 r4 = HandlePaletteFades_00AFC0(palettes_palette_mirror[v3 + 64], r2w, r12, r14);
+      palettes_copy_of_palette_mirror[v3 + 1] = r4;
+      palettes_copy_of_palette_mirror[v3 + 58] = palettes_palette_mirror[v3 + 64] - r4;
       i -= 2;
       --v2;
     } while (v4 != 1);
@@ -3246,209 +3008,155 @@ void OwEventProcess04_FadeInLayer2Tile_00B006(uint8 a) {  // 00b006
 }
 
 void PlayerState00_00B03E() {  // 00b03e
-  HandlePaletteFades_00AF35();
-  if (palettes_palette_upload_table_index == 3) {
-    R2_ = 0;
-    R0_W = pointer_player_palette;
-    for (uint16 i = 20; (i & 0x8000) == 0; i -= 2)
-      palettes_copy_of_palette_mirror[(i >> 1) + 134] = *(uint16 *)IndirPtr(&R0_W, i);
-    palettes_copy_of_palette_mirror[128] = 0x81ee;
-    for (uint16 j = 206; (j & 0x8000) == 0; j -= 18) {
-      R0_W = 7;
-      do {
-        int v2 = j >> 1;
-        R2_W = palettes_copy_of_palette_mirror[v2 + 144];
-        HandlePaletteFades_00AFC0(palettes_palette_mirror[v2 + 144]);
-        palettes_copy_of_palette_mirror[v2 + 144] = R4_W;
-        j -= 2;
-        --R0_W;
-      } while (R0_W);
-    }
-    unused_byte_7E0AF5 = 0;
-  }
+  HandlePaletteFades_00AF35(true);
 }
 
 void GraphicsDecompressionRoutines_DecompressGFX32And33() {  // 00b888
-  *(uint16 *)&temp8a = 0xbfc0;
-  temp8c = 8;
-  R0_W = 0x2000;
-  R2_ = 126;
-  GraphicsDecompressionRoutines_BeginDecompression();
-  temp8f = 126;
-  *(uint16 *)&temp8d = 0xacfe;
-  int16 v0 = 0x23ff;
-LABEL_2:;
-  int16 v1 = 8;
-  do {
-    IndirWriteWord(&temp8d, 0, graphics_decompressedgfx32[(uint16)v0--]);
-    --*(uint16 *)&temp8d;
-    --*(uint16 *)&temp8d;
-    --v1;
-  } while (v1);
-  int16 v2 = 8;
-  while (1) {
-    uint16 v3 = v0 - 1;
-    IndirWriteWord(&temp8d, 0, *(uint16 *)&graphics_decompressedgfx32[v3]);
-    v0 = v3 - 1;
-    if (v0 < 0)
-      break;
-    --*(uint16 *)&temp8d;
-    --*(uint16 *)&temp8d;
-    if (!--v2)
-      goto LABEL_2;
+  if (HAS_LM_FEATURE(kLmFeature_4bppgfx)) {
+    memcpy(g_ram + 0x7d00, kGfx33, kGfx33_SIZE);
+    memcpy(g_ram + 0x2000, kGfx32, kGfx32_SIZE);
+  } else {
+    memcpy(g_ram + 0x2000, kGfx33, kGfx33_SIZE);
+    uint8 *t8d = g_ram + 0xacfe;
+    int16 v0 = 0x23ff;
+  LABEL_2:;
+    int16 v1 = 8;
+    do {
+      WORD(t8d[0]) = graphics_decompressedgfx32[(uint16)v0--];
+      t8d -= 2;
+    } while (--v1);
+    int16 v2 = 8;
+    while (1) {
+      uint16 v3 = v0 - 1;
+      WORD(t8d[0]) = *(uint16 *)&graphics_decompressedgfx32[v3];
+      v0 = v3 - 1;
+      if (v0 < 0)
+        break;
+      t8d -= 2;
+      if (!--v2)
+        goto LABEL_2;
+    }
+    memcpy(g_ram + 0x2000, kGfx32, kGfx32_SIZE);
   }
-  *(uint16 *)&temp8a = 0x8000;
-  GraphicsDecompressionRoutines_BeginDecompression();
 }
 
-void GraphicsDecompressionRoutines_BeginDecompression() {  // 00b8de
-  int16 v3;
-  uint16 v17;
-  int8 v20;
-
+int DecompressTo(const uint8 *src, uint8 *pdst) {  // 00b8de
+  uint8 cmd;
   uint16 v0 = 0;
   while (1) {
-    uint8 Byte = GraphicsDecompressionRoutines_ReadByte();
-    if (Byte == 0xFF)
+    uint8 tag = *src++;
+    if (tag == 0xFF)
       break;
-    temp8f = Byte;
-    int8 v2 = Byte & 0xE0;
-    if (v2 == -32) {
-      v20 = (8 * temp8f) & 0xE0;
-      HIBYTE(v3) = temp8f & 3;
-      LOBYTE(v3) = GraphicsDecompressionRoutines_ReadByte();
+    uint8 v2 = tag & 0xE0;
+    int len;
+    if (v2 == 0xe0) {
+      cmd = (8 * tag) & 0xE0;
+      len = ((tag & 3) << 8 | *src++) + 1;
     } else {
-      v20 = v2;
-      v3 = temp8f & 0x1F;
+      cmd = v2;
+      len = (tag & 0x1F) + 1;
     }
-    *(uint16 *)&temp8d = v3 + 1;
-    if (v20) {
-      if (v20 < 0) {
-        HIBYTE(v17) = GraphicsDecompressionRoutines_ReadByte();
-        LOBYTE(v17) = GraphicsDecompressionRoutines_ReadByte();
-        uint16 v18 = v17;
+    if (cmd) {
+      if (cmd & 0x80) {
+        uint16 v18 = src[0] << 8 | src[1];
+        src += 2;
         do {
-          uint8 *v19 = IndirPtr(&R0_, v18);
-          IndirWriteByte(&R0_, v0++, *v19);
+          pdst[v0++] = pdst[v18];
           ++v18;
-          --*(uint16 *)&temp8d;
-        } while (*(uint16 *)&temp8d);
-      } else if ((v20 & 0x40) != 0) {
-        if (((2 * v20) & 0x40) != 0) {
-          uint8 v4 = GraphicsDecompressionRoutines_ReadByte();
-          int16 v5 = *(uint16 *)&temp8d;
+        } while (--len);
+      } else if ((cmd & 0x40) != 0) {
+        if ((cmd & 0x20) != 0) {
+          uint8 v4 = *src++;
           do {
-            IndirWriteByte(&R0_, v0++, v4++);
-            --v5;
-          } while (v5);
+            pdst[v0++] = v4++;
+          } while (--len);
         } else {
-          uint8 v9 = GraphicsDecompressionRoutines_ReadByte();
-          uint8 v10 = GraphicsDecompressionRoutines_ReadByte();
-          int16 v11 = *(uint16 *)&temp8d;
+          uint8 v9 = *src++;
+          uint8 v10 = *src++;
           do {
-            uint8 v14 = v10;
-            uint8 v12 = v9;
-            uint8 v13 = v14;
-            IndirWriteByte(&R0_, v0++, v12);
-            int16 v15 = v11 - 1;
-            if (!v15)
+            pdst[v0++] = v9;
+            if (len <= 1)
               break;
-            uint8 v16 = v12;
-            v10 = v13;
-            v9 = v16;
-            IndirWriteByte(&R0_, v0++, v10);
-            v11 = v15 - 1;
-          } while (v11);
+            pdst[v0++] = v10;
+          } while (len -= 2);
         }
       } else {
-        uint8 v7 = GraphicsDecompressionRoutines_ReadByte();
-        int16 v8 = *(uint16 *)&temp8d;
+        uint8 v7 = *src++;
         do {
-          IndirWriteByte(&R0_, v0++, v7);
-          --v8;
-        } while (v8);
+          pdst[v0++] = v7;
+        } while (--len);
       }
     } else {
       do {
-        uint8 v6 = GraphicsDecompressionRoutines_ReadByte();
-        IndirWriteByte(&R0_, v0++, v6);
-        --*(uint16 *)&temp8d;
-      } while (*(uint16 *)&temp8d);
+        uint8 v6 = *src++;
+        pdst[v0++] = v6;
+      } while (--len);
     }
   }
+  return v0;
 }
 
-uint8 GraphicsDecompressionRoutines_ReadByte() {  // 00b983
-  uint8 result = *IndirPtr(&temp8a, 0);
-  int16 v1 = *(uint16 *)&temp8a + 1;
-  if (*(uint16 *)&temp8a == 0xFFFF) {
-    v1 = 0x8000;
-    ++temp8c;
-  }
-  *(uint16 *)&temp8a = v1;
-  return result;
+uint8 *GraphicsDecompress(uint8 j) {  // 00ba28
+  MemBlk blk = kGraphicsPtrs(j);
+  DecompressTo(blk.ptr, g_ram + 0xad00);
+  return g_ram + 0xad00;
 }
 
-void GraphicsDecompressionRoutines(uint8 j) {  // 00ba28
-  temp8a = kGraphicsDecompressionRoutines_GraphicsPtrLo[j];
-  temp8b = kGraphicsDecompressionRoutines_GraphicsPtrHi[j];
-  temp8c = kGraphicsDecompressionRoutines_GraphicsPtrBank[j];
-  R0_ = 0;
-  R1_ = -83;
-  R2_ = 126;
-  GraphicsDecompressionRoutines_BeginDecompression();
+uint8 *GetPtrToLevelDataLayout() {
+  const uint16 *rp = GetLayerLayoutPtr(misc_current_layer_being_processed, misc_level_mode_setting);
+  return g_ram + rp[HIBYTE(blocks_xpos)];
 }
 
 void GenerateTile() {  // 00beb0
-  uint16 v0;
-
   if (blocks_map16_to_generate) {
-    R12_W = blocks_xpos;
-    R14_W = blocks_ypos;
-    HIBYTE(v0) = 0;
-    R9_ = misc_level_layout_flags;
+    GenTileArgs gta;
+
+    gta.r12 = blocks_xpos;
+    gta.r14 = blocks_ypos;
+    uint8 r9 = misc_level_layout_flags;
     if ((uint8)misc_current_layer_being_processed)
-      R9_ >>= 1;
-    uint16 v1 = R14_W;
-    if ((R9_ & 1) != 0) {
-      R0_ = HIBYTE(blocks_xpos);
+      r9 >>= 1;
+    uint16 v1 = gta.r14;
+    if ((r9 & 1) != 0) {
+      uint8 r0 = HIBYTE(blocks_xpos);
       HIBYTE(blocks_xpos) = HIBYTE(blocks_ypos);
-      HIBYTE(blocks_ypos) = R0_;
-      v1 = R12_W;
+      HIBYTE(blocks_ypos) = r0;
+      v1 = gta.r12;
     }
     if (v1 < 0x200) {
-      v0 = 2 * misc_current_layer_being_processed;
-      uint16 v2 = v0;
-      WORD(temp65) = WORD(*((uint8 *)kLevelDataLayoutTables_LoTablePtrs + v0));
-      temp67 = 0;
-      v0 = 2 * misc_level_mode_setting;
-      R4_ = *IndirPtr(&temp65, v0);
-      R5_ = *IndirPtr(&temp65, v0 + 1);
-      R6_ = 0;
-      R7_ = HIBYTE(blocks_xpos);
-      ptr_hi_map16_data = ptr_lo_map16_data = *(uint16*)IndirPtr(&R4_, 3 * HIBYTE(blocks_xpos));
-      ptr_lo_map16_data_bank = 126;
-      ptr_hi_map16_data_bank = 127;
+      ptr_lo_map16_data = NULL;
+      gta.ptr_lo_map16_data = GetPtrToLevelDataLayout();
       // @25: Write to 0x6 = 0x25: 0xbf67: r18=0x4100: r20=0xc19e: a = 0x25, x = 0x0, y = 0xd, c = 0, r4 = 24, r5 = 40, r6 = 25, r9=1, blocks_ypos = 482/15e
-      uint8 v3, v4;
-      if ((R9_ & 1) != 0) {
-        v3 = HIBYTE(blocks_ypos) & 1;
-        v4 = HIBYTE(blocks_xpos) & 1;
+      uint8 v3, v4, r4;
+      if (g_lunar_magic) {
+        if ((r9 & 1) != 0) {
+          v3 = HIBYTE(blocks_ypos) & 1;
+          v4 = HIBYTE(blocks_xpos);
+        } else {
+          v3 = HIBYTE(blocks_xpos) & 1;
+          v4 = HIBYTE(blocks_ypos);
+        }
+        r4 = (4 * (2 * v4 + v3)) & 0xc | 0x20;
       } else {
-        v3 = HIBYTE(blocks_xpos) & 1;
-        v4 = HIBYTE(blocks_ypos);
+        if ((r9 & 1) != 0) {
+          v3 = HIBYTE(blocks_ypos) & 1;
+          v4 = HIBYTE(blocks_xpos) & 1;
+        } else {
+          v3 = HIBYTE(blocks_xpos) & 1;
+          v4 = HIBYTE(blocks_ypos);
+        }
+        r4 = (4 * (2 * v4 + v3)) | 0x20;
       }
-      R4_ = (4 * (2 * v4 + v3)) | 0x20;
-      if (v2)
-        R4_ += 16;
+      if (misc_current_layer_being_processed)
+        r4 += 16;
       bool v6 = __CFSHL__(blocks_ypos & 0xF0, 1);
-      R5_ = 4 * (blocks_ypos & 0xF0) + v6;
+      uint8 r5 = 4 * (blocks_ypos & 0xF0) + v6;
       // todo: understand this
-      R6_ = R4_ | (2 * (4 * (blocks_ypos & 0xF0) + v6) + __CFSHL__(2 * (blocks_ypos & 0xF0), 1)) & 3;
-      R4_ = (blocks_xpos & 0xF0) >> 3;
-      R7_ = R4_ | R5_ & 0xC0;
+      gta.r6 = r4 | (2 * (4 * (blocks_ypos & 0xF0) + v6) + __CFSHL__(2 * (blocks_ypos & 0xF0), 1)) & 3;
+      r4 = (blocks_xpos & 0xF0) >> 3;
+      gta.r7 = r4 | r5 & 0xC0;
       uint16 v7, v8;
-      if ((R9_ & 1) != 0) {
+      if ((r9 & 1) != 0) {
         v7 = mirror_current_layer1_xpos;
         v8 = mirror_current_layer1_ypos - 128;
         if (misc_current_layer_being_processed) {
@@ -3456,232 +3164,239 @@ void GenerateTile() {  // 00beb0
           v8 = mirror_current_layer2_ypos;
         }
       } else {
-        v7 = mirror_current_layer1_xpos - 128;
-        v8 = mirror_current_layer1_ypos;
-        if (misc_current_layer_being_processed) {
-          v7 = mirror_current_layer2_xpos;
-          v8 = mirror_current_layer2_ypos - 128;
+        if (g_lunar_magic) {
+          v7 = mirror_current_layer1_xpos;
+          v8 = mirror_current_layer1_ypos;
+          if (misc_current_layer_being_processed) {
+            v7 = mirror_current_layer2_xpos;
+            v8 = mirror_current_layer2_ypos;
+          }
+          v7 -= 0x80;
+          v8 -= 0x80;
+        } else {
+          v7 = mirror_current_layer1_xpos - 128;
+          v8 = mirror_current_layer1_ypos;
+          if (misc_current_layer_being_processed) {
+            v7 = mirror_current_layer2_xpos;
+            v8 = mirror_current_layer2_ypos - 128;
+          }
         }
       }
-      R8_W = v7;
-      R10_W = v8;
-      GenerateTile_00BFBC();
+      gta.r8 = v7;
+//      r10w = v8;
+      gta.r10 = v8;
+      kGenerateTile_TileGenerationPtr[blocks_map16_to_generate - 1](&gta);
     }
   }
-}
-
-void GenerateTile_00BFBC() {  // 00bfbc
-  kGenerateTile_TileGenerationPtr[(uint8)(blocks_map16_to_generate - 1)]();
 }
 
 void SetItemMemoryBit() {  // 00c00d
-  R4_W = (uint16)(blocks_xpos & 0xFF00) >> 6;
-  R4_W |= (uint8)(blocks_xpos & 0x80) >> 7;
+  uint16 r4 = (uint16)(blocks_xpos & 0xFF00) >> 6;
+  r4 |= (uint8)(blocks_xpos & 0x80) >> 7;
   if ((blocks_ypos & 0x100) != 0)
-    R4_W |= 2;
-  R4_W += kSetItemMemoryBit_DATA_00BFFF[(uint16)(2 * (misc_item_memory_setting & 0xF)) >> 1];
-  misc_item_memory_bits[R4_W] |= kSetItemMemoryBit_DATA_00C005[(uint8)(blocks_xpos & 0x70) >> 4];
+    r4 |= 2;
+  r4 += kSetItemMemoryBit_DATA_00BFFF[(uint16)(2 * (misc_item_memory_setting & 0xF)) >> 1];
+  misc_item_memory_bits[r4] |= kSetItemMemoryBit_DATA_00C005[(uint8)(blocks_xpos & 0x70) >> 4];
 }
 
-void sub_C074() {  // 00c074
+void sub_C074(GenTileArgs *gta) {  // 00c074
   SetItemMemoryBit();
-  sub_C077();
+  sub_C077(gta);
 }
 
-void sub_C077() {  // 00c077
-  R4_W = blocks_ypos & 0x1F0;
+void sub_C077(GenTileArgs *gta) {  // 00c077
   uint16 v0 = blocks_ypos & 0x1F0 | ((uint8)blocks_xpos >> 4);
   uint16 v1 = blocks_map16_to_generate;
-  uint8 *v2 = IndirPtr(&ptr_hi_map16_data, v0);
-  IndirWriteByte(&ptr_hi_map16_data, v0, *v2 & 0xFE);
+  uint8 *v2 = gta->ptr_lo_map16_data + v0;
+  if (g_lunar_magic)
+    v2[0x10000] = 0;
+  else
+    v2[0x10000] &= ~1;
   uint8 v3 = kGenericPage00Tile_Map16Page00TileLo[v1];
-  IndirWriteByte(&ptr_lo_map16_data, v0, v3);
-  GenericPage01Tile_00C0FB(2 * v3);
+  v2[0] = v3;
+  GenericPage01Tile_00C0FB(gta, 2 * v3);
 }
 
-void GenericPage01Tile_SetItemMemory() {  // 00c0c1
+void GenericPage01Tile_SetItemMemory(GenTileArgs *gta) {  // 00c0c1
   SetItemMemoryBit();
-  GenericPage01Tile();
+  GenericPage01Tile(gta);
 }
 
-void GenericPage01Tile() {  // 00c0c4
-  R4_W = blocks_ypos & 0x1F0;
+void GenericPage01Tile(GenTileArgs *gta) {  // 00c0c4
   uint16 v0 = blocks_ypos & 0x1F0 | ((uint8)blocks_xpos >> 4);
   uint16 v1 = (uint8)(blocks_map16_to_generate - 9);
-  uint8 *v2 = IndirPtr(&ptr_hi_map16_data, v0);
-  IndirWriteByte(&ptr_hi_map16_data, v0, *v2 | 1);
+  uint8 *v2 = gta->ptr_lo_map16_data + v0;
+  if (g_lunar_magic)
+    v2[0x10000] = 1;
+  else
+    v2[0x10000] |= 1;
   uint8 v3 = kGenericPage01Tile_Map16Page01TileLo[v1];
-  IndirWriteByte(&ptr_lo_map16_data, v0, v3);
-  GenericPage01Tile_00C0FB(2 * (v3 | 0x100));
+  v2[0] = v3;
+  GenericPage01Tile_00C0FB(gta, 2 * (v3 | 0x100));
 }
 
-void GenericPage01Tile_00C0FB(uint16 j) {  // 00c0fb
-  R0_W = *(uint16 *)&misc_level_layout_flags;
+void GenericPage01Tile_00C0FB(GenTileArgs *gta, uint16 j) {  // 00c0fb
+  uint16 r0w = *(uint16 *)&misc_level_layout_flags;
   if (misc_current_layer_being_processed)
-    R0_W >>= 1;
-  if ((R0_W & 1) == 0) {
-    uint16 v1 = R8_W & 0xFFF0;
-    if ((R8_W & 0x8000) == 0) {
-      if (v1 == R12_W)
-        goto LABEL_15;
-      if (v1 >= R12_W)
+    r0w >>= 1;
+  if ((r0w & 1) == 0) {
+    uint16 v1 = gta->r8 & 0xFFF0;
+    if ((gta->r8 & 0x8000) == 0) {
+      if (v1 == gta->r12)
+        goto LABEL_X;
+      if (v1 >= gta->r12)
         return;
     }
     uint16 v2 = v1 + 512;
-    if (v2 == R12_W || v2 < R12_W)
+    if (v2 <= gta->r12)
       return;
+LABEL_X:
+    if (g_lunar_magic)
+      goto LABEL_11;
+  } else {
+LABEL_11:;
+    uint16 v3 = gta->r10 & 0xFFF0;
+    if ((gta->r10 & 0x8000) == 0) {
+      if (v3 == gta->r14)
+        goto LABEL_15;
+      if (v3 >= gta->r14)
+        return;
+    }
+    uint16 v4 = v3 + 512;
+    if (v4 <= gta->r14)
+      return;
+  }
+
 LABEL_15:;
-    uint16 v5 = stripe_image_upload;
-    uint8 v6 = R6_;
-    stripe_image_upload_data[v5] = v6;
-    stripe_image_upload_data[v5 + 8] = v6;
-    uint8 v8 = R7_;
-    stripe_image_upload_data[v5 + 1] = v8;
-    stripe_image_upload_data[v5 + 9] = v8 + 32;
-    stripe_image_upload_data[v5 + 2] = 0;
-    stripe_image_upload_data[v5 + 10] = 0;
-    stripe_image_upload_data[v5 + 3] = 3;
-    stripe_image_upload_data[v5 + 11] = 3;
-    stripe_image_upload_data[v5 + 16] = -1;
-    R6_ = 13;
-    R4_W = pointer_map16_tiles[j >> 1];
-    *(uint16 *)&stripe_image_upload_data[v5 + 4] = *(uint16 *)IndirPtr(&R4_W, 0);
-    *(uint16 *)&stripe_image_upload_data[v5 + 12] = *(uint16 *)IndirPtr(&R4_W, 2);
-    *(uint16 *)&stripe_image_upload_data[v5 + 6] = *(uint16 *)IndirPtr(&R4_W, 4);
-    *(uint16 *)&stripe_image_upload_data[v5 + 14] = *(uint16 *)IndirPtr(&R4_W, 6);
-    stripe_image_upload = v5 + 16;
-    return;
-  }
-  uint16 v3 = R10_W & 0xFFF0;
-  if ((R10_W & 0x8000) == 0) {
-    if (v3 == R14_W)
-      goto LABEL_15;
-    if (v3 >= R14_W)
-      return;
-  }
-  uint16 v4 = v3 + 512;
-  if (v4 != R14_W && v4 >= R14_W)
-    goto LABEL_15;
+  uint16 v5 = stripe_image_upload;
+  uint8 v6 = gta->r6;
+  stripe_image_upload_data[v5] = v6;
+  stripe_image_upload_data[v5 + 8] = v6;
+  uint8 v8 = gta->r7;
+  stripe_image_upload_data[v5 + 1] = v8;
+  stripe_image_upload_data[v5 + 9] = v8 + 32;
+  stripe_image_upload_data[v5 + 2] = 0;
+  stripe_image_upload_data[v5 + 10] = 0;
+  stripe_image_upload_data[v5 + 3] = 3;
+  stripe_image_upload_data[v5 + 11] = 3;
+  stripe_image_upload_data[v5 + 16] = -1;
+  const uint16 *rp = Lm_GetMap16RomAddr(j >> 1);
+  *(uint16 *)&stripe_image_upload_data[v5 + 4] = rp[0];
+  *(uint16 *)&stripe_image_upload_data[v5 + 12] = rp[1];
+  *(uint16 *)&stripe_image_upload_data[v5 + 6] = rp[2];
+  *(uint16 *)&stripe_image_upload_data[v5 + 14] = rp[3];
+  stripe_image_upload = v5 + 16;
+  return;
 }
 
-void GenericPage01Tile_Return00C1AB() {  // 00c1ab
-  ;
-}
-
-void EraseYoshiCoin() {  // 00c1ac
+void EraseYoshiCoin(GenTileArgs *gta) {  // 00c1ac
   SetItemMemoryBit();
-  R4_W = blocks_ypos & 0x1F0;
   uint16 v0 = blocks_ypos & 0x1F0 | ((uint8)blocks_xpos >> 4);
-  IndirWriteByte(&ptr_lo_map16_data, v0, 0x25);
-  IndirWriteByte(&ptr_lo_map16_data, v0 + 16, 0x25);
-  R0_W = *(uint16 *)&misc_level_layout_flags;
+  gta->ptr_lo_map16_data[v0] = gta->ptr_lo_map16_data[v0 + 16] = 0x25;
+  uint16 r0w = *(uint16 *)&misc_level_layout_flags;
   if (misc_current_layer_being_processed)
-    R0_W >>= 1;
-  if ((R0_W & 1) == 0) {
-    uint16 v1 = R8_W & 0xFFF0;
-    if ((R8_W & 0x8000) != 0)
+    r0w >>= 1;
+  if ((r0w & 1) == 0) {
+    uint16 v1 = gta->r8 & 0xFFF0;
+    if ((gta->r8 & 0x8000) != 0)
       goto LABEL_7;
-    if (v1 != R12_W) {
-      if (v1 >= R12_W)
+    if (v1 != gta->r12) {
+      if (v1 >= gta->r12)
         return;
 LABEL_7:
-      if ((uint16)(v1 + 512) <= R12_W)
+      if ((uint16)(v1 + 512) <= gta->r12)
         return;
     }
 LABEL_14:;
     uint16 v4 = stripe_image_upload;
-    uint8 v5 = R6_;
+    uint8 v5 = gta->r6;
     int v6 = stripe_image_upload;
-    stripe_image_upload_data[stripe_image_upload] = R6_;
+    stripe_image_upload_data[stripe_image_upload] = v5;
     stripe_image_upload_data[v6 + 12] = v5;
-    uint8 v7 = R7_;
-    stripe_image_upload_data[v4 + 1] = R7_;
+    uint8 v7 = gta->r7;
+    stripe_image_upload_data[v4 + 1] = v7;
     stripe_image_upload_data[v4 + 13] = v7 + 1;
     stripe_image_upload_data[v4 + 2] = 0x80;
     stripe_image_upload_data[v4 + 14] = 0x80;
     stripe_image_upload_data[v4 + 3] = 7;
     stripe_image_upload_data[v4 + 15] = 7;
     stripe_image_upload_data[v4 + 24] = -1;
-    R6_ = 13;
-    R4_W = pointer_map16_tiles[37];
-    uint8 *v8 = IndirPtr(&R4_W, 0);
-    int16 v9 = *(uint16 *)v8;
-    *(uint16 *)&stripe_image_upload_data[v4 + 4] = *(uint16 *)v8;
+    g_ram[6] = 13;
+    const uint16 *rp = Lm_GetMap16RomAddr(37);
+    uint16 v9 = rp[0];
+    *(uint16 *)&stripe_image_upload_data[v4 + 4] = v9;
     *(uint16 *)&stripe_image_upload_data[v4 + 8] = v9;
-    uint8 *v10 = IndirPtr(&R4_W, 2);
-    int16 v11 = *(uint16 *)v10;
-    *(uint16 *)&stripe_image_upload_data[v4 + 16] = *(uint16 *)v10;
+    uint16 v11 = rp[1];
+    *(uint16 *)&stripe_image_upload_data[v4 + 16] = v11;
     *(uint16 *)&stripe_image_upload_data[v4 + 20] = v11;
-    uint8 *v12 = IndirPtr(&R4_W, 4);
-    int16 v13 = *(uint16 *)v12;
-    *(uint16 *)&stripe_image_upload_data[v4 + 6] = *(uint16 *)v12;
+    uint16 v13 = rp[2];
+    *(uint16 *)&stripe_image_upload_data[v4 + 6] = v13;
     *(uint16 *)&stripe_image_upload_data[v4 + 10] = v13;
-    uint8 *v14 = IndirPtr(&R4_W, 6);
-    int16 v15 = *(uint16 *)v14;
-    *(uint16 *)&stripe_image_upload_data[v4 + 18] = *(uint16 *)v14;
+    uint16 v15 = rp[3];
+    *(uint16 *)&stripe_image_upload_data[v4 + 18] = v15;
     *(uint16 *)&stripe_image_upload_data[v4 + 22] = v15;
     stripe_image_upload = v4 + 24;
     return;
   }
-  uint16 v2 = R10_W & 0xFFF0;
-  if ((R10_W & 0x8000) == 0) {
-    if (v2 == R14_W)
+  uint16 v2 = gta->r10 & 0xFFF0;
+  if ((gta->r10 & 0x8000) == 0) {
+    if (v2 == gta->r14)
       goto LABEL_14;
-    if (v2 >= R14_W)
+    if (v2 >= gta->r14)
       return;
   }
   uint16 v3 = v2 + 512;
-  if (v3 != R14_W && v3 >= R14_W)
+  if (v3 > gta->r14)
     goto LABEL_14;
 }
 
-void ChangeNetDoorTiles() {  // 00c334
-  ++R7_;
-  AddHiLo(&R6_, &R7_, 32);
-  R0_ = blocks_map16_to_generate - 25;
-  R4_ = *(&kChangeNetDoorTiles_DATA_00C32E[0].bank + (3 * (blocks_map16_to_generate - 25)));
-  R2_W = *(uint16 *)((int8 *)&kChangeNetDoorTiles_DATA_00C32E[0].addr + (3 * (blocks_map16_to_generate - 25)));
+static const uint16 kChangeNetDoorTiles_Open[72] = { 0x9c99, 0x1c8b, 0x1c8b, 0x1c8b, 0x1c8b, 0xdc99, 0x1c9b, 0x1cf8, 0x1cf8, 0x1cf8, 0x1cf8, 0x5c9b, 0x1c9b, 0x1cf8, 0x1cf8, 0x1cf8, 0x1cf8, 0x5c9b, 0x1c9b, 0x1cf8, 0x1cf8, 0x1cf8, 0x1cf8, 0x5c9b, 0x1c9b, 0x1cf8, 0x1cf8, 0x1cf8, 0x1cf8, 0x5c9b, 0x1c99, 0x9c8b, 0x9c8b, 0x9c8b, 0x9c8b, 0x5c99,  };
+static const uint16 kChangeNetDoorTiles_Closed[72] = { 0x9cba, 0x1cab, 0x1cab, 0x1cab, 0x1cab, 0xdcba, 0x1caa, 0x1c82, 0x1c82, 0x1c82, 0x1c82, 0x5caa, 0x1caa, 0x1c82, 0x1c82, 0x1c82, 0x1c82, 0x5caa, 0x1caa, 0x1c82, 0x1c82, 0x1c82, 0x1c82, 0x5caa, 0x1caa, 0x1c82, 0x1c82, 0x1c82, 0x1c82, 0x5caa, 0x1cba, 0x9cab, 0x9cab, 0x9cab, 0x9cab, 0x5cba,  };
+
+void ChangeNetDoorTiles(GenTileArgs *gta) {  // 00c334
+  ++gta->r7;
+  AddHiLo(&gta->r6, &gta->r7, 32);
+  const uint8 *p2 = (uint8*)((blocks_map16_to_generate == 25) ? kChangeNetDoorTiles_Open : kChangeNetDoorTiles_Closed);
   uint16 v1 = stripe_image_upload;
   for (int16 i = 5; i >= 0; --i) {
-    stripe_image_upload_data[v1] = R6_;
-    stripe_image_upload_data[v1 + 1] = R7_;
+    stripe_image_upload_data[v1] = gta->r6;
+    stripe_image_upload_data[v1 + 1] = gta->r7;
     stripe_image_upload_data[v1 + 2] = 0;
     stripe_image_upload_data[v1 + 3] = 11;
-    AddHiLo(&R6_, &R7_, 32);
+    AddHiLo(&gta->r6, &gta->r7, 32);
     v1 += 16;
   }
   uint16 v3 = stripe_image_upload;
   uint16 v4 = 0;
   do {
-    R0_W = 5;
+    uint16 r0w = 5;
     do {
-      *(uint16 *)&stripe_image_upload_data[v3 + 4] = *(uint16 *)IndirPtr(&R2_W, v4);
+      *(uint16 *)&stripe_image_upload_data[v3 + 4] = WORD(p2[v4]);
       v4 += 2;
       v3 += 2;
-    } while ((--R0_W & 0x8000) == 0);
+    } while ((--r0w & 0x8000) == 0);
     v3 += 4;
   } while (v4 != 72);
   *(uint16 *)&stripe_image_upload_data[v3] = 255;
   stripe_image_upload += 96;
 }
 
-void EraseLargeSwitch() {  // 00c3d1
-  R4_W = blocks_ypos & 0x1F0;
+void EraseLargeSwitch(GenTileArgs *gta) {  // 00c3d1
   uint16 v0 = blocks_ypos & 0x1F0 | ((uint8)blocks_xpos >> 4);
   uint16 v1 = stripe_image_upload;
-  IndirWriteByte(&ptr_lo_map16_data, v0++, 0x25);
-  IndirWriteByte(&ptr_lo_map16_data, v0, 0x25);
-  v0 += 16;
-  IndirWriteByte(&ptr_lo_map16_data, v0, 0x25);
-  IndirWriteByte(&ptr_lo_map16_data, v0 - 1, 0x25);
+  uint8 *p = gta->ptr_lo_map16_data;
+  p[v0] = 0x25;
+  p[v0 + 1] = 0x25;
+  p[v0 + 16] = 0x25;
+  p[v0 + 17] = 0x25;
   for (int16 i = 3; i >= 0; --i) {
-    stripe_image_upload_data[v1] = R6_;
-    stripe_image_upload_data[v1 + 1] = R7_;
+    stripe_image_upload_data[v1] = gta->r6;
+    stripe_image_upload_data[v1 + 1] = gta->r7;
     stripe_image_upload_data[v1 + 2] = 64;
     stripe_image_upload_data[v1 + 3] = 6;
     *(uint16 *)&stripe_image_upload_data[v1 + 4] = 0x18f8;
     v1 += 6;
-    AddHiLo(&R6_, &R7_, 32);
+    AddHiLo(&gta->r6, &gta->r7, 32);
   }
   stripe_image_upload_data[v1] = -1;
   stripe_image_upload = v1;
@@ -3714,11 +3429,9 @@ void GameMode14_InLevel_00C47E() {  // 00c47e
       mirror_bg3_and4_window_mask_settings = 2;
       mirror_object_and_color_window_settings = kGameMode14_InLevel_DATA_00C478[flag_keyhole_anim_phase];
       mirror_color_math_initial_settings = 18;
-      R4_W = 0xCB93;
-      R6_W = 0;
-      R0_ = temp1436 - mirror_current_layer1_xpos + 4;
-      R1_ = temp1438 - mirror_current_layer1_ypos + 16;
-      UpdateHDMAWindowBuffer_KeyholeEntry(temp1438 - mirror_current_layer1_ypos + 16);
+      uint8 r0 = player_on_tilting_platform_xpos - mirror_current_layer1_xpos + 4;
+      uint8 r1 = player_on_tilting_platform_ypos - mirror_current_layer1_ypos + 16;
+      UpdateHDMAWindowBuffer_KeyholeEntry((HdmaPtrs) {.r4 = kUpdateHDMAWindowBuffer_KeyholeHDMAData, .r6 = 0}, r0, r1);
     }
   }
 LABEL_11:
@@ -3829,16 +3542,16 @@ LABEL_11:
     }
   }
 LABEL_15:;
-  uint8 v3 = *(&kPlayerState0C_CastleDestructionMoves_UNK_00C6DF + misc_currently_active_boss_end_cutscene) + temp8f;
+  uint8 v3 = *(kPlayerState0C_CastleDestructionMoves_UNK_00C6DF + misc_currently_active_boss_end_cutscene) + temp8f;
   if (!player_timer_pipe_warping) {
     temp8f += 2;
     v3 += 2;
-    player_timer_pipe_warping = kPlayerState0C_CastleDestructionMoves_DATA_00C5E9[v3];
-    if (*(&kPlayerState0C_CastleDestructionMoves_CastleDestructionMovementData + v3) == 45)
+    player_timer_pipe_warping = kPlayerState0C_CastleDestructionMoves_CastleDestructionMovementData[v3 + 1];
+    if (*(kPlayerState0C_CastleDestructionMoves_CastleDestructionMovementData + v3) == 45)
       io_sound_ch1 = 30;
   }
-  if (*(&kPlayerState0C_CastleDestructionMoves_CastleDestructionMovementData + v3) != 0xFF) {
-    uint8 v10 = *(&kPlayerState0C_CastleDestructionMoves_CastleDestructionMovementData + v3);
+  if (*(kPlayerState0C_CastleDestructionMoves_CastleDestructionMovementData + v3) != 0xFF) {
+    uint8 v10 = *(kPlayerState0C_CastleDestructionMoves_CastleDestructionMovementData + v3);
     if ((v10 & 0x10) != 0)
       DrawQuestionMark();
     if ((v10 & 0x20) != 0) {
@@ -4035,7 +3748,7 @@ void PlayerState00_00C96B() {  // 00c96b
       PlayerState00_00CD24();
       if (!timer_hdmawindow_scaling_factor) {
         uint8 v0 = flag_secret_goal_sprite + 1;
-        if (flag_secret_goal_sprite == 2) {
+        if (flag_secret_goal_sprite == 2 && !g_lunar_magic) {
           ow_players_map[0] = 1;
           v0 = 0;
         }
@@ -4053,7 +3766,7 @@ void PlayerState00_00C96B() {  // 00c96b
       }
     }
   } else {
-    if (timer_end_level >= 0x28) {
+    if (timer_end_level >= (g_lunar_magic ? 0x38 : 0x28)) {
       player_facing_direction = 1;
       io_controller_hold1 = 1;
       player_xspeed = 5;
@@ -4077,10 +3790,10 @@ void PlayerState00_LevelFinished(uint8 j, uint8 a) {  // 00c9fe
   misc_exit_level_action = a;
   if (misc_currently_active_boss_end_cutscene) {
     uint8 v2 = 8;
-    if (ow_level_number_lo == 19)
+    if (ow_level_number_lo == kLevelsThatTriggerCutscenes[8])
       ++misc_exit_level_action;
-    if (ow_level_number_lo != 49) {
-      while (ow_level_number_lo != kPlayerState00_LevelsThatTriggerCutscenes[v2 - 1]) {
+    if (ow_level_number_lo != kLevelsThatTriggerCutscenes[9]) {
+      while (ow_level_number_lo != kLevelsThatTriggerCutscenes[v2 - 1]) {
         if (!--v2)
           goto LABEL_9;
       }
@@ -4108,8 +3821,7 @@ void PlayerState00_00CA3E() {  // 00ca3e
 
 void PlayerState00_00CA44() {  // 00ca44
   if (timer_hdmawindow_scaling_factor) {
-    UpdateHDMAWindowBuffer_SetCircleHDMAPointer();
-    UpdateHDMAWindowBuffer_IrisInOnPlayerEntry(0xFC);
+    UpdateHDMAWindowBuffer_IrisInOnPlayerEntry(0xFC, UpdateHDMAWindowBuffer_SetCircleHDMAPointer());
     mirror_bg1_and2_window_mask_settings = 51;
     mirror_object_and_color_window_settings = 51;
     mirror_bg3_and4_window_mask_settings = 3;
@@ -4117,25 +3829,24 @@ void PlayerState00_00CA44() {  // 00ca44
   }
 }
 
-void UpdateHDMAWindowBuffer_SetCircleHDMAPointer() {  // 00ca61
-  R4_W = 0xcb12;
-  R6_W = 0xcb12;
+HdmaPtrs UpdateHDMAWindowBuffer_SetCircleHDMAPointer() {  // 00ca61
+  return (HdmaPtrs) { .r4 = kUpdateHDMAWindowBuffer_CircleHDMAData, .r6 = kUpdateHDMAWindowBuffer_CircleHDMAData };
 }
 
-void UpdateHDMAWindowBuffer_IrisInOnPlayerEntry(uint8 a) {  // 00ca6d
+void UpdateHDMAWindowBuffer_IrisInOnPlayerEntry(uint8 a, HdmaPtrs hptr) {  // 00ca6d
   timer_hdmawindow_scaling_factor += a;
-  R0_ = player_on_screen_pos_x + 8;
+  uint8 r0 = player_on_screen_pos_x + 8;
   uint8 v1 = player_current_power_up ? 16 : 24;
-  R1_ = player_on_screen_pos_y + v1;
-  if (R1_ == 255 || R1_ == 0)
-    R1_ = 1;
-  UpdateHDMAWindowBuffer_KeyholeEntry(R1_);
+  uint8 r1 = player_on_screen_pos_y + v1;
+  if (r1 == 255 || r1 == 0)
+    r1 = 1;
+  UpdateHDMAWindowBuffer_KeyholeEntry(hptr, r0, r1);
 }
 
-void UpdateHDMAWindowBuffer_KeyholeEntry(uint8 a) {  // 00ca88
-  uint16 v1 = 2 * (2 * a - 1);
+void UpdateHDMAWindowBuffer_KeyholeEntry(HdmaPtrs hptr, uint8 r0, uint8 r1) {  // 00ca88
+  uint16 v1 = 2 * (2 * r1 - 1);
   uint16 v2 = 0;
-  while (R1_ >= timer_hdmawindow_scaling_factor) {
+  while (r1 >= timer_hdmawindow_scaling_factor) {
     if (v2 < 0x1E0) {
       misc_hdmawindow_effect_table[v2] = 255;
       misc_hdmawindow_effect_table[v2 + 1] = 0;
@@ -4146,20 +3857,20 @@ void UpdateHDMAWindowBuffer_KeyholeEntry(uint8 a) {  // 00ca88
     }
     v2 += 2;
     v1 -= 2;
-    if (!R1_)
+    if (!r1)
       goto LABEL_21;
-    --R1_;
+    --r1;
   }
   do {
-    UpdateHDMAWindowBuffer_00CC14(v1);
+    PairU8 pair = UpdateHDMAWindowBuffer_00CC14(v1, hptr, r1);
     if (v2 < 0x1e0) {
-      misc_hdmawindow_effect_table[v2 + 1] = R0_ + R2_ < 255 ? R0_ + R2_ : 255;
-      misc_hdmawindow_effect_table[v2] = R0_ >= R2_ ? R0_ - R2_ : 0;
+      misc_hdmawindow_effect_table[v2 + 1] = r0 + pair.first < 255 ? r0 + pair.first : 255;
+      misc_hdmawindow_effect_table[v2] = r0 >= pair.first ? r0 - pair.first : 0;
     }
     if (v1 < 0x1E0) {
-      if (R7_) {
-        misc_hdmawindow_effect_table[v1 + 1] = R0_ + R3_ < 255 ? R0_ + R3_ : 255;
-        misc_hdmawindow_effect_table[v1] = R0_ >= R3_ ? R0_ - R3_ : 0;
+      if (hptr.r6) {
+        misc_hdmawindow_effect_table[v1 + 1] = r0 + pair.second < 255 ? r0 + pair.second : 255;
+        misc_hdmawindow_effect_table[v1] = r0 >= pair.second ? r0 - pair.second : 0;
       } else {
         misc_hdmawindow_effect_table[v1 + 1] = 0;
         misc_hdmawindow_effect_table[v1] = 255;
@@ -4167,21 +3878,21 @@ void UpdateHDMAWindowBuffer_KeyholeEntry(uint8 a) {  // 00ca88
     }
     v2 += 2;
     v1 -= 2;
-    if (!R1_)
+    if (!r1)
       break;
-  } while (--R1_);
+  } while (--r1);
 LABEL_21:
   mirror_hdmaenable = 0x80;
 }
 
-uint8 UpdateHDMAWindowBuffer_00CC14(uint16 j) {  // 00cc14
-  uint16 v1 = SnesDivide(R1_ << 8, timer_hdmawindow_scaling_factor) >> 1;
-  uint8 t = R6_W ? RomPtr_00(R6_W)[v1] : 0;
-  R3_ = (t * timer_hdmawindow_scaling_factor) >> 8;
-  uint8 *v3 = RomPtr_00(R4_W);
+PairU8 UpdateHDMAWindowBuffer_00CC14(uint16 j, HdmaPtrs hptr, uint8 r1) {  // 00cc14
+  uint16 v1 = SnesDivide(r1 << 8, timer_hdmawindow_scaling_factor) >> 1;
+  uint8 t = hptr.r6 ? hptr.r6[v1] : 0;
+  uint8 r3 = (t * timer_hdmawindow_scaling_factor) >> 8;
+  const uint8 *v3 = hptr.r4;
   uint8 result = (v3[v1] * timer_hdmawindow_scaling_factor) >> 8;
-  R2_ = result;
-  return result;
+  uint8 r2 = result;
+  return (PairU8) { .first = r2, .second = r3 };
 }
 
 void PlayerState00() {  // 00cc68
@@ -4212,14 +3923,12 @@ void PlayerState00_00CCE0() {  // 00cce0
     if ((misc_nmito_use_flag & 0x40) != 0 || player_in_air_flag) {
       UpdatePlayerSpritePosition();
     } else {
-      player_xpos = *(uint16 *)&temp1436;
-      player_ypos = *(uint16 *)&temp1438;
+      player_xpos = player_on_tilting_platform_xpos;
+      player_ypos = player_on_tilting_platform_ypos;
       UpdatePlayerSpritePosition();
-      *(uint16 *)&temp1436 = player_xpos;
-      *(uint16 *)&temp14b4 = player_xpos;
-      *(uint16 *)&temp1438 = player_ypos & 0xFFF0;
-      *(uint16 *)&temp14b6 = player_ypos & 0xFFF0;
-      PlayerState00_00F9C9();
+      player_on_tilting_platform_xpos = player_xpos;
+      player_on_tilting_platform_ypos = player_ypos & 0xFFF0;
+      PlayerState00_00F9C9(player_on_tilting_platform_xpos, player_on_tilting_platform_ypos, (PointU16) {.x = 0, .y = 0});
     }
     PlayerState00_00F8F2();
     PlayerState00_00CD36();
@@ -4245,11 +3954,11 @@ void PlayerState00_00CD39() {  // 00cd39
     PlayerState00_00CD95(timer_inflate_from_pballoon);
   } else {
     if (flag_player_climb_on_air)
-      temp8b = 31;
-    if (player_climbing_flag || !(player_riding_yoshi_flag | player_carrying_something_flag2) && (temp8b & 0x1B) == 27 &&
+      player_collision_var8b = 31;
+    if (player_climbing_flag || !(player_riding_yoshi_flag | player_carrying_something_flag2) && (player_collision_var8b & 0x1B) == 27 &&
                                     (io_controller_hold1 & 0xC) != 0 &&
-                                    (player_in_air_flag || (io_controller_hold1 & 8) != 0 || (temp8b & 4) != 0)) {
-      player_climbing_flag = temp8b;
+                                    (player_in_air_flag || (io_controller_hold1 & 8) != 0 || (player_collision_var8b & 4) != 0)) {
+      player_climbing_flag = player_collision_var8b;
       HandlePlayerPhysics_Climbing();
     } else if (player_swimming_flag) {
       HandlePlayerPhysics_Swimming();
@@ -4556,7 +4265,8 @@ void PlayerState09_Death() {  // 00d0b6
     if (!flag_prevent_yoshi_carry_over)
       yoshi_carry_over_levels_flag = 0;
     if ((--player_current_life_count & 0x80) == 0) {
-      if (counter_timer_ones | counter_timer_tens | counter_timer_hundreds) {
+      if (HAS_LM_FEATURE(kLmFeature_TimerTweaks) && lm_timer_var != 0 || 
+          counter_timer_ones | counter_timer_tens | counter_timer_hundreds) {
         misc_game_mode = 11;
         return;
       }
@@ -4738,6 +4448,7 @@ LABEL_6:
 
 void HandlePlayerPhysics() {  // 00d5f2
   uint8 v4;
+  uint8 r1 = 0;
   if (!player_in_air_flag) {
     player_ducking_flag = 0;
     if (!player_sliding_on_ground && (io_controller_hold1 & 4) != 0) {
@@ -4814,7 +4525,7 @@ LABEL_39:
       }
     }
 LABEL_40:
-    R1_ = io_controller_hold1 & 1;
+    r1 = io_controller_hold1 & 1;
     v4 = player_slope_player_is_on1 | (4 * v3);
     if (player_xspeed && ((*((uint8 *)kHandlePlayerPhysics_MarioAccel + v4 + 1) ^ player_xspeed) & 0x80) != 0 &&
         !timer_player_slides_when_turing) {
@@ -4829,7 +4540,7 @@ LABEL_40:
   if (v3 != player_facing_direction && (io_controller_press1 & 0x80) == 0)
     goto LABEL_27;
   player_slope_player_is_on1 = kHandlePlayerPhysics_DATA_00D5EE[player_facing_direction];
-  R1_ = io_controller_hold1 & 1;
+  r1 = io_controller_hold1 & 1;
   v4 = player_slope_player_is_on1 | (4 * v3);
 LABEL_46:;
   uint8 v5 = 0;
@@ -4852,7 +4563,7 @@ LABEL_53:
     goto LABEL_53;
 LABEL_54:
   v5 = HandlePlayerPhysics_UpdatePMeterEx(v5);
-  HandlePlayerPhysics_00D742(v4, R1_ | player_slope_player_is_on1 | (2 * v5));
+  HandlePlayerPhysics_00D742(v4, r1 | player_slope_player_is_on1 | (2 * v5));
 }
 
 void HandlePlayerPhysics_00D742(uint8 k, uint8 j) {  // 00d742
@@ -5090,7 +4801,6 @@ LABEL_7:;
 LABEL_33:
     v3 = 120;
 LABEL_34:
-    R0_ = v3;
     player_facing_direction = v4 & 1;
     uint8 v7 = 4 * (v4 & 1);
     uint8 v8 = v3 | v4 & 1;
@@ -5216,26 +4926,26 @@ LABEL_29:
   player_current_pose = kHandlePlayerPhysics_ClimbingPoses[v8];
   if ((io_controller_hold1 & 3) != 0) {
     int8 v10 = (uint8)(io_controller_hold1 & 3) >> 1;
-    if ((temp8b & 0x18) == 24)
+    if ((player_collision_var8b & 0x18) == 24)
       goto LABEL_25;
     if ((player_climbing_flag & 0x80) == 0)
       goto LABEL_29;
-    if (v10 != temp8c)
+    if (v10 != player_collision_var8c)
 LABEL_25:
       player_xspeed = kHandlePlayerPhysics_ClimbingSpeed[(uint8)(player_swimming_flag | (2 * v10))];
   }
   uint8 v11 = io_controller_hold1 & 0xC;
   if ((io_controller_hold1 & 0xC) != 0) {
     if ((io_controller_hold1 & 8) == 0) {
-      int8 v12 = temp8b & 1;
-      temp8b >>= 1;
+      int8 v12 = player_collision_var8b & 1;
+      player_collision_var8b >>= 1;
       if (!v12)
         goto LABEL_29;
       goto LABEL_31;
     }
     v9 += 2;
-    v11 = temp8b & 2;
-    if ((temp8b & 2) != 0) {
+    v11 = player_collision_var8b & 2;
+    if ((player_collision_var8b & 2) != 0) {
 LABEL_31:
       if ((player_climbing_flag & 0x80) == 0)
         player_xspeed = 0;
@@ -5251,7 +4961,7 @@ LABEL_31:
 }
 
 void UpdatePlayerSpritePosition() {  // 00dc2d
-  temp8a = player_yspeed;
+  uint8 tmp8a = player_yspeed;
   if (player_wall_walk_status) {
     uint8 v0 = player_xspeed;
     player_yspeed = (player_wall_walk_status & 1) ? -v0 : v0;
@@ -5263,7 +4973,7 @@ void UpdatePlayerSpritePosition() {  // 00dc2d
   uint16 ty = player_sub_ypos + (uint8)(player_yspeed * 16);
   player_sub_ypos = ty;
   player_ypos += ((int8)player_yspeed >> 4) + (ty >> 8);
-  player_yspeed = temp8a;
+  player_yspeed = tmp8a;
 }
 
 void PlayerDraw() {  // 00e2bd
@@ -5324,16 +5034,16 @@ LABEL_18:
     uint8 v12 = -56;
     if (v5 == 67)
       v12 = -24;
-    R4_ = v12;
+    uint8 r4 = v12;
     if (v5 == 41 && !player_current_power_up)
       v5 = 32;
-    R5_ = kPlayerGFXRt_PlayerXYDispIndex[player_facing_direction | kPlayerGFXRt_PlayerXYDispIndexIndex[v5]];
+    uint8 r5 = kPlayerGFXRt_PlayerXYDispIndex[player_facing_direction | kPlayerGFXRt_PlayerXYDispIndexIndex[v5]];
     uint8 v13 = player_current_pose;
     if (player_current_pose < 0x3D)
-      v13 = kPlayerGFXRt_PowerupTilesetIndex[player_current_power_up] + (player_current_pose >= 0x3D) + player_current_pose;
-    R6_ = kPlayerGFXRt_TilesIndex[v13];
-    R10_ = kPlayerGFXRt_HeadTilePointerIndex[v13];
-    R11_ = kPlayerGFXRt_BodyTilePointerIndex[v13];
+      v13 = kPlayerGFXRt_PowerupTilesetIndex[player_current_power_up] + player_current_pose;
+    uint8 r6 = kPlayerGFXRt_TilesIndex[v13];
+    uint8 r10 = kPlayerGFXRt_HeadTilePointerIndex[v13];
+    uint8 r11 = kPlayerGFXRt_BodyTilePointerIndex[v13];
     uint8 v14 = sprites_tile_priority;
     if (player_current_layer_priority)
       v14 = kPlayerGFXRt_TilePriority[player_current_layer_priority - 1];
@@ -5346,51 +5056,52 @@ LABEL_18:
     oam[68].flags = v16;
     oam[62].flags = v16;
     oam[63].flags = v16;
-    if (R4_ == 0xE8)
+    if (r4 == 0xE8)
       v16 ^= 0x40;
     oam[66].flags = v16;
-    uint8 v18 = PlayerGFXRt_00E45D(v15);
-    uint8 v19 = PlayerGFXRt_00E45D(v18);
-    uint8 v20 = PlayerGFXRt_00E45D(v19);
-    uint8 v21 = PlayerGFXRt_00E45D(v20);
+    uint8 v18 = PlayerGFXRt_00E45D(v15, r4 & 0x80, r5 + 0, r6 + 0);
+    uint8 v19 = PlayerGFXRt_00E45D(v18, r4 & 0x40, r5 + 2, r6 + 1);
+    uint8 v20 = PlayerGFXRt_00E45D(v19, r4 & 0x20, r5 + 4, r6 + 2);
+    uint8 v21 = PlayerGFXRt_00E45D(v20, r4 & 0x10, r5 + 6, r6 + 3);
+    
+    uint8 r12 = 0, r13 = 0;
     if (player_current_power_up == 2) {
       uint8 j = v21;
-      R6_ = 44;
       uint8 v22 = kPlayerGFXRt_DATA_00E18E[player_current_pose];
-      R13_ = kPlayerGFXRt_DATA_00E1D4[v22 + 3];
-      R14_ = kPlayerGFXRt_DATA_00E1D4[v22 + 4];
-      R12_ = kPlayerGFXRt_DATA_00E1D4[v22 + 1];
+      r13 = kPlayerGFXRt_DATA_00E1D4[v22 + 3];
+      uint8 r14 = kPlayerGFXRt_DATA_00E1D4[v22 + 4];
+      r12 = kPlayerGFXRt_DATA_00E1D4[v22 + 1];
       uint8 v24;
-      if (R12_ >= 4) {
+      if (r12 >= 4) {
         v24 = kPlayerGFXRt_DATA_00E1D4[v22 + 2];
       } else {
-        uint8 v23 = R12_ | (4 * player_cape_image);
-        R12_ = kPlayerGFXRt_CapeTilePointerIndex[v23];
+        uint8 v23 = r12 | (4 * player_cape_image);
+        r12 = kPlayerGFXRt_CapeTilePointerIndex[v23];
         v24 = kPlayerGFXRt_DATA_00E266[v23];
       }
-      R5_ = kPlayerGFXRt_CapeXYDispIndex[player_facing_direction | v24];
+      r5 = kPlayerGFXRt_CapeXYDispIndex[player_facing_direction | v24];
       player_hide_player_tile_flags |= kPlayerGFXRt_DATA_00E1D4[v22];
+      uint8 r6 = 44;
       if (!(kPlayerGFXRt_DATA_00E1D4[v22] & 0x80))
-        PlayerGFXRt_00E45D(j);
-      uint8 v25 = PlayerGFXRt_00E45D(kPlayerGFXRt_CapeStartingOAMIndex[player_current_layer_priority]);
-      R6_ = R14_;
-      PlayerGFXRt_00E45D(v25);
+        PlayerGFXRt_00E45D(j, r4 & 0x08, r5, r6++), r5 += 2, r4 <<= 1;
+      uint8 v25 = PlayerGFXRt_00E45D(kPlayerGFXRt_CapeStartingOAMIndex[player_current_layer_priority], r4 & 0x08, r5, r6++);
+      PlayerGFXRt_00E45D(v25, r4 & 0x04, r5 + 2, r14);
     }
-    PlayerGFXRt_00F636();
+    PlayerGFXRt_00F636(r10, r11, r12, r13);
   }
 }
 
-uint8 PlayerGFXRt_00E45D(uint8 j) {  // 00e45d
+uint8 PlayerGFXRt_00E45D(uint8 j, uint8 r4, uint8 r5, uint8 r6) {  // 00e45d
   bool xflag = true;
 
   bool v1 = player_hide_player_tile_flags & 1;
   player_hide_player_tile_flags >>= 1;
   if (!v1) {
-    int8 v2 = kPlayerGFXRt_Tiles[R6_];
+    int8 v2 = kPlayerGFXRt_Tiles[r6];
     if (v2 >= 0) {
       OamEnt *oam = get_OamEnt(oam_buf, j);
       oam[64].charnum = v2;
-      int v4 = R5_ >> 1;
+      int v4 = r5 >> 1;
       uint16 v5 = kPlayerGFXRt_YDisp[v4] + player_on_screen_pos_y;
       if ((uint16)(v5 + 0x10) < 0x100) {
         oam[64].ypos = v5;
@@ -5404,11 +5115,7 @@ uint8 PlayerGFXRt_00E45D(uint8 j) {  // 00e45d
       xflag = false;
     }
   }
-  bool v7 = __CFSHL__(R4_, 1);
-  R4_ *= 2;
-  sprites_oamtile_size_buffer[(j >> 2) + 64] = (2 * v7 + xflag) & 3;
-  R5_ += 2;
-  ++R6_;
+  sprites_oamtile_size_buffer[(j >> 2) + 64] = (2 * (r4 != 0) + xflag) & 3;
   return j + 4;
 }
 
@@ -5465,9 +5172,9 @@ void HandlePlayerLevelColl_00E9C8(uint8 j, uint8 sign) {  // 00e9c8
   if (sign) {
     if (!flag_layer1_horiz_scroll_level_setting) {
       player_blocked_flags |= 0x80;
-      R0_ = get_PointU16(l1_l2_scroll_spr_speed, 0)->x >> 4;
-      if (((kHandlePlayerLevelColl_DATA_00E90D[j + 1] ^ (R0_ - player_xspeed)) & 0x80) == 0) {
-        player_xspeed = R0_;
+      uint8 r0 = get_PointU16(l1_l2_scroll_spr_speed, 0)->x >> 4;
+      if (((kHandlePlayerLevelColl_DATA_00E90D[j + 1] ^ (r0 - player_xspeed)) & 0x80) == 0) {
+        player_xspeed = r0;
         player_sub_xpos = get_PointU16(l1_l2_scroll_spr_sub_pos, 0)->x;
       }
     }
@@ -5500,7 +5207,7 @@ void HandlePlayerLevelColl_00EA0D() {  // 00ea0d
 }
 
 void HandlePlayerLevelColl_00EA34() {  // 00ea34
-  if (player_current_layer_priority == 1 && !temp8b)
+  if (player_current_layer_priority == 1 && !player_collision_var8b)
     player_current_layer_priority = 0;
   player_can_jump_out_of_water = 0;
   if (flag_underwater_level) {
@@ -5508,15 +5215,15 @@ void HandlePlayerLevelColl_00EA34() {  // 00ea34
     SpawnPlayerBreathBubble();
     return;
   }
-  int8 v0 = temp8a & 1;
-  temp8a >>= 1;
+  int8 v0 = player_collision_var8a & 1;
+  player_collision_var8a >>= 1;
   if (!v0) {
     player_swimming_flag = 0;
     return;
   }
   if (!player_swimming_flag && (player_yspeed & 0x80) == 0) {
-    v0 = temp8a & 1;
-    temp8a >>= 1;
+    v0 = player_collision_var8a & 1;
+    player_collision_var8a >>= 1;
     if (!v0)
       return;
     SpawnPlayerWaterSplashAndBubbles();
@@ -5525,8 +5232,8 @@ void HandlePlayerLevelColl_00EA34() {  // 00ea34
     SpawnPlayerBreathBubble();
     return;
   }
-  v0 = temp8a & 1;
-  temp8a >>= 1;
+  v0 = player_collision_var8a & 1;
+  player_collision_var8a >>= 1;
   if (v0) {
     player_swimming_flag = 1;
     SpawnPlayerBreathBubble();
@@ -5560,8 +5267,8 @@ void ResetPlayerLevelCollisionRAM() {  // 00eaa6
   player_blocked_flags = 0;
   player_slope_player_is_on1 = 0;
   player_slope_player_is_on2 = 0;
-  temp8a = 0;
-  temp8b = 0;
+  player_collision_var8a = 0;
+  player_collision_var8b = 0;
   sprites_layer2_is_touched_flag = 0;
 }
 
@@ -5617,6 +5324,17 @@ void RunPlayerBlockCode_00EB73() {  // 00eb73
   player_wall_walk_status = 0;
 }
 
+static const uint8 kSlopeSteepness_e55e[106] = { 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 10, 10, 10, 10, 10, 11, 11, 11, 11, 11, 12, 12, 12, 12, 12, 13, 13, 13, 13, 13, 14, 15, 16, 17, 3, 3, 4, 4, 9, 9, 10, 10, 12, 12, 13, 13, 18, 19, 20, 21, 22, 23, 28, 29, 30, 31, 24, 25, 26, 27, 8, 9, 10, 11, 12, 13,  };
+static const uint8 kSlopeSteepness_e5c8[106] = { 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 10, 10, 10, 10, 10, 11, 11, 11, 11, 11, 12, 12, 12, 12, 12, 13, 13, 13, 13, 13, 14, 15, 16, 17, 3, 3, 4, 4, 9, 9, 10, 10, 12, 12, 13, 13, 12, 13, 13, 12, 22, 23, 28, 29, 30, 31, 24, 25, 26, 27, 8, 9, 10, 11, 12, 13,  };
+
+const uint8 *GetSlopeSteepness() {
+  switch (ptr_slope_steepness.addr) {
+  case 0xe55e: return kSlopeSteepness_e55e;
+  case 0xe5c8: return kSlopeSteepness_e5c8;
+  }
+  return Unreachable(), NULL;
+}
+
 void RunPlayerBlockCode_EB77() {  // 00eb77
   unsigned int v3;
   unsigned int v10;
@@ -5632,10 +5350,10 @@ void RunPlayerBlockCode_EB77() {  // 00eb77
   player_xpos_in_block = ((player_xpos & 0xF) + 8) & 0xF;
   player_hdir_block_touched = 0;
   if ((player_xpos & 0xF) >= 8) {
-    v0 += ((player_xpos & 0xF) >= 8) + 11;
+    v0 += 12;
     ++player_hdir_block_touched;
   }
-  player_vdir_push_out_of_block = (*((uint8 *)kRunPlayerBlockCode_UnknownData00E8A4 + v0) + player_ypos_in_block) & 0xF;
+  player_vdir_push_out_of_block = (*((uint8 *)kGetPlayerLevelCollisionMap16ID_DATA_00E89C + v0 + 6) + player_ypos_in_block) & 0xF;
   PairU16 wr = GetPlayerLevelCollisionMap16ID_WallRun(v0 += 2);
   int8 v2 = wr.first;
   v3 = wr.second;
@@ -5679,7 +5397,7 @@ LABEL_25:
       goto LABEL_42;
     }
     if (CheckWaterSlope(v3) & 1)
-      temp8a |= 1;
+      player_collision_var8a |= 1;
   }
 LABEL_30:;
   PairU16 v5 = GetPlayerLevelCollisionMap16ID_WallRun(v0 += 2);
@@ -5743,7 +5461,8 @@ LABEL_45:;
       }
       player_vdir_push_out_of_block -= (LOBYTE(pair.second) < 0xD8) + 15;
     }
-    v13 = 16 * *IndirPtr(&ptr_slope_steepness, (uint8)(v11 - 110));
+    const uint8 *slope_steepness = GetSlopeSteepness();
+    v13 = 16 * slope_steepness[(uint8)(v11 - 110)];
     LOBYTE(v13) = player_xpos_in_block | v13;
     v14 = kSlopeDataTables_ShapeOfSlope[v13];
     if (v14 >= 0)
@@ -5828,7 +5547,8 @@ LABEL_99:
   }
   if ((misc_level_tileset_setting == 3 || misc_level_tileset_setting == 14) && v19 >= 0xD2)
     goto LABEL_95;
-  uint8 k = *IndirPtr(&ptr_slope_steepness, (uint8)(v19 - 110));
+  const uint8 *slope_steepness = GetSlopeSteepness();
+  uint8 k = slope_steepness[(uint8)(v19 - 110)];
   uint8 v22 = player_ypos_in_block - kSlopeDataTables_ShapeOfSlope[player_xpos_in_block | 16 * k];
   if ((v22 & 0x80) != 0)
     ++player_on_ground_flag;
@@ -6077,14 +5797,15 @@ void CheckIfBlockWasHit(uint8 a, uint8 j) {  // 00f160
 }
 
 void CheckIfBlockWasHit_Entry3(uint8 a, uint8 j) {  // 00f17f
+  uint8 r4, r5;
   uint8 v3;
   int8 v5;
 
   if ((kCheckIfBlockWasHit_DATA_00F0A4[a] & kCheckIfBlockWasHit_DATA_00F0EC[j]) == 0)
-    goto LABEL_20;
-  R6_ = j;
-  R7_ = kCheckIfBlockWasHit_DATA_00F0C8[a];
-  R4_ = kCheckIfBlockWasHit_DATA_00F05C[a];
+    return;
+  uint8 r6 = j;
+  uint8 r7 = kCheckIfBlockWasHit_DATA_00F0C8[a];
+  r4 = kCheckIfBlockWasHit_DATA_00F05C[a];
   int8 v2 = kCheckIfBlockWasHit_DATA_00F080[a];
   if (v2 >= 0)
     goto LABEL_9;
@@ -6110,10 +5831,10 @@ LABEL_9:
 LABEL_14:
     v3 = 6;
 LABEL_15:
-  R5_ = v3;
+  r5 = v3;
   if (v3 == 5) {
     v3 = 22;
-    R7_ = 22;
+    r7 = 22;
   }
   blocks_xpos &= ~0xf;
   blocks_ypos &= ~0xf;
@@ -6124,11 +5845,11 @@ LABEL_15:
   int8 v8 = *(&timer_inflate_from_pballoon + v6);
   *(&timer_inflate_from_pballoon + v6) = v7;
   if (v7 == 0xFF) {
-    R5_ = 5;
+    r5 = 5;
 LABEL_23:
-    R7_ = 23;
+    r7 = 23;
 LABEL_19:
-    SpawnBounceSprite();
+    SpawnBounceSprite(r4, r5, r6, r7);
     goto LABEL_20;
   }
   if (!flag_prevent_coin_bonus_game_replay) {
@@ -6137,8 +5858,8 @@ LABEL_19:
       goto LABEL_23;
   }
   io_sound_ch3 = 42;
-  R5_ = 0;
-  SpawnBounceSprite();
+  r5 = 0;
+  SpawnBounceSprite(r4, r5, r6, r7);
   int8 v10 = 7;
   uint8 v11 = *(&timer_inflate_from_pballoon + v6);
   do {
@@ -6184,7 +5905,7 @@ LABEL_6:
 
 void RunPlayerBlockCode_00F2C2(uint8 j, uint8 a) {  // 00f2c2
   if (j < 6)
-    temp8a |= a;
+    player_collision_var8a |= a;
   else
     RunPlayerBlockCode_00F2C9(j, a);
 }
@@ -6194,7 +5915,7 @@ void RunPlayerBlockCode_00F2C9(uint8 j, uint8 a) {  // 00f2c9
     blocks_map16_to_generate = 2;
     GenerateTile();
     SpawnGlitterEffectForCoin();
-    if (unusedram_disable_midpoint)
+    if (g_lunar_magic || lm_var13CD)
       PlayerState00_SetMidpointFlag();
     if (!player_current_power_up)
       player_current_power_up = 1;
@@ -6209,8 +5930,8 @@ void RunPlayerBlockCode_00F2C9(uint8 j, uint8 a) {  // 00f2c9
     }
     if (a == 1)
       a = 25;
-    temp8b |= a;
-    temp8c = player_hdir_block_touched;
+    player_collision_var8b |= a;
+    player_collision_var8c = player_hdir_block_touched;
   }
 }
 
@@ -6320,45 +6041,75 @@ uint8 RunPlayerBlockCode_00F443() {  // 00f443
 PairU16 GetPlayerLevelCollisionMap16ID_WallRun(uint8 k) {  // 00f44d
   uint8 v1 = k;  // moved incr to outside
   blocks_xpos = kGetPlayerLevelCollisionMap16ID_DATA_00E832[(v1 >> 1) - 1] + player_xpos;
-  blocks_ypos = kGetPlayerLevelCollisionMap16ID_DATA_00E89C[v1 >> 1] + player_ypos;
-  return GetPlayerLevelCollisionMap16ID_Entry2(v1);
+  blocks_ypos = kGetPlayerLevelCollisionMap16ID_DATA_00E89C[(v1 >> 1) - 1] + player_ypos;
+  PairU16 p = GetPlayerLevelCollisionMap16ID_Entry2(v1);
+  return p;
+}
+
+static const uint8 kLevelDataLayoutTables_EightBitLo_Horizontal[32] = { 0x0, 0xb0, 0x60, 0x10, 0xc0, 0x70, 0x20, 0xd0, 0x80, 0x30, 0xe0, 0x90, 0x40, 0xf0, 0xa0, 0x50, 
+0x0, 0xb0, 0x60, 0x10, 0xc0, 0x70, 0x20, 0xd0, 0x80, 0x30, 0xe0, 0x90, 0x40, 0xf0, 0xa0, 0x50,};
+
+static const uint8 kLevelDataLayoutTables_EightBitLo_Vertical[28] = { 
+  0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+  0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+};
+static const uint8 kLevelDataLayoutTables_EightBitHi_Horizontal[32] = { 0xc8, 0xc9, 0xcb, 0xcd, 0xce, 0xd0, 0xd2, 0xd3, 0xd5, 0xd7, 0xd8, 0xda, 0xdc, 0xdd, 0xdf, 0xe1, 
+0xe3, 0xe4, 0xe6, 0xe8, 0xe9, 0xeb, 0xed, 0xee, 0xf0, 0xf2, 0xf3, 0xf5, 0xf7, 0xf8, 0xfa, 0xfc,};
+
+static const uint8 kLevelDataLayoutTables_EightBitHi_Vertical[28] = { 0xc8, 0xca, 0xcc, 0xce, 0xd0, 0xd2, 0xd4, 0xd6, 0xd8, 0xda, 0xdc, 0xde, 0xe0, 0xe2,
+0xe4, 0xe6, 0xe8, 0xea, 0xec, 0xee, 0xf0, 0xf2, 0xf4, 0xf6, 0xf8, 0xfa, 0xfc, 0xfe,};
+
+
+uint16 GetLevelLayoutPtr_Vertical(int i) {
+  assert(i < 28);
+  return PAIR16(kLevelDataLayoutTables_EightBitHi_Vertical[i], kLevelDataLayoutTables_EightBitLo_Vertical[i]);
+}
+
+uint16 GetLevelLayoutPtr_Horizontal(int i) {
+  if (i >= 32)
+    printf("WARNING: GetLevelLayoutPtr_Horizontal: Reading invalid slot %d\n", i);
+  if (HAS_LM_FEATURE(kLmFeature_LoadLevel))
+    return PAIR16(L1_Screen_8bit_Hi[i], L1_Screen_8bit_Lo[i]);
+  else
+    return PAIR16(kLevelDataLayoutTables_EightBitHi_Horizontal[i], kLevelDataLayoutTables_EightBitLo_Horizontal[i]);
 }
 
 PairU16 GetPlayerLevelCollisionMap16ID_Entry2(uint8 k) {  // 00f465
+  uint16 r0w;
+  uint16 level_height = g_lunar_magic ? lm_level_height : 0x1b0;
+
   misc_color_of_palace_switch_pressed2 = 0;
   if ((temp8e & 0x80) != 0) {
     if (temp8e & 0x7f) {
       if (HIBYTE(blocks_xpos) >= 2 || HIBYTE(blocks_ypos) >= 0xE)
-        return MakePairU16_AY(0, 0x25);
-      R0_W = PAIR16(kLevelDataLayoutTables_EightBitHi_Vertical_L2[HIBYTE(blocks_ypos)], kLevelDataLayoutTables_EightBitLo_Vertical_L2[HIBYTE(blocks_ypos)]) +
-          (blocks_ypos & 0xF0 | ((uint8)blocks_xpos >> 4) | HIBYTE(blocks_xpos) << 8);
-    } else if (blocks_ypos < 0x1B0) {
+        goto default_return;
+      r0w = GetLevelLayoutPtr_Vertical(HIBYTE(blocks_ypos) + 14) + (blocks_ypos & 0xF0 | ((uint8)blocks_xpos >> 4) | HIBYTE(blocks_xpos) << 8);
+    } else if (blocks_ypos < level_height) {
       if (HIBYTE(blocks_xpos) >= 0x10)
-        return MakePairU16_AY(0, 0x25);
-      R0_W = PAIR16(kLevelDataLayoutTables_EightBitHi_Horizontal_L2[HIBYTE(blocks_xpos)], kLevelDataLayoutTables_EightBitLo_Horizontal_L2[HIBYTE(blocks_xpos)]) +
-          (blocks_ypos & 0xF0 | ((uint8)blocks_xpos >> 4) | HIBYTE(blocks_ypos) << 8);
+        goto default_return;
+      r0w = GetLevelLayoutPtr_Horizontal(HIBYTE(blocks_xpos) + 16) + (blocks_ypos & 0xF0 | ((uint8)blocks_xpos >> 4) | HIBYTE(blocks_ypos) << 8);
     } else {
-      return MakePairU16_AY(0, 0x25);
+      goto default_return;
     }
   } else {
     if (temp8e) {
       if (HIBYTE(blocks_xpos) >= 2 || HIBYTE(blocks_ypos) >= misc_screens_in_lvl)
-        return MakePairU16_AY(0, 0x25);
-      R0_W = PAIR16(kLevelDataLayoutTables_EightBitHi_Vertical[HIBYTE(blocks_ypos)], kLevelDataLayoutTables_EightBitLo_Vertical[HIBYTE(blocks_ypos)]) +
-        (blocks_ypos & 0xF0 | ((uint8)blocks_xpos >> 4) | HIBYTE(blocks_xpos) << 8);
+        goto default_return;
+      r0w = GetLevelLayoutPtr_Vertical(HIBYTE(blocks_ypos)) + (blocks_ypos & 0xF0 | ((uint8)blocks_xpos >> 4) | HIBYTE(blocks_xpos) << 8);
     } else {
-      if (blocks_ypos >= 0x1B0 || HIBYTE(blocks_xpos) >= misc_screens_in_lvl)
-        return MakePairU16_AY(0, 0x25);
-      R0_W = PAIR16(kLevelDataLayoutTables_EightBitHi[HIBYTE(blocks_xpos)], kLevelDataLayoutTables_EightBitLo[HIBYTE(blocks_xpos)]) +
-        (blocks_ypos & 0xF0 | ((uint8)blocks_xpos >> 4) | HIBYTE(blocks_ypos) << 8);
+      if (blocks_ypos >= level_height || HIBYTE(blocks_xpos) >= misc_screens_in_lvl)
+        goto default_return;
+      r0w = GetLevelLayoutPtr_Horizontal(HIBYTE(blocks_xpos)) + (blocks_ypos & 0xF0 | ((uint8)blocks_xpos >> 4) | HIBYTE(blocks_ypos) << 8);
     }
   }
-  R2_ = 126;
-  blocks_currently_processed_map16_tile_lo = *IndirPtr(&R0_, 0);
-  ++R2_;
-  uint8 *v6 = IndirPtr(&R0_, 0);
-  uint8 v7 = ModifyMap16IDForSpecialBlocks(*v6);
+  blocks_currently_processed_map16_tile_lo = g_ram[r0w];
+  uint8 v7 = LmHook_ModifyMap16IDForSpecialBlocks(g_ram[0x10000 + r0w]);
   return MakePairU16_AY(v7, blocks_currently_processed_map16_tile_lo);
+
+default_return:
+  if (g_lunar_magic)
+    blocks_currently_processed_map16_tile_lo = 0x25;
+  return MakePairU16_AY(0, 0x25);
 }
 
 uint8 ModifyMap16IDForSpecialBlocks(uint8 a) {  // 00f545
@@ -6459,24 +6210,27 @@ void DamagePlayer_DisableButtons() {  // 00f62d
   io_controller_press2 = 0;
 }
 
-void PlayerGFXRt_00F636() {  // 00f636
-  uint16 t = (R10_ & 0xf7) << 6 | ((R10_ & 0x8) ? 0x4000 : 0);
+void PlayerGFXRt_00F636(uint8 r10, uint8 r11, uint8 r12, uint8 r13) {  // 00f636
+  uint16 t = (r10 & 0xf7) << 6 | ((r10 & 0x8) ? 0x4000 : 0);
   *(uint16 *)graphics_dynamic_sprite_pointers_top_lo = t + 0x2000;
   *(uint16 *)graphics_dynamic_sprite_pointers_bottom_lo = t + 0x2200;
 
-  t = (R11_ & 0xf7) << 6 | ((R11_ & 0x8) ? 0x4000 : 0);
+  t = (r11 & 0xf7) << 6 | ((r11 & 0x8) ? 0x4000 : 0);
   *(uint16 *)&graphics_dynamic_sprite_pointers_top_lo[2] = t + 0x2000;
   *(uint16 *)&graphics_dynamic_sprite_pointers_bottom_lo[2] = t + 0x2200;
 
-  t = 32 * R12_;
+  t = 32 * r12;
   *(uint16 *)&graphics_dynamic_sprite_pointers_top_lo[4] = t + 0x2000;
   *(uint16 *)&graphics_dynamic_sprite_pointers_bottom_lo[4] = t + 0x2200;
 
-  graphics_dynamic_sprite_tile7 = 32 * R13_ + 0x2000;
+  graphics_dynamic_sprite_tile7 = 32 * r13 + 0x2000;
   player_number_of_tiles_to_update = 10;
 }
 
 void HandleStandardLevelCameraScroll() {  // 00f6db
+  if (g_lunar_magic)
+    LmHook_HandleStandardLevelCameraScroll();
+
   camera_pos_for_scroll[0] = player_relative_position_needed_to_scroll_screen - 12;
   camera_pos_for_scroll[1] = player_relative_position_needed_to_scroll_screen - 12 + 24;
   PointU16 *pt = get_PointU16(misc_layer1_pos, 0);
@@ -6488,13 +6242,13 @@ void HandleStandardLevelCameraScroll() {  // 00f6db
     HandleStandardLevelCameraScroll_00F7F4((camera_last_screen_vert - 1) << 8);
     if (flag_layer1_horiz_scroll_level_setting) {
       uint8 v7 = 0;
-      R0_W = player_xpos - mirror_current_layer1_xpos;
-      if ((int16)(player_xpos - mirror_current_layer1_xpos - player_relative_position_needed_to_scroll_screen) >= 0)
+      uint16 r0w = player_xpos - mirror_current_layer1_xpos;
+      if ((int16)(r0w - player_relative_position_needed_to_scroll_screen) >= 0)
         v7 = 2;
-      R2_W = player_xpos - mirror_current_layer1_xpos - camera_pos_for_scroll[v7 >> 1];
-      if (((kHandleStandardLevelCameraScroll_DATA_00F6A3[v7 >> 1] ^ R2_W) & 0x8000) != 0) {
-        HandleStandardLevelCameraScroll_00F8AB();
-        uint16 v8 = mirror_current_layer1_xpos + R2_W;
+      uint16 r2w = r0w - camera_pos_for_scroll[v7 >> 1];
+      if ((r2w != 0 || !g_lunar_magic) && ((kHandleStandardLevelCameraScroll_DATA_00F6A3[v7 >> 1] ^ r2w) & 0x8000) != 0) {
+        r2w = HandleStandardLevelCameraScroll_00F8AB(r2w);
+        uint16 v8 = mirror_current_layer1_xpos + r2w;
         if ((int16)v8 < 0)
           v8 = 0;
         if (!sign16(v8 - 257))
@@ -6503,19 +6257,19 @@ void HandleStandardLevelCameraScroll() {  // 00f6db
       }
     }
   } else {
-    HandleStandardLevelCameraScroll_00F7F4(0xC0);
+    HandleStandardLevelCameraScroll_00F7F4(g_lunar_magic ? LmHook_HandleStandardLevelCameraScrollD() : 0xc0);
     if (flag_layer1_horiz_scroll_level_setting) {
-      R0_W = player_xpos - mirror_current_layer1_xpos;
-      uint8 v1 = ((int16)(R0_W - player_relative_position_needed_to_scroll_screen) < 0) ? 0 : 2;
+      uint16 r0w = player_xpos - mirror_current_layer1_xpos;
+      uint8 v1 = ((int16)(r0w - player_relative_position_needed_to_scroll_screen) < 0) ? 0 : 2;
       camera_layer1_scrolling_direction = v1;
       camera_layer2_scrolling_direction = v1;
-      int16 v2 = R0_W - camera_pos_for_scroll[v1 >> 1];
+      int16 v2 = r0w - camera_pos_for_scroll[v1 >> 1];
       if (v2) {
-        R2_W = player_xpos - mirror_current_layer1_xpos - camera_pos_for_scroll[v1 >> 1];
+        uint16 r2w = player_xpos - mirror_current_layer1_xpos - camera_pos_for_scroll[v1 >> 1];
         if (((kHandleStandardLevelCameraScroll_DATA_00F6A3[v1 >> 1] ^ v2) & 0x8000) != 0) {
-          HandleStandardLevelCameraScroll_00F8AB();
-          uint16 v3 = mirror_current_layer1_xpos + R2_W;
-          if ((int16)(mirror_current_layer1_xpos + R2_W) < 0)
+          r2w = HandleStandardLevelCameraScroll_00F8AB(r2w);
+          uint16 v3 = mirror_current_layer1_xpos + r2w;
+          if ((int16)(mirror_current_layer1_xpos + r2w) < 0)
             v3 = 0;
           mirror_current_layer1_xpos = v3;
           int16 v5 = (camera_last_screen_horiz - 1) << 8;
@@ -6527,42 +6281,52 @@ void HandleStandardLevelCameraScroll() {  // 00f6db
       }
     }
   }
-  if (flag_layer2_horiz_scroll_level_setting) {
-    uint16 v9 = mirror_current_layer1_xpos;
-    if (flag_layer2_horiz_scroll_level_setting != 1)
-      v9 >>= 1;
-    mirror_current_layer2_xpos = v9;
-  }
-  if (flag_layer2_vert_scroll_level_setting) {
-    uint16 v10 = mirror_current_layer1_ypos;
-    if (flag_layer2_vert_scroll_level_setting != 1)
-      v10 = (flag_layer2_vert_scroll_level_setting != 2) ? v10 >> 5 : v10 >> 1;
-    mirror_current_layer2_ypos = camera_layer2_ypos_relative_to_layer1 + v10;
+  if (g_lunar_magic) {
+    LmHook_HandleStandardLevelCameraScrollB();
+  } else {
+    if (flag_layer2_horiz_scroll_level_setting) {
+      uint16 v9 = mirror_current_layer1_xpos;
+      if (flag_layer2_horiz_scroll_level_setting != 1)
+        v9 >>= 1;
+      mirror_current_layer2_xpos = v9;
+    }
+    if (flag_layer2_vert_scroll_level_setting) {
+      uint16 v10 = mirror_current_layer1_ypos;
+      if (flag_layer2_vert_scroll_level_setting != 1)
+        v10 = (flag_layer2_vert_scroll_level_setting != 2) ? v10 >> 5 : v10 >> 1;
+      mirror_current_layer2_ypos = camera_layer2_ypos_relative_to_layer1 + v10;
+    }
   }
   misc_layer1_xdisp = mirror_current_layer1_xpos - LOBYTE(pt->x);
   misc_layer1_ydisp = mirror_current_layer1_ypos - LOBYTE(pt->y);
   misc_layer2_xdisp = mirror_current_layer2_xpos - LOBYTE(pt[1].x);
   misc_layer2_ydisp = mirror_current_layer2_ypos - LOBYTE(pt[1].y);
-  for (uint8 i = 7; (i & 0x80) == 0; --i)
-    LOBYTE(get_PointU16(misc_layer1_pos, i)->x) = *((uint8 *)&mirror_current_layer1_xpos + i);
+  if (g_lunar_magic) {
+    LmHook_HandleStandardLevelCameraScrollC();
+  } else {
+    for (uint8 i = 7; (i & 0x80) == 0; --i)
+      LOBYTE(get_PointU16(misc_layer1_pos, i)->x) = *((uint8 *)&mirror_current_layer1_xpos + i);
+  }
 }
 
 void HandleStandardLevelCameraScroll_00F7F4(uint16 a) {  // 00f7f4
+  uint16 v7;
+
   if (flag_layer1_vert_scroll_level_setting) {
-    R4_W = a;
+    uint16 r4w = a;
     uint8 v1 = 0;
-    R0_W = player_ypos - mirror_current_layer1_ypos;
+    uint16 r0w = player_ypos - mirror_current_layer1_ypos;
     if (!sign16(player_ypos - mirror_current_layer1_ypos - 112))
       v1 = 2;
     camera_layer1_scrolling_direction = v1;
     camera_layer2_scrolling_direction = v1;
     int v2 = v1 >> 1;
-    R2_W = player_ypos - mirror_current_layer1_ypos - kHandleStandardLevelCameraScroll_DATA_00F69F[v2];
-    if (((kHandleStandardLevelCameraScroll_DATA_00F6A3[v2] ^ R2_W) & 0x8000) == 0) {
+    uint16 r2w = player_ypos - mirror_current_layer1_ypos - kHandleStandardLevelCameraScroll_DATA_00F69F[v2];
+    if (((kHandleStandardLevelCameraScroll_DATA_00F6A3[v2] ^ r2w) & 0x8000) == 0) {
       v1 = 2;
-      R2_W = 0;
+      r2w = 0;
     }
-    if ((R2_W & 0x8000) != 0) {
+    if ((r2w & 0x8000) != 0) {
       uint8 v3 = player_wall_walk_status;
       if (player_wall_walk_status < 6)
         v3 = camera_bounce_off_spring_flag | flag_player_in_lakitus_cloud | timer_inflate_from_pballoon | player_climbing_flag |
@@ -6572,8 +6336,13 @@ void HandleStandardLevelCameraScroll_00F7F4(uint16 a) {  // 00f7f4
           player_swimming_flag && (v4 = player_in_air_flag) != 0 ||
           flag_layer1_vert_scroll_level_setting != 1 && (v4 = flag_enable_vert_scroll) == 0) {
         flag_enable_vert_scroll = v4;
-        if (!v4)
+        if (!v4) {
+          if (g_lunar_magic) {
+            v7 = LmHook_HandleStandardLevelCameraScrollG(r2w, r4w);
+            goto get_out;
+          }
           v1 = 4;
+        }
       } else if (!flag_scroll_up_to_player) {
         if (player_in_air_flag)
           return;
@@ -6583,36 +6352,39 @@ void HandleStandardLevelCameraScroll_00F7F4(uint16 a) {  // 00f7f4
       flag_scroll_up_to_player = 0;
     }
     int v5 = v1 >> 1;
-    uint16 v6 = R2_W;
+    uint16 v6 = r2w;
     uint16 t = (v6 - kHandleStandardLevelCameraScroll_DATA_00F6A7[v5]) ^ kHandleStandardLevelCameraScroll_DATA_00F6A7[v5];
     if (!sign16(t))
       v6 = kHandleStandardLevelCameraScroll_DATA_00F6A7[v5];
-    uint16 v7 = mirror_current_layer1_ypos + v6;
+    v7 = mirror_current_layer1_ypos + v6;
     if ((int16)(v7 - kHandleStandardLevelCameraScroll_DATA_00F6AD[v5]) < 0)
       v7 = kHandleStandardLevelCameraScroll_DATA_00F6AD[v5];
+
+get_out:
     mirror_current_layer1_ypos = v7;
-    if (sign16(R4_W - v7)) {
-      mirror_current_layer1_ypos = R4_W;
+    if (sign16(r4w - v7)) {
+      mirror_current_layer1_ypos = r4w;
       *(uint16 *)&flag_enable_vert_scroll = 0;
     }
   }
 }
 
-void HandleStandardLevelCameraScroll_00F8AB() {  // 00f8ab
+uint16 HandleStandardLevelCameraScroll_00F8AB(uint16 r2w) {  // 00f8ab
   if (!flag_lrscroll_flag) {
     uint8 v0 = 8;
     int v1 = player_facing_directionx2 >> 1;
     if ((int16)(player_relative_position_needed_to_scroll_screen - kHandleStandardLevelCameraScroll_DATA_00F6B3[v1]) < 0)
       v0 = 10;
     int v2 = v0 >> 1;
-    if (((R2_W ^ kHandleStandardLevelCameraScroll_DATA_00F6BF[v2]) & 0x8000) != 0 &&
-        ((R2_W ^ kHandleStandardLevelCameraScroll_DATA_00F6BF[v1]) & 0x8000) != 0) {
-      if (kHandleStandardLevelCameraScroll_DATA_00F6CF[v2] + R2_W) {
-        R2_W += kHandleStandardLevelCameraScroll_DATA_00F6CF[v2];
+    if (((r2w ^ kHandleStandardLevelCameraScroll_DATA_00F6BF[v2]) & 0x8000) != 0 &&
+        ((r2w ^ kHandleStandardLevelCameraScroll_DATA_00F6BF[v1]) & 0x8000) != 0) {
+      if ((uint16)(kHandleStandardLevelCameraScroll_DATA_00F6CB[v2 + 2] + r2w)) {
+        r2w += kHandleStandardLevelCameraScroll_DATA_00F6CB[v2 + 2];
         camera_lrscroll_move_flag = v0;
       }
     }
   }
+  return r2w;
 }
 
 void PlayerState00_00F8F2() {  // 00f8f2
@@ -6629,21 +6401,19 @@ void PlayerState00_00F8F2() {  // 00f8f2
       uint8 v1 = 0;
       int16 t = spr_table160e[9] + 1 - player_xpos;
       if (t > 0) {
-        R0_W = spr_table1534[9];
-        t = player_xpos + 15 - R0_W;
+        t = player_xpos + 15 - spr_table1534[9];
         v1 = 1;
       }
       HandlePlayerLevelColl_00E9C8(v1, t < 0);
     }
   } else {
     if (!(player_yspeed & 0x80)) {
-      if (PlayerState00_00F9A8()) {
+      CheckPlatformCollRet cpcr = CheckTiltingPlatformCollision(player_xpos + 8, player_ypos + 32);
+      if (cpcr.retval) {
         if (player_in_air_flag) {
-          *(uint16 *)&temp14b4 = temp14b8;
-          *(uint16 *)&temp1436 = temp14b8;
-          *(uint16 *)&temp14b6 = temp14ba & 0xF0;
-          *(uint16 *)&temp1438 = temp14ba & 0xF0;
-          PlayerState00_00F9C9();
+          player_on_tilting_platform_xpos = cpcr.pt.x & 0xff;
+          player_on_tilting_platform_ypos = cpcr.pt.y & 0xf0;
+          PlayerState00_00F9C9(player_on_tilting_platform_xpos, player_on_tilting_platform_ypos, cpcr.pt);
         }
         uint8 v2 = kPlayerState00_DATA_00F8DF[(uint8)(misc_m7_rotation + 72) >> 4];
         temp8e = 0x80;
@@ -6658,35 +6428,26 @@ void PlayerState00_00F8F2() {  // 00f8f2
   }
 }
 
-uint8 PlayerState00_00F9A8() {  // 00f9a8
-  *(uint16 *)&temp14b4 = player_xpos + 8;
-  *(uint16 *)&temp14b6 = player_ypos + 32;
-  return PlayerState00_00F9BC();
-}
-
-uint8 PlayerState00_00F9BC() {  // 00f9bc
-  return CheckTiltingPlatformCollision();
-}
-
-void PlayerState00_00F9C9() {  // 00f9c9
+void PlayerState00_00F9C9(uint16 temp14b4, uint16 temp14b6, PointU16 pt) {  // 00f9c9
   uint16 v0 = misc_m7_rotation;
   misc_m7_rotation = -misc_m7_rotation;
-  PlayerState00_00F9BC();
+  CheckPlatformCollRet ret = CheckTiltingPlatformCollision(temp14b4, temp14b6);
+  if (ret.out_of_bounds)
+    ret.pt = pt;
   misc_m7_rotation = v0;
-  player_xpos = temp14b8 - 8;
-  player_ypos = temp14ba - 32;
+  player_xpos = (uint8)ret.pt.x - 8;
+  player_ypos = (uint8)ret.pt.y - 32;
 }
 
-uint8 CheckWhatSlopeSpriteIsOn(uint8 a) {  // 00fa19
-  R5_ = 50;
-  R6_ = -26;
-  R7_ = 0;
-  R8_ = *IndirPtr(&ptr_slope_steepness, (uint8)(a - 110));
-  R1_ = 16 * R8_;
-  if (__CFSHL__(8 * R8_, 1))
-    ++R6_;
-  R0_ = R12_ & 0xF;
-  return R1_ | R10_ & 0xF;
+uint8 CheckWhatSlopeSpriteIsOn(uint8 a, uint8 r10, uint8 r12, uint8 *slope_type) {  // 00fa19
+  R5_slopeptr.addr = 0xe632;
+  const uint8 *slope_steepness = GetSlopeSteepness();
+  uint8 r8 = slope_steepness[(uint8)(a - 110)];
+  *slope_type = r8;
+  uint8 r1 = 16 * r8;
+  if (__CFSHL__(8 * r8, 1))
+    R5_slopeptr.addr = 0xe732;
+  return r1 | r10 & 0xF;
 }
 
 void RunPlayerBlockCode_SpawnFlatPalaceSwitch() {  // 00fa45
@@ -6743,16 +6504,16 @@ LABEL_11:
   uint8 v3 = kSpr07B_GoalTape_DATA_00FADF[v1];
   if (v3 == kSpr07B_GoalTape_DATA_00FAFB[player_current_item_box])
     v3 = 120;
-  R15_ = 0;
+  uint8 r15 = 0;
   if (v3 >= 0xE0) {
-    R15_ = v3 & 0xF;
+    r15 = v3 & 0xF;
     v3 = 120;
   }
   spr_spriteid[j] = v3;
   if (v3 == 118)
     ++unusedram_got_invincible_star_from_goal;
   InitializeNormalSpriteRAMTables(j);
-  spr_table1594[j] = R15_;
+  spr_table1594[j] = r15;
   spr_current_status[j] = 12;
   spr_yspeed[j] = -48;
   spr_xspeed[j] = 5;
@@ -6989,3 +6750,5 @@ void Spr089_Layer3Smasher_UpdatePos(uint8 k) {  // 00ff61
   uint16 v2 = GetSprYPos(k);
   mirror_layer3_ypos = shaking_layer1_disp_y + 160 - v2;
 }
+
+
