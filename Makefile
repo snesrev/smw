@@ -9,7 +9,7 @@ CFLAGS:=${CFLAGS} $(shell sdl2-config --cflags) -DSYSTEM_VOLUME_MIXER_AVAILABLE=
 
 ifeq (${OS},Windows_NT)
     WINDRES:=windres
-#    RES:=sm.res
+    RES:=smw.res
     SDLFLAGS:=-Wl,-Bstatic $(shell sdl2-config --static-libs)
 else
     SDLFLAGS:=$(shell sdl2-config --libs) -lm
@@ -24,9 +24,9 @@ $(TARGET_EXEC): $(OBJS) $(RES)
 %.o : %.c
 	$(CC) -c $(CFLAGS) $< -o $@
 
-#$(RES): src/platform/win32/smw.rc
-#	@echo "Generating Windows resources"
-#	@$(WINDRES) $< -O coff -o $@
+$(RES): src/platform/win32/smw.rc
+	@echo "Generating Windows resources"
+	@$(WINDRES) $< -O coff -o $@
 
 smw_assets.dat:
 	@echo "Extracting game resources"
