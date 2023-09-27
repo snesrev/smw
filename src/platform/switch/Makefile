@@ -37,17 +37,17 @@ include $(DEVKITPRO)/libnx/switch_rules
 #   of a homebrew executable (.nro). This is intended to be used for sysmodules.
 #   NACP building is skipped as well.
 #---------------------------------------------------------------------------------
-SRC_DIR     := ../../
+SRC_DIR		:=	../..
 TARGET		:=	smw
 BUILD		:=	bin
-SOURCES		:=  $(SRC_DIR) $(SRC_DIR)/snes $(SRC_DIR)/platform/switch/src $(SRC_DIR)/../third_party/gl_core
+SOURCES		:=	$(SRC_DIR) $(SRC_DIR)/snes $(SRC_DIR)/platform/switch/src $(SRC_DIR)/../smb1 $(SRC_DIR)/../smbll $(SRC_DIR)/../third_party/gl_core
 
-CFILES := $(wildcard $(SRC_DIR)/*.c $(SRC_DIR)/snes/*.c $(SRC_DIR)/platform/switch/src/*.c) $(SRC_DIR)/../third_party/gl_core/gl_core_3_1.c
+CFILES		:=	$(wildcard $(SRC_DIR)/*.c $(SRC_DIR)/snes/*.c $(SRC_DIR)/platform/switch/src/*.c $(SRC_DIR)/../smb1/*.c $(SRC_DIR)/../smbll/*.c) $(SRC_DIR)/../third_party/gl_core/gl_core_3_1.c
 
-INCLUDES	:=	include $(SRC_DIR)/../ ./src/
-APP_TITLE   :=  Super Mario World
-APP_AUTHOR  :=  snesrev & Lywx
-APP_VERSION :=  $(shell git rev-parse --short HEAD) $(shell git rev-parse --abbrev-ref HEAD)
+INCLUDES	:=	include $(SRC_DIR)/.. ./src/
+APP_TITLE	:=	Super Mario World
+APP_AUTHOR	:=	snesrev & Lywx
+APP_VERSION	:=	$(shell git rev-parse --short HEAD) $(shell git rev-parse --abbrev-ref HEAD)
 
 #---------------------------------------------------------------------------------
 # options for code generation
