@@ -22,7 +22,7 @@
 1. Rename your obtained Super Mario World rom to `smw.sfc` and place it in the root folder.
 2. Unzip both TCC and SDL2 and place them in the `third_party` folder.
 3. Double click `run_with_tcc.bat`
-4. Wait for it to compile and, the game will automatically boot up.
+4. Wait for it to compile and the game will automatically boot up.
 
 # More advanced methods
 
