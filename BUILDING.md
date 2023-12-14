@@ -1,4 +1,4 @@
-# Welcome to the building instructions for the project! Please make sure to prepeare the required files and install the necessary dependencies for your current OS.
+# Welcome to the building instructions for the project! Please make sure to prepare the required files and install the necessary dependencies for your current OS.
 
 # Requirements:
   * A Super Mario World rom (Make sure to rename it to `smw.sfc`)
@@ -19,10 +19,10 @@
  Dependencies and requirements:
  * You'll need [TCC](https://github.com/FitzRoyX/tinycc/releases/download/tcc_20230519/tcc_20230519.zip) and [SDL2](https://github.com/libsdl-org/SDL/releases/download/release-2.28.1/SDL2-devel-2.28.1-VC.zip) in order to compile using TCC.
 
-1. Rename your obtaind Super Mario World rom to `smw.sfc` and place it in the root folder.
-2. Unzip both TCC and SDL2 and place them in `third_party` folder.
+1. Rename your obtained Super Mario World rom to `smw.sfc` and place it in the root folder.
+2. Unzip both TCC and SDL2 and place them in the `third_party` folder.
 3. Double click `run_with_tcc.bat`
-4. Wait for it to compile and the game will automatically boot-up.
+4. Wait for it to compile and, the game will automatically boot up.
 
 # More advanced methods
 
@@ -37,7 +37,7 @@ Note: *Make sure you're using MINGW64 and you're in `smw` folder in the terminal
 
 1. Install MSYS2 on your machine.
 2. Place the copy of your rom in the main directory.
-3. Install the necessary dependencies and SDL2 by inputting this command in MSYS2 terminal:
+3. Install the necessary dependencies and SDL2 by inputting this command in the MSYS2 terminal:
 
 ```sh
 pacman -S mingw-w64-x86_64-SDL2 && pacman -S make && pacman -S mingw-w64-x86_64-gcc
@@ -77,10 +77,9 @@ Dependencies and requirements:
 1. Rename your obtained rom to `smas.sfc` and place it inside the `other` folder.
 2. To install `zstandard` make sure you've installed Python and added to PATH. Open up CMD and type `pip install zstandard` to install the required dep.
 3. In the `other` folder drag and drop your renamed rom into `extract.py` or by typing `extract.py` in the command line to extract the necessary files.
-4. Move `smb1.sfc` and `smbll.sfc` to root folder.
+4. Move `smb1.sfc` and `smbll.sfc` to the root folder.
 5. Before running the games, make sure to recompile or else they won't boot up.
-6. Drag your desired game to `smw.exe` in order to run.
-
+6. Drag & drop your desired game onto `smw.exe` to run
  
 # Linux/MacOS
 
@@ -106,8 +105,8 @@ Dependencies and requirements:
   * `pkg-config`
   
 1. Make sure you've installed Atmosphere on your Switch.
-2. Please download the DevKitPro version of MSYS2 through their installer, as the default MSYS2 causes issues with windows compiling.
-3. Now that you've installed DevKitPro, open up the location you've installed DevKitPro to, then find `mingw64.exe` inside `msys2` located in `devkitPro` folder.
+2. Please download the DevKitPro version of MSYS2 through their installer, as the default MSYS2 causes issues with Windows compiling.
+3. Now that you've installed DevKitPro, open up the location you've installed DevKitPro to, then find `mingw64.exe` inside `msys2` located in the `devkitPro` folder.
 4. Type `pacman -S git switch-dev switch-sdl2 switch-tools pkg-config` in the terminal to install the `switch-sdl2` library.
 5. CD to `switch` folder by typing `cd src/platform/switch` in the terminal on the `smw` root folder.
 6. type `make` to compile the Switch Port.
