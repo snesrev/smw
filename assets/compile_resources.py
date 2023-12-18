@@ -630,11 +630,11 @@ def print_all(args):
 
     add_asset_uint8('kLmLevelData5DC85', util.get_bytes(get_24(0x5DC86), 512) if lm_load_level else b'')    
     add_asset_uint8('kLmLevelData5DC8A', util.get_bytes(get_24(0x5DC8B), 512) if lm_load_level else b'')    
-    add_asset_uint8('kLm5FE00', util.get_bytes(get_24(0x5DC81), 512) if lm_load_level else b'')    
+    add_asset_uint8('kLm5FE00', util.get_bytes(get_24(0x5DC81), 512) if lm_load_level else util.get_bytes(0x5fe00, 0x200))
 
-    add_asset_uint8('kLevelInfo_05F800', util.get_bytes(get_24(0xde191), 0x200) if lm_load_level else b'')
-    add_asset_uint8('kLevelInfo_05FA00', util.get_bytes(get_24(0xde198), 0x200) if lm_load_level else b'')
-    add_asset_uint8('kLevelInfo_05FC00', util.get_bytes(get_24(0xde19f), 0x200) if lm_load_level else b'')
+    add_asset_uint8('kLevelInfo_05F800', util.get_bytes(get_24(0xde191), 0x200) if lm_load_level else util.get_bytes(0x5f800, 0x200))
+    add_asset_uint8('kLevelInfo_05FA00', util.get_bytes(get_24(0xde198), 0x200) if lm_load_level else util.get_bytes(0x5fa00, 0x200))
+    add_asset_uint8('kLevelInfo_05FC00', util.get_bytes(get_24(0xde19f), 0x200) if lm_load_level else util.get_bytes(0x5fc00, 0x200))
     lm_feat.flags |= kLmFeature_LoadLevel if lm_load_level else 0
 
   add_load_level_stuff()
