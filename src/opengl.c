@@ -39,7 +39,31 @@ static bool OpenGLRenderer_Init(SDL_Window *window) {
   SDL_GLContext context = SDL_GL_CreateContext(window);
   (void)context;
 
-  SDL_GL_SetSwapInterval(1);
+  if (g_config.disable_frame_delay) {
+    SDL_GL_SetSwapInterval(1);
+    printf("Using vsync without frame delay\n");
+  }
+  else if (SDL_GL_SetSwapInterval(g_config.display_sync) < 0) {
+    SDL_GL_SetSwapInterval(0);
+    printf("Disabled vsync; chosen display sync setting not supported\n");
+  }
+  else {
+    switch (g_config.display_sync) {
+    case 0:
+      printf("Disabled vsync\n");
+      break;
+    case 1:
+      printf("Using vsync\n"); break;
+      break;
+    case -1:
+      printf("Using adaptive sync\n");
+      break;
+    default:
+      printf("Unknown value of g_config.display_sync: %d\n", g_config.display_sync);
+      break;
+    }
+  }
+
   ogl_LoadFunctions();
 
   if (!ogl_IsVersionGEQ(3, 3))

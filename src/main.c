@@ -12,6 +12,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 #endif
+#define NANOTIME_IMPLEMENTATION
+#include "third_party/nanotime/nanotime.h"
 
 #include "assets/smw_assets.h"
 
@@ -263,7 +265,26 @@ static bool SdlRenderer_Init(SDL_Window *window) {
 
   SDL_Renderer *renderer = SDL_CreateRenderer(g_window, -1,
                                               g_config.output_method == kOutputMethod_SDLSoftware ? SDL_RENDERER_SOFTWARE :
-                                              SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+                                              SDL_RENDERER_ACCELERATED | (g_config.disable_frame_delay || g_config.display_sync == 1 ? SDL_RENDERER_PRESENTVSYNC : 0));
+  if (g_config.disable_frame_delay) {
+    printf("Using vsync without frame delay\n");
+  }
+  else {
+    switch (g_config.display_sync) {
+    case 0:
+      printf("Disabled vsync\n");
+      break;
+    case 1:
+      printf("Using vsync\n");
+      break;
+    case -1:
+      printf("Attempted to use adaptive sync when not supported; defaulting to disabled vsync\n");
+      break;
+    default:
+      printf("Invalid g_config.display_func value of %d; defaulting to disabled vsync\n", g_config.display_sync);
+      break;
+    }
+  }
   if (renderer == NULL) {
     printf("Failed to create renderer: %s\n", SDL_GetError());
     return false;
@@ -314,7 +335,7 @@ static void SdlRenderer_EndDraw(void) {
   //  printf("%f ms\n", v * 1000);
   SDL_RenderClear(g_renderer);
   SDL_RenderCopy(g_renderer, g_texture, &g_sdl_renderer_rect, NULL);
-  SDL_RenderPresent(g_renderer); // vsyncs to 60 FPS?
+  SDL_RenderPresent(g_renderer);
 }
 
 static const struct RendererFuncs kSdlRendererFuncs = {
@@ -478,12 +499,12 @@ error_reading:;
     HandleCommand(kKeys_Load + 0, true);
 
   bool running = true;
-  uint32 lastTick = SDL_GetTicks();
-  uint32 curTick = 0;
   uint32 frameCtr = 0;
   uint8 audiopaused = true;
   bool has_bug_in_title = false;
   GamepadInfo *gi;
+  nanotime_step_data stepper;
+  nanotime_step_init(&stepper, NANOTIME_NSEC_PER_SEC / 60, nanotime_now_max(), nanotime_now, nanotime_sleep);
 
   while (running) {
     SDL_Event event;
@@ -546,7 +567,7 @@ error_reading:;
     }
 
     if (g_paused) {
-      SDL_Delay(16);
+      nanotime_sleep(stepper.sleep_duration);
       continue;
     }
 
@@ -576,24 +597,9 @@ error_reading:;
       }
     }
 
-    // if vsync isn't working, delay manually
-    curTick = SDL_GetTicks();
-
+    // If not leaning on vsync to do timing, delay manually
     if (!g_snes->disableRender && !g_config.disable_frame_delay) {
-      static const uint8 delays[3] = { 17, 17, 16 }; // 60 fps
-      lastTick += delays[frameCtr % 3];
-
-      if (lastTick > curTick) {
-        uint32 delta = lastTick - curTick;
-        if (delta > 500) {
-          lastTick = curTick - 500;
-          delta = 500;
-        }
-        //        printf("Sleeping %d\n", delta);
-        SDL_Delay(delta);
-      } else if (curTick - lastTick > 500) {
-        lastTick = curTick;
-      }
+      nanotime_step(&stepper);
     }
   }
 
