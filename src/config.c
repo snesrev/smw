@@ -383,6 +383,11 @@ static bool HandleIniConfig(int section, const char *key, char *value) {
       g_config.output_method = StringEqualsNoCase(value, "SDL-Software") ? kOutputMethod_SDLSoftware :
                                StringEqualsNoCase(value, "OpenGL") ? kOutputMethod_OpenGL : kOutputMethod_SDL;
       return true;
+    } else if (StringEqualsNoCase(key, "DisplaySync")) {
+      g_config.display_sync = StringEqualsNoCase(value, "Disabled") ? 0 :
+                              StringEqualsNoCase(value, "Vsync") ? 1 :
+                              StringEqualsNoCase(value, "Adaptive") ? -1 : 0;
+      return true;
     } else if (StringEqualsNoCase(key, "LinearFiltering")) {
       return ParseBool(value, &g_config.linear_filtering);
     } else if (StringEqualsNoCase(key, "NoSpriteLimits")) {
